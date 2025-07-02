@@ -1,151 +1,121 @@
 #!/usr/bin/env python3
 """
-Bootstrap JARVYS_DEV : crée un Project v2 GitHub, les issues initiales,
+Bootstrap JARVYS_DEV : crée un Project v2, les issues initiales,
 un workflow CI, un devcontainer et les stubs de tools.
 
 Exécution :
     $ python bootstrap_jarvys_dev.py
-
 Variables d’environnement attendues :
-    GH_TOKEN        : Personal Access Token GitHub (scopes repo, workflow, project)
-    GH_REPO         : org/repo (ex. yannabadie/appia-dev)
-    SUPABASE_URL    : https://xxxx.supabase.co
-    SUPABASE_KEY    : service_role ou anon
-    GCP_SA_JSON     : chemin local vers la clé JSON
-    OPENAI_API_KEY  : ...
-    GEMINI_API_KEY  : ...
+    GH_TOKEN, GH_REPO, SUPABASE_URL, SUPABASE_KEY,
+    GCP_SA_JSON, OPENAI_API_KEY, GEMINI_API_KEY
 """
 
-# ────────────────────────── dépendances Python ───────────────────────────────
-import os, sys, textwrap, pathlib, subprocess, json
+# ────────── dépendances ──────────
+import os, sys, textwrap, pathlib, subprocess
 try:
     from github import Github
 except ImportError:
-    subprocess.check_call(
-        [sys.executable, "-m", "pip", "install", "--upgrade", "PyGithub>=2.4.0"]
-    )
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "--quiet", "PyGithub>=2.4.0"])
     from github import Github
-
 try:
     import requests
 except ImportError:
     subprocess.check_call([sys.executable, "-m", "pip", "install", "requests"])
     import requests
 
-# ────────────────────────── vérif variables d’env. ───────────────────────────
+# ────────── vérif env ──────────
 env = {k: os.getenv(k) for k in (
-    "GH_TOKEN", "GH_REPO", "SUPABASE_URL", "SUPABASE_KEY",
-    "GCP_SA_JSON", "OPENAI_API_KEY", "GEMINI_API_KEY"
+    "GH_TOKEN","GH_REPO","SUPABASE_URL","SUPABASE_KEY",
+    "GCP_SA_JSON","OPENAI_API_KEY","GEMINI_API_KEY"
 )}
-missing = [k for k, v in env.items() if not v]
+missing = [k for k,v in env.items() if not v]
 if missing:
-    sys.exit(f"❌  Variables d’environnement manquantes : {', '.join(missing)}")
+    sys.exit(f"❌  Variables manquantes : {', '.join(missing)}")
 
-gh_token   = env["GH_TOKEN"]
-gh_repo_id = env["GH_REPO"]
-
-gh  = Github(gh_token)
+gh_token, gh_repo_id = env["GH_TOKEN"], env["GH_REPO"]
+gh   = Github(gh_token)
 repo = gh.get_repo(gh_repo_id)
 
-# ──────────────────────── helpers GraphQL « requests » ───────────────────────
-GQL_ENDPOINT = "https://api.github.com/graphql"
-HEADERS = {
-    "Authorization": f"bearer {gh_token}",
-    "Content-Type": "application/json"
-}
-
-def graphql(query: str, **variables):
-    """Appelle l’API GraphQL GitHub et retourne les données JSON."""
-    payload = {"query": textwrap.dedent(query), "variables": variables}
-    r = requests.post(GQL_ENDPOINT, headers=HEADERS, json=payload, timeout=30)
-    if r.status_code != 200:
-        raise RuntimeError(f"GraphQL HTTP {r.status_code}: {r.text}")
+# ────────── helpers GraphQL ──────────
+GQL = "https://api.github.com/graphql"
+HDR = {"Authorization": f"bearer {gh_token}", "Content-Type":"application/json"}
+def graphql(query:str, **vars):
+    r = requests.post(GQL, headers=HDR, json={"query": textwrap.dedent(query), "variables": vars}, timeout=30)
+    r.raise_for_status()
     data = r.json()
     if data.get("errors"):
         raise RuntimeError(f"GraphQL errors: {data['errors']}")
     return data["data"]
 
-# ───────────────────── Project v2 (nouvelle expérience) ─────────────────────
+# ────────── Project v2 ──────────
 PROJECT_TITLE = "JARVYS_DEV Roadmap"
 
-def owner_node_id_and_type(owner_login:str):
-    q = """
-      query($login:String!){
-        user(login:$login){ id }
-        organization(login:$login){ id }
-      }
-    """
-    d = graphql(q, login=owner_login)
-    if d["user"]:
-        return d["user"]["id"], "user"
-    if d["organization"]:
-        return d["organization"]["id"], "org"
-    raise RuntimeError(f"Owner {owner_login} introuvable.")
-
-def get_or_create_project_v2(owner_login: str, title: str) -> str:
-    """Retourne l’ID du Project v2 ; le crée sinon. Gère user vs organization."""
-    # 1) tenter côté USER
-    search_user = """
+def get_or_create_project_v2(owner_login:str, title:str)->str:
+    # 1) user ?
+    q_user = """
       query($login:String!){
         user(login:$login){
           id
           projectsV2(first:100){ nodes{ id title url } }
         }
-      }
-    """
-    data_u = graphql(search_user, login=owner_login)
-    if data_u.get("user"):
-        for n in data_u["user"]["projectsV2"]["nodes"]:
+      }"""
+    d = graphql(q_user, login=owner_login)
+    if d.get("user"):
+        for n in d["user"]["projectsV2"]["nodes"]:
             if n["title"] == title:
                 print(f"ℹ️  Project déjà présent : {n['url']}")
                 return n["id"]
-        owner_id = data_u["user"]["id"]
-        owner_kind = "user"
+        owner_id = d["user"]["id"]
     else:
-        # 2) sinon, tenter côté ORG
-        search_org = """
+        # 2) org
+        q_org = """
           query($login:String!){
             organization(login:$login){
               id
               projectsV2(first:100){ nodes{ id title url } }
             }
-          }
-        """
-        data_o = graphql(search_org, login=owner_login)
-        if not data_o.get("organization"):
-            raise RuntimeError(f"⚠️  Aucune organisation ou utilisateur nommé {owner_login}")
-        for n in data_o["organization"]["projectsV2"]["nodes"]:
+          }"""
+        d = graphql(q_org, login=owner_login)
+        if not d.get("organization"):
+            raise RuntimeError(f"Aucun compte GitHub '{owner_login}' trouvé.")
+        for n in d["organization"]["projectsV2"]["nodes"]:
             if n["title"] == title:
                 print(f"ℹ️  Project déjà présent : {n['url']}")
                 return n["id"]
-        owner_id = data_o["organization"]["id"]
-        owner_kind = "org"
+        owner_id = d["organization"]["id"]
 
-    # 3) création
-    create = """
+    # 3) create
+    mut = """
       mutation($owner:ID!,$title:String!){
         createProjectV2(input:{ownerId:$owner,title:$title}){
           projectV2{ id url }
         }
-      }
-    """
-    proj = graphql(create, owner=owner_id, title=title)["createProjectV2"]["projectV2"]
-    print(f"✅  Project créé : {proj['url']} ({owner_kind})")
+      }"""
+    proj = graphql(mut, owner=owner_id, title=title)["createProjectV2"]["projectV2"]
+    print(f"✅  Project créé : {proj['url']}")
     return proj["id"]
 
-
-def add_issue_to_project(project_id:str, issue_node_id:str):
-    q = """
+def add_issue_to_project(project_id:str, node_id:str):
+    mut = """
       mutation($proj:ID!,$content:ID!){
-        addProjectV2ItemById(input:{projectId:$proj,contentId:$content}){ item{ id } }
-      }
-    """
-    graphql(q, proj=project_id, content=issue_node_id)
+        addProjectV2ItemById(input:{projectId:$proj, contentId:$content}){ item{ id } }
+      }"""
+    graphql(mut, proj=project_id, content=node_id)
 
-owner_login = repo.owner.login
-project_id  = get_or_create_project_v2(owner_login, PROJECT_TITLE)
+def issue_node_id(owner:str, repo_name:str, number:int)->str:
+    q = """
+      query($owner:String!,$name:String!,$num:Int!){
+        repository(owner:$owner,name:$name){
+          issue(number:$num){ id }
+        }
+      }"""
+    d = graphql(q, owner=owner, name=repo_name, num=number)
+    return d["repository"]["issue"]["id"]
 
-# ───────────────────────────── issues initiales ──────────────────────────────
+owner_login   = repo.owner.login
+project_id    = get_or_create_project_v2(owner_login, PROJECT_TITLE)
+
+# ────────── Issues initiales ──────────
 issues_spec = [
     ("Epic : Bootstrap infrastructure",
      "- [ ] Chiffrer l’API‑key OpenAI et la stocker dans GitHub Secrets\n"
@@ -163,10 +133,14 @@ issues_spec = [
 
 for title, body in issues_spec:
     issue = repo.create_issue(title, body)
-    add_issue_to_project(project_id, issue.node_id)
+    # Récupération robuste du node‑ID
+    node_id = getattr(issue, "node_id", None)
+    if not node_id:
+        node_id = issue_node_id(owner_login, repo.name, issue.number)
+    add_issue_to_project(project_id, node_id)
     print(f"✅  Issue créée : #{issue.number} – {title}")
 
-# ───────────────────────────── workflow CI ───────────────────────────────────
+# ────────── Workflow CI ──────────
 ci_path = pathlib.Path(".github/workflows/ci.yml")
 ci_path.parent.mkdir(parents=True, exist_ok=True)
 ci_path.write_text(textwrap.dedent("""\
@@ -176,17 +150,17 @@ ci_path.write_text(textwrap.dedent("""\
       build:
         runs-on: ubuntu-latest
         steps:
-        - uses: actions/checkout@v4
-        - uses: actions/setup-python@v5
-          with:
-            python-version: '3.12'
-        - run: pip install poetry
-        - run: poetry install
-        - run: poetry run pytest
+          - uses: actions/checkout@v4
+          - uses: actions/setup-python@v5
+            with:
+              python-version: '3.12'
+          - run: pip install poetry
+          - run: poetry install
+          - run: poetry run pytest
 """))
 repo.create_file(str(ci_path), "Add CI workflow", ci_path.read_text(), branch="main")
 
-# ───────────────────────────── devcontainer ─────────────────────────────────
+# ────────── Devcontainer ──────────
 devc_dir = pathlib.Path(".devcontainer"); devc_dir.mkdir(exist_ok=True)
 devc_json = textwrap.dedent("""\
 {
@@ -198,24 +172,19 @@ devc_json = textwrap.dedent("""\
   },
   "postCreateCommand": "pip install --no-cache-dir poetry PyGithub==2.4.0 && poetry config virtualenvs.create false",
   "forwardPorts": [54321]
-}
-""")
-(devc_dir / "devcontainer.json").write_text(devc_json)
-repo.create_file(
-    ".devcontainer/devcontainer.json", "Add devcontainer", devc_json, branch="main"
-)
+}""")
+(devc_dir/"devcontainer.json").write_text(devc_json)
+repo.create_file(".devcontainer/devcontainer.json", "Add devcontainer", devc_json, branch="main")
 
-# ─────────────────────────── stubs des tools ────────────────────────────────
+# ────────── Tool stubs ──────────
 pkg_dir = pathlib.Path("src/jarvys_dev/tools"); pkg_dir.mkdir(parents=True, exist_ok=True)
-(pkg_dir / "__init__.py").write_text("")
+(pkg_dir/"__init__.py").write_text("")
 tool_stub = textwrap.dedent("""\
-    def github_create_issue(title: str, body: str = ""):
+    def github_create_issue(title:str, body:str=\"\"):
         \"\"\"TODO : créer une issue via l’API GitHub\"\"\"
         raise NotImplementedError
 """)
-(pkg_dir / "github_tools.py").write_text(tool_stub)
-repo.create_file(
-    "src/jarvys_dev/tools/github_tools.py", "Add tool stub", tool_stub, branch="main"
-)
+(pkg_dir/"github_tools.py").write_text(tool_stub)
+repo.create_file("src/jarvys_dev/tools/github_tools.py", "Add tool stub", tool_stub, branch="main")
 
-print("🎉  Bootstrap terminé – poussez et ouvrez une PR si besoin.")
+print("🎉  Bootstrap terminé – poussez et ouvrez une PR si besoin.")
