@@ -1,23 +1,23 @@
-# --- bootstrap_jarvys_dev.py (idempotent, Projects v2) -----------------------
+# --- bootstrap_jarvys_dev.py (idempotent – Projects v2) --------------------
 #!/usr/bin/env python3
 """
 Bootstrap JARVYS_DEV : crée/maj Project v2, issues, workflow CI, devcontainer,
-stubs de tools. Relançable sans erreur.
+tool stub. Relançable sans erreur.
 
-Env : GH_TOKEN, GH_REPO, SUPABASE_URL, SUPABASE_KEY,
-      GCP_SA_JSON, OPENAI_API_KEY, GEMINI_API_KEY
+Dépend de : GH_TOKEN, GH_REPO, SUPABASE_URL, SUPABASE_KEY,
+            GCP_SA_JSON, OPENAI_API_KEY, GEMINI_API_KEY
 """
-import os, sys, textwrap, pathlib, subprocess
-from typing import Optional
+import os, sys, textwrap, subprocess
+from typing import List
 
-# -------------------------------------------------------------------- utils
+# ---------- petites fonctions utilitaires ----------
 def _pip(pkg: str):
     subprocess.check_call([sys.executable, "-m", "pip", "install", "--quiet", pkg])
 
 try:
     from github import Github, GithubException
 except ImportError:
-    _pip("PyGithub>=2.4.0")
+    _pip("PyGithub>=2.6")
     from github import Github, GithubException
 try:
     import requests
@@ -25,57 +25,56 @@ except ImportError:
     _pip("requests")
     import requests
 
-# ------------------------------------------------------------------ env vars
+# ---------- variables d’environnement ----------
 env = {k: os.getenv(k) for k in (
     "GH_TOKEN","GH_REPO","SUPABASE_URL","SUPABASE_KEY",
     "GCP_SA_JSON","OPENAI_API_KEY","GEMINI_API_KEY"
 )}
-missing = [k for k,v in env.items() if not v]
-if missing:
-    sys.exit("❌  Variables manquantes : " + ", ".join(missing))
+miss = [k for k,v in env.items() if not v]
+if miss:
+    sys.exit("❌  Variables manquantes : " + ", ".join(miss))
 
-gh    = Github(env["GH_TOKEN"])
-repo  = gh.get_repo(env["GH_REPO"])
+gh   = Github(env["GH_TOKEN"])
+repo = gh.get_repo(env["GH_REPO"])
 owner = repo.owner.login
 
-# ----------------------------------------------------------- GraphQL helper
-GQL = "https://api.github.com/graphql"
-HDR = {"Authorization": f"bearer {env['GH_TOKEN']}", "Content-Type":"application/json"}
-def gql(q: str, **vars):
-    import json, requests
-    r = requests.post(GQL, headers=HDR,
-                      json={"query": textwrap.dedent(q), "variables": vars}, timeout=30)
+# ---------- aide GraphQL ----------
+GQL  = "https://api.github.com/graphql"
+HEAD = {"Authorization": f"bearer {env['GH_TOKEN']}"}
+def gql(query: str, **vars):
+    import json, requests, textwrap
+    r = requests.post(
+        GQL, headers=HEAD,
+        json={"query": textwrap.dedent(query), "variables": vars},
+        timeout=30
+    )
     r.raise_for_status()
-    d = r.json()
-    if d.get("errors"):
-        raise RuntimeError(d["errors"])
-    return d["data"]
+    data = r.json()
+    if data.get("errors"):
+        raise RuntimeError(data["errors"])
+    return data["data"]
 
-# ----------------------------------------------------------- Project v2 CRUD
+# ---------- Project v2 ----------
 PROJECT_TITLE = "JARVYS_DEV Roadmap"
-
-def project_v2_id() -> str:
+def get_or_create_project() -> str:
     q = """
       query($login:String!){
-        user(login:$login){
-          id projectsV2(first:100){ nodes{ id title url } }
-        }
+        user(login:$login){ id projectsV2(first:100){ nodes{ id title url } } }
       }"""
     d = gql(q, login=owner)["user"]
     for n in d["projectsV2"]["nodes"]:
         if n["title"] == PROJECT_TITLE:
-            print(f"ℹ️  Project déjà présent : {n['url']}")
+            print(f"ℹ️  Project déjà présent : {n['url']}")
             return n["id"]
-    # create
     mut = """
       mutation($owner:ID!,$title:String!){
         createProjectV2(input:{ownerId:$owner,title:$title}){ projectV2{ id url } }
       }"""
     proj = gql(mut, owner=d["id"], title=PROJECT_TITLE)["createProjectV2"]["projectV2"]
-    print(f"✅  Project créé : {proj['url']}")
+    print(f"✅  Project créé : {proj['url']}")
     return proj["id"]
 
-def project_add_issue(pid: str, node_id: str):
+def add_issue_to_project(pid: str, node_id: str):
     mut = """
       mutation($p:ID!,$c:ID!){
         addProjectV2ItemById(input:{projectId:$p,contentId:$c}){ item{ id } }
@@ -84,12 +83,12 @@ def project_add_issue(pid: str, node_id: str):
 
 def issue_node_id(num: int) -> str:
     q = """
-      query($owner:String!,$repo:String!,$n:Int!){
-        repository(owner:$owner,name:$repo){ issue(number:$n){ id } }
+      query($o:String!,$r:String!,$n:Int!){
+        repository(owner:$o,name:$r){ issue(number:$n){ id } }
       }"""
-    return gql(q, owner=owner, repo=repo.name, n=num)["repository"]["issue"]["id"]
+    return gql(q, o=owner, r=repo.name, n=num)["repository"]["issue"]["id"]
 
-# ----------------------------------------------------------- upsert file
+# ---------- helper upsert (create ou update) ----------
 def upsert(path: str, message: str, content: str, branch="main"):
     try:
         cur = repo.get_contents(path, ref=branch)
@@ -100,13 +99,13 @@ def upsert(path: str, message: str, content: str, branch="main"):
         else:
             raise
 
-# ----------------------------------------------------------- 1) board & issues
-pid = project_v2_id()
+# ---------- 1) project & issues ----------
+pid = get_or_create_project()
 
-ISSUES = [
+ISSUES: List[tuple[str,str]] = [
     ("Epic : Bootstrap infrastructure",
      "- [ ] Stocker OPENAI_API_KEY dans GitHub Secrets\n"
-     "- [ ] Générer la clé ServiceAccount GCP\n"
+     "- [ ] Générer la clé ServiceAccount GCP\n"
      "- [ ] Créer projet Supabase `jarvys_dev_mem`\n"
      "- [ ] Ajouter workflow `ci.yml`"),
     ("Epic : Core tools",
@@ -120,15 +119,15 @@ ISSUES = [
 
 open_titles = {i.title for i in repo.get_issues(state="open")}
 for title, body in ISSUES:
-    if title in open_titles:               # évite doublon
+    if title in open_titles:
         print(f"⚠️  Issue « {title} » déjà ouverte — saut")
         continue
     issue = repo.create_issue(title, body)
     node  = getattr(issue, "node_id", None) or issue_node_id(issue.number)
-    project_add_issue(pid, node)
-    print(f"✅  Issue créée : #{issue.number} – {title}")
+    add_issue_to_project(pid, node)
+    print(f"✅  Issue créée : #{issue.number} – {title}")
 
-# ----------------------------------------------------------- 2) CI workflow
+# ---------- 2) workflow CI ----------
 ci = textwrap.dedent("""\
     name: CI
     on: [push, pull_request]
@@ -142,10 +141,11 @@ ci = textwrap.dedent("""\
               python-version: '3.12'
           - run: pip install poetry
           - run: poetry install
-          - run: poetry run pytest""")
+          - run: poetry run pytest
+""")
 upsert(".github/workflows/ci.yml", "Add/Update CI workflow", ci)
 
-# ----------------------------------------------------------- 3) devcontainer
+# ---------- 3) devcontainer ----------
 devc = textwrap.dedent("""\
 {
   "name": "jarvys_dev",
@@ -154,13 +154,14 @@ devc = textwrap.dedent("""\
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
-  "postCreateCommand": "pip install --no-cache-dir poetry PyGithub==2.4.0 && poetry config virtualenvs.create false"
+  "postCreateCommand": "pip install poetry",
+  "forwardPorts": [54321]
 }""")
 upsert(".devcontainer/devcontainer.json", "Add/Update devcontainer", devc)
 
-# ----------------------------------------------------------- 4) tool stub
+# ---------- 4) tool stub ----------
 stub = 'def github_create_issue(title:str, body:str=""):\n    """TODO"""'
 upsert("src/jarvys_dev/tools/github_tools.py", "Add/Update tool stub", stub)
 
-print("🎉  Bootstrap terminé — script relançable à l’infini.")
-# --------------------------------------------------------------------- EOF
+print("🎉  Bootstrap terminé — relançable sans duplication ni erreur.")
+# ------------------------------------------------------------------- EOF
