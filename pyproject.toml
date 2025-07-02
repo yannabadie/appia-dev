@@ -8,9 +8,11 @@ packages = [{ include = "jarvys_dev", from = "src" }]
 [tool.poetry.dependencies]
 python       = "^3.12"
 PyGithub     = "^2.6"
-openai       = "^1.25"   # SDK officiel
-supabase     = {extras = ["realtime"], version = "^1.2.3"}
-requests = "^2"
+requests = "^2.32"
+openai       = "^1.25"   
+supabase = "^2.4"
+pgvector = { version = "^0.2.4", optional = true }
+
 
 [tool.poetry.group.dev.dependencies]
 pytest       = "^8.4"
