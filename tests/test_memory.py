@@ -2,12 +2,16 @@
 import os, pytest
 from jarvys_dev.tools import memory
 
-pytest.skip("Env vars Supabase manquantes",
-            allow_module_level=not all(os.getenv(k)
-                                       for k in ("SUPABASE_URL","SUPABASE_KEY","OPENAI_API_KEY")))
+secrets_ok = all(os.getenv(k) for k in ("SUPABASE_URL","SUPABASE_KEY","OPENAI_API_KEY"))
 
-def test_roundtrip():
-    txt = "Hello JARVYS memory!"
+pytest.skip("Secrets Supabase / OpenAI manquants.",
+            allow_module_level=True) if not secrets_ok else None
+
+
+def test_upsert_and_search_roundtrip():
+    txt = "JARVYS loves vector databases!"
     doc_id = memory.upsert_embedding(txt)
-    results = memory.memory_search("Hello")
-    assert txt in results
+    assert isinstance(doc_id, str)
+
+    hits = memory.memory_search("vector databases", k=3)
+    assert any(txt in h for h in hits)
