@@ -1,0 +1,9 @@
+{
+  "name": "jarvys_dev",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "features": {
+    "ghcr.io/devcontainers/features/poetry:1": {}      // <-- ajoute Poetry
+  },
+  "postCreateCommand": "poetry install",
+  "forwardPorts": [54321]
+}
