@@ -1,16 +1,10 @@
 {
   "name": "jarvys_dev",
   "image": "mcr.microsoft.com/devcontainers/python:3.12",
-
-  // ↓ Gardez les outils Git & gh CLI si vous voulez,
-  //   mais on retire le feature Poetry pour éviter l'erreur.
   "features": {
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
-
-  // Tout ce qui manque (Poetry, PyGithub) sera installé ici :
   "postCreateCommand": "pip install --no-cache-dir poetry PyGithub==2.4.0 && poetry config virtualenvs.create false",
-
   "forwardPorts": [54321]
 }
