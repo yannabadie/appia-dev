@@ -1,13 +1,44 @@
 name: CI
-on: [push, pull_request]
+
+on:
+  push:
+  pull_request:
+
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+
+    env:
+      SUPABASE_URL:       ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY:       ${{ secrets.SUPABASE_KEY }}
+      OPENAI_API_KEY:     ${{ secrets.OPENAI_API_KEY }}
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SECRET_ACCESS_TOKEN }}   # votre nom de secret
+      GH_TOKEN:           ${{ secrets.GH_TOKEN }}
+      GH_REPO:            yannabadie/appia-dev
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - run: pip install poetry
-      - run: poetry install
-      - run: poetry run pytest
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install Poetry
+      run: pip install poetry
+
+    - name: Install dependencies
+      run: |
+        poetry install --with dev
+
+    # (optionnel) pousser les migrations Supabase grâce au plan Pro
+    - name: Push DB migrations (Supabase CLI)
+      if: env.SUPABASE_ACCESS_TOKEN != ''
+      run: |
+        npm i -g supabase
+        supabase link --project-ref kzcswopokvknxmxczilu
+        supabase db push
+      env:
+        SUPABASE_ACCESS_TOKEN: ${{ env.SUPABASE_ACCESS_TOKEN }}
+
+    - name: Run tests
+      run: poetry run pytest -q
