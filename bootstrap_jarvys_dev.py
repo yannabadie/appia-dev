@@ -82,23 +82,46 @@ def owner_node_id_and_type(owner_login:str):
         return d["organization"]["id"], "org"
     raise RuntimeError(f"Owner {owner_login} introuvable.")
 
-def get_or_create_project_v2(owner_login:str, title:str)->str:
-    # 1) cherche
-    search = """
+def get_or_create_project_v2(owner_login: str, title: str) -> str:
+    """Retourne l’ID du Project v2 ; le crée sinon. Gère user vs organization."""
+    # 1) tenter côté USER
+    search_user = """
       query($login:String!){
-        user(login:$login){ projectsV2(first:100){ nodes{ id title url } } }
-        organization(login:$login){ projectsV2(first:100){ nodes{ id title url } } }
+        user(login:$login){
+          id
+          projectsV2(first:100){ nodes{ id title url } }
+        }
       }
     """
-    nodes = (graphql(search, login=owner_login)["user"]
-             or graphql(search, login=owner_login)["organization"])["projectsV2"]["nodes"]
-    for n in nodes:
-        if n["title"] == title:
-            print(f"ℹ️  Project déjà présent : {n['url']}")
-            return n["id"]
+    data_u = graphql(search_user, login=owner_login)
+    if data_u.get("user"):
+        for n in data_u["user"]["projectsV2"]["nodes"]:
+            if n["title"] == title:
+                print(f"ℹ️  Project déjà présent : {n['url']}")
+                return n["id"]
+        owner_id = data_u["user"]["id"]
+        owner_kind = "user"
+    else:
+        # 2) sinon, tenter côté ORG
+        search_org = """
+          query($login:String!){
+            organization(login:$login){
+              id
+              projectsV2(first:100){ nodes{ id title url } }
+            }
+          }
+        """
+        data_o = graphql(search_org, login=owner_login)
+        if not data_o.get("organization"):
+            raise RuntimeError(f"⚠️  Aucune organisation ou utilisateur nommé {owner_login}")
+        for n in data_o["organization"]["projectsV2"]["nodes"]:
+            if n["title"] == title:
+                print(f"ℹ️  Project déjà présent : {n['url']}")
+                return n["id"]
+        owner_id = data_o["organization"]["id"]
+        owner_kind = "org"
 
-    # 2) crée
-    owner_id, _ = owner_node_id_and_type(owner_login)
+    # 3) création
     create = """
       mutation($owner:ID!,$title:String!){
         createProjectV2(input:{ownerId:$owner,title:$title}){
@@ -107,8 +130,9 @@ def get_or_create_project_v2(owner_login:str, title:str)->str:
       }
     """
     proj = graphql(create, owner=owner_id, title=title)["createProjectV2"]["projectV2"]
-    print(f"✅  Project créé : {proj['url']}")
+    print(f"✅  Project créé : {proj['url']} ({owner_kind})")
     return proj["id"]
+
 
 def add_issue_to_project(project_id:str, issue_node_id:str):
     q = """
