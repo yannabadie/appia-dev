@@ -1,0 +1,5 @@
+{
+  // Chemin généré par Poetry : adaptez <user> et <hash>
+  "python.defaultInterpreterPath": "/home/vscode/.cache/pypoetry/virtualenvs/jarvys-dev-*/bin/python",
+  "python.analysis.packageIndexDepths": [10]   // (optionnel) aide Pylance
+}

@@ -6,13 +6,16 @@ authors = ["Yann Abadie <yannabadie@example.com>"]
 packages = [{ include = "jarvys_dev", from = "src" }]
 
 [tool.poetry.dependencies]
-python = "^3.12"
-PyGithub = "^2.6"
+python       = "^3.12"
+PyGithub     = "^2.6"
+openai       = "^1.25"   # SDK officiel
+supabase     = {extras = ["realtime"], version = "^1.2.3"}
 requests = "^2"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8"
-pytest-mock = "^3.14"
+pytest       = "^8.4"
+pytest-mock  = "^3.14"
+pre-commit   = "^3.7"
 
 [build-system]
 requires = ["poetry-core"]
