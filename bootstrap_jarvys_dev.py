@@ -12,6 +12,13 @@ Variables d'environnement attendues :
     OPENAI_API_KEY   : ...
     GEMINI_API_KEY   : ...
 """
+try:
+    from github import Github
+except ImportError:
+    import subprocess, sys
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "PyGithub>=2.4.0"])
+    from github import Github
+
 import os, json, textwrap, subprocess, base64, pathlib, sys
 from datetime import datetime
 from github import Github
