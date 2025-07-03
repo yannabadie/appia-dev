@@ -3,8 +3,6 @@ import os
 
 import pytest
 
-from jarvys_dev.tools import memory
-
 secrets_ok = all(
     os.getenv(k) for k in ("SUPABASE_URL", "SUPABASE_KEY", "OPENAI_API_KEY")
 )
@@ -14,6 +12,8 @@ if not secrets_ok:
         "Secrets Supabase / OpenAI manquants.",
         allow_module_level=True,
     )
+
+from jarvys_dev.tools import memory
 
 
 def test_upsert_and_search_roundtrip():
