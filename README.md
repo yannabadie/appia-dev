@@ -19,7 +19,7 @@ JARVYS_DEV est un agent d'automatisation pour gérer le cycle de vie d'un projet
    - `GH_TOKEN` et `GH_REPO` pour les fonctions GitHub
    - facultatif : `GCP_SA_JSON` pour les Cloud Functions
 
-Pour les tests locaux, exportez ces variables dans votre shell. Dans GitHub Actions ou Codespaces, définissez-les dans les *Secrets* du dépôt.
+Pour les tests locaux, exportez ces variables dans votre shell. Dans GitHub Actions ou Codespaces, définissez-les dans les _Secrets_ du dépôt.
 
 ## Exécution des tests
 
