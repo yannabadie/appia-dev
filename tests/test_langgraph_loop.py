@@ -12,6 +12,7 @@ def test_run_loop_invokes_tools(send_issue, upsert, monkeypatch):
     assert state["action_url"] == "url"
     send_issue.assert_called_once()
     upsert.assert_called_once()
+    assert state["reflected"] is True
 
 
 @mock.patch("jarvys_dev.langgraph_loop.upsert_embedding")

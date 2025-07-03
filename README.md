@@ -31,9 +31,9 @@ Pour les tests locaux, exportez ces variables dans votre shell. Dans GitHub Act
 poetry run pytest -q
 ```
 
-## Exemple d'exécution
+## Example run
 
-Lancement manuel de la boucle :
+Manual loop launch:
 
 ```bash
 poetry run python -m jarvys_dev.langgraph_loop
