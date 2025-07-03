@@ -7,7 +7,7 @@
   },
 
   // Exécuté à chaque build Codespace
-  "postCreateCommand": "pip install poetry pre-commit && poetry install --with dev && pre-commit install",
+  "postCreateCommand": "pip install poetry pre-commit && poetry install --with dev && poetry run pre-commit install",
 
   "forwardPorts": [54321],
 
