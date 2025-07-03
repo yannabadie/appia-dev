@@ -6,12 +6,12 @@ steps:
   
   # Étape 2 : Pousser l'image Docker vers le registre GCR
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/opilotcodingagent-jarvys']
+    args: ['push', 'gcr.io/$PROJECT_ID/copilotcodingagent-jarvys']
 
   # Étape 3 : Déployer sur Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: 'gcloud'
-    args: ['run', 'deploy', 'opilotcodingagent-jarvys', '--image', 'gcr.io/$PROJECT_ID/opilotcodingagent-jarvys', '--platform', 'managed', '--region', 'europe-west1', '--allow-unauthenticated']
+    args: ['run', 'deploy', 'copilotcodingagent-jarvys', '--image', 'gcr.io/$PROJECT_ID/copilotcodingagent-jarvys', '--platform', 'managed', '--region', 'europe-west1', '--allow-unauthenticated']
 
 images:
-  - 'gcr.io/$PROJECT_ID/opilotcodingagent-jarvys'
+  - 'gcr.io/$PROJECT_ID/copilotcodingagent-jarvys'
