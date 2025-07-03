@@ -5,7 +5,9 @@ Secrets nécessaires : GH_TOKEN, GH_REPO
 """
 
 from __future__ import annotations
+
 import os
+
 from github import Github
 
 

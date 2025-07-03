@@ -13,7 +13,7 @@ if not secrets_ok:
         allow_module_level=True,
     )
 
-from jarvys_dev.tools import memory
+from jarvys_dev.tools import memory  # noqa: E402
 
 
 def test_upsert_and_search_roundtrip():
