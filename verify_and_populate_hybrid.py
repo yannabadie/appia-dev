@@ -10,6 +10,10 @@ import google.generativeai as genai
 from openai import OpenAI
 from supabase import Client, create_client
 
+# OpenAI embedding models accept a maximum of 8192 tokens. Truncate any
+# longer text to ensure the API does not fail.
+EMBEDDING_SLICE_LIMIT = 8192
+
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 USER_CONTEXT = {
@@ -38,7 +42,7 @@ USER_CONTEXT = {
 def _embed_text(client: OpenAI, text: str) -> list[float]:
     resp = client.embeddings.create(
         model="text-embedding-3-large",
-        input=text[:8192],
+        input=text[:EMBEDDING_SLICE_LIMIT],
     )
     return resp.data[0].embedding
 
