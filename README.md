@@ -39,6 +39,22 @@ Manual loop launch:
 poetry run python -m jarvys_dev.langgraph_loop
 ```
 
+## Model watcher
+
+The `model_watcher` script checks for new LLM models from OpenAI, Anthropic and
+Google Gemini. When a new model is available it updates
+`src/jarvys_dev/model_config.json` and opens a GitHub issue.
+
+Run the watcher manually with:
+
+```bash
+poetry run python -m jarvys_dev.model_watcher
+```
+
+The workflow `model-detection.yml` runs this task daily. Configure the
+`OPENAI_API_KEY`, `GEMINI_API_KEY`, `ANTHROPIC_API_KEY` and `GH_TOKEN` secrets in
+your repository settings.
+
 ## Service account key
 
 Le fichier `gcp-sa.json` n'est pas suivi dans le dépôt. Fournissez son contenu via la variable `GCP_SA_JSON`.
