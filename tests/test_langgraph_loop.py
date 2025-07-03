@@ -1,10 +1,12 @@
 from unittest import mock
 
 
+@mock.patch("jarvys_dev.langgraph_loop._router")
 @mock.patch("jarvys_dev.langgraph_loop.upsert_embedding")
 @mock.patch("jarvys_dev.langgraph_loop.send_to_jarvys_ai")
-def test_run_loop_invokes_tools(send_issue, upsert, monkeypatch):
+def test_run_loop_invokes_tools(send_issue, upsert, router, monkeypatch):
     send_issue.return_value = "url"
+    router.generate.return_value = "plan"
     monkeypatch.setenv("CONFIDENCE_SCORE", "1.0")
     from jarvys_dev.langgraph_loop import run_loop
 
@@ -12,13 +14,16 @@ def test_run_loop_invokes_tools(send_issue, upsert, monkeypatch):
     assert state["action_url"] == "url"
     send_issue.assert_called_once()
     upsert.assert_called_once()
+    router.generate.assert_called_once()
     assert state["reflected"] is True
 
 
+@mock.patch("jarvys_dev.langgraph_loop._router")
 @mock.patch("jarvys_dev.langgraph_loop.upsert_embedding")
 @mock.patch("jarvys_dev.langgraph_loop.send_to_jarvys_ai")
-def test_run_loop_flags_waiting(send_issue, _upsert, monkeypatch):
+def test_run_loop_flags_waiting(send_issue, _upsert, router, monkeypatch):
     send_issue.return_value = "url"
+    router.generate.return_value = "plan"
     monkeypatch.setenv("CONFIDENCE_SCORE", "0.5")
     from jarvys_dev.langgraph_loop import run_loop
 
