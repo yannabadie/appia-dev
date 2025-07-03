@@ -11,8 +11,9 @@ from langgraph.graph import END, StateGraph
 from .main import confidence_score, send_to_jarvys_ai
 from .tools.memory import upsert_embedding
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+CONFIDENCE_THRESHOLD = 0.85
 
 
 class LoopState(TypedDict, total=False):
@@ -65,11 +66,25 @@ def build_graph() -> StateGraph:
 
 
 def run_loop(steps: int = 1) -> LoopState:
+    """Execute the loop for the given number of ``steps``.
+
+    Parameters
+    ----------
+    steps:
+        Number of iterations to execute.
+
+    Returns
+    -------
+    LoopState
+        Final state after execution. The state includes
+        ``waiting_for_human_review`` if ``confidence_score``
+        falls below :data:`CONFIDENCE_THRESHOLD`.
+    """
     compiled = build_graph().compile()
     state: LoopState = {}
     for _ in range(steps):
         state = compiled.invoke(state)
-        if confidence_score() < 0.85:
+        if confidence_score() < CONFIDENCE_THRESHOLD:
             state["waiting_for_human_review"] = True
             break
     return state
