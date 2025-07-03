@@ -30,8 +30,8 @@ from openai import OpenAI
 CONFIG_PATH = Path(__file__).with_name("model_config.json")
 DEFAULT_MODELS = {
     "openai": "gpt-4o",
-    "anthropic": "claude-3-opus-20240229",
-    "gemini": "models/gemini-1.5-pro",
+    "anthropic": "claude-4",
+    "gemini": "models/gemini-2.5-pro",
 }
 
 
@@ -103,36 +103,53 @@ class MultiModelRouter:
     # ------------------------------------------------------------------ public
     def generate(self, prompt: str, *, task_type: str = "reasoning") -> str:
         """Generate a completion using the best available model."""
-        if task_type == "multimodal":
-            order = ["gemini", "openai", "anthropic"]
-        else:  # reasoning or creativity
-            order = ["openai", "anthropic", "gemini"]
-
         models = self.model_names
+        config = {
+            "multimodal": {
+                "order": ["gemini", "openai", "anthropic"],
+                "models": {
+                    "gemini": models["gemini"],
+                    "openai": models["openai"],
+                    "anthropic": models["anthropic"],
+                },
+            },
+            "reasoning": {
+                "order": ["openai", "anthropic", "gemini"],
+                "models": {
+                    "openai": models["openai"],
+                    "anthropic": models["anthropic"],
+                    "gemini": models["gemini"],
+                },
+            },
+        }
+        config["creativity"] = config["reasoning"]
+        task_cfg = config.get(task_type, config["reasoning"])
+        order = task_cfg["order"]
+        model_map = task_cfg["models"]
 
         for provider in order:
             start = time.perf_counter()
             try:
                 if provider == "openai" and self.openai_client:
                     resp = self.openai_client.chat.completions.create(
-                        model=models[provider],
+                        model=model_map[provider],
                         messages=[{"role": "user", "content": prompt}],
                     )
-                    self._record_bench(models[provider], start, prompt)
+                    self._record_bench(model_map[provider], start, prompt)
                     return resp.choices[0].message.content
 
                 if provider == "gemini" and self.gemini_available:
-                    model = genai.GenerativeModel(models[provider])
+                    model = genai.GenerativeModel(model_map[provider])
                     resp = model.generate_content(prompt)
-                    self._record_bench(models[provider], start, prompt)
+                    self._record_bench(model_map[provider], start, prompt)
                     return getattr(resp, "text", str(resp))
 
                 if provider == "anthropic" and self.anthropic_client:
                     resp = self.anthropic_client.messages.create(
-                        model=models[provider],
+                        model=model_map[provider],
                         messages=[{"role": "user", "content": prompt}],
                     )
-                    self._record_bench(models[provider], start, prompt)
+                    self._record_bench(model_map[provider], start, prompt)
                     part = resp.content[0]
                     return part.text if hasattr(part, "text") else str(part)
             except Exception as exc:  # pragma: no cover - network failures
