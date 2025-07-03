@@ -49,6 +49,34 @@ miss = [k for k, v in env.items() if not v]
 if miss:
     sys.exit("❌  Variables manquantes : " + ", ".join(miss))
 
+
+def _check_branch(expected: str = "dev") -> None:
+    cur = (
+        subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
+        .decode()
+        .strip()
+    )
+    if cur != expected:
+        sys.exit(f"❌  Doit être sur la branche {expected}, pas {cur}")
+
+
+def _run_checks() -> None:
+    subprocess.check_call(
+        [
+            "poetry",
+            "run",
+            "pre-commit",
+            "run",
+            "--files",
+            ".",
+        ]
+    )
+    subprocess.check_call(["poetry", "run", "pytest", "-q"])
+
+
+_check_branch()
+_run_checks()
+
 gh = Github(env["GH_TOKEN"])
 repo = gh.get_repo(env["GH_REPO"])
 owner = repo.owner.login

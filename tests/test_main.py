@@ -34,3 +34,31 @@ def test_copilot_generate_patch(OpenAI):
         files, msg = copilot_generate_patch({"a.py": "old"}, "prompt")
     assert files == {"a.py": "new"}
     assert msg == "msg"
+
+
+@mock.patch("jarvys_dev.main.upsert_embedding")
+@mock.patch("jarvys_dev.main.send_to_jarvys_ai")
+def test_run_loop_flags_waiting(send_issue, _upsert):
+    send_issue.return_value = "url"
+    with mock.patch.dict(os.environ, {"CONFIDENCE_SCORE": "0.8"}):
+        from jarvys_dev.main import run_loop
+
+        state = run_loop(steps=2)
+    assert state["waiting_for_human_review"] is True
+    send_issue.assert_called_once()
+
+
+@mock.patch("jarvys_dev.tools.github_tools.subprocess.check_call")
+@mock.patch("jarvys_dev.tools.github_tools.subprocess.check_output")
+@mock.patch("jarvys_dev.tools.github_tools.copilot_generate_patch")
+def test_copilot_commit_patch(gen, chk_out, chk_call, tmp_path, monkeypatch):
+    gen.return_value = ({"f.txt": "new"}, "msg")
+    chk_out.return_value = b"dev\n"
+    from jarvys_dev.tools.github_tools import copilot_commit_patch
+
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "f.txt").write_text("old")
+    message = copilot_commit_patch({"f.txt": "old"}, "prompt")
+    assert message == "msg"
+    chk_call.assert_any_call(["git", "add", "f.txt"])
+    chk_call.assert_any_call(["git", "commit", "-m", "msg"])
