@@ -1,11 +1,19 @@
 # tests/test_memory.py
-import os, pytest
+import os
+
+import pytest
+
 from jarvys_dev.tools import memory
 
-secrets_ok = all(os.getenv(k) for k in ("SUPABASE_URL","SUPABASE_KEY","OPENAI_API_KEY"))
+secrets_ok = all(
+    os.getenv(k) for k in ("SUPABASE_URL", "SUPABASE_KEY", "OPENAI_API_KEY")
+)
 
-pytest.skip("Secrets Supabase / OpenAI manquants.",
-            allow_module_level=True) if not secrets_ok else None
+if not secrets_ok:
+    pytest.skip(
+        "Secrets Supabase / OpenAI manquants.",
+        allow_module_level=True,
+    )
 
 
 def test_upsert_and_search_roundtrip():
@@ -15,3 +23,20 @@ def test_upsert_and_search_roundtrip():
 
     hits = memory.memory_search("vector databases", k=3)
     assert any(txt in h for h in hits)
+
+
+def test_load_config_initializes_clients(monkeypatch):
+    memory._sb = None
+    memory._ocl = None
+    monkeypatch.setenv("SUPABASE_URL", "https://db.example.com")
+    monkeypatch.setenv("SUPABASE_KEY", "supakey")
+    monkeypatch.setenv("OPENAI_API_KEY", "openkey")
+
+    dummy_sb = object()
+    dummy_ocl = object()
+    monkeypatch.setattr(memory, "create_client", lambda url, key: dummy_sb)
+    monkeypatch.setattr(memory, "OpenAI", lambda api_key=None: dummy_ocl)
+
+    memory._load_config()
+    assert memory._sb is dummy_sb
+    assert memory._ocl is dummy_ocl
