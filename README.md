@@ -31,6 +31,14 @@ Pour les tests locaux, exportez ces variables dans votre shell. Dans GitHub Act
 poetry run pytest -q
 ```
 
+## Example run
+
+Manual loop launch:
+
+```bash
+poetry run python -m jarvys_dev.langgraph_loop
+```
+
 ## Service account key
 
 Le fichier `gcp-sa.json` n'est pas suivi dans le dépôt. Fournissez son contenu via la variable `GCP_SA_JSON`.
