@@ -3,11 +3,12 @@
   "image": "mcr.microsoft.com/devcontainers/python:3.12",
   "features": {
     "ghcr.io/devcontainers/features/git:1": {},
-    "ghcr.io/devcontainers/features/github-cli:1": {}
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/node:1": {}
   },
 
   // Exécuté à chaque build Codespace
-  "postCreateCommand": "pip install poetry pre-commit && poetry install --with dev && poetry run pre-commit install",
+  "postCreateCommand": "pip install poetry && poetry install --with dev && poetry run pre-commit install",
 
   "forwardPorts": [54321],
 

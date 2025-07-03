@@ -1,13 +1,36 @@
 # appia-dev
 
-## Service account key
-This project uses a Google Cloud service account JSON key.
-The file `gcp-sa.json` is ignored by git. Provide the JSON contents via the `GCP_SA_JSON` environment variable.
+JARVYS_DEV est un agent d'automatisation pour gérer le cycle de vie d'un projet logiciel. Il interagit avec GitHub, une base vectorielle Supabase et des Cloud Functions afin de planifier et exécuter des tâches DevOps.
 
-For local use, export it before running scripts:
+## Mise en route
+
+1. **Installer Poetry**
+   ```bash
+   pip install poetry
+   ```
+2. **Installer les dépendances**
+   ```bash
+   poetry install --with dev
+   ```
+3. **Variables d'environnement requises**
+   - `OPENAI_API_KEY`
+   - `SUPABASE_URL`
+   - `SUPABASE_KEY`
+   - `GH_TOKEN` et `GH_REPO` pour les fonctions GitHub
+   - facultatif : `GCP_SA_JSON` pour les Cloud Functions
+
+Pour les tests locaux, exportez ces variables dans votre shell. Dans GitHub Actions ou Codespaces, définissez-les dans les *Secrets* du dépôt.
+
+## Exécution des tests
 
 ```bash
-export GCP_SA_JSON="$(cat /path/to/gcp-sa.json)"
+poetry run pytest -q
 ```
 
-In GitHub Actions, add a secret named `GCP_SA_JSON` with the same value.
+## Service account key
+
+Le fichier `gcp-sa.json` n'est pas suivi dans le dépôt. Fournissez son contenu via la variable `GCP_SA_JSON`.
+
+## Licence
+
+Ce projet est distribué sous licence MIT. Voir le fichier [`LICENSE`](LICENSE).

@@ -5,3 +5,4 @@ __pycache__/
 # Ignore service account keys
 gcp-sa.json
 *-sa.json
+node_modules/
