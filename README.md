@@ -2,6 +2,10 @@
 
 JARVYS_DEV est un agent d'automatisation pour gérer le cycle de vie d'un projet logiciel. Il interagit avec GitHub, une base vectorielle Supabase et des Cloud Functions afin de planifier et exécuter des tâches DevOps.
 
+L'agent s'appuie sur une boucle **observe – plan – act – reflect** mise en œuvre avec LangGraph. Les tâches ainsi planifiées sont transmises à `JARVYS_AI` par création d'issues GitHub étiquetées `from_jarvys_ai`.
+
+Les modifications de code sont générées par Copilot, appliquées sur la branche `dev` puis validées via `pre-commit` et `pytest` avant ouverture de toute PR.
+
 ## Mise en route
 
 1. **Installer Poetry**

@@ -3,8 +3,7 @@
 from __future__ import annotations
 
 import json
-
-from langgraph.graph import END, StateGraph
+import os
 
 from .tools.github_tools import github_create_issue
 from .tools.memory import upsert_embedding
@@ -36,45 +35,53 @@ class LoopState(dict):
 
 
 def observe(state: LoopState) -> LoopState:
-    state["observation"] = state.get("observation", "initial")
-    return state
+    return {"observation": state.get("observation", "initial")}
 
 
 def plan(state: LoopState) -> LoopState:
-    state["plan"] = f"Handle: {state['observation']}"
-    return state
+    return {"plan": f"Handle: {state['observation']}"}
 
 
 def act(state: LoopState) -> LoopState:
     task = {"title": "Automated task", "detail": state["plan"]}
     url = send_to_jarvys_ai(task)
-    state["action_url"] = url
-    return state
+    return {"action_url": url}
 
 
 def reflect(state: LoopState) -> LoopState:
     txt = json.dumps(state)
     upsert_embedding(txt)
-    state["reflected"] = True
+    return {"reflected": True}
+
+
+def run_once(state: LoopState | None = None) -> LoopState:
+    """Run a single observe-plan-act-reflect cycle."""
+    state = state or LoopState()
+    state.update(observe(state))
+    state.update(plan(state))
+    state.update(act(state))
+    state.update(reflect(state))
     return state
 
 
-def run_once() -> LoopState:
-    """Run a single observe-plan-act-reflect cycle."""
-    sg = StateGraph(LoopState)
-    sg.add_node("observe", observe)
-    sg.add_node("plan", plan)
-    sg.add_node("act", act)
-    sg.add_node("reflect", reflect)
-    sg.add_edge("observe", "plan")
-    sg.add_edge("plan", "act")
-    sg.add_edge("act", "reflect")
-    sg.add_edge("reflect", END)
-    graph = sg.compile()
-    return graph.invoke(LoopState())
+def confidence_score() -> float:
+    """Return an external confidence score (env or default 1.0)."""
+    return float(os.getenv("CONFIDENCE_SCORE", "1.0"))
+
+
+def run_loop(steps: int = 1) -> LoopState:
+    """Run multiple cycles and stop if confidence is too low."""
+    state = LoopState()
+    for _ in range(steps):
+        state = run_once(state)
+        if confidence_score() < 0.85:
+            state["waiting_for_human_review"] = True
+            break
+    return state
 
 
 __all__ = [
     "send_to_jarvys_ai",
     "run_once",
+    "run_loop",
 ]
