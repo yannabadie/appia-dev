@@ -9,9 +9,12 @@ from typing import TypedDict
 from langgraph.graph import END, StateGraph
 
 from .main import confidence_score, send_to_jarvys_ai
+from .multi_model_router import MultiModelRouter
 from .tools.memory import upsert_embedding
 
 logger = logging.getLogger(__name__)
+
+_router = MultiModelRouter()
 
 CONFIDENCE_THRESHOLD = 0.85
 
@@ -33,7 +36,8 @@ def observe(state: LoopState) -> LoopState:
 
 
 def plan(state: LoopState) -> LoopState:
-    planned = f"Handle {state['observation']}"
+    prompt = f"Plan how to handle: {state['observation']}"
+    planned = _router.generate(prompt, task_type="reasoning")
     logger.info("plan: %s", planned)
     return {"plan": planned}
 
@@ -87,6 +91,8 @@ def run_loop(steps: int = 1) -> LoopState:
         if confidence_score() < CONFIDENCE_THRESHOLD:
             state["waiting_for_human_review"] = True
             break
+    if _router.benchmarks:
+        logger.info("benchmarks: %s", _router.benchmarks[-1])
     return state
 
 
