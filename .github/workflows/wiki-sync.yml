@@ -1,0 +1,42 @@
+---
+name: Wiki Sync
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install docs dependencies
+        run: |
+          pip install mkdocs-material mkdocstrings[python]
+
+      - name: Build site
+        run: mkdocs build -d site
+
+      - name: Publish to Wiki
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          REPO="${{ github.repository }}"
+          git clone \
+            https://x-access-token:${GH_TOKEN}@github.com/${REPO}.wiki.git \
+            wiki
+          rsync -a --delete site/ wiki/
+          cd wiki
+          git add .
+          git commit -m 'Update wiki' || echo 'no changes'
+          git push
