@@ -43,6 +43,7 @@ env = {
         "GCP_SA_JSON",
         "OPENAI_API_KEY",
         "GEMINI_API_KEY",
+        "SECRET_ACCESS_TOKEN",
     )
 }
 miss = [k for k, v in env.items() if not v]
@@ -233,7 +234,12 @@ devc = textwrap.dedent(
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
   "postCreateCommand": "pip install poetry",
-  "forwardPorts": [54321]
+  "forwardPorts": [54321],
+  "containerEnv": {
+    "GH_TOKEN": "${{ secrets.GH_TOKEN }}",
+    "GH_REPO": "${{ secrets.GH_REPO }}",
+    "SECRET_ACCESS_TOKEN": "${{ secrets.SECRET_ACCESS_TOKEN }}"
+  }
 }"""
 )
 upsert(".devcontainer/devcontainer.json", "Add/Update devcontainer", devc)
