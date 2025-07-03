@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from typing import TypedDict
 
 from langgraph.graph import END, StateGraph
@@ -13,6 +14,27 @@ from .multi_model_router import MultiModelRouter
 from .tools.memory import upsert_embedding
 
 logger = logging.getLogger(__name__)
+
+SECRET_ENV_KEYS = [
+    "GH_TOKEN",
+    "SECRET_ACCESS_TOKEN",
+    "SUPABASE_KEY",
+]
+
+
+class _SecretFilter(logging.Filter):
+    """Mask configured secrets in log messages."""
+
+    def filter(self, record: logging.LogRecord) -> bool:  # pragma: no cover
+        msg = record.getMessage()
+        for key in SECRET_ENV_KEYS:
+            val = os.getenv(key)
+            if val and val in msg:
+                record.msg = record.msg.replace(val, "***")
+        return True
+
+
+logger.addFilter(_SecretFilter())
 
 _router = MultiModelRouter()
 
