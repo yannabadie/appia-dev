@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 
 from github import Github
 from openai import OpenAI
@@ -59,3 +60,23 @@ def copilot_generate_patch(
     )
     data = json.loads(resp.choices[0].message.content)
     return data.get("files", {}), data.get("message", "")
+
+
+def copilot_commit_patch(
+    files: dict[str, str], prompt: str, branch: str = "dev"
+) -> str:
+    """Generate changes with Copilot, write files and commit them."""
+    new_files, message = copilot_generate_patch(files, prompt)
+    cur = (
+        subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
+        .decode()
+        .strip()
+    )
+    if cur != branch:
+        raise RuntimeError(f"Current branch {cur} is not {branch}")
+    for path, content in new_files.items():
+        with open(path, "w") as fh:
+            fh.write(content)
+    subprocess.check_call(["git", "add", *new_files.keys()])
+    subprocess.check_call(["git", "commit", "-m", message])
+    return message
