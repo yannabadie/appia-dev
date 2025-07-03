@@ -7,10 +7,12 @@ basic benchmarking (latency, prompt size for cost approximation).
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import time
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 try:  # optional dependency
@@ -24,6 +26,27 @@ except Exception:  # pragma: no cover - package optional
     Anthropic = None  # type: ignore
 
 from openai import OpenAI
+
+CONFIG_PATH = Path(__file__).with_name("model_config.json")
+DEFAULT_MODELS = {
+    "openai": "gpt-4o",
+    "anthropic": "claude-3-opus-20240229",
+    "gemini": "models/gemini-1.5-pro",
+}
+
+
+def _load_models() -> dict[str, str]:
+    models = DEFAULT_MODELS.copy()
+    if CONFIG_PATH.exists():
+        try:
+            with open(CONFIG_PATH) as fh:
+                data = json.load(fh)
+            clean = {k: v for k, v in data.items() if isinstance(v, str)}
+            models.update(clean)
+        except Exception as exc:  # pragma: no cover - config errors
+            logger.warning("Failed to read %s: %s", CONFIG_PATH, exc)
+    return models
+
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +62,7 @@ class MultiModelRouter:
     """Route prompts to the optimal LLM."""
 
     def __init__(self) -> None:
+        self.model_names = _load_models()
         self.openai_key = os.getenv("OPENAI_API_KEY")
         self.gemini_key = os.getenv("GEMINI_API_KEY")
         self.anthropic_key = os.getenv("ANTHROPIC_API_KEY")
@@ -81,18 +105,10 @@ class MultiModelRouter:
         """Generate a completion using the best available model."""
         if task_type == "multimodal":
             order = ["gemini", "openai", "anthropic"]
-            models = {
-                "gemini": "models/gemini-1.5-pro",
-                "openai": "gpt-4o",
-                "anthropic": "claude-3-opus-20240229",
-            }
         else:  # reasoning or creativity
             order = ["openai", "anthropic", "gemini"]
-            models = {
-                "openai": "gpt-4o",
-                "anthropic": "claude-3-opus-20240229",
-                "gemini": "models/gemini-1.5-pro",
-            }
+
+        models = self.model_names
 
         for provider in order:
             start = time.perf_counter()
