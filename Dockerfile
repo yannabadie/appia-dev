@@ -1,26 +1,17 @@
-# base image plus légère qu’openai/codex-universal pour builder rapidement
-FROM python:3.12-slim AS base
+# Étape 1 : Image de base Python
+FROM python:3.12-slim
 
-# ── OS deps + Node 22 ─────────────────────────────────────
-RUN apt-get update -y \
- && apt-get install -y --no-install-recommends curl gnupg git ca-certificates \
- && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
- && apt-get install -y --no-install-recommends nodejs \
- && rm -rf /var/lib/apt/lists/*
+# Étape 2 : Définir le répertoire de travail
+WORKDIR /app
 
-# ── venv isolé ────────────────────────────────────────────
-ENV VENV_PATH=/venv
-RUN python -m venv $VENV_PATH
-ENV PATH="$VENV_PATH/bin:$PATH"
+# Étape 3 : Copier les fichiers du projet dans le conteneur
+COPY . /app
 
-# ── Python deps ───────────────────────────────────────────
-WORKDIR /workspace
-COPY requirements_jarvys_core.txt .
-RUN pip install --upgrade pip \
- && pip install --no-cache-dir -r requirements_jarvys_core.txt
+# Étape 4 : Installer les dépendances
+RUN pip install --no-cache-dir -r requirements.txt
 
-# ── Code + script exécutable ──────────────────────────────
-COPY . .
-RUN chmod +x jarvys_dev.sh && sed -i 's/\r$//' jarvys_dev.sh
+# Étape 5 : Exposer le port
+EXPOSE 443
 
-ENTRYPOINT ["bash", "./jarvys_dev.sh"]
+# Étape 6 : Commande pour lancer l'application FastAPI
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "443"]
