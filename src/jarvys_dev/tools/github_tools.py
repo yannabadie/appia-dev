@@ -6,9 +6,11 @@ Secrets nécessaires : GH_TOKEN, GH_REPO
 
 from __future__ import annotations
 
+import json
 import os
 
 from github import Github
+from openai import OpenAI
 
 
 def github_create_issue(
@@ -33,3 +35,27 @@ def github_create_issue(
 
     issue = repo.create_issue(title=title, body=body, labels=labels)
     return issue.html_url
+
+
+def copilot_generate_patch(
+    files: dict[str, str], prompt: str
+) -> tuple[dict[str, str], str]:
+    """Generate multi-file changes and a commit message via OpenAI."""
+    gh_token = os.getenv("GH_TOKEN")
+    if not gh_token:
+        raise RuntimeError("GH_TOKEN manquant")
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise RuntimeError("OPENAI_API_KEY manquant")
+
+    client = OpenAI(api_key=api_key)
+    payload = json.dumps({"prompt": prompt, "files": files})
+    resp = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "You are GitHub Copilot"},
+            {"role": "user", "content": payload},
+        ],
+    )
+    data = json.loads(resp.choices[0].message.content)
+    return data.get("files", {}), data.get("message", "")
