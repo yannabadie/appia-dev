@@ -80,3 +80,27 @@ def copilot_commit_patch(
     subprocess.check_call(["git", "add", *new_files.keys()])
     subprocess.check_call(["git", "commit", "-m", message])
     return message
+
+
+def create_pull_request(
+    title: str,
+    body: str = "",
+    *,
+    head: str | None = None,
+    base: str = "dev",
+    repo_fullname: str | None = None,
+) -> str:
+    """Create a pull request targeting the ``dev`` branch."""
+    if base != "dev":
+        raise ValueError("PRs must target the 'dev' branch")
+
+    gh_token = os.getenv("GH_TOKEN")
+    repo_fullname = repo_fullname or os.getenv("GH_REPO")
+    if not gh_token or not repo_fullname:
+        raise RuntimeError("GH_TOKEN ou GH_REPO manquant.")
+
+    gh = Github(gh_token)
+    repo = gh.get_repo(repo_fullname)
+    head = head or repo.default_branch
+    pr = repo.create_pull(title=title, body=body, head=head, base=base)
+    return pr.html_url
