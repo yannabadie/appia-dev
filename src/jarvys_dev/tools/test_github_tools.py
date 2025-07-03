@@ -13,6 +13,7 @@ def test_create_issue_new(MockGh, monkeypatch):
     MockGh.return_value.get_repo.return_value = repo
 
     monkeypatch.setenv("GH_TOKEN", "token")
+    monkeypatch.setenv("GH_REPO", "owner/repo")
     url = github_create_issue("Titre A", "Corps", repo_fullname="owner/repo")
     assert url.endswith("/42")
     repo.create_issue.assert_called_once()
@@ -27,6 +28,7 @@ def test_create_issue_duplicate(MockGh, monkeypatch):
     MockGh.return_value.get_repo.return_value = repo
 
     monkeypatch.setenv("GH_TOKEN", "token")
+    monkeypatch.setenv("GH_REPO", "owner/repo")
     url = github_create_issue("Titre B", repo_fullname="owner/repo")
     assert url == "https://example.com/99"
     repo.create_issue.assert_not_called()
