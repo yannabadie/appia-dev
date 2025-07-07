@@ -1,17 +1,11 @@
-# Étape 1 : Image de base Python
 FROM python:3.12-slim
 
-# Étape 2 : Définir le répertoire de travail
 WORKDIR /app
-
-# Étape 3 : Copier les fichiers du projet dans le conteneur
 COPY . /app
 
-# Étape 4 : Installer les dépendances
-RUN pip install --no-cache-dir -r requirements.txt
+# Only run pip if the file exists; avoids hard‑fail in early prototyping
+RUN test -f requirements.txt && pip install --no-cache-dir -r requirements.txt || \
+    echo "No requirements.txt – skipping pip install"
 
-# Étape 5 : Exposer le port
-EXPOSE 443
-
-# Étape 6 : Commande pour lancer l'application FastAPI
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "443"]
+EXPOSE 8080
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
