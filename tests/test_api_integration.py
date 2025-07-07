@@ -4,11 +4,20 @@ import pytest
 import requests
 from supabase import create_client
 
+DEFAULT_TIMEOUT_SECONDS = 15
 
-@pytest.mark.skipif(
-    not os.getenv("OPENAI_API_KEY"),
-    reason="OPENAI_API_KEY missing",
-)
+
+def requires_env(*names: str) -> pytest.MarkDecorator:
+    missing = [n for n in names if not os.getenv(n)]
+    reason = ", ".join(missing) + " missing"
+    return pytest.mark.skipif(bool(missing), reason=reason)
+
+
+integration = pytest.mark.integration
+
+
+@integration
+@requires_env("OPENAI_API_KEY")
 def test_openai_completion():
     resp = requests.post(
         "https://api.openai.com/v1/chat/completions",
@@ -20,17 +29,15 @@ def test_openai_completion():
             "model": "gpt-4o",
             "messages": [{"role": "user", "content": "ping"}],
         },
-        timeout=15,
+        timeout=DEFAULT_TIMEOUT_SECONDS,
     )
     resp.raise_for_status()
     data = resp.json()
     assert "choices" in data
 
 
-@pytest.mark.skipif(
-    not os.getenv("GEMINI_API_KEY"),
-    reason="GEMINI_API_KEY missing",
-)
+@integration
+@requires_env("GEMINI_API_KEY")
 def test_gemini_generation():
     url = (
         "https://generativelanguage.googleapis.com/v1beta/"
@@ -40,7 +47,7 @@ def test_gemini_generation():
     resp = requests.post(
         url,
         json={"contents": [{"parts": [{"text": "ping"}]}]},
-        timeout=15,
+        timeout=DEFAULT_TIMEOUT_SECONDS,
     )
     resp.raise_for_status()
     data = resp.json()
@@ -53,10 +60,8 @@ def test_gemini_generation():
     assert text is not None
 
 
-@pytest.mark.skipif(
-    not (os.getenv("SUPABASE_URL") and os.getenv("SUPABASE_KEY")),
-    reason="Supabase credentials missing",
-)
+@integration
+@requires_env("SUPABASE_URL", "SUPABASE_KEY")
 def test_supabase_select():
     client = create_client(
         os.environ["SUPABASE_URL"],

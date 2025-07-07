@@ -25,3 +25,8 @@ mkdocstrings = {version = "^0.29", extras = ["python"]}
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+markers = [
+    "integration: marks tests that hit external services",
+]
