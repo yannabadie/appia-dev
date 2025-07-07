@@ -1,12 +1,13 @@
 FROM python:3.12-slim
 WORKDIR /app
+# Copy the entire repository into the container
 COPY . /app
 
-# Installe seulement si le fichier existe à /app
-RUN if [ -f requirements.txt ]; then \
-        pip install --no-cache-dir -r requirements.txt ; \
+# Install dependencies only if requirements.txt is present in /app
+RUN if [ -f /app/requirements.txt ]; then \
+        pip install --no-cache-dir -r /app/requirements.txt ; \
     else \
-        echo "⚠️  No requirements.txt found – skipping pip install"; \
+        echo "Warning: /app/requirements.txt not found – skipping pip install"; \
     fi
 
 EXPOSE 8080
