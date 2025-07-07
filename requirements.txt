@@ -1,0 +1,6 @@
+fastapi==0.111.0
+uvicorn[standard]==0.30.0
+openai>=1.30.0
+pydantic==2.7.3
+modelcontextprotocol==0.3.*   # OSS MCP helper
+google-cloud-build==3.17.0     # optional if you trigger builds from code
