@@ -1,19 +1,22 @@
+import os
+
+import openai
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import openai, os
+
 
 # Simple tool: ask ChatGPT and return the answer
 class ChatRequest(BaseModel):
     prompt: str
     model: str | None = "gpt-4o-mini"
 
+
 class ChatResponse(BaseModel):
     text: str
 
-app = FastAPI(
-    title="JARVYS MCP Server",
-    version="0.1.0"
-)
+
+app = FastAPI(title="JARVYS MCP Server", version="0.1.0")
+
 
 @app.get("/v1/tool-metadata")
 def metadata():
@@ -23,7 +26,7 @@ def metadata():
     return {
         "schema_version": "1",
         "name_for_human": "JARVYS LLM Bridge",
-        "description_for_human": "Forward prompts to OpenAI and return answers",
+        "description_for_human": "Forward prompts to OpenAI and return answers",  # noqa: E501
         "endpoints": [
             {
                 "name": "ask_llm",
@@ -36,6 +39,7 @@ def metadata():
         ],
     }
 
+
 @app.post("/v1/tool-invocations/ask_llm", response_model=ChatResponse)
 def ask_llm(req: ChatRequest):
     openai.api_key = os.environ["OPENAI_API_KEY"]
@@ -47,7 +51,8 @@ def ask_llm(req: ChatRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+
 @app.get("/", include_in_schema=False)
-def root():
-    """Health‑check endpoint for Cloud Run."""
+async def root() -> dict[str, str]:
+    """Root health endpoint."""
     return {"status": "ok"}
