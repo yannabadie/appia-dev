@@ -13,6 +13,7 @@
   "forwardPorts": [8080, 54321],
 
   "containerEnv": {
+    "CLOUDSDK_CORE_DISABLE_PROMPTS": "1",
     "OPENAI_API_KEY": "${{ secrets.OPENAI_API_KEY }}",
     "SUPABASE_URL":   "${{ secrets.SUPABASE_URL }}",
     "SUPABASE_KEY":   "${{ secrets.SUPABASE_KEY }}",
