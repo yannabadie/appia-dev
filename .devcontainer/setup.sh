@@ -1,63 +1,64 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "▶︎ Installation des pré‑requis système"
-sudo apt-get update -y \
-  && sudo apt-get install -y --no-install-recommends \
-       curl gnupg ca-certificates lsb-release jq
+################################################################################
+# 1. Pré‑requis système
+################################################################################
+export DEBIAN_FRONTEND=noninteractive
+export CLOUDSDK_CORE_DISABLE_PROMPTS=1          # ⬅️  ICI : fin des prompts gcloud
 
-###############################################################################
-# 1. Google Cloud CLI
-###############################################################################
+echo "▶︎ Installation des dépendances APT de base"
+apt-get update -qq && apt-get install -yqq \
+    curl gnupg ca-certificates apt-transport-https jq
+
+################################################################################
+# 2. Google Cloud CLI
+################################################################################
+echo "▶︎ Installation Google Cloud CLI"
 if ! command -v gcloud &>/dev/null; then
-  echo "▶︎ Installation Google Cloud CLI"
-
-  # ‑‑ clé officielle (ID C0BA 5CE6 DC63 15A3) dans un keyring dédié
-  GCLOUD_KEYRING=/usr/share/keyrings/google-cloud.gpg
-  curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
-       sudo gpg --dearmor -o "$GCLOUD_KEYRING"
-
-  # ‑‑ dépôt signé par cette clé
-  echo "deb [signed-by=$GCLOUD_KEYRING] https://packages.cloud.google.com/apt cloud-sdk main" | \
-       sudo tee /etc/apt/sources.list.d/google-cloud-sdk.list
-
-  sudo apt-get update -y && sudo apt-get install -y google-cloud-cli
+  echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] \
+https://packages.cloud.google.com/apt cloud-sdk main" \
+    | tee /etc/apt/sources.list.d/google-cloud-sdk.list
+  curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+    | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+  apt-get update -qq && apt-get install -yqq google-cloud-cli
 fi
 
-# Authentification éventuelle via compte de service
+echo "▶︎ Authentification GCP (service account)"
 if [[ -n "${GCP_SA_JSON:-}" ]]; then
-  echo "▶︎ Authentification GCP (service account)"
-  echo "${GCP_SA_JSON}" > /tmp/sa.json
-  gcloud auth activate-service-account --key-file=/tmp/sa.json
-  PROJECT_ID=$(jq -r '.project_id' /tmp/sa.json)
-  gcloud config set project "${PROJECT_ID}"
-  rm /tmp/sa.json
+  SA_FILE=$(mktemp)
+  echo "${GCP_SA_JSON}" > "${SA_FILE}"
+  gcloud auth activate-service-account --key-file="${SA_FILE}" --quiet
+  PROJECT_ID=$(jq -r '.project_id' "${SA_FILE}")
+
+  # Configure sans prompt ; n’échoue pas si l’API est désactivée
+  gcloud config set project "${PROJECT_ID}" --quiet || true
+  rm -f "${SA_FILE}"
 fi
 
-###############################################################################
-# 2. Supabase CLI
-###############################################################################
+################################################################################
+# 3. Supabase CLI
+################################################################################
+echo "▶︎ Installation Supabase CLI"
 if ! command -v supabase &>/dev/null; then
-  echo "▶︎ Installation Supabase CLI"
-  npm install -g supabase
+  npm install -g --silent supabase
 fi
 
-###############################################################################
-# 3. Poetry + dépendances Python
-###############################################################################
+################################################################################
+# 4. Poetry + dépendances Python
+################################################################################
+echo "▶︎ Installation Poetry"
 if ! command -v poetry &>/dev/null; then
-  echo "▶︎ Installation Poetry"
-  # pip est déjà présent dans l’image Python officielle
-  pip install --no-cache-dir --break-system-packages poetry
+  python -m pip install --no-cache-dir --quiet poetry
 fi
 
 echo "▶︎ Installation dépendances (poetry install --with dev)"
-poetry install --with dev
+poetry install --with dev --no-root --no-interaction
 
-###############################################################################
-# 4. Hooks git pré‑commit
-###############################################################################
-echo "▶︎ Installation hooks pré‑commit"
-poetry run pre-commit install
+################################################################################
+# 5. Hooks git pré‑commit
+################################################################################
+echo "▶︎ Installation hooks pre‑commit"
+poetry run pre-commit install --install-hooks --overwrite
 
-echo -e '\n✅  Environnement prêt !'
+echo -e "\n✅  Environnement prêt !"
