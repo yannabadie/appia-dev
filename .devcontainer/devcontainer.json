@@ -1,30 +1,36 @@
+// .devcontainer/devcontainer.json
 {
   "name": "jarvys_dev",
-  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12-bookworm",
+
+  // ❶  Features uniquement stables / sûres
   "features": {
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/node:1": {},
-    "ghcr.io/devcontainers/features/google-cloud-cli:1": {}
+    "ghcr.io/devcontainers/features/node:1": { "version": "lts" }
+    // ➜ le SDK GCP sera installé dans setup.sh
   },
 
-  // Exécuté à chaque build Codespace
-  "postCreateCommand": "pip install poetry && poetry install --with dev && poetry run pre-commit install",
+  // ❷  Exécute notre script d’initialisation
+  "postCreateCommand": "bash .devcontainer/setup.sh",
 
-  "forwardPorts": [54321],
+  // ❸  Ports locaux utiles à la dev‑preview
+  "forwardPorts": [8080, 54321],
 
+  // ❹  Variables secrètes injectées par Codespaces
+  "containerEnv": {
+    "OPENAI_API_KEY": "${{ secrets.OPENAI_API_KEY }}",
+    "SUPABASE_URL":   "${{ secrets.SUPABASE_URL }}",
+    "SUPABASE_KEY":   "${{ secrets.SUPABASE_KEY }}",
+    "GCP_SA_JSON":    "${{ secrets.GCP_SA_JSON }}"
+  },
+
+  // ❺  Confort VS Code
   "customizations": {
     "vscode": {
       "settings": {
         "python.defaultInterpreterPath": "/home/vscode/.cache/pypoetry/virtualenvs/jarvys-dev-*/bin/python"
       }
     }
-  },
-
-  // Variables disponibles dans le conteneur :
-  "containerEnv": {
-    "OPENAI_API_KEY": "${{ secrets.OPENAI_API_KEY }}",
-    "SUPABASE_URL": "${{ secrets.SUPABASE_URL }}",
-    "SUPABASE_KEY": "${{ secrets.SUPABASE_KEY }}"
   }
 }
