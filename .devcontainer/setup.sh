@@ -1,59 +1,72 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "▶︎ Mise à jour APT & dépendances de base"
-sudo apt-get update -y
-sudo apt-get install -y curl gnupg lsb-release jq
+echo -e "\n\033[1;34m▶︎ Installing system prerequisites\033[0m"
+sudo apt-get update -qq
+sudo apt-get install -y -qq \
+     curl gnupg ca-certificates apt-transport-https jq
 
 ###############################################################################
-# 1. Google Cloud CLI   (installation manuelle, stable et hors feature broken)
+# 1. Google Cloud SDK (APT repo, modern keyring flow)
 ###############################################################################
-if ! command -v gcloud >/dev/null 2>&1; then
-  echo "▶︎ Installation Google Cloud CLI"
-  echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] \
-https://packages.cloud.google.com/apt cloud-sdk main" \
-    | sudo tee /etc/apt/sources.list.d/google-cloud-sdk.list
-  curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg \
-    | sudo tee /usr/share/keyrings/cloud.google.gpg >/dev/null
-  sudo apt-get update -y && sudo apt-get install -y google-cloud-cli
+if ! command -v gcloud &>/dev/null; then
+  echo -e "\n\033[1;34m▶︎ Installing Google Cloud CLI\033[0m"
+  sudo install -d -m 0755 /etc/apt/keyrings
+  curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg |
+       sudo tee /etc/apt/keyrings/google-cloud.gpg >/dev/null
+  echo \
+    "deb [signed-by=/etc/apt/keyrings/google-cloud.gpg] \
+     https://packages.cloud.google.com/apt cloud-sdk main" |
+     sudo tee /etc/apt/sources.list.d/google-cloud-sdk.list >/dev/null
+
+  sudo apt-get update -qq
+  sudo apt-get install -y google-cloud-cli
 fi
 
-###############################################################################
-# 2. Authentification service‑account (facultatif)
-###############################################################################
-if [[ -n "${GCP_SA_JSON:-}" ]]; then
-  echo "▶︎ Authentification GCP via service‑account"
-  printf '%s\n' "${GCP_SA_JSON}" > /tmp/sa.json
-  gcloud auth activate-service-account --key-file=/tmp/sa.json
-  PROJECT_ID=$(jq -r '.project_id' /tmp/sa.json)
-  gcloud config set project "${PROJECT_ID}"
+# Optional: service‑account login (skipped on CI to avoid secrets bleed)
+if [[ -n "${GCP_SA_JSON:-}" && ! -f "${HOME}/.config/gcloud/application_default_credentials.json" ]]; then
+  echo -e "\n\033[1;34m▶︎ Authenticating gcloud with service account\033[0m"
+  printf '%s\n' "${GCP_SA_JSON}" >/tmp/sa.json
+  gcloud auth activate-service-account --key-file=/tmp/sa.json --quiet
+  gcloud config set project "$(jq -r '.project_id' /tmp/sa.json)"
   rm /tmp/sa.json
 fi
 
 ###############################################################################
-# 3. Supabase CLI
+# 2. Supabase CLI (requires Node which the feature provided)
 ###############################################################################
-if ! command -v supabase >/dev/null 2>&1; then
-  echo "▶︎ Installation Supabase CLI"
-  npm install -g supabase
+if ! command -v supabase &>/dev/null; then
+  echo -e "\n\033[1;34m▶︎ Installing Supabase CLI\033[0m"
+  npm install -g --silent supabase
 fi
 
 ###############################################################################
-# 4. Poetry + dépendances Python du projet
+# 3. Poetry & project dependencies
 ###############################################################################
-if ! command -v poetry >/dev/null 2>&1; then
-  echo "▶︎ Installation Poetry"
-  pip install --no-cache-dir poetry
+if ! command -v poetry &>/dev/null; then
+  echo -e "\n\033[1;34m▶︎ Installing Poetry\033[0m"
+  pip install --no-cache-dir --quiet poetry
 fi
 
-# Crée / met à jour l’environnement virtuel dans ~/.cache/pypoetry/virtualenvs
-echo "▶︎ Installation dépendances (poetry install --with dev)"
-poetry install --with dev
+# Local virtual‑env inside workspace for VS Code interpreter pick‑up
+if [ ! -d .venv ]; then
+  echo -e "\n\033[1;34m▶︎ Creating project virtual‑env & installing deps\033[0m"
+  poetry config virtualenvs.in-project true
+  poetry install --with dev --no-root -q
+fi
 
 ###############################################################################
-# 5. Hooks git pré‑commit
+# 4. Git hooks (installed only once)
 ###############################################################################
-echo "▶︎ Installation hooks pre‑commit"
-poetry run pre-commit install
+if [ ! -f .git/hooks/pre-commit ]; then
+  echo -e "\n\033[1;34m▶︎ Installing pre‑commit hooks\033[0m"
+  poetry run pre-commit install -q
+fi
 
-echo "✅  Environnement prêt !"
+###############################################################################
+# 5. Ensure PATHs survive new terminals
+###############################################################################
+grep -qxF 'export PATH="$HOME/.npm-global/bin:$PATH"' ~/.bashrc ||
+  echo 'export PATH="$HOME/.npm-global/bin:$PATH"' >> ~/.bashrc
+
+echo -e "\n\033[1;32m✅ Environment ready!\033[0m"

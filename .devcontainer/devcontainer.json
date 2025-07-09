@@ -1,21 +1,23 @@
+// .devcontainer/devcontainer.json
 {
   "name": "jarvys_dev",
-  "image": "mcr.microsoft.com/devcontainers/python:3.12",
+  // Slim Python base (40 s pull instead of >200 s for full image)
+  "image": "mcr.microsoft.com/devcontainers/python:3.12-bookworm",
 
-  // On ne conserve que les features extrêmement robustes
+  // Only the truly indispensable pre‑built features
   "features": {
+    // Git & GH CLI for Codespaces are injected automatically – keep for local Docker use
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/devcontainers/features/node:1": { "version": "lts" }
   },
 
-  // Script bootstrap (voir section 2)
-  "postCreateCommand": "/bin/bash /workspaces/appia-dev/.devcontainer/setup.sh",
+  // Runs as *vscode* user; script escalates to sudo when needed
+  "postCreateCommand": "bash .devcontainer/setup.sh",
 
-  // Redirections de ports visibles dans Codespaces
+  // Forward local Dev server & local Supabase
   "forwardPorts": [8080, 54321],
 
-  // Secrets GitHub ⇨ variables d’environnement dans le conteneur
   "containerEnv": {
     "OPENAI_API_KEY": "${{ secrets.OPENAI_API_KEY }}",
     "SUPABASE_URL":   "${{ secrets.SUPABASE_URL }}",
@@ -23,11 +25,11 @@
     "GCP_SA_JSON":    "${{ secrets.GCP_SA_JSON }}"
   },
 
+  // Tell VS Code to pick the Poetry venv for linting / debugging
   "customizations": {
     "vscode": {
       "settings": {
-        // L’interpréteur Poetry sera détecté automatiquement à l’ouverture
-        "python.defaultInterpreterPath": "/home/vscode/.cache/pypoetry/virtualenvs/*/bin/python"
+        "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python"
       }
     }
   }
