@@ -5,11 +5,11 @@ set -euo pipefail
 # 1. Pré‑requis système
 ################################################################################
 export DEBIAN_FRONTEND=noninteractive
-export CLOUDSDK_CORE_DISABLE_PROMPTS=1          # ⬅️  ICI : fin des prompts gcloud
+export CLOUDSDK_CORE_DISABLE_PROMPTS=1   # Désactive tous les prompts gcloud
 
 echo "▶︎ Installation des dépendances APT de base"
-apt-get update -qq && apt-get install -yqq \
-    curl gnupg ca-certificates apt-transport-https jq
+apt-get update -qq \
+  && apt-get install -yqq curl gnupg ca-certificates apt-transport-https jq
 
 ################################################################################
 # 2. Google Cloud CLI
@@ -26,14 +26,25 @@ fi
 
 echo "▶︎ Authentification GCP (service account)"
 if [[ -n "${GCP_SA_JSON:-}" ]]; then
-  SA_FILE=$(mktemp)
+  SA_FILE="$(mktemp)"
   echo "${GCP_SA_JSON}" > "${SA_FILE}"
   gcloud auth activate-service-account --key-file="${SA_FILE}" --quiet
-  PROJECT_ID=$(jq -r '.project_id' "${SA_FILE}")
-
-  # Configure sans prompt ; n’échoue pas si l’API est désactivée
+  PROJECT_ID="$(jq -r '.project_id' "${SA_FILE}")"
   gcloud config set project "${PROJECT_ID}" --quiet || true
   rm -f "${SA_FILE}"
+
+  ##########################################################################
+  # 2.3 Activation (silencieuse) des APIs nécessaires
+  ##########################################################################
+  echo "▶︎ Activation des APIs GCP essentielles"
+  gcloud services enable \
+    cloudresourcemanager.googleapis.com \
+    run.googleapis.com \
+    artifactregistry.googleapis.com \
+    iam.googleapis.com \
+    cloudbuild.googleapis.com \
+    secretmanager.googleapis.com \
+    --quiet || true
 fi
 
 ################################################################################
