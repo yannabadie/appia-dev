@@ -1,6 +1,7 @@
 # src/jarvys_dev/tools/memory.py
 from __future__ import annotations
 
+import logging
 import os
 import typing as _t
 import uuid
@@ -58,9 +59,19 @@ def upsert_embedding(content: str, doc_id: str | None = None) -> str:
     _load_config()
     emb = _embed(content)
     doc_id = doc_id or str(uuid.uuid4())
-    _sb.table("documents").upsert(
-        {"id": doc_id, "content": content, "embedding": emb}, on_conflict="id"
-    ).execute()
+    try:
+        _sb.table("documents").upsert(
+            {
+                "id": doc_id,
+                "content": content,
+                "embedding": emb,
+            },
+            on_conflict="id",
+        ).execute()
+    except Exception:
+        logging.warning(
+            "\u26a0\ufe0f  Supabase connection failed," " data not saved",
+        )
     return doc_id
 
 
@@ -68,8 +79,12 @@ def memory_search(query: str, k: int = 5) -> list[str]:
     """Recherche sémantique ; renvoie les contenus les + proches."""
     _load_config()
     q_emb = _embed(query)
-    res = _sb.rpc(
-        "match_documents",  # fonction SQL créée ci‑dessous
-        {"query_embedding": q_emb, "match_count": k},
-    ).execute()
+    try:
+        res = _sb.rpc(
+            "match_documents",  # fonction SQL créée ci‑dessous
+            {"query_embedding": q_emb, "match_count": k},
+        ).execute()
+    except Exception:
+        logging.warning("\u26a0\ufe0f  Supabase search failed")
+        return []
     return [r["content"] for r in res.data]
