@@ -13,11 +13,13 @@ import sys
 import textwrap
 from typing import List
 
+
 # ---------- petites fonctions utilitaires ----------
 def _pip(pkg: str):
     subprocess.check_call(
         [sys.executable, "-m", "pip", "install", "--quiet", pkg]
     )
+
 
 try:
     from github import Github, GithubException
@@ -48,6 +50,7 @@ miss = [k for k, v in env.items() if not v]
 if miss:
     sys.exit("❌  Variables manquantes : " + ", ".join(miss))
 
+
 def _check_branch(expected: str = "dev") -> None:
     cur = (
         subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
@@ -56,6 +59,7 @@ def _check_branch(expected: str = "dev") -> None:
     )
     if cur != expected:
         sys.exit(f"❌  Doit être sur la branche {expected}, pas {cur}")
+
 
 def _run_checks() -> None:
     subprocess.check_call(
@@ -70,6 +74,7 @@ def _run_checks() -> None:
     )
     subprocess.check_call(["poetry", "run", "pytest", "-q"])
 
+
 _check_branch()
 _run_checks()
 
@@ -80,6 +85,7 @@ owner = repo.owner.login
 # ---------- aide GraphQL ----------
 GQL = "https://api.github.com/graphql"
 HEAD = {"Authorization": f"bearer {env['GH_TOKEN']}"}
+
 
 def gql(query: str, **vars):
     import json
@@ -98,8 +104,10 @@ def gql(query: str, **vars):
         raise RuntimeError(data["errors"])
     return data["data"]
 
+
 # ---------- Project v2 ----------
 PROJECT_TITLE = "JARVYS_DEV Roadmap"
+
 
 def get_or_create_project() -> str:
     q = """
@@ -124,11 +132,12 @@ def get_or_create_project() -> str:
         }
       }
     """
-    proj = gql(mut, owner=d["id"], title=PROJECT_TITLE)[
-        "createProjectV2"
-    ]["projectV2"]
+    proj = gql(mut, owner=d["id"], title=PROJECT_TITLE)["createProjectV2"][
+        "projectV2"
+    ]
     print(f"✅  Project créé : {proj['url']}")
     return proj["id"]
+
 
 def add_issue_to_project(pid: str, node_id: str):
     mut = """
@@ -137,12 +146,14 @@ def add_issue_to_project(pid: str, node_id: str):
       }"""
     gql(mut, p=pid, c=node_id)
 
+
 def issue_node_id(num: int) -> str:
     q = """
       query($o:String!,$r:String!,$n:Int!){
         repository(owner:$o,name:$r){ issue(number:$n){ id } }
       }"""
     return gql(q, o=owner, r=repo.name, n=num)["repository"]["issue"]["id"]
+
 
 # ---------- helper upsert (create ou update) ----------
 def upsert(path: str, message: str, content: str, branch="main"):
@@ -154,6 +165,7 @@ def upsert(path: str, message: str, content: str, branch="main"):
             repo.create_file(path, message, content, branch=branch)
         else:
             raise
+
 
 # ---------- 1) project & issues ----------
 pid = get_or_create_project()
@@ -228,7 +240,9 @@ devc = textwrap.dedent(
   }
 }"""
 )
-upsert(".devcontainer/devcontainer.json", "Add/Update devcontainer config", devc)
+upsert(
+    ".devcontainer/devcontainer.json", "Add/Update devcontainer config", devc
+)
 
 # ---------- 4) tool stub ----------
 stub = textwrap.dedent(
