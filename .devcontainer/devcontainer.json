@@ -14,15 +14,14 @@
 
   "containerEnv": {
     "CLOUDSDK_CORE_DISABLE_PROMPTS": "1",
-    "OPENAI_API_KEY": "${{ secrets.OPENAI_API_KEY }}",
-    "SUPABASE_URL": "${{ secrets.SUPABASE_URL }}",
-    "SUPABASE_KEY": "${{ secrets.SUPABASE_KEY }}",
-    "SUPABASE_ACCESS_TOKEN": "${{ secrets.SUPABASE_ACCESS_TOKEN }}",
-    "SUPABASE_PROJECT_ID": "${{ secrets.SUPABASE_PROJECT_ID }}",
-    "SPB_EDGE_FUNCTIONS": "${{ secrets.SPB_EDGE_FUNCTIONS }}",
-    "GCP_SA_JSON": "${{ secrets.GCP_SA_JSON }}",
-    "GH_TOKEN": "${{ secrets.GH_TOKEN }}",
-    "GH_REPO": "${{ secrets.GH_REPO }}"
+    "OPENAI_API_KEY": "${localEnv:OPENAI_API_KEY}",
+    "SUPABASE_URL": "${localEnv:SUPABASE_URL}",
+    "SUPABASE_KEY": "${localEnv:SUPABASE_KEY}",
+    "SUPABASE_ACCESS_TOKEN": "${localEnv:SUPABASE_ACCESS_TOKEN}",
+    "SUPABASE_PROJECT_ID": "${localEnv:SUPABASE_PROJECT_ID}",
+    "SPB_EDGE_FUNCTIONS": "${localEnv:SPB_EDGE_FUNCTIONS}",
+    "GH_TOKEN": "${localEnv:GH_TOKEN}",
+    "GH_REPO": "${localEnv:GH_REPO}"
   },
 
   "customizations": {
