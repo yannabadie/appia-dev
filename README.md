@@ -1,82 +1,140 @@
-# appia-dev
+# JARVYS Ecosystem - Agents DevOps Autonomes
 
-JARVYS_DEV est un agent d'automatisation pour gérer le cycle de vie d'un
-projet logiciel. Il interagit avec GitHub, une base vectorielle Supabase et des
-Cloud Functions afin de planifier et exécuter des tâches DevOps.
+**JARVYS_DEV** est un agent d'automatisation DevOps cloud-first qui s'exécute exclusivement sur GitHub Actions et GCP. Il collabore avec **JARVYS_AI** (local/hybride) via une mémoire infinie partagée sur Supabase.
 
-L'agent s'appuie sur une boucle **observe – plan – act – reflect** mise en
-œuvre avec LangGraph. Les tâches ainsi planifiées sont transmises à
-`JARVYS_AI` par création d'issues GitHub étiquetées `from_jarvys_ai`.
+## 🏗️ Architecture Cloud-First
 
-Les modifications de code sont générées par Copilot, appliquées sur la branche
-`dev` puis validées via `pre-commit` et `pytest` avant ouverture de toute PR.
+### 🌩️ JARVYS_DEV (Cloud Seulement)
+- **Environnement** : GitHub Actions exclusivement
+- **Fonction** : Automatisation DevOps, CI/CD, monitoring
+- **Exécution** : Cron toutes les heures + triggers événements
+- **Interface** : Dashboard auto-hébergé sur Supabase
+
+### 🏠 JARVYS_AI (Local/Hybride)  
+- **Environnement** : Machine locale de l'utilisateur
+- **Fonction** : Assistance développement, analyse code
+- **Communication** : API et mémoire partagée Supabase
+- **Interface** : CLI et intégrations IDE
+
+### 🧠 Mémoire Infinie Partagée
+- **Support** : Supabase avec recherche vectorielle
+- **Capacité** : Stockage illimité des interactions/préférences
+- **Persistance** : Tout est mémorisé sur l'utilisateur
+- **Recherche** : Sémantique via embeddings OpenAI
 
 ## 🚀 Démarrage Rapide
 
-### Option 1: Démarrage complet (Recommandé)
-```bash
-# Lance tous les composants (agent + MCP + dashboard + monitoring)
-python start_jarvys.py
+### 1. Dashboard Auto-hébergé (Supabase)
 
-# Accès aux interfaces:
-# 📊 Dashboard: http://localhost:8080
-# 🔗 Serveur MCP: http://localhost:54321
-# 🤖 Agent autonome en arrière-plan
+Le dashboard est automatiquement déployé sur Supabase Edge Functions :
+
+```bash
+# Accédez au dashboard
+# URL fournie après déploiement via GitHub Actions
+https://[votre-projet].supabase.co/functions/v1/dashboard
 ```
 
-### Option 2: Dashboard seul (pour monitoring)
-```bash
-# Lance uniquement le dashboard de monitoring
-python start_jarvys.py --component dashboard
+**Fonctionnalités** :
+- � Métriques en temps réel (coûts, performances)
+- � Interface de recherche dans la mémoire infinie  
+- 🤖 État des agents (JARVYS_DEV cloud + JARVYS_AI local)
+- 📈 Historique et analytics
 
-# Interface disponible sur: http://localhost:8080
-# - Métriques en temps réel
-# - Chat avec l'agent
-# - Contrôle des tâches
-# - Suivi des coûts API
+### 2. Configuration Cloud (GitHub Secrets)
+
+Définissez ces secrets dans votre repository GitHub :
+
+```yaml
+# Secrets requis pour JARVYS_DEV (cloud)
+OPENAI_API_KEY: "sk-..."
+GITHUB_TOKEN: "ghp_..."  
+SUPABASE_URL: "https://xxx.supabase.co"
+SUPABASE_KEY: "eyJ..."
+SUPABASE_PROJECT_REF: "xxx"
+SUPABASE_ACCESS_TOKEN: "sbp_..."
+GEMINI_API_KEY: "AIza..."
+GCP_SA_JSON: '{"type": "service_account"...}'
 ```
 
-### Option 3: Composants individuels
+### 3. Activation Agent Cloud
+
 ```bash
-# Agent autonome seulement
-python start_jarvys.py --component agent
+# L'agent JARVYS_DEV se lance automatiquement sur GitHub Actions
+# Triggers : push, pull_request, schedule (toutes les heures)
 
-# Serveur MCP seulement  
-python start_jarvys.py --component mcp
-
-# Surveillant de modèles seulement
-python start_jarvys.py --component watcher
+# Déclencher manuellement
+gh workflow run "🌩️ JARVYS_DEV Cloud Deployment" \
+  --field mode=autonomous
 ```
 
-## Mise en route
+## 🛠️ Développement Local (JARVYS_AI)
 
-1. **Installer Poetry**
+Pour développer et tester JARVYS_AI en local :
 
-   ```bash
-   pip install poetry
-   ```
+```bash
+# 1. Installation des dépendances
+poetry install --with dev
 
-2. **Installer les dépendances**
+# 2. Configuration environnement local
+export OPENAI_API_KEY="sk-..."
+export SUPABASE_URL="https://xxx.supabase.co"  
+export SUPABASE_KEY="eyJ..."
 
-   ```bash
-   poetry install --with dev
-   ```
+# 3. Test de la mémoire partagée
+poetry run python src/jarvys_dev/tools/memory_infinite.py
 
-3. **Variables d'environnement requises**
-   
-   **Core (obligatoires)** :
-   - `OPENAI_API_KEY` - Clé API OpenAI
-   - `GH_TOKEN` et `GH_REPO` - Token et repository GitHub  
-   - `SUPABASE_URL` et `SUPABASE_KEY` - Base vectorielle Supabase
-   - `GEMINI_API_KEY` - Clé Google AI (requis pour le router complet)
-   - `GCP_SA_JSON` - Service Account GCP (requis pour Cloud Functions)
-   
-   **Optionnels** :
-   - `ANTHROPIC_API_KEY` - Clé Anthropic (optionnel, GitHub Copilot suffit)
-   - `CONFIDENCE_SCORE` - Score de confiance (défaut: 1.0)
+# 4. Lancement JARVYS_AI local (à développer)
+# poetry run python jarvys_ai/main.py
+```
 
-Pour les tests locaux, exportez ces variables dans votre shell.
-Dans GitHub Actions ou Codespaces, définissez-les dans les _Secrets_ du dépôt.
+## 🔧 Communication Inter-Agents
+
+### JARVYS_DEV → JARVYS_AI
+- **Issues GitHub** avec label `from_jarvys_dev`
+- **Mémoire partagée** : Contexte et préférences utilisateur
+- **APIs** : Endpoints spécifiques pour coordination
+
+### JARVYS_AI → JARVYS_DEV  
+- **Issues GitHub** avec label `from_jarvys_ai`
+- **Mémoire partagée** : Retours et apprentissages
+- **Pull Requests** : Propositions de code
+
+## 📊 Dashboard Auto-hébergé
+
+### Architecture Supabase
+- **Edge Functions** : Interface web responsive
+- **Base vectorielle** : Mémoire infinie avec recherche sémantique
+- **Real-time** : Mises à jour WebSocket automatiques
+- **RLS** : Sécurité par utilisateur
+
+### Métriques Trackées
+- 💰 **Coûts API** : OpenAI, Gemini, GitHub API calls
+- ⚡ **Performance** : Temps de réponse, taux de succès
+- 🧠 **Mémoire** : Utilisation, recherches, importance
+- 🤖 **Agents** : Status, heartbeat, activité
+
+## 🔍 Fonctionnalités Avancées
+
+### Mémoire Infinie
+```python
+from src.jarvys_dev.tools.memory_infinite import get_memory
+
+# Mémoriser une préférence utilisateur
+memory = get_memory("JARVYS_DEV", "user_123")
+memory.memorize(
+    "L'utilisateur préfère les solutions simples et épurées",
+    memory_type="preference", 
+    importance_score=0.9
+)
+
+# Rechercher dans la mémoire
+results = memory.recall("préférences design interface")
+```
+
+### Auto-déploiement
+- **GitHub Actions** : Déploiement automatique dashboard
+- **Supabase CLI** : Edge Functions et schéma DB
+- **Monitoring** : Health checks et alerting
 
 ## Exécution des tests
 

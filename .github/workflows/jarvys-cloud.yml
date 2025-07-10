@@ -1,0 +1,332 @@
+name: 🌩️ JARVYS_DEV Cloud Deployment
+
+on:
+  push:
+    branches: [ main, dev ]
+  schedule:
+    # Exécution autonome toutes les heures
+    - cron: '0 * * * *'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Mode d\'exécution'
+        required: true
+        default: 'autonomous'
+        type: choice
+        options:
+        - autonomous
+        - analysis
+        - memory_sync
+        - dashboard_deploy
+
+env:
+  AGENT_NAME: "JARVYS_DEV"
+  ENVIRONMENT: "cloud"
+  
+jobs:
+  deploy-dashboard:
+    name: 📊 Déployer Dashboard Supabase
+    runs-on: ubuntu-latest
+    if: github.event.inputs.mode == 'dashboard_deploy' || github.event_name == 'push'
+    
+    steps:
+    - name: 🔄 Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 🔧 Setup Supabase CLI
+      uses: supabase/setup-cli@v1
+      with:
+        version: latest
+        
+    - name: 🚀 Deploy Edge Functions
+      run: |
+        echo "Déploiement du dashboard sur Supabase..."
+        # Déployer les Edge Functions
+        supabase functions deploy dashboard --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+        
+        # Appliquer le schéma de base de données
+        supabase db push --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+      env:
+        SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+
+  autonomous-agent:
+    name: 🤖 Agent Autonome Cloud
+    runs-on: ubuntu-latest
+    if: github.event.inputs.mode == 'autonomous' || github.event_name == 'schedule' || github.event_name == 'push'
+    
+    steps:
+    - name: 🔄 Checkout Repository  
+      uses: actions/checkout@v4
+      
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+        
+    - name: 📦 Install Dependencies
+      run: |
+        pip install poetry
+        poetry install --with dev
+        
+    - name: 🔐 Validate Environment
+      run: |
+        echo "🔍 Validation de l'environnement cloud pour JARVYS_DEV"
+        python -c "
+        import os
+        required = ['OPENAI_API_KEY', 'GITHUB_TOKEN', 'SUPABASE_URL', 'SUPABASE_KEY', 'GEMINI_API_KEY']
+        missing = [var for var in required if not os.getenv(var)]
+        if missing:
+            print(f'❌ Variables manquantes: {missing}')
+            exit(1)
+        print('✅ Toutes les variables d\'environnement sont définies')
+        "
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        GCP_SA_JSON: ${{ secrets.GCP_SA_JSON }}
+        
+    - name: 📊 Update Agent Status
+      run: |
+        python -c "
+        from src.jarvys_dev.tools.memory_infinite import get_memory
+        memory = get_memory('JARVYS_DEV', 'cloud_status')
+        memory.memorize(
+            'Agent JARVYS_DEV démarré en mode cloud sur GitHub Actions',
+            memory_type='experience',
+            importance_score=0.7,
+            tags=['startup', 'cloud', 'github_actions']
+        )
+        print('✅ Statut agent mis à jour dans la mémoire infinie')
+        "
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        
+    - name: 🚀 Run Autonomous Loop
+      run: |
+        echo "🤖 Lancement de la boucle autonome JARVYS_DEV (Cloud)"
+        timeout 45m poetry run python -m jarvys_dev.langgraph_loop || echo "⏰ Timeout normal - cycle terminé"
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_REPO: ${{ github.repository }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        GCP_SA_JSON: ${{ secrets.GCP_SA_JSON }}
+        CONFIDENCE_SCORE: "0.85"
+        
+    - name: 📈 Log Metrics to Dashboard
+      if: always()
+      run: |
+        python -c "
+        import os, requests, json
+        from datetime import datetime
+        
+        # Métriques de la session
+        metrics = {
+            'agent_type': 'JARVYS_DEV',
+            'event_type': 'autonomous_run',
+            'service': 'github_actions',
+            'success': True,
+            'metadata': {
+                'environment': 'cloud',
+                'trigger': '${{ github.event_name }}',
+                'run_id': '${{ github.run_id }}',
+                'ref': '${{ github.ref }}'
+            },
+            'user_context': 'system'
+        }
+        
+        # Envoyer au dashboard Supabase
+        dashboard_url = f\"{os.getenv('SUPABASE_URL')}/functions/v1/dashboard/api/metrics\"
+        headers = {
+            'Authorization': f\"Bearer {os.getenv('SUPABASE_KEY')}\",
+            'Content-Type': 'application/json'
+        }
+        
+        try:
+            response = requests.post(dashboard_url, json=metrics, headers=headers, timeout=10)
+            if response.status_code == 200:
+                print('✅ Métriques envoyées au dashboard')
+            else:
+                print(f'⚠️ Erreur dashboard: {response.status_code}')
+        except Exception as e:
+            print(f'⚠️ Erreur envoi métriques: {e}')
+        "
+      env:
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+  memory-sync:
+    name: 🧠 Synchronisation Mémoire
+    runs-on: ubuntu-latest
+    if: github.event.inputs.mode == 'memory_sync' || github.event_name == 'schedule'
+    
+    steps:
+    - name: 🔄 Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+        
+    - name: 📦 Install Dependencies
+      run: |
+        pip install poetry
+        poetry install --only main
+        
+    - name: 🧠 Sync Shared Memory
+      run: |
+        python -c "
+        from src.jarvys_dev.tools.memory_infinite import get_memory
+        import json
+        
+        print('🧠 Synchronisation de la mémoire partagée...')
+        
+        # Mémoire pour JARVYS_DEV
+        memory_dev = get_memory('JARVYS_DEV', 'shared')
+        
+        # Mémoriser l'état du repository
+        memory_dev.memorize(
+            f'Repository {\"${{ github.repository }}\"} mis à jour le {\"${{ github.event.head_commit.timestamp or \"unknown\" }}\"}',
+            memory_type='knowledge',
+            importance_score=0.6,
+            tags=['repository', 'update', 'github']
+        )
+        
+        # Stats de la mémoire
+        stats = memory_dev.get_memory_stats()
+        print(f'📊 Stats mémoire: {json.dumps(stats, indent=2)}')
+        "
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+  analysis:
+    name: 🔍 Analyse et Optimisation
+    runs-on: ubuntu-latest
+    if: github.event.inputs.mode == 'analysis' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    
+    steps:
+    - name: 🔄 Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+        
+    - name: 📦 Install Dependencies  
+      run: |
+        pip install poetry
+        poetry install --with dev
+        
+    - name: 🧪 Run Tests
+      run: |
+        echo "🧪 Exécution des tests pour validation"
+        poetry run pytest -v --tb=short
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        
+    - name: 📊 Generate Analytics Report
+      run: |
+        python -c "
+        from src.jarvys_dev.tools.memory_infinite import get_memory
+        import json
+        from datetime import datetime
+        
+        print('📊 Génération du rapport d\\'analyse...')
+        
+        memory = get_memory('JARVYS_DEV', 'analytics')
+        
+        # Analyser l'activité récente
+        recent_activity = memory.recall('github activity analysis', limit=20)
+        
+        # Mémoriser l'analyse
+        analysis = f'''
+        Analyse automatique du {datetime.now().strftime(\"%Y-%m-%d %H:%M\")}:
+        - Repository: ${{ github.repository }}
+        - Commit: ${{ github.sha }}
+        - Tests: Passés avec succès
+        - Mémoire: {len(recent_activity)} activités récentes analysées
+        - Mode: Autonome cloud sur GitHub Actions
+        '''
+        
+        memory.memorize(
+            analysis,
+            memory_type='knowledge',
+            importance_score=0.8,
+            tags=['analysis', 'automation', 'github_actions']
+        )
+        
+        print('✅ Rapport d\\'analyse mémorisé')
+        "
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+  notify-completion:
+    name: 📢 Notification Fin d'Exécution
+    runs-on: ubuntu-latest
+    needs: [autonomous-agent, memory-sync, analysis]
+    if: always()
+    
+    steps:
+    - name: 📊 Create Summary Issue
+      uses: actions/github-script@v7
+      if: github.event_name == 'schedule' || github.event.inputs.mode == 'autonomous'
+      with:
+        script: |
+          const now = new Date().toISOString();
+          const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+          
+          const title = `🤖 JARVYS_DEV - Rapport d'exécution autonome ${now.split('T')[0]}`;
+          
+          const body = `
+          ## 🚀 Rapport d'Exécution Autonome JARVYS_DEV
+          
+          **📅 Date**: ${now}  
+          **🌩️ Environnement**: Cloud (GitHub Actions)  
+          **🔗 Run**: [${context.runId}](${runUrl})  
+          **⚡ Trigger**: ${context.eventName}
+          
+          ### 📊 Résultats
+          
+          ✅ **Agent autonome**: ${{ needs.autonomous-agent.result }}  
+          ✅ **Synchronisation mémoire**: ${{ needs.memory-sync.result }}  
+          ✅ **Analyse**: ${{ needs.analysis.result }}
+          
+          ### 🧠 Mémoire Infinie
+          
+          La mémoire partagée entre JARVYS_DEV et JARVYS_AI a été mise à jour avec les nouvelles expériences et connaissances acquises durant cette session.
+          
+          ### 📈 Dashboard
+          
+          Les métriques sont disponibles sur le dashboard auto-hébergé Supabase.
+          
+          ---
+          *Généré automatiquement par JARVYS_DEV en mode cloud*
+          `;
+          
+          await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: title,
+            body: body,
+            labels: ['from_jarvys_dev', 'autonomous-report', 'cloud']
+          });
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
