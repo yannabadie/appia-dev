@@ -1,0 +1,22 @@
+# Configuration Supabase pour JARVYS Ecosystem
+project_id = "jarvys-ecosystem"
+api_url = "https://api.supabase.com"
+
+[db]
+port = 54322
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+api_url = "http://localhost:54321"
+
+[auth]
+enabled = true
+external_providers = ["github"]
+
+[edge_functions]
+enabled = true
+
+[realtime]
+enabled = true

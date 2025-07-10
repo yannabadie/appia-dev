@@ -1,5 +1,5 @@
 {
-  "openai": "whisper-1",
-  "anthropic": "claude-4",
-  "gemini": "models/text-embedding-004"
+  "openai": "gpt-4o-mini",
+  "anthropic": "claude-3-5-sonnet-20241022",
+  "gemini": "gemini-1.5-flash"
 }
