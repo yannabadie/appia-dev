@@ -1,0 +1,41 @@
+---
+name: Wiki Init
+
+on:
+  workflow_dispatch: {}
+  push:
+    branches:
+      - main
+
+jobs:
+  init-wiki:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone wiki
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          git config --global user.name 'github-actions'
+          git config --global user.email 'github-actions@github.com'
+          REPO="${{ github.repository }}"
+          BASE="https://x-access-token:${GH_TOKEN}@github.com"
+          git clone "${BASE}/${REPO}.wiki.git" wiki
+
+      - name: Copy Home page
+        run: |
+          if [ ! -f wiki/Home.md ]; then
+            cp ./wiki/Home.md wiki/Home.md
+          fi
+
+      - name: Commit changes
+        run: |
+          cd wiki
+          if [ -n "$(git status --porcelain)" ]; then
+            git add Home.md
+            git commit -m 'Initialize wiki with welcome page'
+            git push
+          else
+            echo 'Wiki already initialized'
+          fi

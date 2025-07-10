@@ -1,16 +1,26 @@
 {
   "name": "jarvys_dev",
   "image": "mcr.microsoft.com/devcontainers/python:3.12",
+
   "features": {
     "ghcr.io/devcontainers/features/git:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/node:1": {}
+    "ghcr.io/devcontainers/features/node:1": { "version": "lts" }
   },
 
-  // Exécuté à chaque build Codespace
-  "postCreateCommand": "pip install poetry && poetry install --with dev && poetry run pre-commit install",
+  "postCreateCommand": "bash -l /workspaces/appia-dev/.devcontainer/setup.sh",
 
-  "forwardPorts": [54321],
+  "forwardPorts": [8080, 54321],
+
+  "containerEnv": {
+    "CLOUDSDK_CORE_DISABLE_PROMPTS": "1",
+    "OPENAI_API_KEY": "${{ secrets.OPENAI_API_KEY }}",
+    "SUPABASE_URL":   "${{ secrets.SUPABASE_URL }}",
+    "SUPABASE_KEY":   "${{ secrets.SUPABASE_KEY }}",
+    "GCP_SA_JSON":    "${{ secrets.GCP_SA_JSON }}",
+    "GH_TOKEN": "${{ secrets.GH_TOKEN }}",       
+    "GH_REPO": "${{ secrets.GH_REPO }}"
+  },
 
   "customizations": {
     "vscode": {
@@ -18,12 +28,5 @@
         "python.defaultInterpreterPath": "/home/vscode/.cache/pypoetry/virtualenvs/jarvys-dev-*/bin/python"
       }
     }
-  },
-
-  // Variables disponibles dans le conteneur :
-  "containerEnv": {
-    "OPENAI_API_KEY": "${{ secrets.OPENAI_API_KEY }}",
-    "SUPABASE_URL": "${{ secrets.SUPABASE_URL }}",
-    "SUPABASE_KEY": "${{ secrets.SUPABASE_KEY }}"
   }
 }
