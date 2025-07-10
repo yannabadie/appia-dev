@@ -24,7 +24,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install poetry
-          poetry install --no-root --with dev
+          poetry install --with dev
       - name: Run Jarvys Dev agent
         run: |
           poetry run python -m jarvys_dev.langgraph_loop
