@@ -1,0 +1,15 @@
+---
+site_name: JARVYS_DEV
+nav:
+  - Home: index.md
+  - API Reference:
+      - Jarvys Dev: modules/jarvys_dev.md
+theme:
+  name: material
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          setup_commands:
+            - import sys, os; sys.path.insert(0, os.path.abspath('src'))

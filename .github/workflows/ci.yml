@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "dev"]
   pull_request:
-    branches: ["main"]
+    branches: ["main", "dev"]
 
 jobs:
   test:
@@ -38,4 +38,4 @@ jobs:
         run: |
           poetry install --with dev
           poetry run pre-commit run --all-files
-          poetry run pytest -q
+          PYTHONPATH=src poetry run pytest -q
