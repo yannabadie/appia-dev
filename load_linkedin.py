@@ -52,5 +52,10 @@ if __name__ == "__main__":
     try:
         doc_id = memory.upsert_embedding(content)
         print(f"\u2705 LinkedIn profile imported with ID: {doc_id}")
+    except ValueError as e:
+        print(f"\u274c Failed to insert into vector DB due to invalid input: {e}")
+    except RuntimeError as e:
+        print(f"\u274c Failed to insert into vector DB due to runtime error: {e}")
     except Exception as e:
-        print(f"\u274c Failed to insert into vector DB: {e}")
+        print(f"\u274c An unexpected error occurred: {e}")
+        raise
