@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-# --- bootstrap_jarvys_dev.py (idempotent – Projects v2) --------------------
+# --- bootstrap_jarvys_dev.py (idempotent – Projects v2) --------------------
 """
-Bootstrap JARVYS_DEV : crée/maj Project v2, issues, workflow CI, devcontainer,
-tool stub. Relançable sans erreur.
+Bootstrap JARVYS_DEV : crée/maj Project v2, issues, workflow CI, devcontainer,
+tool stub. Relançable sans erreur.
 
-Dépend de : GH_TOKEN, GH_REPO, SUPABASE_URL, SUPABASE_KEY,
+Dépend de : GH_TOKEN, GH_REPO, SUPABASE_URL, SUPABASE_KEY,
             GCP_SA_JSON, OPENAI_API_KEY, GEMINI_API_KEY
 """
 import os
@@ -13,13 +13,11 @@ import sys
 import textwrap
 from typing import List
 
-
 # ---------- petites fonctions utilitaires ----------
 def _pip(pkg: str):
-    subprocess.check_call(  # noqa: E501
+    subprocess.check_call(
         [sys.executable, "-m", "pip", "install", "--quiet", pkg]
     )
-
 
 try:
     from github import Github, GithubException
@@ -32,7 +30,7 @@ except ImportError:
     _pip("requests")
     import requests
 
-# ---------- variables d’environnement ----------
+# ---------- variables d'environnement ----------
 env = {
     k: os.getenv(k)
     for k in (
@@ -50,7 +48,6 @@ miss = [k for k, v in env.items() if not v]
 if miss:
     sys.exit("❌  Variables manquantes : " + ", ".join(miss))
 
-
 def _check_branch(expected: str = "dev") -> None:
     cur = (
         subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
@@ -59,7 +56,6 @@ def _check_branch(expected: str = "dev") -> None:
     )
     if cur != expected:
         sys.exit(f"❌  Doit être sur la branche {expected}, pas {cur}")
-
 
 def _run_checks() -> None:
     subprocess.check_call(
@@ -74,7 +70,6 @@ def _run_checks() -> None:
     )
     subprocess.check_call(["poetry", "run", "pytest", "-q"])
 
-
 _check_branch()
 _run_checks()
 
@@ -86,9 +81,10 @@ owner = repo.owner.login
 GQL = "https://api.github.com/graphql"
 HEAD = {"Authorization": f"bearer {env['GH_TOKEN']}"}
 
-
 def gql(query: str, **vars):
+    import json
     import textwrap
+    import requests
 
     r = requests.post(
         GQL,
@@ -102,10 +98,8 @@ def gql(query: str, **vars):
         raise RuntimeError(data["errors"])
     return data["data"]
 
-
-# ---------- Project v2 ----------
+# ---------- Project v2 ----------
 PROJECT_TITLE = "JARVYS_DEV Roadmap"
-
 
 def get_or_create_project() -> str:
     q = """
@@ -130,14 +124,11 @@ def get_or_create_project() -> str:
         }
       }
     """
-    # fmt: off
     proj = gql(mut, owner=d["id"], title=PROJECT_TITLE)[
         "createProjectV2"
     ]["projectV2"]
-    # fmt: on
     print(f"✅  Project créé : {proj['url']}")
     return proj["id"]
-
 
 def add_issue_to_project(pid: str, node_id: str):
     mut = """
@@ -146,7 +137,6 @@ def add_issue_to_project(pid: str, node_id: str):
       }"""
     gql(mut, p=pid, c=node_id)
 
-
 def issue_node_id(num: int) -> str:
     q = """
       query($o:String!,$r:String!,$n:Int!){
@@ -154,8 +144,7 @@ def issue_node_id(num: int) -> str:
       }"""
     return gql(q, o=owner, r=repo.name, n=num)["repository"]["issue"]["id"]
 
-
-# ---------- helper upsert (create ou update) ----------
+# ---------- helper upsert (create ou update) ----------
 def upsert(path: str, message: str, content: str, branch="main"):
     try:
         cur = repo.get_contents(path, ref=branch)
@@ -166,37 +155,34 @@ def upsert(path: str, message: str, content: str, branch="main"):
         else:
             raise
 
-
 # ---------- 1) project & issues ----------
 pid = get_or_create_project()
 
 ISSUES: List[tuple[str, str]] = [
     (
-        "Epic : Bootstrap infrastructure",
-        "- [ ] Stocker OPENAI_API_KEY dans GitHub Secrets\n"
-        "- [ ] Générer la clé ServiceAccount GCP\n"
+        "Epic : Bootstrap infrastructure",
+        "- [ ] Stocker OPENAI_API_KEY dans GitHub Secrets\n"
+        "- [ ] Générer la clé ServiceAccount GCP\n"
         "- [ ] Créer projet Supabase `jarvys_dev_mem`\n"
         "- [ ] Ajouter workflow `ci.yml`",
     ),
     (
-        "Epic : Core tools",
+        "Epic : Core tools",
         "- [ ] Implémenter `github_create_issue`\n"
         "- [ ] Implémenter `memory_search`\n"
         "- [ ] Tests unitaires tools",
     ),
     (
-        "Epic : Persona & données Yann",
-        (
-            "- [ ] Export PDF LinkedIn\n"
-            "- [ ] Script `load_linkedin.py` ➜ Supabase"  # noqa: E501
-        ),
+        "Epic : Persona & données Yann",
+        "- [ ] Export PDF LinkedIn\n"
+        "- [ ] Script `load_linkedin.py` ➜ Supabase",
     ),
 ]
 
 open_titles = {i.title for i in repo.get_issues(state="open")}
 for title, body in ISSUES:
     if title in open_titles:
-        print(f"⚠️  Issue « {title} » déjà ouverte — saut")
+        print(f"⚠️  Issue « {title} » déjà ouverte — saut")
         continue
     issue = repo.create_issue(title, body)
     node = getattr(issue, "node_id", None) or issue_node_id(issue.number)
@@ -242,10 +228,39 @@ devc = textwrap.dedent(
   }
 }"""
 )
-upsert(".devcontainer/devcontainer.json", "Add/Update devcontainer", devc)
+upsert(".devcontainer/devcontainer.json", "Add/Update devcontainer config", devc)
 
 # ---------- 4) tool stub ----------
-stub = 'def github_create_issue(title:str, body:str=""):\n    """TODO"""'
+stub = textwrap.dedent(
+    """\
+\"\"\"GitHub tools for JARVYS_DEV.\"\"\"
+
+def github_create_issue(title: str, body: str = "") -> str:
+    \"\"\"Create a GitHub issue.
+    
+    Args:
+        title: Issue title
+        body: Issue body (optional)
+        
+    Returns:
+        Issue URL
+    \"\"\"
+    # TODO: Implement GitHub issue creation
+    pass
+
+def github_search_issues(query: str) -> list:
+    \"\"\"Search GitHub issues.
+    
+    Args:
+        query: Search query
+        
+    Returns:
+        List of matching issues
+    \"\"\"
+    # TODO: Implement GitHub issue search
+    pass
+"""
+)
 upsert("src/jarvys_dev/tools/github_tools.py", "Add/Update tool stub", stub)
 
 print("🎉  Bootstrap terminé — relançable sans duplication ni erreur.")
