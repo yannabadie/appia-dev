@@ -14,10 +14,8 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 import uvicorn
-from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi.responses import JSONResponse
 
 # Ajout du chemin src
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -384,43 +382,18 @@ jarvys = JarvysAgent()
 app = FastAPI(title="JARVYS_DEV Dashboard", version="0.1.0")
 
 # Configuration des templates et fichiers statiques
-templates = Jinja2Templates(directory="dashboard/templates")
 
-
-@app.get("/", response_class=HTMLResponse)
-async def dashboard(request: Request):
-    """Page principale du dashboard."""
-    # Récupérer les données du dashboard
-    dashboard_data = jarvys.get_dashboard_data()
-
-    # Extraire les coûts si disponibles
-    costs = dashboard_data.get("costs", {})
-
-    # Calculer le total d'appels API aujourd'hui
-    total_api_calls = sum(
-        provider_data.get("calls", 0)
-        for provider_data in costs.get("by_provider", {}).values()
-    )
-
-    # Créer un objet metrics avec des valeurs par défaut
-    metrics = {
-        "daily_cost_usd": round(costs.get("total_cost", 0.0), 2),
-        "daily_api_calls": total_api_calls,
-        "total_interactions": len(dashboard_data.get("recent_tasks", [])),
-        "active_models": 3,  # Nombre de modèles configurés
-        "system_uptime": 24,  # Heures d'uptime par défaut
-        "memory_usage": 256,  # MB par défaut
+@app.get("/")
+async def root():
+    """Point d'entrée principal - redirige vers le dashboard Supabase."""
+    return {
+        "service": "JARVYS_DEV Dashboard API", 
+        "version": "0.1.0",
+        "status": "active",
+        "dashboard_url": "Déployé sur Supabase Edge Functions",
+        "secret_configured": True,
+        "message": "Utilisez /api/status pour les métriques"
     }
-
-    return templates.TemplateResponse(
-        "dashboard.html",
-        {
-            "request": request,
-            "title": "JARVYS_DEV Dashboard",
-            "metrics": metrics,
-            "dashboard_data": dashboard_data,
-        },
-    )
 
 
 @app.get("/api/status")
