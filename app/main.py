@@ -1,7 +1,7 @@
 import os
 
-from openai import OpenAI
 from fastapi import FastAPI, HTTPException
+from openai import OpenAI
 from pydantic import BaseModel
 
 
@@ -44,8 +44,10 @@ def metadata():
 def ask_llm(req: ChatRequest):
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
-        raise HTTPException(status_code=500, detail="OPENAI_API_KEY not configured")
-    
+        raise HTTPException(
+            status_code=500, detail="OPENAI_API_KEY not configured"
+        )
+
     client = OpenAI(api_key=api_key)
     try:
         resp = client.chat.completions.create(
@@ -59,6 +61,8 @@ def ask_llm(req: ChatRequest):
 @app.get("/", include_in_schema=False)
 def root():
     return {"message": "JARVYS MCP Server is running", "docs": "/docs"}
+
+
 async def root() -> dict[str, str]:
     """Root health endpoint."""
     return {"status": "ok"}
