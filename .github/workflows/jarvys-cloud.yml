@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: 'Mode d\'exécution'
+        description: "Mode d'exécution"
         required: true
         default: 'autonomous'
         type: choice
@@ -40,12 +40,12 @@ jobs:
         
     - name: 🚀 Deploy Edge Functions
       run: |
-        echo "Déploiement du dashboard sur Supabase..."
+        echo "🚀 Déploiement des Edge Functions JARVYS..."
         # Déployer les Edge Functions
-        supabase functions deploy dashboard --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+        supabase functions deploy jarvys-dashboard --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
         
-        # Appliquer le schéma de base de données
-        supabase db push --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+        # Vérifier la configuration
+        supabase status --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
       env:
         SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
@@ -267,7 +267,7 @@ jobs:
         
         # Mémoriser l'état du repository
         memory_dev.memorize(
-            f'Repository {\"${{ github.repository }}\"} mis à jour le {\"${{ github.event.head_commit.timestamp or \"unknown\" }}\"}',
+            f'Repository {\"${{ github.repository }}\"} mis à jour le {\"${{ github.event.head_commit.timestamp }}\"}',
             memory_type='knowledge',
             importance_score=0.6,
             tags=['repository', 'update', 'github']
@@ -360,44 +360,44 @@ jobs:
       uses: actions/github-script@v7
       if: github.event_name == 'schedule' || github.event.inputs.mode == 'autonomous'
       with:
-        script: |
-          const now = new Date().toISOString();
-          const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-          
-          const title = `🤖 JARVYS_DEV - Rapport d'exécution autonome ${now.split('T')[0]}`;
-          
-          const body = `
-          ## 🚀 Rapport d'Exécution Autonome JARVYS_DEV
-          
-          **📅 Date**: ${now}  
-          **🌩️ Environnement**: Cloud (GitHub Actions)  
-          **🔗 Run**: [${context.runId}](${runUrl})  
-          **⚡ Trigger**: ${context.eventName}
-          
-          ### 📊 Résultats
-          
-          ✅ **Agent autonome**: ${{ needs.autonomous-agent.result }}  
-          ✅ **Synchronisation mémoire**: ${{ needs.memory-sync.result }}  
-          ✅ **Analyse**: ${{ needs.analysis.result }}
-          
-          ### 🧠 Mémoire Infinie
-          
-          La mémoire partagée entre JARVYS_DEV et JARVYS_AI a été mise à jour avec les nouvelles expériences et connaissances acquises durant cette session.
-          
-          ### 📈 Dashboard
-          
-          Les métriques sont disponibles sur le dashboard auto-hébergé Supabase.
-          
-          ---
-          *Généré automatiquement par JARVYS_DEV en mode cloud*
-          `;
-          
-          await github.rest.issues.create({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            title: title,
-            body: body,
-            labels: ['from_jarvys_dev', 'autonomous-report', 'cloud']
-          });
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const now = new Date().toISOString();
+            const runUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            
+            const title = `🤖 JARVYS_DEV - Rapport d'exécution autonome ${now.split('T')[0]}`;
+            
+            const body = `
+            ## 🚀 Rapport d'Exécution Autonome JARVYS_DEV
+            
+            **📅 Date**: ${now}  
+            **🌩️ Environnement**: Cloud (GitHub Actions)  
+            **🔗 Run**: [${context.runId}](${runUrl})  
+            **⚡ Trigger**: ${context.eventName}
+            
+            ### 📊 Résultats
+            
+            ✅ **Agent autonome**: ${{ needs.autonomous-agent.result }}  
+            ✅ **Synchronisation mémoire**: ${{ needs.memory-sync.result }}  
+            ✅ **Analyse**: ${{ needs.analysis.result }}
+            
+            ### 🧠 Mémoire Infinie
+            
+            La mémoire partagée entre JARVYS_DEV et JARVYS_AI a été mise à jour avec les nouvelles expériences et connaissances acquises durant cette session.
+            
+            ### 📈 Dashboard
+            
+            Les métriques sont disponibles sur le dashboard auto-hébergé Supabase.
+            
+            ---
+            *Généré automatiquement par JARVYS_DEV en mode cloud*
+            `;
+            
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['from_jarvys_dev', 'autonomous-report', 'cloud']
+              });
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
