@@ -2,7 +2,8 @@
 
 Welcome to the JARVYS_DEV Wiki.
 
-This documentation is automatically generated and updated through CI/CD workflows.
+This documentation is automatically generated and updated
+through CI/CD workflows.
 
 ## 📂 Structure du Wiki
 
