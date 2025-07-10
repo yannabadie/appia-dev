@@ -11,6 +11,43 @@ L'agent s'appuie sur une boucle **observe – plan – act – reflect** mise en
 Les modifications de code sont générées par Copilot, appliquées sur la branche
 `dev` puis validées via `pre-commit` et `pytest` avant ouverture de toute PR.
 
+## 🚀 Démarrage Rapide
+
+### Option 1: Démarrage complet (Recommandé)
+```bash
+# Lance tous les composants (agent + MCP + dashboard + monitoring)
+python start_jarvys.py
+
+# Accès aux interfaces:
+# 📊 Dashboard: http://localhost:8080
+# 🔗 Serveur MCP: http://localhost:54321
+# 🤖 Agent autonome en arrière-plan
+```
+
+### Option 2: Dashboard seul (pour monitoring)
+```bash
+# Lance uniquement le dashboard de monitoring
+python start_jarvys.py --component dashboard
+
+# Interface disponible sur: http://localhost:8080
+# - Métriques en temps réel
+# - Chat avec l'agent
+# - Contrôle des tâches
+# - Suivi des coûts API
+```
+
+### Option 3: Composants individuels
+```bash
+# Agent autonome seulement
+python start_jarvys.py --component agent
+
+# Serveur MCP seulement  
+python start_jarvys.py --component mcp
+
+# Surveillant de modèles seulement
+python start_jarvys.py --component watcher
+```
+
 ## Mise en route
 
 1. **Installer Poetry**
@@ -110,6 +147,52 @@ poetry run python -m jarvys_dev.model_watcher
 Le workflow `model-detection.yml` exécute cette tâche quotidiennement.
 Configurez les secrets `OPENAI_API_KEY`, `GEMINI_API_KEY`, `ANTHROPIC_API_KEY` et
 `GH_TOKEN` dans les paramètres de votre repository.
+
+## 📊 Dashboard et Monitoring
+
+JARVYS_DEV inclut un dashboard complet pour le monitoring et l'interaction :
+
+### Fonctionnalités du Dashboard
+
+- **Métriques en temps réel** : Coûts API, nombre d'appels, temps de réponse
+- **Chat interactif** : Communiquez directement avec l'agent
+- **Activité en direct** : Suivi des tâches et actions de l'agent
+- **Contrôles** : Pause, redémarrage, analyse manuelle
+- **WebSocket** : Mises à jour automatiques sans rechargement
+
+### Accès au Dashboard
+
+```bash
+# Avec le démarrage complet
+python start_jarvys.py
+
+# Ou dashboard seul
+python start_jarvys.py --component dashboard
+
+# Interface disponible sur: http://localhost:8080
+```
+
+## 🔍 Introspection et Auto-amélioration
+
+L'agent peut s'auto-analyser et proposer des améliorations :
+
+```bash
+# Lance une session d'introspection complète
+python scripts/introspection.py
+
+# L'agent va :
+# - Analyser sa propre architecture
+# - Identifier les points d'amélioration
+# - Proposer une roadmap d'évolution
+# - Générer des suggestions d'auto-amélioration
+```
+
+### Capacités d'Introspection
+
+- **Analyse architecturale** : Qualité du code, tests, dépendances
+- **Auto-questionnement** : L'agent se pose des questions sur ses performances
+- **Génération de roadmap** : Plan d'amélioration priorisé
+- **Suggestions d'évolution** : Idées pour devenir plus autonome
 
 ## Workflows automatisés
 
