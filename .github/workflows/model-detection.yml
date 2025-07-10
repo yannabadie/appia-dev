@@ -1,9 +1,10 @@
+---
 name: Model detection
 
 on:
   schedule:
     - cron: '0 0 * * *'
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 jobs:
   detect:
@@ -22,9 +23,13 @@ jobs:
           cache: 'pip'
       - name: Install dependencies
         run: |
-          pip install openai requests PyGithub
+          pip install poetry
+          poetry config virtualenvs.create true
+          poetry config virtualenvs.in-project true
+          poetry install --with dev
       - name: Run watcher
-        run: python -m jarvys_dev.model_watcher
+        run: |
+          PYTHONPATH=src poetry run python -m jarvys_dev.model_watcher
       - name: Commit changes
         run: |
           if ! git diff --quiet; then

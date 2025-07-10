@@ -1,5 +1,6 @@
 ---
 name: Update Wiki
+
 on:
   push:
     branches: ["dev"]
@@ -43,12 +44,17 @@ jobs:
               f.write(roadmap)
           PYCODE
       - name: Push to Wiki
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          repository: ${{ github.repository }}.wiki.git
-          branch: main
-          file_pattern: Roadmap.md
-          commit_message: "docs: update Roadmap wiki page"
-          commit_user_name: JarvysDev Bot
-          commit_user_email: bot@example.com
-          token: ${{ secrets.SECRET_ACCESS_TOKEN }}
+        env:
+          GH_TOKEN: ${{ secrets.SECRET_ACCESS_TOKEN }}
+        run: |
+          git config --global user.name 'JarvysDev Bot'
+          git config --global user.email 'bot@jarvysdev.example.com'
+          REPO="${{ github.repository }}"
+          git clone \
+            https://x-access-token:${GH_TOKEN}@github.com/${REPO}.wiki.git \
+            wiki-repo
+          cp Roadmap.md wiki-repo/
+          cd wiki-repo
+          git add Roadmap.md
+          git commit -m "docs: update Roadmap wiki page" || echo 'no changes'
+          git push
