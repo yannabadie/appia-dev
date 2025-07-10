@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup  # noqa: E402
 
 from jarvys_dev.tools import memory  # noqa: E402
 
-USAGE = "Usage: python load_linkedin.py <path_to_linkedin_profile.html_or_pdf>"
+USAGE = f"Usage: python {os.path.basename(sys.argv[0])} <path_to_linkedin_profile.html_or_pdf>"
 
 
 def extract_text_from_pdf(pdf_path: str) -> str:
