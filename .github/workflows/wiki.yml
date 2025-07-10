@@ -1,0 +1,54 @@
+---
+name: Update Wiki
+on:
+  push:
+    branches: ["dev"]
+  workflow_dispatch: {}
+jobs:
+  update-wiki:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.SECRET_ACCESS_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Python dependencies
+        run: pip install PyGithub
+      - name: Generate Wiki Content
+        run: |
+          python - <<'PYCODE'
+          from github import Github
+          import os
+          repo = Github(os.getenv("GH_TOKEN")).get_repo(os.getenv("GH_REPO"))
+          issues = repo.get_issues(state="open")
+          roadmap = "# Roadmap\n\n"
+          for issue in issues:
+              if issue.pull_request:
+                  continue
+              status = "🟢" if issue.state == "open" else "🔴"
+              body = issue.body or ""
+              tasks = [
+                  line.strip()
+                  for line in body.splitlines()
+                  if line.strip().startswith("- [")
+              ]
+              if tasks:
+                  roadmap += f"## {issue.title}\n"
+                  for task in tasks:
+                      roadmap += f"- {task}\n"
+                  roadmap += "\n"
+              else:
+                  roadmap += f"- {status} **{issue.title}**\n"
+          with open("Roadmap.md", "w") as f:
+              f.write(roadmap)
+          PYCODE
+      - name: Push to Wiki
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          repository: ${{ github.repository }}.wiki.git
+          branch: main
+          file_pattern: Roadmap.md
+          commit_message: "docs: update Roadmap wiki page"
+          commit_user_name: JarvysDev Bot
+          commit_user_email: bot@example.com
+          token: ${{ secrets.SECRET_ACCESS_TOKEN }}
