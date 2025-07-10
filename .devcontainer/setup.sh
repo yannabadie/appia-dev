@@ -128,6 +128,10 @@ fi
 ################################################################################
 # 5. Poetry + dépendances Python
 ################################################################################
+# Vérification de la version Python
+PYTHON_VERSION=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+log_info "Version Python détectée: $PYTHON_VERSION"
+
 if ! have_cmd poetry; then
   log_section "Installation Poetry"
   python -m pip install --no-cache-dir --quiet poetry
@@ -136,7 +140,23 @@ else
   log_success "Poetry déjà présent"
 fi
 
+# Configuration Poetry pour éviter les conflits de versions
+log_section "Configuration Poetry"
+poetry config virtualenvs.create true
+poetry config virtualenvs.in-project true
+log_success "Configuration Poetry appliquée"
+
 log_section "Installation dépendances Python (poetry install --with dev)"
+# Vérifier et régénérer le lock file si nécessaire
+if ! poetry check --lock 2>/dev/null; then
+  log_info "Fichier poetry.lock désynchronisé, régénération..."
+  if poetry lock; then
+    log_success "Fichier poetry.lock régénéré"
+  else
+    log_error "Échec régénération poetry.lock"
+  fi
+fi
+
 if poetry install --with dev --no-root --no-interaction; then
   log_success "Dépendances Python installées"
 else

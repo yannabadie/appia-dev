@@ -1,0 +1,13 @@
+---
+extends: default
+
+rules:
+  # Ignore truthy warnings for GitHub Actions "on" keyword
+  truthy:
+    allowed-values: ['true', 'false', 'on']
+  # Allow longer lines for some cases
+  line-length:
+    max: 120
+  # Be flexible with document start for some files
+  document-start:
+    present: false
