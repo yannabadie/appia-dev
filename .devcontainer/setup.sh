@@ -1,104 +1,105 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-###############################################################################
-# Helper : exécute une commande en root (sudo) quel que soit l’utilisateur
-###############################################################################
-as_root() {
-  if [ "$(id -u)" -eq 0 ]; then
-    "$@"
-  else
-    sudo -E bash -c "$*"
-  fi
-}
-
-###############################################################################
-# 0. Variables d’environnement – aucun prompt pendant le provisionning
-###############################################################################
+################################################################################
+# 0. Variables & fonctions utilitaires
+################################################################################
 export DEBIAN_FRONTEND=noninteractive
-export CLOUDSDK_CORE_DISABLE_PROMPTS=1   # gcloud jamais interactif
-export PATH="$PATH:/usr/local/bin"       # npm/pip global installs
+export CLOUDSDK_CORE_DISABLE_PROMPTS=1   # Plus aucun prompt gcloud
+NVM_DIR=/usr/local/share/nvm             # Chemin utilisé par la feature Node
+SUPABASE_VERSION=${SUPABASE_VERSION:-1.179.1}   # Dernière version stable
 
-###############################################################################
-# 1. Dépendances APT de base
-###############################################################################
+silent_apt_update() { apt-get update -qq; }
+apt_install()      { silent_apt_update && apt-get install -yqq "$@"; }
+
+have_cmd() { command -v "$1" &>/dev/null; }
+
+################################################################################
+# 1. Dépendances système de base
+################################################################################
 echo "▶︎ Installation des dépendances APT de base"
-as_root mkdir -p /var/lib/apt/lists/partial           # évite l’erreur « missing dir »
-as_root apt-get update -qq
-as_root apt-get install -yqq curl gnupg ca-certificates apt-transport-https jq
+apt_install curl gnupg ca-certificates apt-transport-https jq tar gzip
 
-###############################################################################
+################################################################################
 # 2. Google Cloud CLI
-###############################################################################
-echo "▶︎ Installation Google Cloud CLI"
-if ! command -v gcloud >/dev/null 2>&1; then
-  # Ajout du dépôt (clé dans un keyring dédié)
-  if [ ! -f /usr/share/keyrings/cloud.google.gpg ]; then
-    curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg \
-      | as_root gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
-  fi
-
+################################################################################
+if ! have_cmd gcloud; then
+  echo "▶︎ Installation Google Cloud CLI"
   echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] \
 https://packages.cloud.google.com/apt cloud-sdk main" \
-    | as_root tee /etc/apt/sources.list.d/google-cloud-sdk.list >/dev/null
-
-  as_root apt-get update -qq
-  as_root apt-get install -yqq google-cloud-cli
+      | tee /etc/apt/sources.list.d/google-cloud-sdk.list
+  curl -fsSL https://packages.cloud.google.com/apt/doc/apt-key.gpg \
+      | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg
+  apt_install google-cloud-cli
 fi
 
-###############################################################################
-# 2.b Authentification + activation d’APIs
-###############################################################################
 if [[ -n "${GCP_SA_JSON:-}" ]]; then
   echo "▶︎ Authentification GCP (service account)"
-  SA_FILE="$(mktemp)"
+  SA_FILE=$(mktemp)
   echo "${GCP_SA_JSON}" > "${SA_FILE}"
-
   gcloud auth activate-service-account --key-file="${SA_FILE}" --quiet
   PROJECT_ID=$(jq -r '.project_id' "${SA_FILE}")
   gcloud config set project "${PROJECT_ID}" --quiet || true
-
-  # APIs indispensables (ajoutez/retirez au besoin)
-  APIS=(
-    cloudresourcemanager.googleapis.com
-    iam.googleapis.com
-    iamcredentials.googleapis.com
-    artifactregistry.googleapis.com
-    run.googleapis.com
-    secretmanager.googleapis.com
-    sqladmin.googleapis.com
-  )
-  echo "▶︎ Activation des APIs (${#APIS[@]})"
-  for API in "${APIS[@]}"; do
-    gcloud services enable "${API}" --quiet || true
-  done
-
   rm -f "${SA_FILE}"
+
+  echo "▶︎ Activation des APIs (Cloud Resource Manager + requises)"
+  gcloud services enable \
+    cloudresourcemanager.googleapis.com \
+    cloudbuild.googleapis.com \
+    artifactregistry.googleapis.com \
+    iamcredentials.googleapis.com \
+    run.googleapis.com \
+    sqladmin.googleapis.com \
+    secretmanager.googleapis.com \
+    --quiet || true
 fi
 
-###############################################################################
-# 3. Supabase CLI (global, silencieux)
-###############################################################################
-echo "▶︎ Installation Supabase CLI"
-if ! command -v supabase >/dev/null 2>&1; then
-  as_root npm install -g --silent supabase
+################################################################################
+# 3. Node (chemin garanti) & Supabase CLI
+################################################################################
+# ––––– Assurer que le binaire npm est dans le PATH même dans ce shell non‑login ––––– #
+if [[ -d "${NVM_DIR}" ]]; then
+  # Ajout dynamique de tous les binaires Node installés par la feature
+  for vdir in "${NVM_DIR}/versions/node"/*/bin; do
+    [[ -d "$vdir" ]] && PATH="$vdir:$PATH"
+  done
+  export PATH
 fi
 
-###############################################################################
+install_supabase() {
+  echo "▶︎ Installation Supabase CLI (binary ${SUPABASE_VERSION})"
+  URL="https://github.com/supabase/cli/releases/download/v${SUPABASE_VERSION}/supabase_${SUPABASE_VERSION}_linux_amd64.tar.gz"
+  TMP_DIR=$(mktemp -d)
+  curl -fsSL "$URL" | tar -xz -C "$TMP_DIR"
+  install -m 0755 "$TMP_DIR/supabase" /usr/local/bin/supabase
+  rm -rf "$TMP_DIR"
+}
+
+if have_cmd supabase; then
+  echo "▶︎ Supabase CLI déjà présent : $(supabase --version)"
+elif have_cmd npm; then
+  echo "▶︎ Installation Supabase CLI via npm"
+  npm install -g --silent supabase
+else
+  # npm absent : on installe la version binaire auto‑contenue
+  install_supabase
+fi
+
+################################################################################
 # 4. Poetry + dépendances Python
-###############################################################################
-echo "▶︎ Installation Poetry"
-if ! command -v poetry >/dev/null 2>&1; then
-  as_root python -m pip install --no-cache-dir --quiet poetry
+################################################################################
+if ! have_cmd poetry; then
+  echo "▶︎ Installation Poetry"
+  python -m pip install --no-cache-dir --quiet poetry
 fi
 
-echo "▶︎ Installation dépendances (poetry install --with dev)"
+echo "▶︎ Installation dépendances Python (poetry install --with dev)"
 poetry install --with dev --no-root --no-interaction
 
-###############################################################################
+################################################################################
 # 5. Hooks git pré‑commit
-###############################################################################
+################################################################################
 echo "▶︎ Installation hooks pre‑commit"
 poetry run pre-commit install --install-hooks --overwrite
 
-echo -e "\n\033[1;32m✅  Environnement prêt !\033[0m"
+echo -e "\n✅  Environnement prêt !"
