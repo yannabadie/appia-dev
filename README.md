@@ -230,27 +230,38 @@ python start_jarvys.py --component dashboard
 # Interface disponible sur: http://localhost:8080
 ```
 
-## 🔍 Introspection et Auto-amélioration
+## 🤖 Architecture Cloud-First & Mémoire Infinie
 
-L'agent peut s'auto-analyser et proposer des améliorations :
+JARVYS_DEV s'exécute exclusivement dans le cloud avec mémoire partagée :
 
 ```bash
-# Lance une session d'introspection complète
-python scripts/introspection.py
+# JARVYS_DEV: Cloud uniquement (GitHub Actions/GCP)
+# - Exécution autonome toutes les heures
+# - Dashboard auto-hébergé sur Supabase Edge Functions
+# - Mémoire infinie partagée avec JARVYS_AI
 
-# L'agent va :
-# - Analyser sa propre architecture
-# - Identifier les points d'amélioration
-# - Proposer une roadmap d'évolution
-# - Générer des suggestions d'auto-amélioration
+# JARVYS_AI: Local/Hybride (à venir)
+# - Interface IDE/CLI locale
+# - Communication via GitHub Issues
+# - Partage la même mémoire infinie
 ```
 
-### Capacités d'Introspection
+### Architecture Cloud-First
 
-- **Analyse architecturale** : Qualité du code, tests, dépendances
-- **Auto-questionnement** : L'agent se pose des questions sur ses performances
-- **Génération de roadmap** : Plan d'amélioration priorisé
-- **Suggestions d'évolution** : Idées pour devenir plus autonome
+- **🌩️ Cloud Only**: JARVYS_DEV n'existe qu'en cloud (GitHub Actions)
+- **🧠 Mémoire Infinie**: Base vectorielle Supabase avec recherche sémantique
+- **📊 Dashboard Auto-hébergé**: Interface Supabase Edge Functions  
+- **🔄 Communication Inter-agents**: Issues GitHub pour JARVYS_AI ↔ JARVYS_DEV
+- **⚡ Exécution Autonome**: Workflows GitHub Actions avec déclencheurs multiples
+
+### Dashboard & Monitoring
+
+Accès au dashboard auto-hébergé : `https://[votre-projet].supabase.co/functions/v1/dashboard`
+
+- Métriques en temps réel (coûts, performances, succès)
+- Statut des agents (JARVYS_DEV cloud, JARVYS_AI local)
+- Recherche dans la mémoire infinie partagée
+- Analytics et optimisations automatiques
 
 ## Workflows automatisés
 

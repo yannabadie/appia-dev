@@ -107,9 +107,80 @@ jobs:
         SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         
+    - name: 🤖 Test Orchestrateur Intelligent
+      run: |
+        python -c "
+        import sys
+        sys.path.insert(0, 'src')
+        from jarvys_dev.intelligent_orchestrator import get_orchestrator
+        
+        orchestrator = get_orchestrator()
+        print(f'🧠 Orchestrateur: {len(orchestrator.models_db)} modèles disponibles')
+        
+        # Test sélection modèle optimal
+        task = orchestrator.analyze_task('Analyse complexe de données', 'auto')
+        model, info, score = orchestrator.select_optimal_model(task)
+        print(f'🎯 Modèle optimal pour analyse: {model} (score: {score:.2f})')
+        
+        # Afficher stats
+        stats = orchestrator.get_orchestrator_stats()
+        print(f'📊 Stats: {stats}')
+        "
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        
+    - name: 🔄 Mise à jour automatique modèles
+      run: |
+        python -c "
+        import sys
+        sys.path.insert(0, 'src')
+        from jarvys_dev.auto_model_updater import get_auto_updater
+        
+        print('🔍 Vérification nouveaux modèles...')
+        updater = get_auto_updater()
+        updates = updater.check_for_updates()
+        
+        if updates:
+            print(f'🆕 {len(updates)} mises à jour trouvées')
+            print(updater.get_update_report())
+            
+            # Appliquer mises à jour recommandées
+            results = updater.apply_updates(updates)
+            print(f'✅ Mises à jour appliquées: {results}')
+        else:
+            print('✅ Tous les modèles sont à jour')
+        "
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        
+    - name: 📊 Import données personnelles OpenAI
+      if: github.event.inputs.mode == 'memory_sync' || github.event_name == 'workflow_dispatch'
+      run: |
+        python -c "
+        import sys
+        sys.path.insert(0, 'src')
+        from jarvys_dev.openai_data_importer import import_yann_abadie_data
+        
+        print('📧 Import données personnelles Yann Abadie...')
+        results = import_yann_abadie_data()
+        
+        print(f'✅ Import terminé:')
+        print(f'  📧 Emails: {len(results.get(\"imported_emails\", []))}')
+        print(f'  💬 Conversations: {results.get(\"total_conversations\", 0)}')
+        print(f'  🧠 Mémoires: {results.get(\"total_memories\", 0)}')
+        "
+      env:
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        
     - name: 🚀 Run Autonomous Loop
       run: |
-        echo "🤖 Lancement de la boucle autonome JARVYS_DEV (Cloud)"
+        echo "🤖 Lancement de la boucle autonome JARVYS_DEV (Cloud) avec orchestrateur intelligent"
         timeout 45m poetry run python -m jarvys_dev.langgraph_loop || echo "⏰ Timeout normal - cycle terminé"
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
