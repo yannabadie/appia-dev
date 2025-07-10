@@ -17,7 +17,9 @@
     "OPENAI_API_KEY": "${{ secrets.OPENAI_API_KEY }}",
     "SUPABASE_URL":   "${{ secrets.SUPABASE_URL }}",
     "SUPABASE_KEY":   "${{ secrets.SUPABASE_KEY }}",
-    "GCP_SA_JSON":    "${{ secrets.GCP_SA_JSON }}"
+    "GCP_SA_JSON":    "${{ secrets.GCP_SA_JSON }}",
+    "GH_TOKEN": "${{ secrets.GH_TOKEN }}",       // Ajout du token GitHub manquant
+    "GH_REPO": "${{ secrets.GH_REPO }}"
   },
 
   "customizations": {
