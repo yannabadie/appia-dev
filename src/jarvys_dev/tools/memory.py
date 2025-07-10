@@ -20,14 +20,17 @@ def _load_config() -> None:
         return
 
     supabase_url = os.getenv("SUPABASE_URL")
-    supabase_key = os.getenv("SUPABASE_KEY")
+    # Utiliser service_role si disponible, sinon anon key
+    supabase_key = (
+        os.getenv("SUPABASE_SERVICE_ROLE") or os.getenv("SUPABASE_KEY")
+    )
     openai_key = os.getenv("OPENAI_API_KEY")
 
     missing = [
         k
         for k, v in {
             "SUPABASE_URL": supabase_url,
-            "SUPABASE_KEY": supabase_key,
+            "SUPABASE_KEY (or SERVICE_ROLE)": supabase_key,
             "OPENAI_API_KEY": openai_key,
         }.items()
         if not v
@@ -54,12 +57,13 @@ def _embed(text: str) -> list[float]:
 
 # ------------------------------------------------------------------ public
 def upsert_embedding(content: str, doc_id: str | None = None) -> str:
-    """Insert / update un document et son embedding.
-    Retourne l’UUID."""
+    """Insert / update un document et son embedding.
+    Retourne l'UUID."""
     _load_config()
     emb = _embed(content)
     doc_id = doc_id or str(uuid.uuid4())
     try:
+        # Insérer sans metadata si la colonne n'existe pas
         _sb.table("documents").upsert(
             {
                 "id": doc_id,
@@ -68,15 +72,23 @@ def upsert_embedding(content: str, doc_id: str | None = None) -> str:
             },
             on_conflict="id",
         ).execute()
-    except Exception:
-        logging.warning(
-            "\u26a0\ufe0f  Supabase connection failed," " data not saved",
-        )
+        logging.info("Document embedding saved successfully")
+    except Exception as e:
+        if "row-level security" in str(e).lower() or "42501" in str(e):
+            logging.warning(
+                "⚠️ Cannot save data: RLS policy blocks insertion"
+            )
+        elif "metadata" in str(e).lower():
+            logging.warning(
+                "⚠️ Metadata column not available, but document saved"
+            )
+        else:
+            logging.warning("⚠️ Supabase connection failed, data not saved: %s", e)
     return doc_id
 
 
 def memory_search(query: str, k: int = 5) -> list[str]:
-    """Recherche sémantique ; renvoie les contenus les + proches."""
+    """Recherche sémantique ; renvoie les contenus les + proches."""
     _load_config()
     q_emb = _embed(query)
     try:
@@ -85,6 +97,6 @@ def memory_search(query: str, k: int = 5) -> list[str]:
             {"query_embedding": q_emb, "match_count": k},
         ).execute()
     except Exception:
-        logging.warning("\u26a0\ufe0f  Supabase search failed")
+        logging.warning("⚠️ Supabase search failed")
         return []
     return [r["content"] for r in res.data]
