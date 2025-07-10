@@ -4,7 +4,7 @@ JARVYS_DEV est un agent d'automatisation pour gérer le cycle de vie d'un
 projet logiciel. Il interagit avec GitHub, une base vectorielle Supabase et des
 Cloud Functions afin de planifier et exécuter des tâches DevOps.
 
-L'agent s'appuie sur une boucle **observe – plan – act – reflect** mise en
+L'agent s'appuie sur une boucle **observe – plan – act – reflect** mise en
 œuvre avec LangGraph. Les tâches ainsi planifiées sont transmises à
 `JARVYS_AI` par création d'issues GitHub étiquetées `from_jarvys_ai`.
 
@@ -26,14 +26,20 @@ Les modifications de code sont générées par Copilot, appliquées sur la branc
    ```
 
 3. **Variables d'environnement requises**
-   - `OPENAI_API_KEY`
-   - `SUPABASE_URL`
-   - `SUPABASE_KEY`
-   - `GH_TOKEN` et `GH_REPO` pour les fonctions GitHub
-   - facultatif : `GCP_SA_JSON` pour les Cloud Functions
+   
+   **Core (obligatoires)** :
+   - `OPENAI_API_KEY` - Clé API OpenAI
+   - `GH_TOKEN` et `GH_REPO` - Token et repository GitHub  
+   - `SUPABASE_URL` et `SUPABASE_KEY` - Base vectorielle Supabase
+   - `GEMINI_API_KEY` - Clé Google AI (requis pour le router complet)
+   - `GCP_SA_JSON` - Service Account GCP (requis pour Cloud Functions)
+   
+   **Optionnels** :
+   - `ANTHROPIC_API_KEY` - Clé Anthropic (optionnel, GitHub Copilot suffit)
+   - `CONFIDENCE_SCORE` - Score de confiance (défaut: 1.0)
 
 Pour les tests locaux, exportez ces variables dans votre shell.
-Dans GitHub Actions ou Codespaces, définissez-les dans les _Secrets_ du dépôt.
+Dans GitHub Actions ou Codespaces, définissez-les dans les _Secrets_ du dépôt.
 
 ## Exécution des tests
 
@@ -43,41 +49,74 @@ poetry run pytest -q
 
 ## Documentation
 
-La documentation est générée avec [MkDocs](https://www.mkdocs.org/)
-et le thème [Material](https://squidfunk.github.io/mkdocs-material/).
+La documentation est générée **automatiquement** et publiée sur le Wiki GitHub
+lors des modifications du code source.
 
-### Générer la doc localement
+### Générer la documentation localement
+
+```bash
+python scripts/generate_wiki_docs.py
+```
+
+### Documentation MkDocs (alternative)
 
 ```bash
 poetry run mkdocs serve
 ```
 
-Un workflow _wiki-sync_ publie automatiquement le site sur le Wiki
-GitHub lors des pushes sur `main` ou `dev`.
+Un workflow automatique met à jour le Wiki GitHub lors des pushes sur `main` ou `dev`.
 
-## Example run
+## Utilisation
 
-Manual loop launch:
+### Lancement manuel de la boucle autonome
 
 ```bash
 poetry run python -m jarvys_dev.langgraph_loop
 ```
 
+### Serveur MCP (Model Context Protocol)
+
+Le serveur MCP permet l'intégration avec d'autres outils via le protocole Model Context Protocol :
+
+```bash
+poetry run uvicorn app.main:app --port 54321
+```
+
+**Endpoints disponibles** :
+- `GET /` - Status du serveur
+- `GET /v1/tool-metadata` - Métadonnées MCP
+- `POST /v1/tool-invocations/ask_llm` - Invocation LLM
+
+### Bootstrap du projet
+
+Pour initialiser un nouveau projet avec la structure complète :
+
+```bash
+poetry run python bootstrap_jarvys_dev.py
+```
+
 ## Model watcher
 
-The `model_watcher` script checks for new LLM models from OpenAI, Anthropic and
-Google Gemini. When a new model is available it updates
-`src/jarvys_dev/model_config.json` and opens a GitHub issue.
+Le `model_watcher` surveille les nouveaux modèles LLM d'OpenAI, Anthropic et
+Google Gemini. Quand un nouveau modèle est disponible, il met à jour
+`src/jarvys_dev/model_config.json` et ouvre une issue GitHub.
 
-Run the watcher manually with:
+Exécution manuelle :
 
 ```bash
 poetry run python -m jarvys_dev.model_watcher
 ```
 
-The workflow `model-detection.yml` runs this task daily.
-Configure the `OPENAI_API_KEY`, `GEMINI_API_KEY`, `ANTHROPIC_API_KEY` and
-`GH_TOKEN` secrets in your repository settings.
+Le workflow `model-detection.yml` exécute cette tâche quotidiennement.
+Configurez les secrets `OPENAI_API_KEY`, `GEMINI_API_KEY`, `ANTHROPIC_API_KEY` et
+`GH_TOKEN` dans les paramètres de votre repository.
+
+## Workflows automatisés
+
+- **CI** (`ci.yml`) : Tests automatiques sur push/PR
+- **Model Detection** (`model-detection.yml`) : Veille quotidienne des nouveaux modèles
+- **Wiki Documentation** (`wiki-sync.yml`) : Génération automatique de documentation
+- **Agent** (`agent.yml`) : Orchestration des tâches autonomes
 
 ## Service account key
 

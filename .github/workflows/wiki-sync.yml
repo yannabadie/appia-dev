@@ -1,42 +1,82 @@
 ---
-name: Wiki Sync
+name: Wiki Documentation Sync
 
 on:
   push:
     branches:
       - main
       - dev
+    paths:
+      - 'src/**'
+      - 'scripts/generate_wiki_docs.py'
+  workflow_dispatch: {}
 
 jobs:
-  deploy:
+  update-wiki:
     runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      
     steps:
       - uses: actions/checkout@v4
-
+        with:
+          fetch-depth: 0
+          
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: 'pip'
-
-      - name: Install docs dependencies
+          
+      - name: Install dependencies
         run: |
-          pip install mkdocs-material mkdocstrings[python]
-
-      - name: Build site
-        run: mkdocs build -d site
-
-      - name: Publish to Wiki
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          pip install poetry
+          poetry config virtualenvs.create true
+          poetry config virtualenvs.in-project true
+          poetry install --with dev
+          
+      - name: Generate Wiki Documentation
         run: |
-          git config --global user.name 'github-actions'
+          poetry run python scripts/generate_wiki_docs.py
+          
+      - name: Checkout Wiki Repository
+        run: |
+          git config --global user.name 'JARVYS_DEV Auto-Doc'
           git config --global user.email 'github-actions@github.com'
           REPO="${{ github.repository }}"
           git clone \
             https://x-access-token:${GH_TOKEN}@github.com/${REPO}.wiki.git \
-            wiki
-          rsync -a --delete site/ wiki/
-          cd wiki
+            wiki-repo
+            
+      - name: Update Wiki Content
+        run: |
+          # Copier les fichiers générés vers le wiki
+          cp wiki/Home.md wiki-repo/Home.md
+          cp wiki/API-Reference.md wiki-repo/API-Reference.md
+          
+          # Créer une page de changelog automatique
+          cd wiki-repo
+          echo "# 📝 Changelog Documentation" > Changelog.md
+          echo "" >> Changelog.md
+          echo "*Mise à jour automatique le $(date '+%d/%m/%Y à %H:%M')*" >> Changelog.md
+          echo "" >> Changelog.md
+          echo "## Dernières modifications" >> Changelog.md
+          echo "" >> Changelog.md
+          echo "- Documentation générée automatiquement depuis le code source" >> Changelog.md
+          echo "- Commit: ${{ github.sha }}" >> Changelog.md
+          echo "- Branche: ${{ github.ref_name }}" >> Changelog.md
+          
+      - name: Commit and Push to Wiki
+        run: |
+          cd wiki-repo
           git add .
-          git commit -m 'Update wiki' || echo 'no changes'
-          git push
+          if git diff --staged --quiet; then
+            echo "Aucune modification détectée dans la documentation"
+          else
+            git commit -m "🤖 Auto-update documentation from ${{ github.ref_name }} @ ${{ github.sha }}"
+            git push
+            echo "✅ Documentation Wiki mise à jour automatiquement"
+          fi
