@@ -81,7 +81,7 @@ if have_cmd supabase; then
   echo "▶︎ Supabase CLI déjà présent : $(supabase --version)"
 elif have_cmd npm; then
   echo "▶︎ Installation Supabase CLI via npm"
-  npm install -g --silent supabase
+  sudo npm install -g --silent supabase || install_supabase
 else
   # npm absent : on installe la version binaire auto‑contenue
   install_supabase
