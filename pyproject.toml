@@ -13,6 +13,8 @@ openai       = "^1.25"
 supabase = "^2.4"
 pgvector = { version = "^0.2.4", optional = true }
 langgraph = "^0.0.26"
+beautifulsoup4 = "^4.12"
+pymupdf = "^1.22"
 
 
 [tool.poetry.group.dev.dependencies]
