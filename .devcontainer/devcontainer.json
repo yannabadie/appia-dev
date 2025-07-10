@@ -8,7 +8,7 @@
     "ghcr.io/devcontainers/features/node:1": { "version": "lts" }
   },
 
-  "postCreateCommand": "/bin/bash /workspaces/appia-dev/.devcontainer/setup.sh",
+  "postCreateCommand": "bash -l /workspaces/appia-dev/.devcontainer/setup.sh",
 
   "forwardPorts": [8080, 54321],
 
