@@ -14,7 +14,7 @@ def extract_text_from_pdf(pdf_path: str) -> str:
     try:
         import fitz  # PyMuPDF
     except ImportError:
-        raise RuntimeError("Missing PyMuPDF dependency.")
+        raise RuntimeError("Missing PyMuPDF dependency. Please install it using 'pip install PyMuPDF'.")
     doc = fitz.open(pdf_path)
     text = ""
     for page in doc:
