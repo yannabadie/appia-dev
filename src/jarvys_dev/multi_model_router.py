@@ -30,8 +30,8 @@ from openai import OpenAI
 CONFIG_PATH = Path(__file__).with_name("model_config.json")
 DEFAULT_MODELS = {
     "openai": "gpt-4o",
-    "anthropic": "claude-4",
-    "gemini": "models/gemini-2.5-pro",
+    "anthropic": "claude-3-5-sonnet-20241022",  # Optional via GitHub Copilot
+    "gemini": "models/gemini-2.0-flash-exp",
 }
 
 
