@@ -1,22 +1,62 @@
 # Configuration Supabase pour JARVYS Ecosystem
 project_id = "jarvys-ecosystem"
-api_url = "https://api.supabase.com"
 
+# API Configuration
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+# Database Configuration
 [db]
 port = 54322
 major_version = 15
 
+# Studio Dashboard Configuration  
 [studio]
 enabled = true
 port = 54323
 api_url = "http://localhost:54321"
 
+# Authentication Configuration
 [auth]
 enabled = true
-external_providers = ["github"]
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["https://localhost:3000"]
+jwt_expiry = 3600
+enable_signup = true
 
-[edge_functions]
+# GitHub OAuth Provider
+[auth.external.github]
 enabled = true
+client_id = "env(SUPABASE_AUTH_EXTERNAL_GITHUB_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_EXTERNAL_GITHUB_SECRET)"
 
+# Edge Runtime Configuration (for Edge Functions)
+[edge_runtime]
+enabled = true
+policy = "oneshot"
+inspector_port = 8083
+
+# Realtime Configuration
 [realtime]
 enabled = true
+ip_version = "IPv4"
+
+# Storage Configuration
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+# Analytics Configuration
+[analytics]
+enabled = false
+
+# Local Development Tools
+[inbucket]
+enabled = true
+port = 54324
+smtp_port = 54325
+pop3_port = 54326
