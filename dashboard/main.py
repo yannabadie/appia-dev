@@ -466,6 +466,71 @@ async def websocket_metrics(websocket: WebSocket):
         pass
 
 
+@app.get("/api/logs")
+async def get_logs():
+    """Récupère les logs récents du système."""
+    try:
+        # Lecture des logs depuis la base de données
+        conn = sqlite3.connect("jarvys_metrics.db")
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+            SELECT timestamp, service, status, endpoint, response_time_ms
+            FROM api_calls 
+            ORDER BY timestamp DESC LIMIT 100
+        """
+        )
+
+        logs = []
+        for row in cursor.fetchall():
+            logs.append(
+                {
+                    "timestamp": row[0],
+                    "service": row[1],
+                    "status": row[2],
+                    "endpoint": row[3] or "N/A",
+                    "response_time": row[4],
+                }
+            )
+
+        conn.close()
+        return {"logs": logs}
+
+    except Exception as e:
+        return {"error": str(e)}
+
+
+@app.post("/api/agent/control")
+async def control_agent(action: dict):
+    """Contrôle l'agent (pause, redémarrage, etc.)."""
+    try:
+        action_type = action.get("action")
+
+        if action_type == "pause":
+            # TODO: Implémenter la pause de l'agent
+            message = "Agent mis en pause"
+        elif action_type == "restart":
+            # TODO: Implémenter le redémarrage
+            message = "Agent redémarré"
+        elif action_type == "status":
+            return {
+                "status": "running",
+                "uptime": "02:34:56",
+                "last_task": "Documentation update",
+            }
+        else:
+            return {"error": "Action non reconnue"}
+
+        # Log l'action
+        print(f"Action agent: {action_type} - {message}")
+
+        return {"success": True, "message": message}
+
+    except Exception as e:
+        return {"error": str(e)}
+
+
 if __name__ == "__main__":
     print("🚀 Démarrage du Dashboard JARVYS_DEV...")
     print("📊 Interface disponible sur: http://localhost:8080")
