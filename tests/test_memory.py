@@ -22,6 +22,11 @@ def test_upsert_and_search_roundtrip():
     assert isinstance(doc_id, str)
 
     hits = memory.memory_search("vector databases", k=3)
+    if not hits:
+        pytest.fail(
+            "Supabase connection failed or no results returned. "
+            "Check secrets and Supabase availability."
+        )
     assert any(txt in h for h in hits)
 
 
