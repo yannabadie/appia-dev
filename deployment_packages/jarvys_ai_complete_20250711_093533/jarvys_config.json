@@ -1,0 +1,39 @@
+{
+  "jarvys_ai": {
+    "version": "1.0.0",
+    "build_date": "2025-07-11T09:35:33.139778",
+    "deployment": {
+      "mode": "production",
+      "supported_platforms": [
+        "windows",
+        "linux",
+        "docker",
+        "cloud_run"
+      ],
+      "requirements": {
+        "python": ">=3.9",
+        "docker": ">=20.0",
+        "memory": "4GB",
+        "storage": "10GB"
+      }
+    },
+    "features": {
+      "voice_interface": true,
+      "email_management": true,
+      "cloud_integration": true,
+      "file_management": true,
+      "digital_twin": true,
+      "continuous_improvement": true,
+      "fallback_engine": true,
+      "dashboard_integration": true
+    },
+    "integrations": {
+      "supabase_dashboard": "https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard",
+      "github_repo": "yannabadie/appIA",
+      "cloud_run": {
+        "region": "us-central1",
+        "service_name": "jarvys-ai-fallback"
+      }
+    }
+  }
+}

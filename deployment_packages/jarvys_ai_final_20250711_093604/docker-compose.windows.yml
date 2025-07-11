@@ -1,0 +1,164 @@
+# Docker Compose pour JARVYS_AI - Windows 11 Support
+version: '3.8'
+
+services:
+  jarvys_ai:
+    build:
+      context: .
+      dockerfile: Dockerfile.jarvys_ai
+    container_name: jarvys_ai_main
+    restart: unless-stopped
+    
+    # Variables d'environnement
+    environment:
+      - ENVIRONMENT=local
+      - LOG_LEVEL=INFO
+      - DEMO_MODE=false
+      # Secrets via fichier .env
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_KEY=${SUPABASE_KEY}
+      # Support audio Windows
+      - PULSE_RUNTIME_PATH=/tmp/pulse
+      - DISPLAY=${DISPLAY:-:0}
+    
+    # Ports exposés
+    ports:
+      - "8000:8000"  # API principale
+      - "8001:8001"  # Interface web
+      - "8080:8080"  # Monitoring
+    
+    # Volumes pour persistence et support Windows
+    volumes:
+      # Données persistence
+      - jarvys_data:/app/data
+      - jarvys_logs:/app/logs
+      - jarvys_cache:/app/cache
+      
+      # Support audio Windows/WSL
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - /run/user/1000/pulse:/tmp/pulse:ro
+      
+      # Support fichiers locaux (mount point Windows)
+      - ${USERPROFILE}/Documents:/app/windows_documents:ro
+      - ${USERPROFILE}/Downloads:/app/windows_downloads:ro
+      - ${USERPROFILE}/Desktop:/app/windows_desktop:ro
+      
+      # Configuration locale
+      - ./config:/app/config:ro
+    
+    # Réseau
+    networks:
+      - jarvys_network
+    
+    # Health check
+    healthcheck:
+      test: ["/app/healthcheck.sh"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # Ressources
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 512M
+          cpus: '0.5'
+    
+    # Dépendances optionnelles
+    depends_on:
+      - redis_cache
+      - postgres_db
+
+  # Cache Redis pour performance
+  redis_cache:
+    image: redis:7-alpine
+    container_name: jarvys_redis
+    restart: unless-stopped
+    command: redis-server --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - jarvys_network
+    ports:
+      - "6379:6379"
+
+  # Base de données PostgreSQL pour stockage local
+  postgres_db:
+    image: postgres:15-alpine
+    container_name: jarvys_postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=jarvys_ai
+      - POSTGRES_USER=jarvys
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-jarvys_secure_pass}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - jarvys_network
+    ports:
+      - "5432:5432"
+
+  # Interface web optionnelle
+  jarvys_web:
+    build:
+      context: .
+      dockerfile: Dockerfile.jarvys_ai
+    container_name: jarvys_web_ui
+    restart: unless-stopped
+    command: ["--mode", "web-only"]
+    environment:
+      - ENVIRONMENT=local
+      - WEB_MODE=true
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./web:/app/web:ro
+    networks:
+      - jarvys_network
+    depends_on:
+      - jarvys_ai
+
+  # Service de monitoring
+  jarvys_monitor:
+    image: prom/prometheus:latest
+    container_name: jarvys_prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - jarvys_network
+    ports:
+      - "9090:9090"
+
+# Volumes nommés
+volumes:
+  jarvys_data:
+    driver: local
+  jarvys_logs:
+    driver: local
+  jarvys_cache:
+    driver: local
+  redis_data:
+    driver: local
+  postgres_data:
+    driver: local
+  prometheus_data:
+    driver: local
+
+# Réseau isolé
+networks:
+  jarvys_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
