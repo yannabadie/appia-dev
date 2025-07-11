@@ -8,6 +8,8 @@ on:
     paths:
       - 'src/**'
       - 'scripts/generate_wiki_docs.py'
+      - 'pyproject.toml'
+      - 'poetry.lock'
   workflow_dispatch: {}
 
 jobs:
@@ -30,12 +32,33 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
           
-      - name: Install dependencies
+      - name: Install Poetry
         run: |
           pip install poetry
           poetry config virtualenvs.create true
           poetry config virtualenvs.in-project true
-          poetry install
+          
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v4
+        id: cache-poetry
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            venv-${{ runner.os }}-
+          
+      - name: Install dependencies
+        run: |
+          # Vérifier et corriger le lock file si nécessaire
+          if ! poetry lock --check; then
+            echo "⚠️ Lock file obsolète, régénération..."
+            poetry lock
+          fi
+          poetry install --with dev --no-interaction --no-interaction
+          
+      - name: Validate installation
+        run: |
+          poetry run python -c "import jarvys_dev; print('✅ Module jarvys_dev importé avec succès')"
           
       - name: Generate Wiki Documentation
         run: |
@@ -48,34 +71,35 @@ jobs:
           REPO="${{ github.repository }}"
           git clone \
             https://x-access-token:${GH_TOKEN}@github.com/${REPO}.wiki.git \
-            wiki-repo
-            
-      - name: Update Wiki Content
+            wiki-repo || {
+            echo "⚠️ Wiki repository not found, creating..."
+            # Le wiki sera créé automatiquement lors du premier push
+            mkdir -p wiki-repo
+            cd wiki-repo
+            git init
+            git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${REPO}.wiki.git
+          }
+          
+      - name: Update Wiki Pages
         run: |
           # Copier les fichiers générés vers le wiki
-          cp wiki/Home.md wiki-repo/Home.md
-          cp wiki/API-Reference.md wiki-repo/API-Reference.md
+          if [ -d "docs_generated" ]; then
+            cp -r docs_generated/* wiki-repo/ 2>/dev/null || true
+          fi
           
-          # Créer une page de changelog automatique
           cd wiki-repo
-          echo "# 📝 Changelog Documentation" > Changelog.md
-          echo "" >> Changelog.md
-          echo "*Mise à jour automatique le $(date '+%d/%m/%Y à %H:%M')*" >> Changelog.md
-          echo "" >> Changelog.md
-          echo "## Dernières modifications" >> Changelog.md
-          echo "" >> Changelog.md
-          echo "- Documentation générée automatiquement depuis le code source" >> Changelog.md
-          echo "- Commit: ${{ github.sha }}" >> Changelog.md
-          echo "- Branche: ${{ github.ref_name }}" >> Changelog.md
           
-      - name: Commit and Push to Wiki
-        run: |
-          cd wiki-repo
+          # Ajouter les modifications
           git add .
+          
+          # Vérifier s'il y a des changements
           if git diff --staged --quiet; then
-            echo "Aucune modification détectée dans la documentation"
+            echo "ℹ️ Aucun changement détecté dans la documentation"
           else
-            git commit -m "🤖 Auto-update documentation from ${{ github.ref_name }} @ ${{ github.sha }}"
-            git push
-            echo "✅ Documentation Wiki mise à jour automatiquement"
+            git commit -m "📚 Auto-update documentation - $(date '+%Y-%m-%d %H:%M')"
+            git push origin main || git push origin master || {
+              echo "⚠️ Première publication du wiki"
+              git push --set-upstream origin main
+            }
+            echo "✅ Documentation mise à jour avec succès"
           fi

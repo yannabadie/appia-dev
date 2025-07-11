@@ -1,6 +1,6 @@
 # 🤖 JARVYS_DEV - Agent DevOps Autonome
 
-*Documentation générée automatiquement le 10/07/2025 à 18:20*
+*Documentation générée automatiquement le 11/07/2025 à 11:38*
 
 ## 🎯 Vue d'ensemble
 
@@ -21,9 +21,9 @@ JARVYS_DEV est un agent d'automatisation DevOps qui implémente une boucle auton
 **Modèles actuels configurés:**
 ```json
 {
-  "openai": "whisper-1",
-  "anthropic": "claude-4",
-  "gemini": "models/text-embedding-004"
+  "openai": "gpt-4o",
+  "anthropic": "claude-sonnet-4-20250514",
+  "gemini": "gemini-2.5-pro"
 }
 ```
 
@@ -60,15 +60,23 @@ Secrets nécessaires : GH_TOKEN, GH_REPO
 - **Fichier**: `src/jarvys_dev/tools/memory.py`
 - **Description**: No description available
 
+### memory_infinite
+- **Fichier**: `src/jarvys_dev/tools/memory_infinite.py`
+- **Description**: Outils de gestion de la mémoire infinie partagée entre JARVYS_DEV et JARVYS_AI.
+Utilise Supabase comme base vectorielle pour persistance et recherche sémantique.
+
 
 ## 🔄 Workflows Automatisés
 
 - **model-detection**: scheduled, manual
-- **wiki-init**: push, manual
+- **deploy-dashboard**: push, manual
+- **deploy-supabase**: push, manual
 - **ci**: push, pull_request
+- **jarvys-cloud**: scheduled, push, manual
+- **transfer-secrets**: manual
 - **agent**: scheduled, manual
-- **wiki-sync**: push
-- **wiki**: push, pull_request, manual
+- **test-simple**: push, manual
+- **wiki-sync**: push, manual
 
 ## 🌐 Intégrations
 

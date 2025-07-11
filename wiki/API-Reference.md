@@ -1,6 +1,6 @@
 # 📚 Référence API JARVYS_DEV
 
-*Générée automatiquement le 10/07/2025 à 18:20*
+*Générée automatiquement le 11/07/2025 à 11:38*
 
 ## 🔧 Modules Principaux
 
@@ -49,6 +49,12 @@ No description available
 
 **Fonctions disponibles:**
 
+### `jarvys_dev.tools.memory_infinite`
+Outils de gestion de la mémoire infinie partagée entre JARVYS_DEV et JARVYS_AI.
+Utilise Supabase comme base vectorielle pour persistance et recherche sémantique.
+
+**Fonctions disponibles:**
+
 
 ## 🔄 États de la Boucle
 
@@ -83,9 +89,9 @@ Le fichier `src/jarvys_dev/model_config.json` est mis à jour automatiquement pa
 
 ```json
 {
-  "openai": "whisper-1",
-  "anthropic": "claude-4",
-  "gemini": "models/text-embedding-004"
+  "openai": "gpt-4o",
+  "anthropic": "claude-sonnet-4-20250514",
+  "gemini": "gemini-2.5-pro"
 }
 ```
 
