@@ -1,4 +1,16 @@
----
+#!/usr/bin/env python3
+"""
+🔧 Correction complète du fichier YAML jarvys-cloud.yml
+"""
+
+from pathlib import Path
+
+def fix_yaml_file():
+    """Corriger complètement le fichier YAML"""
+    yaml_file = Path("/workspaces/appia-dev/.github/workflows/jarvys-cloud.yml")
+    
+    # Contenu YAML correct
+    corrected_yaml = '''---
 name: 🌩️ JARVYS_DEV Cloud Deployment
 
 on:
@@ -55,7 +67,7 @@ jobs:
           echo "🚀 Déploiement de la fonction dashboard..."
           # Créer le dossier de fonction si nécessaire
           mkdir -p supabase/functions/jarvys-dashboard
-
+          
           # Copier le patch d'authentification amélioré
           if [ -f "supabase_dashboard_auth_patch_v2.js" ]; then
             cp supabase_dashboard_auth_patch_v2.js supabase/functions/jarvys-dashboard/index.ts
@@ -63,7 +75,7 @@ jobs:
           else
             echo "⚠️ Patch d'authentification non trouvé, utilisation du code par défaut"
           fi
-
+          
           # Déployer la fonction
           supabase functions deploy jarvys-dashboard --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
           echo "✅ Dashboard déployé avec succès"
@@ -74,21 +86,21 @@ jobs:
         run: |
           echo "🧪 Test du dashboard déployé..."
           DASHBOARD_URL="https://${{ secrets.SUPABASE_PROJECT_ID }}.supabase.co/functions/v1/jarvys-dashboard"
-
+          
           # Test health check
           if curl -f "$DASHBOARD_URL/health" > /dev/null 2>&1; then
             echo "✅ Health check réussi"
           else
             echo "⚠️ Health check échoué (possiblement dû à l'authentification)"
           fi
-
+          
           # Test avec authentification
           if curl -f -H "Authorization: Bearer test" "$DASHBOARD_URL/api/metrics" > /dev/null 2>&1; then
             echo "✅ API metrics accessible avec authentification"
           else
             echo "⚠️ API metrics nécessite configuration supplémentaire"
           fi
-
+          
           echo "Dashboard URL: $DASHBOARD_URL"
 
   autonomous-analysis:
@@ -194,11 +206,18 @@ jobs:
           echo "Dashboard Deploy: ${{ needs.deploy-dashboard.result }}"
           echo "Autonomous Analysis: ${{ needs.autonomous-analysis.result }}"
           echo "Memory Sync: ${{ needs.memory-sync.result }}"
-
-          if [ "${{ needs.deploy-dashboard.result }}" = "success" ] && \
-             [ "${{ needs.autonomous-analysis.result }}" = "success" ] && \
+          
+          if [ "${{ needs.deploy-dashboard.result }}" = "success" ] && \\
+             [ "${{ needs.autonomous-analysis.result }}" = "success" ] && \\
              [ "${{ needs.memory-sync.result }}" = "success" ]; then
             echo "🎉 Tous les jobs JARVYS_DEV ont réussi!"
           else
             echo "⚠️ Certains jobs ont échoué, vérification nécessaire"
           fi
+'''
+
+    yaml_file.write_text(corrected_yaml.strip())
+    print(f"✅ Fichier YAML corrigé: {yaml_file}")
+
+if __name__ == "__main__":
+    fix_yaml_file()

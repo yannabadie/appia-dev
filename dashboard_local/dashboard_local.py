@@ -3,9 +3,10 @@
 Dashboard JARVYS local - Solution de contournement
 """
 
-from flask import Flask, render_template_string, jsonify, request
 import json
 from datetime import datetime
+
+from flask import Flask, jsonify, render_template_string, request
 
 app = Flask(__name__)
 
@@ -141,45 +142,56 @@ DASHBOARD_HTML = """
 </html>
 """
 
-@app.route('/')
+
+@app.route("/")
 def dashboard():
     return render_template_string(DASHBOARD_HTML)
 
-@app.route('/api/metrics')
+
+@app.route("/api/metrics")
 def metrics():
-    return jsonify({
-        "daily_cost": 3.28,
-        "api_calls": 164,
-        "response_time": 130,
-        "success_rate": 95.0,
-        "models": {
-            "gpt-4": {"calls": 45, "cost": 1.8},
-            "claude-3-sonnet": {"calls": 89, "cost": 1.34},
-            "gpt-3.5-turbo": {"calls": 30, "cost": 0.14}
-        },
-        "timestamp": datetime.now().isoformat()
-    })
+    return jsonify(
+        {
+            "daily_cost": 3.28,
+            "api_calls": 164,
+            "response_time": 130,
+            "success_rate": 95.0,
+            "models": {
+                "gpt-4": {"calls": 45, "cost": 1.8},
+                "claude-3-sonnet": {"calls": 89, "cost": 1.34},
+                "gpt-3.5-turbo": {"calls": 30, "cost": 0.14},
+            },
+            "timestamp": datetime.now().isoformat(),
+        }
+    )
 
-@app.route('/api/status')
+
+@app.route("/api/status")
 def status():
-    return jsonify({
-        "jarvys_dev": {"status": "active", "mode": "local"},
-        "jarvys_ai": {"status": "active", "mode": "local"},
-        "supabase": {"status": "local"},
-        "github": {"status": "connected"}
-    })
+    return jsonify(
+        {
+            "jarvys_dev": {"status": "active", "mode": "local"},
+            "jarvys_ai": {"status": "active", "mode": "local"},
+            "supabase": {"status": "local"},
+            "github": {"status": "connected"},
+        }
+    )
 
-@app.route('/api/control', methods=['POST'])
+
+@app.route("/api/control", methods=["POST"])
 def control():
     data = request.get_json()
-    return jsonify({
-        "action": data.get('action', 'unknown'),
-        "agent": data.get('agent', 'all'),
-        "status": "executed (local mode)",
-        "timestamp": datetime.now().isoformat()
-    })
+    return jsonify(
+        {
+            "action": data.get("action", "unknown"),
+            "agent": data.get("agent", "all"),
+            "status": "executed (local mode)",
+            "timestamp": datetime.now().isoformat(),
+        }
+    )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     print("🚀 Démarrage dashboard JARVYS local...")
     print("📍 URL: http://localhost:5000")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host="0.0.0.0", port=5000)

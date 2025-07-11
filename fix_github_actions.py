@@ -7,95 +7,94 @@ import subprocess
 import sys
 from pathlib import Path
 
+
 def fix_poetry_lock_issue():
     """Corriger le problème de synchronisation poetry.lock"""
     print("🔧 Correction du problème poetry.lock...")
-    
+
     try:
         # Vérifier le statut actuel
         result = subprocess.run(
-            ["poetry", "check"], 
-            capture_output=True, 
+            ["poetry", "check"],
+            capture_output=True,
             text=True,
-            cwd="/workspaces/appia-dev"
+            cwd="/workspaces/appia-dev",
         )
-        
+
         if result.returncode == 0:
             print("✅ Configuration Poetry valide")
         else:
             print(f"⚠️ Avertissements Poetry: {result.stdout}")
-            
+
         # Vérifier le lock file
         lock_result = subprocess.run(
-            ["poetry", "lock", "--check"], 
-            capture_output=True, 
+            ["poetry", "lock", "--check"],
+            capture_output=True,
             text=True,
-            cwd="/workspaces/appia-dev"
+            cwd="/workspaces/appia-dev",
         )
-        
+
         if lock_result.returncode != 0:
             print("🔄 Régénération du fichier poetry.lock...")
-            subprocess.run(
-                ["poetry", "lock"], 
-                cwd="/workspaces/appia-dev",
-                check=True
-            )
+            subprocess.run(["poetry", "lock"], cwd="/workspaces/appia-dev", check=True)
             print("✅ Fichier poetry.lock régénéré")
         else:
             print("✅ Fichier poetry.lock synchronisé")
-            
+
         return True
-        
+
     except Exception as e:
         print(f"❌ Erreur: {e}")
         return False
 
+
 def test_workflow_locally():
     """Tester les étapes du workflow localement"""
     print("🧪 Test local du workflow...")
-    
+
     try:
         # Simuler l'installation des dépendances
         print("📦 Test installation des dépendances...")
         result = subprocess.run(
-            ["poetry", "install", "--with", "dev"], 
-            capture_output=True, 
+            ["poetry", "install", "--with", "dev"],
+            capture_output=True,
             text=True,
-            cwd="/workspaces/appia-dev"
+            cwd="/workspaces/appia-dev",
         )
-        
+
         if result.returncode == 0:
             print("✅ Installation des dépendances réussie")
         else:
             print(f"❌ Erreur installation: {result.stderr}")
             return False
-            
+
         # Tester la génération de documentation
         print("📚 Test génération documentation...")
         result = subprocess.run(
-            ["poetry", "run", "python", "scripts/generate_wiki_docs.py"], 
-            capture_output=True, 
+            ["poetry", "run", "python", "scripts/generate_wiki_docs.py"],
+            capture_output=True,
             text=True,
-            cwd="/workspaces/appia-dev"
+            cwd="/workspaces/appia-dev",
         )
-        
+
         if result.returncode == 0:
             print("✅ Génération documentation réussie")
         else:
             print(f"❌ Erreur génération docs: {result.stderr}")
             return False
-            
+
         return True
-        
+
     except Exception as e:
         print(f"❌ Erreur test: {e}")
         return False
 
+
 def optimize_workflow():
     """Optimiser le workflow pour éviter les erreurs futures"""
     print("⚡ Optimisation du workflow...")
-    
-    workflow_content = '''---
+
+    workflow_content = """---
 name: Wiki Documentation Sync
 
 on:
@@ -200,34 +199,35 @@ jobs:
             }
             echo "✅ Documentation mise à jour avec succès"
           fi
-'''
+"""
 
     # Écrire le workflow optimisé
     workflow_file = Path("/workspaces/appia-dev/.github/workflows/wiki-sync.yml")
     workflow_file.write_text(workflow_content)
     print("✅ Workflow optimisé avec gestion d'erreurs robuste")
-    
+
     return True
+
 
 def main():
     """Fonction principale"""
     print("🚀 Correction des erreurs GitHub Actions")
     print("=" * 50)
-    
+
     success = True
-    
+
     # Corriger le problème poetry.lock
     if not fix_poetry_lock_issue():
         success = False
-        
+
     # Tester localement
     if not test_workflow_locally():
         success = False
-        
+
     # Optimiser le workflow
     if not optimize_workflow():
         success = False
-        
+
     if success:
         print("\\n✅ Toutes les corrections appliquées avec succès !")
         print("\\n📋 Résumé des corrections :")
@@ -236,12 +236,13 @@ def main():
         print("  3. ✅ Workflow optimisé avec gestion d'erreurs")
         print("  4. ✅ Cache Poetry ajouté pour améliorer les performances")
         print("  5. ✅ Validation d'installation ajoutée")
-        
+
         print("\\n🎯 Le workflow devrait maintenant fonctionner sans erreur !")
         return 0
     else:
         print("\\n❌ Certaines corrections ont échoué")
         return 1
+
 
 if __name__ == "__main__":
     exit(main())

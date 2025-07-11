@@ -4,46 +4,47 @@
 Crée la structure complète de JARVYS_AI dans le repo appIA
 """
 
+import json
 import os
 import shutil
-import json
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
+
 
 class JarvysAISetup:
     def __init__(self):
         self.workspace_path = Path("/workspaces/appia-dev")
         self.output_path = self.workspace_path / "appIA_complete_package"
-        
+
     def create_appIA_structure(self):
         """Créer la structure complète pour le repo appIA"""
         print("🏗️ Création de la structure JARVYS_AI pour appIA...")
-        
+
         # Créer le répertoire de sortie
         if self.output_path.exists():
             shutil.rmtree(self.output_path)
         self.output_path.mkdir(exist_ok=True)
-        
+
         # 1. Créer la structure du projet
         self._create_project_structure()
-        
+
         # 2. Créer le workflow GitHub Actions pour JARVYS_AI
         self._create_github_workflows()
-        
+
         # 3. Copier les modules JARVYS_AI
         self._copy_jarvys_ai_modules()
-        
+
         # 4. Créer les fichiers de configuration
         self._create_configuration_files()
-        
+
         # 5. Créer la documentation
         self._create_documentation()
-        
+
         # 6. Créer les scripts de déploiement
         self._create_deployment_scripts()
-        
+
         print(f"✅ Structure JARVYS_AI créée dans: {self.output_path}")
-    
+
     def _create_project_structure(self):
         """Créer la structure de base du projet"""
         dirs = [
@@ -53,15 +54,15 @@ class JarvysAISetup:
             "docker",
             "docs",
             "tests",
-            "config"
+            "config",
         ]
-        
+
         for dir_path in dirs:
             (self.output_path / dir_path).mkdir(parents=True, exist_ok=True)
-    
+
     def _create_github_workflows(self):
         """Créer les workflows GitHub Actions pour JARVYS_AI"""
-        
+
         # Workflow principal JARVYS_AI
         jarvys_ai_workflow = """name: 🤖 JARVYS_AI - Agent Local Autonome
 
@@ -238,11 +239,11 @@ jobs:
           
           echo "✅ Vérification terminée"
 """
-        
+
         workflow_path = self.output_path / ".github/workflows/jarvys-ai.yml"
-        with open(workflow_path, 'w', encoding='utf-8') as f:
+        with open(workflow_path, "w", encoding="utf-8") as f:
             f.write(jarvys_ai_workflow)
-        
+
         # Workflow de synchronisation avec JARVYS_DEV
         sync_workflow = """name: 🔄 Sync with JARVYS_DEV
 
@@ -313,32 +314,38 @@ except Exception as e:
           
           echo "✅ Synchronisation terminée"
 """
-        
+
         sync_path = self.output_path / ".github/workflows/sync-jarvys-dev.yml"
-        with open(sync_path, 'w', encoding='utf-8') as f:
+        with open(sync_path, "w", encoding="utf-8") as f:
             f.write(sync_workflow)
-    
+
     def _copy_jarvys_ai_modules(self):
         """Copier les modules JARVYS_AI depuis le workspace"""
         source_path = self.workspace_path / "jarvys_ai"
         target_path = self.output_path / "src/jarvys_ai"
-        
+
         # Copier tous les fichiers Python
         for item in source_path.rglob("*"):
-            if item.is_file() and not item.name.endswith('.pyc') and '__pycache__' not in str(item):
+            if (
+                item.is_file()
+                and not item.name.endswith(".pyc")
+                and "__pycache__" not in str(item)
+            ):
                 relative_path = item.relative_to(source_path)
                 target_file = target_path / relative_path
                 target_file.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(item, target_file)
-        
+
         # Copier le enhanced_fallback_engine
-        enhanced_fallback = self.workspace_path / "jarvys_ai/enhanced_fallback_engine.py"
+        enhanced_fallback = (
+            self.workspace_path / "jarvys_ai/enhanced_fallback_engine.py"
+        )
         if enhanced_fallback.exists():
             shutil.copy2(enhanced_fallback, target_path / "enhanced_fallback_engine.py")
-    
+
     def _create_configuration_files(self):
         """Créer les fichiers de configuration"""
-        
+
         # requirements.txt
         requirements = """# JARVYS_AI Requirements
 openai>=1.3.0
@@ -404,11 +411,11 @@ alembic>=1.12.0
 redis>=5.0.0
 celery>=5.3.0
 """
-        
+
         req_path = self.output_path / "requirements.txt"
-        with open(req_path, 'w', encoding='utf-8') as f:
+        with open(req_path, "w", encoding="utf-8") as f:
             f.write(requirements)
-        
+
         # Configuration JARVYS_AI
         config = {
             "jarvys_ai": {
@@ -417,39 +424,39 @@ celery>=5.3.0
                 "created_date": datetime.now().isoformat(),
                 "capabilities": [
                     "code_analysis",
-                    "repository_management", 
+                    "repository_management",
                     "local_execution",
                     "file_operations",
                     "git_operations",
                     "issue_handling",
                     "continuous_improvement",
-                    "dashboard_integration"
+                    "dashboard_integration",
                 ],
                 "integrations": {
                     "jarvys_dev_repo": "yannabadie/appia-dev",
                     "dashboard_url": "https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard",
                     "memory_shared": True,
-                    "sync_interval_hours": 6
+                    "sync_interval_hours": 6,
                 },
                 "execution": {
                     "github_actions": True,
                     "docker_support": True,
                     "local_fallback": True,
-                    "cloud_run_backup": True
+                    "cloud_run_backup": True,
                 },
                 "ai_models": {
                     "primary": "gpt-4",
-                    "secondary": "claude-3-sonnet", 
+                    "secondary": "claude-3-sonnet",
                     "local_fallback": "gpt-3.5-turbo",
-                    "cost_optimization": True
-                }
+                    "cost_optimization": True,
+                },
             }
         }
-        
+
         config_path = self.output_path / "config/jarvys_ai_config.json"
-        with open(config_path, 'w', encoding='utf-8') as f:
+        with open(config_path, "w", encoding="utf-8") as f:
             json.dump(config, f, indent=2)
-        
+
         # .env template
         env_template = """# JARVYS_AI Configuration
 # Copier ce fichier vers .env et mettre à jour avec vos valeurs
@@ -486,14 +493,14 @@ SECRET_ACCESS_TOKEN=your_secret_access_token
 HUGGINGFACE_TOKEN=your_hf_token
 LOCAL_MODEL_PATH=/models/local
 """
-        
+
         env_path = self.output_path / ".env.template"
-        with open(env_path, 'w', encoding='utf-8') as f:
+        with open(env_path, "w", encoding="utf-8") as f:
             f.write(env_template)
-    
+
     def _create_documentation(self):
         """Créer la documentation complète"""
-        
+
         # README principal pour appIA
         readme_content = """# 🤖 JARVYS_AI - Agent Local Autonome
 
@@ -775,14 +782,14 @@ Ce projet est sous licence MIT - voir [LICENSE](LICENSE) pour détails.
 **Version**: 1.0.0  
 **Dernière mise à jour**: 11 juillet 2025
 """
-        
+
         readme_path = self.output_path / "README.md"
-        with open(readme_path, 'w', encoding='utf-8') as f:
+        with open(readme_path, "w", encoding="utf-8") as f:
             f.write(readme_content)
-    
+
     def _create_deployment_scripts(self):
         """Créer les scripts de déploiement"""
-        
+
         # Script de déploiement
         deploy_script = """#!/bin/bash
 # 🚀 Script de déploiement JARVYS_AI pour appIA
@@ -876,40 +883,44 @@ echo "4. Surveillance des coûts et optimisations automatiques actives"
 # Cleanup
 rm -rf "$TEMP_DIR"
 """
-        
+
         deploy_path = self.output_path / "deploy_to_appIA.sh"
-        with open(deploy_path, 'w', encoding='utf-8') as f:
+        with open(deploy_path, "w", encoding="utf-8") as f:
             f.write(deploy_script)
         os.chmod(deploy_path, 0o755)
+
 
 def main():
     """Fonction principale"""
     print("🚀 JARVYS_AI Complete Setup for appIA Repository")
     print("=" * 60)
-    
+
     setup = JarvysAISetup()
     setup.create_appIA_structure()
-    
+
     print(f"\n🎉 Structure complète JARVYS_AI créée!")
     print(f"📁 Location: {setup.output_path}")
     print(f"\n📋 Contenu:")
-    
+
     # Afficher la structure créée
     for root, dirs, files in os.walk(setup.output_path):
-        level = root.replace(str(setup.output_path), '').count(os.sep)
-        indent = ' ' * 2 * level
+        level = root.replace(str(setup.output_path), "").count(os.sep)
+        indent = " " * 2 * level
         print(f"{indent}{os.path.basename(root)}/")
-        subindent = ' ' * 2 * (level + 1)
+        subindent = " " * 2 * (level + 1)
         for file in files[:5]:  # Limiter l'affichage
             print(f"{subindent}{file}")
         if len(files) > 5:
             print(f"{subindent}... et {len(files) - 5} autres fichiers")
-    
+
     print(f"\n🚀 Pour déployer dans le repo appIA:")
     print(f"   cd {setup.output_path}")
     print(f"   ./deploy_to_appIA.sh")
     print(f"\n🔗 Repo cible: https://github.com/yannabadie/appIA")
-    print(f"📊 Dashboard: https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard/")
+    print(
+        f"📊 Dashboard: https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard/"
+    )
+
 
 if __name__ == "__main__":
     main()

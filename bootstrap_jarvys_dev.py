@@ -16,9 +16,7 @@ from typing import List
 
 # ---------- petites fonctions utilitaires ----------
 def _pip(pkg: str):
-    subprocess.check_call(
-        [sys.executable, "-m", "pip", "install", "--quiet", pkg]
-    )
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "--quiet", pkg])
 
 
 try:
@@ -90,6 +88,7 @@ HEAD = {"Authorization": f"bearer {env['GH_TOKEN']}"}
 def gql(query: str, **vars):
     import json
     import textwrap
+
     import requests
 
     r = requests.post(
@@ -132,9 +131,7 @@ def get_or_create_project() -> str:
         }
       }
     """
-    proj = gql(mut, owner=d["id"], title=PROJECT_TITLE)["createProjectV2"][
-        "projectV2"
-    ]
+    proj = gql(mut, owner=d["id"], title=PROJECT_TITLE)["createProjectV2"]["projectV2"]
     print(f"✅  Project créé : {proj['url']}")
     return proj["id"]
 
@@ -186,8 +183,7 @@ ISSUES: List[tuple[str, str]] = [
     ),
     (
         "Epic : Persona & données Yann",
-        "- [ ] Export PDF LinkedIn\n"
-        "- [ ] Script `load_linkedin.py` ➜ Supabase",
+        "- [ ] Export PDF LinkedIn\n" "- [ ] Script `load_linkedin.py` ➜ Supabase",
     ),
 ]
 
@@ -240,9 +236,7 @@ devc = textwrap.dedent(
   }
 }"""
 )
-upsert(
-    ".devcontainer/devcontainer.json", "Add/Update devcontainer config", devc
-)
+upsert(".devcontainer/devcontainer.json", "Add/Update devcontainer config", devc)
 
 # ---------- 4) tool stub ----------
 stub = textwrap.dedent(

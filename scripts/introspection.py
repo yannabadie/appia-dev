@@ -8,7 +8,7 @@ import json
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any, Dict, List
 
 # Ajout du chemin src
 sys.path.insert(0, str(Path(__file__).parent / "src"))
@@ -33,7 +33,7 @@ class JarvysIntrospection:
     def analyze_codebase_structure(self) -> Dict[str, Any]:
         """Analyse la structure du codebase pour identifier les points d'amélioration."""
         repo_root = Path(__file__).parent
-        
+
         analysis = {
             "architecture": self._analyze_architecture(),
             "code_quality": self._analyze_code_quality(),
@@ -42,7 +42,7 @@ class JarvysIntrospection:
             "automation": self._analyze_automation_gaps(),
             "performance": self._analyze_performance_bottlenecks(),
         }
-        
+
         return analysis
 
     def _analyze_architecture(self) -> Dict[str, Any]:
@@ -60,8 +60,8 @@ class JarvysIntrospection:
             "suggestions": [
                 "Ajouter plus de patterns de resilience",
                 "Implémenter le pattern Circuit Breaker",
-                "Créer des interfaces plus abstraites pour les tools"
-            ]
+                "Créer des interfaces plus abstraites pour les tools",
+            ],
         }
 
     def _analyze_code_quality(self) -> Dict[str, Any]:
@@ -74,8 +74,8 @@ class JarvysIntrospection:
             "suggestions": [
                 "Ajouter plus de docstrings détaillées",
                 "Implémenter plus de type hints génériques",
-                "Créer des examples d'usage dans la documentation"
-            ]
+                "Créer des examples d'usage dans la documentation",
+            ],
         }
 
     def _analyze_test_coverage(self) -> Dict[str, Any]:
@@ -87,8 +87,8 @@ class JarvysIntrospection:
             "suggestions": [
                 "Ajouter des tests d'intégration pour les workflows",
                 "Créer des tests E2E pour les scénarios d'usage complets",
-                "Implémenter des tests de charge pour les APIs"
-            ]
+                "Implémenter des tests de charge pour les APIs",
+            ],
         }
 
     def _analyze_dependencies(self) -> Dict[str, Any]:
@@ -100,8 +100,8 @@ class JarvysIntrospection:
             "suggestions": [
                 "Mettre à jour langchain vers la dernière version",
                 "Évaluer les alternatives à certaines dépendances lourdes",
-                "Implémenter un scan automatique des vulnérabilités"
-            ]
+                "Implémenter un scan automatique des vulnérabilités",
+            ],
         }
 
     def _analyze_automation_gaps(self) -> Dict[str, Any]:
@@ -114,14 +114,14 @@ class JarvysIntrospection:
                 "Alerting automatique en cas d'erreur",
                 "Rollback automatique en cas de problème",
                 "Auto-scaling des ressources",
-                "Backup automatique des données"
+                "Backup automatique des données",
             ],
             "suggestions": [
                 "Implémenter un système d'alerting Slack/Email",
                 "Créer des healthchecks automatiques",
                 "Ajouter des métriques business",
-                "Automatiser les sauvegardes de la base vectorielle"
-            ]
+                "Automatiser les sauvegardes de la base vectorielle",
+            ],
         }
 
     def _analyze_performance_bottlenecks(self) -> Dict[str, Any]:
@@ -133,14 +133,14 @@ class JarvysIntrospection:
             "bottlenecks": [
                 "Appels API synchrones vers les LLMs",
                 "Chargement initial de la base vectorielle",
-                "Parsing des réponses GitHub GraphQL"
+                "Parsing des réponses GitHub GraphQL",
             ],
             "suggestions": [
                 "Implémenter du streaming pour les réponses LLM",
                 "Ajouter un cache Redis pour les requêtes fréquentes",
                 "Paralléliser les appels API non-dépendants",
-                "Optimiser les requêtes Supabase avec des index"
-            ]
+                "Optimiser les requêtes Supabase avec des index",
+            ],
         }
 
     def generate_improvement_roadmap(self, analysis: Dict[str, Any]) -> Dict[str, Any]:
@@ -154,7 +154,7 @@ class JarvysIntrospection:
                     "impact": "Résilience++, Autonomie++",
                 },
                 {
-                    "priority": "HIGH", 
+                    "priority": "HIGH",
                     "task": "Ajouter des métriques business au dashboard",
                     "effort": "1-2 jours",
                     "impact": "Observabilité++",
@@ -162,34 +162,34 @@ class JarvysIntrospection:
                 {
                     "priority": "MEDIUM",
                     "task": "Créer un système d'alerting",
-                    "effort": "3-4 jours", 
+                    "effort": "3-4 jours",
                     "impact": "Proactivité++",
-                }
+                },
             ],
             "short_term": [
                 {
                     "task": "Implémenter le pattern Circuit Breaker",
                     "timeline": "1-2 semaines",
-                    "dependencies": ["retry system"]
+                    "dependencies": ["retry system"],
                 },
                 {
                     "task": "Ajouter un cache Redis",
                     "timeline": "1 semaine",
-                    "dependencies": ["performance profiling"]
-                }
+                    "dependencies": ["performance profiling"],
+                },
             ],
             "long_term": [
                 {
                     "task": "Système d'apprentissage automatique",
                     "timeline": "1-2 mois",
-                    "description": "L'agent apprend de ses succès/échecs"
+                    "description": "L'agent apprend de ses succès/échecs",
                 },
                 {
                     "task": "Multi-agent orchestration",
-                    "timeline": "2-3 mois", 
-                    "description": "Coordination avec d'autres agents"
-                }
-            ]
+                    "timeline": "2-3 mois",
+                    "description": "Coordination avec d'autres agents",
+                },
+            ],
         }
 
         return roadmap
@@ -201,20 +201,13 @@ class JarvysIntrospection:
 
         suggestions = [
             "🧠 **Intelligence Adaptive**: Implémenter un système qui ajuste automatiquement les seuils de confiance selon le contexte",
-            
             "🔄 **Boucle de Feedback**: Créer un mécanisme pour que l'agent évalue ses propres actions et apprenne de ses erreurs",
-            
             "📊 **Métriques Personnalisées**: Développer des KPIs spécifiques à chaque type de tâche pour optimiser les performances",
-            
             "🛡️ **Sécurité Proactive**: Ajouter un module de scan automatique des vulnérabilités dans le code généré",
-            
             "🤝 **Collaboration Inter-Agents**: Créer des protocoles pour collaborer avec d'autres instances ou types d'agents",
-            
             "🎯 **Planification Prédictive**: Anticiper les besoins futurs basés sur les patterns d'usage",
-            
             "⚡ **Optimisation Continue**: Auto-tuning des paramètres basé sur les métriques de performance",
-            
-            "🔍 **Introspection Profonde**: Analyser le code généré pour identifier les patterns de réussite/échec"
+            "🔍 **Introspection Profonde**: Analyser le code généré pour identifier les patterns de réussite/échec",
         ]
 
         return suggestions
@@ -241,10 +234,7 @@ class JarvysIntrospection:
         """
 
         try:
-            response = self.router.generate(
-                context, 
-                task_type="reasoning"
-            )
+            response = self.router.generate(context, task_type="reasoning")
             return response.get("content", "Erreur dans la génération de réponse")
         except Exception as e:
             return f"Erreur lors de l'auto-analyse: {e}"
@@ -256,12 +246,12 @@ class JarvysIntrospection:
             "analysis": analysis,
             "roadmap": roadmap,
             "suggestions": self.generate_self_improvement_suggestions(),
-            "version": "1.0"
+            "version": "1.0",
         }
 
         report_path = Path("reports/introspection_report.json")
         report_path.parent.mkdir(exist_ok=True)
-        
+
         with open(report_path, "w", encoding="utf-8") as f:
             json.dump(report, f, indent=2, ensure_ascii=False)
 
@@ -301,7 +291,7 @@ def main():
         "Quelle est ma plus grande faiblesse actuelle et comment puis-je l'améliorer ?",
         "Comment puis-je devenir plus autonome dans mes décisions ?",
         "Quelles sont les métriques les plus importantes à suivre pour mesurer mon efficacité ?",
-        "Comment puis-je mieux collaborer avec les développeurs humains ?"
+        "Comment puis-je mieux collaborer avec les développeurs humains ?",
     ]
 
     for question in questions:
