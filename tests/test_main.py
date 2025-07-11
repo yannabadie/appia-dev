@@ -12,7 +12,7 @@ def test_send_to_jarvys_ai_creates_issue(create_issue):
     assert url.endswith("/1")
     create_issue.assert_called_once()
     _, kwargs = create_issue.call_args
-    assert "from_jarvys_ai" in kwargs["labels"]
+    assert "from_jarvys_dev" in kwargs["labels"]
     assert "```json" in kwargs["body"]
 
 
