@@ -12,14 +12,14 @@ jobs:
     steps:
     - name: ✅ Checkout
       uses: actions/checkout@v4
-      
+
     - name: 🧪 Simple Test
       run: |
         echo "🚀 Test du workflow simple..."
         echo "📁 Contenu du repository:"
         ls -la
         echo "✅ Test réussi !"
-        
+
     - name: 🔍 Check Secrets Availability
       run: |
         echo "🔐 Vérification des secrets disponibles..."

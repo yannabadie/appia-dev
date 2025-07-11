@@ -21,23 +21,23 @@ jobs:
       GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
       SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-      
+
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: 'pip'
-          
+
       - name: Install Poetry
         run: |
           pip install poetry
           poetry config virtualenvs.create true
           poetry config virtualenvs.in-project true
-          
+
       - name: Cache Poetry virtualenv
         uses: actions/cache@v4
         id: cache-poetry
@@ -46,7 +46,7 @@ jobs:
           key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
           restore-keys: |
             venv-${{ runner.os }}-
-          
+
       - name: Install dependencies
         run: |
           # Vérifier et corriger le lock file si nécessaire
@@ -55,15 +55,15 @@ jobs:
             poetry lock
           fi
           poetry install --with dev --no-interaction --no-interaction
-          
+
       - name: Validate installation
         run: |
           poetry run python -c "import jarvys_dev; print('✅ Module jarvys_dev importé avec succès')"
-          
+
       - name: Generate Wiki Documentation
         run: |
           poetry run python scripts/generate_wiki_docs.py
-          
+
       - name: Checkout Wiki Repository
         run: |
           git config --global user.name 'JARVYS_DEV Auto-Doc'
@@ -79,19 +79,19 @@ jobs:
             git init
             git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${REPO}.wiki.git
           }
-          
+
       - name: Update Wiki Pages
         run: |
           # Copier les fichiers générés vers le wiki
           if [ -d "docs_generated" ]; then
             cp -r docs_generated/* wiki-repo/ 2>/dev/null || true
           fi
-          
+
           cd wiki-repo
-          
+
           # Ajouter les modifications
           git add .
-          
+
           # Vérifier s'il y a des changements
           if git diff --staged --quiet; then
             echo "ℹ️ Aucun changement détecté dans la documentation"
