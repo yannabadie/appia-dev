@@ -1,9 +1,9 @@
 // JARVYS Dashboard Edge Function for Supabase
 // Provides a cloud-hosted dashboard for the JARVYS DevOps agent
 
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
 
-console.log("🚀 JARVYS Dashboard starting...")
+console.log("🚀 JARVYS Dashboard starting...");
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,37 +11,8 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
 };
 
-// Secret d'authentification pour les Edge Functions
-const EDGE_FUNCTION_SECRET = (globalThis as any).Deno?.env?.get('SPB_EDGE_FUNCTIONS') || 'dHx8o@3?G4!QT86C';
-
-interface JarvysMetrics {
-  daily_cost_usd: number;
-  daily_api_calls: number;
-  total_interactions: number;
-  active_models: number;
-  system_uptime: number;
-  memory_usage: number;
-}
-
-interface DashboardData {
-  metrics: JarvysMetrics;
-  status: {
-    active: boolean;
-    version: string;
-    uptime: string;
-    last_loop: string;
-  };
-  recent_tasks: Array<{
-    id: string;
-    timestamp: string;
-    type: string;
-    status: string;
-    description: string;
-  }>;
-}
-
-// Simulation des données JARVYS pour l'environnement cloud
-function getMockJarvysData(): DashboardData {
+// Données simulées pour l'environnement cloud
+function getMockData() {
   const now = new Date();
   const uptimeHours = Math.floor(Math.random() * 168) + 1;
   
@@ -52,42 +23,60 @@ function getMockJarvysData(): DashboardData {
       total_interactions: Math.floor(Math.random() * 50 + 10),
       active_models: 3,
       system_uptime: uptimeHours,
-      memory_usage: Math.floor(Math.random() * 200 + 300)
+      memory_usage: Math.floor(Math.random() * 200 + 300),
+      success_rate: Math.round((0.85 + Math.random() * 0.14) * 100) / 100,
+      avg_response_time: Math.floor(Math.random() * 150 + 50),
+      total_tasks: Math.floor(Math.random() * 50 + 20),
+      completed_tasks: Math.floor(Math.random() * 40 + 15)
     },
     status: {
       active: true,
-      version: "1.0.0-cloud",
+      version: "1.2.0-cloud",
       uptime: `${uptimeHours}h ${Math.floor(Math.random() * 60)}m`,
-      last_loop: now.toISOString()
+      last_loop: now.toISOString(),
+      cloud_mode: true,
+      deployment_time: new Date(now.getTime() - uptimeHours * 3600000).toISOString()
     },
     recent_tasks: [
       {
-        id: "task_" + Math.random().toString(36).substr(2, 9),
+        id: "task_001",
         timestamp: new Date(now.getTime() - Math.random() * 3600000).toISOString(),
-        type: "model_optimization",
+        type: "autonomous_analysis",
         status: "completed",
-        description: "Optimized Claude 4 Sonnet routing for cost efficiency"
+        description: "Analyzed 25 code files for optimization opportunities",
+        duration_ms: 12500,
+        confidence: 0.92,
+        cost_usd: 0.08
       },
       {
-        id: "task_" + Math.random().toString(36).substr(2, 9),
+        id: "task_002", 
         timestamp: new Date(now.getTime() - Math.random() * 7200000).toISOString(),
         type: "security_scan",
         status: "completed",
-        description: "Performed security audit on API endpoints"
+        description: "Scanned 150 dependencies for vulnerabilities",
+        duration_ms: 8200,
+        confidence: 0.87,
+        cost_usd: 0.05
       },
       {
-        id: "task_" + Math.random().toString(36).substr(2, 9),
+        id: "task_003",
         timestamp: new Date(now.getTime() - Math.random() * 10800000).toISOString(),
-        type: "performance_monitoring",
+        type: "performance_optimization", 
         status: "in_progress",
-        description: "Monitoring Gemini 2.5 Pro response latency"
+        description: "Optimizing Claude 3.5 Sonnet routing for cost efficiency"
       }
-    ]
+    ],
+    system_info: {
+      environment: "Supabase Edge Functions",
+      region: "Global CDN", 
+      build_id: `build_${Math.random().toString(36).substr(2, 8)}`,
+      last_update: new Date(now.getTime() - Math.random() * 3600000).toISOString()
+    }
   };
 }
 
-// Template HTML principal du dashboard
-function getDashboardHTML(data: DashboardData): string {
+// Template HTML du dashboard
+function getDashboardHTML(data: any): string {
   return `<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -105,7 +94,9 @@ function getDashboardHTML(data: DashboardData): string {
             --accent-green: #3FB950;
             --accent-orange: #FF8C00;
         }
+        
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
             background: linear-gradient(135deg, var(--primary-bg) 0%, #1a1f2e 100%);
@@ -113,6 +104,7 @@ function getDashboardHTML(data: DashboardData): string {
             line-height: 1.6;
             min-height: 100vh;
         }
+        
         .header {
             background: var(--secondary-bg);
             padding: 1.5rem 2rem;
@@ -122,12 +114,10 @@ function getDashboardHTML(data: DashboardData): string {
             align-items: center;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
+        
         .logo { display: flex; align-items: center; gap: 12px; }
-        .logo h1 {
-            color: var(--accent-blue);
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
+        .logo h1 { color: var(--accent-blue); font-size: 1.8rem; font-weight: 700; }
+        
         .cloud-badge {
             background: linear-gradient(135deg, var(--accent-green), #56d364);
             color: white;
@@ -136,6 +126,7 @@ function getDashboardHTML(data: DashboardData): string {
             font-size: 0.8rem;
             font-weight: 600;
         }
+        
         .status-badge {
             display: flex;
             align-items: center;
@@ -146,6 +137,7 @@ function getDashboardHTML(data: DashboardData): string {
             font-size: 0.95rem;
             border: 1px solid var(--accent-green);
         }
+        
         .status-indicator {
             width: 10px;
             height: 10px;
@@ -153,21 +145,25 @@ function getDashboardHTML(data: DashboardData): string {
             background: var(--accent-green);
             animation: pulse 2s infinite;
         }
+        
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
         }
+        
         .main-content {
             padding: 2.5rem;
             max-width: 1400px;
             margin: 0 auto;
         }
+        
         .metrics-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 2rem;
             margin-bottom: 3rem;
         }
+        
         .metric-card {
             background: var(--secondary-bg);
             border: 1px solid var(--accent-bg);
@@ -176,23 +172,27 @@ function getDashboardHTML(data: DashboardData): string {
             text-align: center;
             transition: all 0.3s ease;
         }
+        
         .metric-card:hover {
             transform: translateY(-4px);
             border-color: var(--accent-blue);
             box-shadow: 0 8px 25px rgba(88, 166, 255, 0.2);
         }
+        
         .metric-value {
             font-size: 2.5rem;
             font-weight: 800;
             color: var(--accent-blue);
             margin-bottom: 0.5rem;
         }
+        
         .metric-label {
             color: var(--text-secondary);
             font-size: 1rem;
             margin-bottom: 0.8rem;
             font-weight: 500;
         }
+        
         .metric-change {
             font-size: 0.85rem;
             padding: 6px 12px;
@@ -203,6 +203,7 @@ function getDashboardHTML(data: DashboardData): string {
             color: var(--accent-green);
             border: 1px solid rgba(63, 185, 80, 0.3);
         }
+        
         .tasks-section {
             background: var(--secondary-bg);
             border: 1px solid var(--accent-bg);
@@ -210,6 +211,7 @@ function getDashboardHTML(data: DashboardData): string {
             padding: 2rem;
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
+        
         .section-title {
             color: var(--text-primary);
             font-size: 1.5rem;
@@ -219,6 +221,7 @@ function getDashboardHTML(data: DashboardData): string {
             align-items: center;
             font-weight: 600;
         }
+        
         .task-item {
             display: flex;
             justify-content: space-between;
@@ -230,23 +233,28 @@ function getDashboardHTML(data: DashboardData): string {
             transition: all 0.3s ease;
             background: rgba(33, 38, 45, 0.5);
         }
+        
         .task-info { flex: 1; }
+        
         .task-title {
             color: var(--text-primary);
             font-weight: 600;
             margin-bottom: 6px;
             font-size: 1.1rem;
         }
+        
         .task-description {
             color: var(--text-secondary);
             font-size: 0.95rem;
             line-height: 1.5;
         }
+        
         .task-timestamp {
             font-size: 0.8rem;
             color: var(--text-secondary);
             margin-top: 6px;
         }
+        
         .task-status {
             padding: 8px 16px;
             border-radius: 15px;
@@ -254,16 +262,19 @@ function getDashboardHTML(data: DashboardData): string {
             font-weight: 600;
             text-transform: uppercase;
         }
+        
         .status-completed {
             background: rgba(63, 185, 80, 0.15);
             color: var(--accent-green);
             border: 1px solid rgba(63, 185, 80, 0.3);
         }
+        
         .status-in-progress {
             background: rgba(255, 140, 0, 0.15);
             color: var(--accent-orange);
             border: 1px solid rgba(255, 140, 0, 0.3);
         }
+        
         .refresh-btn {
             background: linear-gradient(135deg, var(--accent-blue), #4A9EFF);
             color: white;
@@ -274,6 +285,7 @@ function getDashboardHTML(data: DashboardData): string {
             font-size: 0.9rem;
             font-weight: 600;
         }
+        
         .footer {
             text-align: center;
             padding: 3rem 2rem;
@@ -281,6 +293,11 @@ function getDashboardHTML(data: DashboardData): string {
             border-top: 1px solid var(--accent-bg);
             margin-top: 3rem;
             background: var(--secondary-bg);
+        }
+        
+        @media (max-width: 768px) {
+            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+            .main-content { padding: 1.5rem; }
         }
     </style>
 </head>
@@ -295,6 +312,7 @@ function getDashboardHTML(data: DashboardData): string {
             Agent DevOps autonome actif
         </div>
     </header>
+    
     <main class="main-content">
         <div class="metrics-grid">
             <div class="metric-card">
@@ -320,20 +338,31 @@ function getDashboardHTML(data: DashboardData): string {
             <div class="metric-card">
                 <div class="metric-value">${data.metrics.system_uptime}h</div>
                 <div class="metric-label">Uptime système</div>
-                <div class="metric-change">✅ 99.9%</div>
+                <div class="metric-change">✅ ${(data.metrics.success_rate * 100).toFixed(1)}%</div>
             </div>
             <div class="metric-card">
                 <div class="metric-value">${data.metrics.memory_usage}MB</div>
                 <div class="metric-label">Mémoire utilisée</div>
                 <div class="metric-change">💾 Edge optimisé</div>
             </div>
+            <div class="metric-card">
+                <div class="metric-value">${data.metrics.avg_response_time}ms</div>
+                <div class="metric-label">Temps de réponse</div>
+                <div class="metric-change">⚡ Rapide</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-value">${data.metrics.completed_tasks}/${data.metrics.total_tasks}</div>
+                <div class="metric-label">Tâches complétées</div>
+                <div class="metric-change">📋 ${Math.round((data.metrics.completed_tasks / data.metrics.total_tasks) * 100)}%</div>
+            </div>
         </div>
+        
         <div class="tasks-section">
             <div class="section-title">
                 📋 Tâches autonomes récentes
                 <button class="refresh-btn" onclick="location.reload()">🔄 Actualiser</button>
             </div>
-            ${data.recent_tasks.map(task => `
+            ${data.recent_tasks.map((task: any) => `
                 <div class="task-item">
                     <div class="task-info">
                         <div class="task-title">${task.type.replace(/_/g, ' ').toUpperCase()}</div>
@@ -345,13 +374,15 @@ function getDashboardHTML(data: DashboardData): string {
             `).join('')}
         </div>
     </main>
+    
     <footer class="footer">
         <p>🚀 <strong>JARVYS_DEV Cloud Dashboard</strong> - Powered by Supabase Edge Functions</p>
-        <p>Version ${data.status.version} • ${new Date(data.status.last_loop).toLocaleString('fr-FR')}</p>
+        <p>Version ${data.status.version} • Déployé le ${new Date(data.status.deployment_time).toLocaleString('fr-FR')}</p>
     </footer>
+    
     <script>
-        setInterval(() => location.reload(), 30000);
-        console.log("🤖 JARVYS_DEV Cloud Dashboard - Edge Function Active");
+        console.log('🤖 JARVYS_DEV Cloud Dashboard - Edge Function Active');
+        setInterval(() => location.reload(), 30000); // Auto-refresh toutes les 30 secondes
     </script>
 </body>
 </html>`;
@@ -360,6 +391,14 @@ function getDashboardHTML(data: DashboardData): string {
 serve(async (req: Request) => {
   const { url, method } = req;
   const { pathname } = new URL(url);
+  
+  // Pour Supabase Edge Functions, le pathname est déjà nettoyé
+  const cleanPath = pathname.startsWith('/jarvys-dashboard') ? pathname.replace('/jarvys-dashboard', '') || '/' : pathname;
+  
+  // Si le chemin est encore vide, mettre '/'
+  const finalPath = cleanPath === '' ? '/' : cleanPath;
+
+  console.log(`Request: ${method} ${pathname} -> ${finalPath}`);
 
   if (method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -367,8 +406,8 @@ serve(async (req: Request) => {
 
   try {
     // Dashboard principal
-    if ((pathname === '/' || pathname === '/jarvys-dashboard' || pathname === '/jarvys-dashboard/') && method === 'GET') {
-      const data = getMockJarvysData();
+    if ((finalPath === '/' || finalPath === '' || finalPath === '/jarvys-dashboard') && method === 'GET') {
+      const data = getMockData();
       const html = getDashboardHTML(data);
       
       return new Response(html, {
@@ -380,8 +419,8 @@ serve(async (req: Request) => {
     }
 
     // API Status
-    if (pathname === '/api/status' && method === 'GET') {
-      const data = getMockJarvysData();
+    if (finalPath === '/api/status' && method === 'GET') {
+      const data = getMockData();
       return new Response(JSON.stringify({
         ...data.status,
         edge_function: true,
@@ -392,8 +431,8 @@ serve(async (req: Request) => {
     }
 
     // API Metrics
-    if (pathname === '/api/metrics' && method === 'GET') {
-      const data = getMockJarvysData();
+    if (finalPath === '/api/metrics' && method === 'GET') {
+      const data = getMockData();
       return new Response(JSON.stringify({
         ...data.metrics,
         timestamp: new Date().toISOString()
@@ -403,23 +442,38 @@ serve(async (req: Request) => {
     }
 
     // API Complete Data
-    if (pathname === '/api/data' && method === 'GET') {
-      const data = getMockJarvysData();
+    if (finalPath === '/api/data' && method === 'GET') {
+      const data = getMockData();
       return new Response(JSON.stringify(data), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
+    // API Tasks
+    if (finalPath === '/api/tasks' && method === 'GET') {
+      const data = getMockData();
+      return new Response(JSON.stringify({
+        tasks: data.recent_tasks,
+        total_count: data.metrics.total_tasks,
+        completed_count: data.metrics.completed_tasks,
+        timestamp: new Date().toISOString()
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
     // API Chat
-    if (pathname === '/api/chat' && method === 'POST') {
+    if (finalPath === '/api/chat' && method === 'POST') {
       const body = await req.json();
       const message = body.message || '';
       
       const responses = [
-        `🤖 JARVYS_DEV Cloud actif ! Infrastructure sous surveillance optimale.`,
-        `📊 Métriques cloud excellentes ! Coûts API optimisés et modèles performants.`,
-        `🚀 Edge Function opérationnelle ! Monitoring 24/7 depuis Supabase.`,
-        `💡 Suggestion: Optimisation de 15% possible sur les routes de modèles.`
+        '🤖 JARVYS_DEV Cloud actif ! Infrastructure sous surveillance optimale.',
+        '📊 Métriques cloud excellentes ! Coûts API optimisés et modèles performants.',
+        '🚀 Edge Function opérationnelle ! Monitoring 24/7 depuis Supabase.',
+        '💡 Suggestion: Optimisation de 15% possible sur les routes de modèles.',
+        '🔍 Analyse en cours: ' + Math.floor(Math.random() * 500 + 100) + ' fichiers traités.',
+        '⚡ Performance optimale: ' + Math.floor(Math.random() * 50 + 50) + 'ms de latence moyenne.'
       ];
       
       const response = responses[Math.floor(Math.random() * responses.length)];
@@ -428,19 +482,21 @@ serve(async (req: Request) => {
         response, 
         timestamp: new Date().toISOString(),
         confidence: 0.95,
-        cloud: true
+        cloud: true,
+        message_id: `msg_${Math.random().toString(36).substr(2, 9)}`
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
     // Health check
-    if (pathname === '/health' && method === 'GET') {
+    if (finalPath === '/health' && method === 'GET') {
       return new Response(JSON.stringify({ 
         status: 'healthy',
         service: 'jarvys-dashboard',
         timestamp: new Date().toISOString(),
-        edge_function: true
+        edge_function: true,
+        version: '1.2.0-cloud'
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
@@ -449,7 +505,8 @@ serve(async (req: Request) => {
     // 404
     return new Response(JSON.stringify({ 
       error: 'Endpoint not found',
-      available: ['/', '/api/status', '/api/metrics', '/api/data', '/api/chat', '/health']
+      path: finalPath,
+      available: ['/', '/api/status', '/api/metrics', '/api/data', '/api/tasks', '/api/chat', '/health']
     }), {
       status: 404,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
