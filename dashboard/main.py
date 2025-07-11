@@ -383,16 +383,17 @@ app = FastAPI(title="JARVYS_DEV Dashboard", version="0.1.0")
 
 # Configuration des templates et fichiers statiques
 
+
 @app.get("/")
 async def root():
     """Point d'entrée principal - redirige vers le dashboard Supabase."""
     return {
-        "service": "JARVYS_DEV Dashboard API", 
+        "service": "JARVYS_DEV Dashboard API",
         "version": "0.1.0",
         "status": "active",
         "dashboard_url": "Déployé sur Supabase Edge Functions",
         "secret_configured": True,
-        "message": "Utilisez /api/status pour les métriques"
+        "message": "Utilisez /api/status pour les métriques",
     }
 
 

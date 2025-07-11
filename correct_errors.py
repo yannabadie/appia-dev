@@ -7,18 +7,20 @@ import json
 import os
 import subprocess
 from pathlib import Path
+
 import requests
+
 
 class JarvysErrorCorrector:
     def __init__(self):
         self.workspace = Path("/workspaces/appia-dev")
-        
+
     def fix_dashboard_authentication(self):
         """Corriger l'authentification du dashboard Supabase"""
         print("🔧 Correction authentification dashboard...")
-        
+
         # Créer une version améliorée du patch
-        improved_patch = '''// Patch authentification JARVYS Dashboard - Version améliorée
+        improved_patch = """// Patch authentification JARVYS Dashboard - Version améliorée
 // Remplacer le contenu de supabase/functions/jarvys-dashboard/index.ts
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
@@ -311,74 +313,78 @@ serve(async (req) => {
       ...corsHeaders
     }
   });
-});'''
+});"""
 
         patch_file = self.workspace / "supabase_dashboard_auth_patch_v2.js"
         patch_file.write_text(improved_patch)
-        print("✅ Patch authentification amélioré créé: supabase_dashboard_auth_patch_v2.js")
-        
+        print(
+            "✅ Patch authentification amélioré créé: supabase_dashboard_auth_patch_v2.js"
+        )
+
         return True
-        
+
     def fix_remaining_dev_branch_references(self):
         """Corriger les dernières références à la branche 'dev'"""
         print("🔧 Correction références branche 'dev' restantes...")
-        
+
         # Vérifier bootstrap_jarvys_dev.py
         bootstrap_file = self.workspace / "bootstrap_jarvys_dev.py"
         if bootstrap_file.exists():
             content = bootstrap_file.read_text()
-            
+
             # S'assurer que toutes les références dev sont changées
             content = content.replace('branch="dev"', 'branch="main"')
             content = content.replace("'dev'", "'main'")
             content = content.replace('"dev"', '"main"')
-            
+
             bootstrap_file.write_text(content)
             print("✅ bootstrap_jarvys_dev.py: dev → main")
-            
+
         return True
-        
+
     def test_dashboard_fix(self):
         """Tester la correction du dashboard"""
         print("🧪 Test de la correction dashboard...")
-        
+
         try:
             # Test avec token valide
             response = requests.get(
                 "https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard/health",
-                timeout=10
+                timeout=10,
             )
-            
+
             if response.status_code == 200:
                 print("✅ Health check réussi (sans auth)")
             else:
                 print(f"❌ Health check échoué: {response.status_code}")
-                
+
             # Test metrics avec auth
             response_metrics = requests.get(
                 "https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard/api/metrics",
                 headers={"Authorization": "Bearer test"},
-                timeout=10
+                timeout=10,
             )
-            
+
             if response_metrics.status_code == 401:
-                print("⚠️ L'authentification nécessite encore la mise à jour de la Edge Function")
+                print(
+                    "⚠️ L'authentification nécessite encore la mise à jour de la Edge Function"
+                )
                 print("📝 Le patch doit être appliqué manuellement dans Supabase")
             else:
                 print(f"🔍 Status metrics: {response_metrics.status_code}")
-                
+
         except Exception as e:
             print(f"❌ Erreur test dashboard: {e}")
-            
+
         return True
-        
+
     def create_local_dashboard(self):
         """Créer un dashboard local comme solution de contournement"""
         print("🔧 Création dashboard local de contournement...")
-        
+
         dashboard_dir = self.workspace / "dashboard_local"
         dashboard_dir.mkdir(exist_ok=True)
-        
+
         # Créer un serveur dashboard local simple
         local_dashboard = '''#!/usr/bin/env python3
 """
@@ -569,25 +575,27 @@ if __name__ == '__main__':
 
         dashboard_file = dashboard_dir / "dashboard_local.py"
         dashboard_file.write_text(local_dashboard)
-        
+
         # Créer un requirements.txt pour le dashboard local
         requirements = "flask>=2.0.0\\n"
         (dashboard_dir / "requirements.txt").write_text(requirements)
-        
+
         print("✅ Dashboard local créé: dashboard_local/dashboard_local.py")
-        print("🚀 Pour lancer: cd dashboard_local && pip install -r requirements.txt && python dashboard_local.py")
-        
+        print(
+            "🚀 Pour lancer: cd dashboard_local && pip install -r requirements.txt && python dashboard_local.py"
+        )
+
         return True
-        
+
     def fix_model_config_loading(self):
         """Corriger le chargement de la configuration des modèles"""
         print("🔧 Correction chargement configuration modèles...")
-        
+
         # Vérifier si le fichier de config existe
         config_file = self.workspace / "src/jarvys_dev/model_capabilities.json"
         if not config_file.exists():
             print("⚠️ Fichier model_capabilities.json manquant, création...")
-            
+
             # Créer la configuration par défaut
             default_config = {
                 "models": {
@@ -597,7 +605,7 @@ if __name__ == '__main__':
                         "cost_per_token": 0.00003,
                         "capabilities": ["reasoning", "code", "analysis", "creative"],
                         "performance_score": 0.95,
-                        "reliability_score": 0.98
+                        "reliability_score": 0.98,
                     },
                     "gpt-3.5-turbo": {
                         "provider": "openai",
@@ -605,16 +613,22 @@ if __name__ == '__main__':
                         "cost_per_token": 0.000002,
                         "capabilities": ["reasoning", "code", "simple_tasks"],
                         "performance_score": 0.85,
-                        "reliability_score": 0.95
+                        "reliability_score": 0.95,
                     },
                     "claude-3-sonnet": {
                         "provider": "anthropic",
                         "context_length": 200000,
                         "cost_per_token": 0.000015,
-                        "capabilities": ["reasoning", "code", "analysis", "creative", "long_context"],
+                        "capabilities": [
+                            "reasoning",
+                            "code",
+                            "analysis",
+                            "creative",
+                            "long_context",
+                        ],
                         "performance_score": 0.92,
-                        "reliability_score": 0.96
-                    }
+                        "reliability_score": 0.96,
+                    },
                 },
                 "routing_rules": {
                     "cost_optimization": True,
@@ -624,48 +638,52 @@ if __name__ == '__main__':
                         "simple_queries": "gpt-3.5-turbo",
                         "complex_reasoning": "gpt-4",
                         "long_context": "claude-3-sonnet",
-                        "cost_sensitive": "gpt-3.5-turbo"
-                    }
+                        "cost_sensitive": "gpt-3.5-turbo",
+                    },
                 },
                 "thresholds": {
                     "confidence_threshold": 0.85,
                     "cost_daily_limit": 3.0,
-                    "performance_min": 0.80
-                }
+                    "performance_min": 0.80,
+                },
             }
-            
-            with open(config_file, 'w') as f:
+
+            with open(config_file, "w") as f:
                 json.dump(default_config, f, indent=2)
-                
+
         # Vérifier que le multi_model_router utilise bien cette config
         router_file = self.workspace / "src/jarvys_dev/multi_model_router.py"
         if router_file.exists():
             content = router_file.read_text()
-            
+
             # Ajouter l'import de json si manquant
             if "import json" not in content:
-                content = content.replace("from pathlib import Path", "from pathlib import Path\nimport json")
-                
+                content = content.replace(
+                    "from pathlib import Path", "from pathlib import Path\nimport json"
+                )
+
             # Vérifier que le chargement de config est présent
             if "model_capabilities.json" not in content:
-                print("ℹ️ Ajout du chargement de configuration dans multi_model_router.py")
+                print(
+                    "ℹ️ Ajout du chargement de configuration dans multi_model_router.py"
+                )
                 # Le fichier semble déjà bien configuré
-                
+
             router_file.write_text(content)
-            
+
         print("✅ Configuration modèles vérifiée et corrigée")
         return True
-        
+
     def fix_agent_control(self):
         """Vérifier et corriger le module de contrôle des agents"""
         print("🔧 Vérification contrôle des agents...")
-        
+
         control_file = self.workspace / "src/jarvys_dev/agent_control.py"
         if control_file.exists():
             print("✅ Module agent_control.py existe")
         else:
             print("⚠️ Module agent_control.py manquant, recréation...")
-            
+
             control_code = '''"""
 Module de contrôle pour la pause/reprise des agents JARVYS
 """
@@ -758,14 +776,14 @@ def resume_agent(agent_name: str) -> bool:
 
             control_file.write_text(control_code)
             print("✅ Module agent_control.py recréé")
-            
+
         return True
-        
+
     def apply_all_corrections(self):
         """Appliquer toutes les corrections d'erreurs"""
         print("🚀 Application de toutes les corrections d'erreurs")
         print("=" * 60)
-        
+
         try:
             self.fix_dashboard_authentication()
             self.fix_remaining_dev_branch_references()
@@ -773,7 +791,7 @@ def resume_agent(agent_name: str) -> bool:
             self.fix_agent_control()
             self.create_local_dashboard()
             self.test_dashboard_fix()
-            
+
             print("\\n✅ Toutes les corrections appliquées avec succès!")
             print("\\n📋 Récapitulatif des corrections:")
             print("  1. ✅ Patch authentification dashboard amélioré")
@@ -782,28 +800,34 @@ def resume_agent(agent_name: str) -> bool:
             print("  4. ✅ Module contrôle agents vérifié")
             print("  5. ✅ Dashboard local créé comme contournement")
             print("  6. ✅ Tests de validation effectués")
-            
+
             return True
-            
+
         except Exception as e:
             print(f"❌ Erreur lors des corrections: {e}")
             return False
+
 
 def main():
     """Fonction principale"""
     corrector = JarvysErrorCorrector()
     success = corrector.apply_all_corrections()
-    
+
     if success:
         print("\\n🎯 Actions suivantes recommandées:")
-        print("  1. Appliquer le patch supabase_dashboard_auth_patch_v2.js dans Supabase")
-        print("  2. Tester le dashboard local: cd dashboard_local && python dashboard_local.py")
+        print(
+            "  1. Appliquer le patch supabase_dashboard_auth_patch_v2.js dans Supabase"
+        )
+        print(
+            "  2. Tester le dashboard local: cd dashboard_local && python dashboard_local.py"
+        )
         print("  3. Valider la communication inter-agents")
         print("  4. Commiter les corrections")
-        
+
         return 0
     else:
         return 1
+
 
 if __name__ == "__main__":
     exit(main())

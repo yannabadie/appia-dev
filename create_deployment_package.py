@@ -4,134 +4,141 @@
 Creates a complete deployment package with all necessary files
 """
 
+import json
+import logging
 import os
 import shutil
 import zipfile
-import json
-from pathlib import Path
 from datetime import datetime
-import logging
+from pathlib import Path
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 class JarvysDeploymentPackager:
     """Creates comprehensive deployment packages for JARVYS_AI"""
-    
+
     def __init__(self):
         self.workspace_path = Path("/workspaces/appia-dev")
         self.jarvys_ai_path = self.workspace_path / "jarvys_ai"
         self.output_path = self.workspace_path / "deployment_packages"
-        
+
     def create_deployment_package(self):
         """Create a complete deployment package"""
         try:
             # Create output directory
             self.output_path.mkdir(exist_ok=True)
-            
+
             # Create package directory
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             package_name = f"jarvys_ai_complete_{timestamp}"
             package_path = self.output_path / package_name
             package_path.mkdir(exist_ok=True)
-            
+
             logger.info(f"📦 Creating deployment package: {package_name}")
-            
+
             # Copy JARVYS_AI core files
             self._copy_jarvys_ai_core(package_path)
-            
+
             # Copy Docker and deployment files
             self._copy_deployment_files(package_path)
-            
+
             # Copy documentation
             self._copy_documentation(package_path)
-            
+
             # Create configuration files
             self._create_configuration_files(package_path)
-            
+
             # Create deployment scripts
             self._create_deployment_scripts(package_path)
-            
+
             # Create README
             self._create_package_readme(package_path)
-            
+
             # Create ZIP archive
             zip_path = self._create_zip_archive(package_path, package_name)
-            
+
             logger.info(f"✅ Deployment package created: {zip_path}")
             return zip_path
-            
+
         except Exception as e:
             logger.error(f"❌ Error creating deployment package: {e}")
             return None
-    
+
     def _copy_jarvys_ai_core(self, package_path: Path):
         """Copy JARVYS_AI core modules"""
         logger.info("📁 Copying JARVYS_AI core modules...")
-        
+
         jarvys_target = package_path / "jarvys_ai"
         jarvys_target.mkdir(exist_ok=True)
-        
+
         # Copy all Python files except __pycache__
         for item in self.jarvys_ai_path.rglob("*"):
-            if item.is_file() and not item.name.endswith('.pyc') and '__pycache__' not in str(item):
+            if (
+                item.is_file()
+                and not item.name.endswith(".pyc")
+                and "__pycache__" not in str(item)
+            ):
                 relative_path = item.relative_to(self.jarvys_ai_path)
                 target_file = jarvys_target / relative_path
                 target_file.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(item, target_file)
-        
+
         logger.info("✅ JARVYS_AI core modules copied")
-    
+
     def _copy_deployment_files(self, package_path: Path):
         """Copy Docker and deployment files"""
         logger.info("🐳 Copying deployment files...")
-        
+
         files_to_copy = [
             "requirements-jarvys-ai.txt",
             "Dockerfile.jarvys_ai",
             "docker-compose.windows.yml",
-            "test_jarvys_ai_complete.py"
+            "test_jarvys_ai_complete.py",
         ]
-        
+
         for file_name in files_to_copy:
             source_file = self.workspace_path / file_name
             if source_file.exists():
                 shutil.copy2(source_file, package_path / file_name)
-        
+
         # Copy docker directory
         docker_source = self.workspace_path / "docker"
         if docker_source.exists():
             docker_target = package_path / "docker"
             shutil.copytree(docker_source, docker_target)
-        
+
         logger.info("✅ Deployment files copied")
-    
+
     def _copy_documentation(self, package_path: Path):
         """Copy documentation files"""
         logger.info("📚 Copying documentation...")
-        
+
         docs_to_copy = [
             "WINDOWS11_DOCKER_SETUP.md",
             "DEPLOY_ECOSYSTEM_COMPLETE.md",
             "DASHBOARD_CLOUD.md",
-            "DEPLOYMENT_FIX_SUMMARY.md"
+            "DEPLOYMENT_FIX_SUMMARY.md",
         ]
-        
+
         docs_dir = package_path / "docs"
         docs_dir.mkdir(exist_ok=True)
-        
+
         for doc_name in docs_to_copy:
             source_doc = self.workspace_path / doc_name
             if source_doc.exists():
                 shutil.copy2(source_doc, docs_dir / doc_name)
-        
+
         logger.info("✅ Documentation copied")
-    
+
     def _create_configuration_files(self, package_path: Path):
         """Create configuration files"""
         logger.info("⚙️ Creating configuration files...")
-        
+
         # Main configuration
         config = {
             "jarvys_ai": {
@@ -144,8 +151,8 @@ class JarvysDeploymentPackager:
                         "python": ">=3.9",
                         "docker": ">=20.0",
                         "memory": "4GB",
-                        "storage": "10GB"
-                    }
+                        "storage": "10GB",
+                    },
                 },
                 "features": {
                     "voice_interface": True,
@@ -155,23 +162,23 @@ class JarvysDeploymentPackager:
                     "digital_twin": True,
                     "continuous_improvement": True,
                     "fallback_engine": True,
-                    "dashboard_integration": True
+                    "dashboard_integration": True,
                 },
                 "integrations": {
                     "supabase_dashboard": "https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard",
                     "github_repo": "yannabadie/appIA",
                     "cloud_run": {
                         "region": "us-central1",
-                        "service_name": "jarvys-ai-fallback"
-                    }
-                }
+                        "service_name": "jarvys-ai-fallback",
+                    },
+                },
             }
         }
-        
+
         config_file = package_path / "jarvys_config.json"
-        with open(config_file, 'w', encoding='utf-8') as f:
+        with open(config_file, "w", encoding="utf-8") as f:
             json.dump(config, f, indent=2)
-        
+
         # Environment template
         env_template = """# JARVYS_AI Environment Configuration
 # Copy this file to .env and update with your actual values
@@ -208,17 +215,17 @@ GITHUB_REPO=yannabadie/appIA
 VOICE_ENABLED=true
 VOICE_LANGUAGE=en-US
 """
-        
+
         env_file = package_path / ".env.template"
-        with open(env_file, 'w', encoding='utf-8') as f:
+        with open(env_file, "w", encoding="utf-8") as f:
             f.write(env_template)
-        
+
         logger.info("✅ Configuration files created")
-    
+
     def _create_deployment_scripts(self, package_path: Path):
         """Create deployment scripts"""
         logger.info("📝 Creating deployment scripts...")
-        
+
         # Windows deployment script
         windows_script = """@echo off
 REM JARVYS_AI Windows Deployment Script
@@ -270,11 +277,11 @@ echo 📝 Check logs: docker-compose -f docker-compose.windows.yml logs -f
 echo.
 pause
 """
-        
+
         windows_script_path = package_path / "deploy_windows.bat"
-        with open(windows_script_path, 'w', encoding='utf-8') as f:
+        with open(windows_script_path, "w", encoding="utf-8") as f:
             f.write(windows_script)
-        
+
         # Linux/Mac deployment script
         linux_script = """#!/bin/bash
 # JARVYS_AI Linux/Mac Deployment Script
@@ -319,12 +326,12 @@ echo "🌐 Web interface: http://localhost:8000"
 echo "📝 Check logs: docker-compose -f docker-compose.windows.yml logs -f"
 echo "🛑 Stop JARVYS_AI: docker-compose -f docker-compose.windows.yml down"
 """
-        
+
         linux_script_path = package_path / "deploy_linux.sh"
-        with open(linux_script_path, 'w', encoding='utf-8') as f:
+        with open(linux_script_path, "w", encoding="utf-8") as f:
             f.write(linux_script)
         os.chmod(linux_script_path, 0o755)
-        
+
         # Cloud deployment script
         cloud_script = """#!/bin/bash
 # JARVYS_AI Cloud Deployment Script (Google Cloud Run)
@@ -375,18 +382,18 @@ echo ""
 echo "✅ JARVYS_AI deployed to Cloud Run successfully!"
 echo "🌐 Access your deployment at the URL shown above"
 """
-        
+
         cloud_script_path = package_path / "deploy_cloud.sh"
-        with open(cloud_script_path, 'w', encoding='utf-8') as f:
+        with open(cloud_script_path, "w", encoding="utf-8") as f:
             f.write(cloud_script)
         os.chmod(cloud_script_path, 0o755)
-        
+
         logger.info("✅ Deployment scripts created")
-    
+
     def _create_package_readme(self, package_path: Path):
         """Create comprehensive README for the package"""
         logger.info("📄 Creating package README...")
-        
+
         readme_content = """# JARVYS_AI - Complete Deployment Package
 
 This package contains everything needed to deploy JARVYS_AI, your unlimited digital twin assistant.
@@ -554,40 +561,41 @@ JARVYS_AI continuously improves itself, but manual contributions are welcome:
 
 For support and updates: https://github.com/yannabadie/appIA
 """
-        
+
         readme_path = package_path / "README.md"
-        with open(readme_path, 'w', encoding='utf-8') as f:
+        with open(readme_path, "w", encoding="utf-8") as f:
             f.write(readme_content)
-        
+
         logger.info("✅ Package README created")
-    
+
     def _create_zip_archive(self, package_path: Path, package_name: str) -> Path:
         """Create ZIP archive of the deployment package"""
         logger.info("🗜️ Creating ZIP archive...")
-        
+
         zip_path = self.output_path / f"{package_name}.zip"
-        
-        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-            for file_path in package_path.rglob('*'):
+
+        with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zipf:
+            for file_path in package_path.rglob("*"):
                 if file_path.is_file():
                     arcname = file_path.relative_to(package_path)
                     zipf.write(file_path, arcname)
-        
+
         # Calculate size
         size_mb = zip_path.stat().st_size / (1024 * 1024)
         logger.info(f"✅ ZIP archive created: {zip_path.name} ({size_mb:.1f} MB)")
-        
+
         return zip_path
+
 
 def main():
     """Main function"""
     packager = JarvysDeploymentPackager()
-    
+
     print("📦 JARVYS_AI Deployment Package Creator")
     print("=" * 50)
-    
+
     zip_path = packager.create_deployment_package()
-    
+
     if zip_path:
         print(f"\n🎉 Deployment package created successfully!")
         print(f"📁 Location: {zip_path}")
@@ -596,12 +604,15 @@ def main():
         print("1. Extract the ZIP file to your deployment location")
         print("2. Follow the README.md instructions")
         print("3. Run the appropriate deployment script for your platform")
-        print("\n🌐 Dashboard: https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard/")
+        print(
+            "\n🌐 Dashboard: https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard/"
+        )
     else:
         print("\n❌ Failed to create deployment package")
         return 1
-    
+
     return 0
+
 
 if __name__ == "__main__":
     exit(main())

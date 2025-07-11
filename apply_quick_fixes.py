@@ -7,74 +7,71 @@ import os
 import subprocess
 from pathlib import Path
 
+
 class JarvysDevQuickFixes:
     def __init__(self):
         self.workspace = Path("/workspaces/appia-dev")
-        
+
     def fix_branch_to_main(self):
         """Fix 1: Modifier pour utiliser la branche main par défaut"""
         print("🔧 Fix 1: Configuration branche main par défaut")
-        
+
         # 1. Modifier bootstrap_jarvys_dev.py
         bootstrap_file = self.workspace / "bootstrap_jarvys_dev.py"
         if bootstrap_file.exists():
             content = bootstrap_file.read_text()
-            
+
             # Remplacer les références à 'dev' par 'main'
             content = content.replace('branch="dev"', 'branch="main"')
             content = content.replace("'dev'", "'main'")
             content = content.replace('"dev"', '"main"')
-            
+
             # Modifier _check_branch pour accepter main
             if "_check_branch" in content:
                 content = content.replace(
                     'expected_branch = "dev"',
-                    'expected_branch = os.environ.get("JARVYS_TARGET_BRANCH", "main")'
+                    'expected_branch = os.environ.get("JARVYS_TARGET_BRANCH", "main")',
                 )
-            
+
             bootstrap_file.write_text(content)
             print("✅ bootstrap_jarvys_dev.py mis à jour pour main")
-        
+
         # 2. Modifier github_tools.py si nécessaire
         github_tools = self.workspace / "src/jarvys_dev/tools/github_tools.py"
         if github_tools.exists():
             content = github_tools.read_text()
-            
+
             # Changer la branche par défaut dans create_pull_request
             if 'base="dev"' in content:
                 content = content.replace('base="dev"', 'base="main"')
-            
+
             if 'base_branch = "dev"' in content:
                 content = content.replace('base_branch = "dev"', 'base_branch = "main"')
-                
+
             github_tools.write_text(content)
             print("✅ github_tools.py mis à jour pour main")
-    
+
     def fix_jarvys_ai_label(self):
         """Fix 2: Corriger le label des issues JARVYS_AI"""
         print("🔧 Fix 2: Correction label issues JARVYS_AI")
-        
+
         main_file = self.workspace / "src/jarvys_dev/main.py"
         if main_file.exists():
             content = main_file.read_text()
-            
+
             # Remplacer "from_jarvys_ai" par "from_jarvys_dev"
             content = content.replace(
-                'label="from_jarvys_ai"',
-                'label="from_jarvys_dev"'
+                'label="from_jarvys_ai"', 'label="from_jarvys_dev"'
             )
-            content = content.replace(
-                '"from_jarvys_ai"',
-                '"from_jarvys_dev"'
-            )
-            
+            content = content.replace('"from_jarvys_ai"', '"from_jarvys_dev"')
+
             main_file.write_text(content)
             print("✅ Label d'issue corrigé: from_jarvys_ai → from_jarvys_dev")
-    
+
     def add_pause_resume_functionality(self):
         """Fix 3: Ajouter fonctionnalité pause/reprise"""
         print("🔧 Fix 3: Ajout contrôle pause/reprise")
-        
+
         # Créer un module de contrôle d'agent
         control_module = """#!/usr/bin/env python3
 '''
@@ -190,15 +187,15 @@ async def check_and_wait_if_paused():
     
     return True
 """
-        
+
         control_file = self.workspace / "src/jarvys_dev/agent_control.py"
         control_file.write_text(control_module)
         print("✅ Module de contrôle d'agent créé")
-    
+
     def add_embeddings_to_memory_api(self):
         """Fix 4: Ajouter calcul d'embeddings à l'API mémoire"""
         print("🔧 Fix 4: Ajout embeddings à l'API mémoire")
-        
+
         # Ajouter fonction d'embedding dans dashboard
         embedding_function = """
 // Fonction pour calculer les embeddings OpenAI
@@ -235,7 +232,7 @@ async function calculateEmbedding(text: string): Promise<number[]> {
   }
 }
 """
-        
+
         # Créer patch pour l'Edge Function dashboard
         patch_content = f"""
 /* 
@@ -281,15 +278,15 @@ if (url.pathname === '/api/memory' && request.method === 'POST') {{
 }}
 */
 """
-        
+
         patch_file = self.workspace / "supabase_memory_embedding_patch.js"
         patch_file.write_text(patch_content)
         print("✅ Patch embeddings créé: supabase_memory_embedding_patch.js")
-    
+
     def add_exception_logging_decorator(self):
         """Fix 5: Ajouter décorateur de logging d'exceptions"""
         print("🔧 Fix 5: Décorateur logging exceptions")
-        
+
         decorator_module = """#!/usr/bin/env python3
 '''
 🛡️ Exception Logging Decorator for JARVYS_DEV
@@ -420,16 +417,16 @@ def log_exceptions(
 #     # Code qui peut lever une exception
 #     pass
 """
-        
+
         decorator_file = self.workspace / "src/jarvys_dev/utils/exception_logger.py"
         decorator_file.parent.mkdir(exist_ok=True)
         decorator_file.write_text(decorator_module)
         print("✅ Décorateur exception_logger créé")
-    
+
     def externalize_model_config(self):
         """Fix 6: Externaliser la configuration des modèles"""
         print("🔧 Fix 6: Externalisation config modèles")
-        
+
         # Créer fichier de configuration des modèles
         model_config = {
             "models": {
@@ -439,23 +436,29 @@ def log_exceptions(
                     "cost_per_token": 0.00003,
                     "capabilities": ["reasoning", "code", "analysis", "creative"],
                     "performance_score": 0.95,
-                    "reliability_score": 0.98
+                    "reliability_score": 0.98,
                 },
                 "gpt-3.5-turbo": {
-                    "provider": "openai", 
+                    "provider": "openai",
                     "context_length": 4096,
                     "cost_per_token": 0.000002,
                     "capabilities": ["reasoning", "code", "analysis"],
                     "performance_score": 0.85,
-                    "reliability_score": 0.95
+                    "reliability_score": 0.95,
                 },
                 "claude-3-sonnet": {
                     "provider": "anthropic",
                     "context_length": 200000,
                     "cost_per_token": 0.000015,
-                    "capabilities": ["reasoning", "code", "analysis", "creative", "long_context"],
+                    "capabilities": [
+                        "reasoning",
+                        "code",
+                        "analysis",
+                        "creative",
+                        "long_context",
+                    ],
                     "performance_score": 0.92,
-                    "reliability_score": 0.96
+                    "reliability_score": 0.96,
                 },
                 "gemini-pro": {
                     "provider": "google",
@@ -463,8 +466,8 @@ def log_exceptions(
                     "cost_per_token": 0.000001,
                     "capabilities": ["reasoning", "code", "analysis"],
                     "performance_score": 0.88,
-                    "reliability_score": 0.93
-                }
+                    "reliability_score": 0.93,
+                },
             },
             "routing_rules": {
                 "cost_optimization": True,
@@ -474,26 +477,27 @@ def log_exceptions(
                     "simple_queries": "gpt-3.5-turbo",
                     "complex_reasoning": "gpt-4",
                     "long_context": "claude-3-sonnet",
-                    "cost_sensitive": "gemini-pro"
-                }
+                    "cost_sensitive": "gemini-pro",
+                },
             },
             "thresholds": {
                 "confidence_threshold": 0.85,
                 "cost_daily_limit": 3.0,
-                "performance_min": 0.80
-            }
+                "performance_min": 0.80,
+            },
         }
-        
+
         config_file = self.workspace / "src/jarvys_dev/model_capabilities.json"
         import json
+
         config_file.write_text(json.dumps(model_config, indent=2))
         print("✅ Configuration modèles externalisée: model_capabilities.json")
-    
+
     def apply_all_fixes(self):
         """Appliquer tous les correctifs"""
         print("🚀 Application des Quick Fixes JARVYS_DEV")
         print("=" * 50)
-        
+
         try:
             self.fix_branch_to_main()
             self.fix_jarvys_ai_label()
@@ -501,37 +505,39 @@ def log_exceptions(
             self.add_embeddings_to_memory_api()
             self.add_exception_logging_decorator()
             self.externalize_model_config()
-            
+
             print("\n✅ Tous les Quick Fixes appliqués avec succès!")
             print("\n📋 Récapitulatif:")
             print("  1. ✅ Branche par défaut: dev → main")
-            print("  2. ✅ Label issues: from_jarvys_ai → from_jarvys_dev")  
+            print("  2. ✅ Label issues: from_jarvys_ai → from_jarvys_dev")
             print("  3. ✅ Contrôle pause/reprise ajouté")
             print("  4. ✅ Patch embeddings mémoire créé")
             print("  5. ✅ Décorateur exceptions créé")
             print("  6. ✅ Configuration modèles externalisée")
-            
+
             return True
-            
+
         except Exception as e:
             print(f"❌ Erreur lors de l'application des fixes: {e}")
             return False
+
 
 def main():
     """Fonction principale"""
     fixes = JarvysDevQuickFixes()
     success = fixes.apply_all_fixes()
-    
+
     if success:
         print("\n🎯 Actions suivantes recommandées:")
         print("  1. Commiter et pousser les changements")
         print("  2. Appliquer le patch embeddings dans Supabase Edge Function")
         print("  3. Tester la fonctionnalité pause/reprise via dashboard")
         print("  4. Valider la nouvelle configuration modèles")
-        
+
         return 0
     else:
         return 1
+
 
 if __name__ == "__main__":
     exit(main())

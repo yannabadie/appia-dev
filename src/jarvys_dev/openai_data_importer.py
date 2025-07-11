@@ -379,12 +379,10 @@ class OpenAIDataImporter:
         # 3. Stocker l'historique des conversations (résumés)
         for conv in user_data.conversations:
             conv_summary = conv.get(
-                'summary',
-                'Conversation sur ' + conv.get('topic', 'sujet général')
+                "summary", "Conversation sur " + conv.get("topic", "sujet général")
             )
             success = self.memory.memorize(
-                f"Conversation {user_data.email} - {conv['title']}: "
-                f"{conv_summary}",
+                f"Conversation {user_data.email} - {conv['title']}: " f"{conv_summary}",
                 memory_type="conversation",
                 importance_score=0.7,
                 tags=[

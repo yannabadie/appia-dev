@@ -8,6 +8,7 @@ import os
 
 import google.generativeai as genai
 from openai import OpenAI
+
 from supabase import Client, create_client
 
 # OpenAI embedding models accept a maximum of 8192 tokens. Truncate any

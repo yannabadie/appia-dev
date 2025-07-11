@@ -4,18 +4,21 @@ JARVYS_AI Sync and Deployment Script
 Syncs JARVYS_AI code to appIA repository and implements continuous improvement
 """
 
-import os
 import json
+import logging
+import os
+import shutil
 import subprocess
 import tempfile
-import shutil
-from pathlib import Path
 from datetime import datetime
-import logging
+from pathlib import Path
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 class JarvysAISync:
     def __init__(self):
@@ -23,13 +26,13 @@ class JarvysAISync:
         self.jarvys_ai_path = self.workspace_path / "jarvys_ai"
         self.target_repo = "yannabadie/appIA"
         self.temp_dir = None
-        
+
     def create_temp_workspace(self):
         """Create temporary workspace for appIA repo"""
         self.temp_dir = tempfile.mkdtemp(prefix="jarvys_sync_")
         logger.info(f"Created temporary workspace: {self.temp_dir}")
         return self.temp_dir
-    
+
     def clone_target_repo(self):
         """Clone the appIA repository"""
         try:
@@ -43,25 +46,25 @@ class JarvysAISync:
         except Exception as e:
             logger.error(f"Error cloning repository: {e}")
             return False
-    
+
     def sync_jarvys_ai_code(self):
         """Sync JARVYS_AI code to appIA repository"""
         try:
             target_path = Path(self.temp_dir) / "appIA"
-            
+
             # Create main directory structure
             jarvys_target = target_path / "jarvys_ai"
             jarvys_target.mkdir(exist_ok=True)
-            
+
             # Copy all JARVYS_AI files
             for item in self.jarvys_ai_path.rglob("*"):
-                if item.is_file() and not item.name.endswith('.pyc'):
+                if item.is_file() and not item.name.endswith(".pyc"):
                     relative_path = item.relative_to(self.jarvys_ai_path)
                     target_file = jarvys_target / relative_path
                     target_file.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(item, target_file)
                     logger.info(f"Copied: {relative_path}")
-            
+
             # Copy related files
             files_to_copy = [
                 "requirements-jarvys-ai.txt",
@@ -69,15 +72,15 @@ class JarvysAISync:
                 "docker-compose.windows.yml",
                 "test_jarvys_ai_complete.py",
                 "WINDOWS11_DOCKER_SETUP.md",
-                "DEPLOY_ECOSYSTEM_COMPLETE.md"
+                "DEPLOY_ECOSYSTEM_COMPLETE.md",
             ]
-            
+
             for file_name in files_to_copy:
                 source_file = self.workspace_path / file_name
                 if source_file.exists():
                     shutil.copy2(source_file, target_path / file_name)
                     logger.info(f"Copied: {file_name}")
-            
+
             # Copy docker directory
             docker_source = self.workspace_path / "docker"
             if docker_source.exists():
@@ -86,12 +89,12 @@ class JarvysAISync:
                     shutil.rmtree(docker_target)
                 shutil.copytree(docker_source, docker_target)
                 logger.info("Copied docker directory")
-            
+
             return True
         except Exception as e:
             logger.error(f"Error syncing code: {e}")
             return False
-    
+
     def create_readme(self):
         """Create comprehensive README for appIA repository"""
         readme_content = """# JARVYS_AI - Digital Twin Assistant
@@ -247,17 +250,17 @@ For support, please open an issue or contact the development team through the JA
 
 **JARVYS_AI** - Your unlimited digital twin assistant, powered by advanced AI and continuous improvement.
 """
-        
+
         try:
             target_path = Path(self.temp_dir) / "appIA" / "README.md"
-            with open(target_path, 'w', encoding='utf-8') as f:
+            with open(target_path, "w", encoding="utf-8") as f:
                 f.write(readme_content)
             logger.info("Created comprehensive README.md")
             return True
         except Exception as e:
             logger.error(f"Error creating README: {e}")
             return False
-    
+
     def create_deployment_script(self):
         """Create deployment script for appIA"""
         deploy_script = """#!/bin/bash
@@ -316,10 +319,10 @@ echo "📊 Dashboard: http://localhost:8000"
 echo "🎤 Voice interface will be available on your audio devices"
 echo "📝 Check logs: docker-compose -f docker-compose.windows.yml logs -f"
 """
-        
+
         try:
             target_path = Path(self.temp_dir) / "appIA" / "deploy.sh"
-            with open(target_path, 'w', encoding='utf-8') as f:
+            with open(target_path, "w", encoding="utf-8") as f:
                 f.write(deploy_script)
             os.chmod(target_path, 0o755)
             logger.info("Created deployment script")
@@ -327,7 +330,7 @@ echo "📝 Check logs: docker-compose -f docker-compose.windows.yml logs -f"
         except Exception as e:
             logger.error(f"Error creating deployment script: {e}")
             return False
-    
+
     def create_continuous_improvement_config(self):
         """Create configuration for continuous improvement"""
         config = {
@@ -342,8 +345,8 @@ echo "📝 Check logs: docker-compose -f docker-compose.windows.yml logs -f"
                         "enabled": True,
                         "project_id": "your-gcp-project",
                         "region": "us-central1",
-                        "service_name": "jarvys-ai-fallback"
-                    }
+                        "service_name": "jarvys-ai-fallback",
+                    },
                 },
                 "features": {
                     "voice_interface": True,
@@ -351,7 +354,7 @@ echo "📝 Check logs: docker-compose -f docker-compose.windows.yml logs -f"
                     "cloud_integration": True,
                     "file_management": True,
                     "digital_twin": True,
-                    "dashboard_integration": True
+                    "dashboard_integration": True,
                 },
                 "api_integrations": {
                     "openai": "required",
@@ -359,47 +362,53 @@ echo "📝 Check logs: docker-compose -f docker-compose.windows.yml logs -f"
                     "azure": "optional",
                     "aws": "optional",
                     "outlook": "optional",
-                    "gmail": "optional"
-                }
+                    "gmail": "optional",
+                },
             }
         }
-        
+
         try:
             target_path = Path(self.temp_dir) / "appIA" / "jarvys_config.json"
-            with open(target_path, 'w', encoding='utf-8') as f:
+            with open(target_path, "w", encoding="utf-8") as f:
                 json.dump(config, f, indent=2)
             logger.info("Created continuous improvement config")
             return True
         except Exception as e:
             logger.error(f"Error creating config: {e}")
             return False
-    
+
     def commit_and_push(self):
         """Commit and push changes to appIA repository"""
         try:
             repo_path = Path(self.temp_dir) / "appIA"
             os.chdir(repo_path)
-            
+
             # Configure git
             subprocess.run(["git", "config", "user.name", "JARVYS_DEV"], check=True)
-            subprocess.run(["git", "config", "user.email", "jarvys@appia-dev.ai"], check=True)
-            
+            subprocess.run(
+                ["git", "config", "user.email", "jarvys@appia-dev.ai"], check=True
+            )
+
             # Add all files
             subprocess.run(["git", "add", "."], check=True)
-            
+
             # Check if there are changes to commit
-            result = subprocess.run(["git", "diff", "--staged", "--quiet"], capture_output=True)
+            result = subprocess.run(
+                ["git", "diff", "--staged", "--quiet"], capture_output=True
+            )
             if result.returncode == 0:
                 logger.info("No changes to commit")
                 return True
-            
+
             # Commit changes
-            commit_message = f"JARVYS_AI Sync - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            commit_message = (
+                f"JARVYS_AI Sync - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+            )
             subprocess.run(["git", "commit", "-m", commit_message], check=True)
-            
+
             # Push changes
             subprocess.run(["git", "push", "origin", "main"], check=True)
-            
+
             logger.info("Successfully committed and pushed changes to appIA repository")
             return True
         except subprocess.CalledProcessError as e:
@@ -408,58 +417,59 @@ echo "📝 Check logs: docker-compose -f docker-compose.windows.yml logs -f"
         except Exception as e:
             logger.error(f"Error committing and pushing: {e}")
             return False
-    
+
     def cleanup(self):
         """Clean up temporary files"""
         if self.temp_dir and os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
             logger.info("Cleaned up temporary workspace")
-    
+
     def run_sync(self):
         """Run the complete sync process"""
         try:
             logger.info("🚀 Starting JARVYS_AI sync to appIA repository...")
-            
+
             # Create temporary workspace
             self.create_temp_workspace()
-            
+
             # Clone target repository
             if not self.clone_target_repo():
                 return False
-            
+
             # Sync JARVYS_AI code
             if not self.sync_jarvys_ai_code():
                 return False
-            
+
             # Create documentation and configuration
             if not self.create_readme():
                 return False
-            
+
             if not self.create_deployment_script():
                 return False
-            
+
             if not self.create_continuous_improvement_config():
                 return False
-            
+
             # Commit and push changes
             if not self.commit_and_push():
                 return False
-            
+
             logger.info("✅ JARVYS_AI sync completed successfully!")
             logger.info(f"📍 Repository: https://github.com/{self.target_repo}")
             return True
-            
+
         except Exception as e:
             logger.error(f"Sync process failed: {e}")
             return False
         finally:
             self.cleanup()
 
+
 def main():
     """Main function"""
     sync = JarvysAISync()
     success = sync.run_sync()
-    
+
     if success:
         print("\n🎉 JARVYS_AI has been successfully synced to the appIA repository!")
         print("🔗 Repository: https://github.com/yannabadie/appIA")
@@ -468,8 +478,9 @@ def main():
     else:
         print("\n❌ Sync process failed. Check the logs for details.")
         return 1
-    
+
     return 0
+
 
 if __name__ == "__main__":
     exit(main())

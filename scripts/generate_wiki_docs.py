@@ -77,9 +77,7 @@ class WikiGenerator:
                 content = f.read()
 
             # Extraire les fonctions publiques
-            functions = re.findall(
-                r"^def ([^_]\w*)\(.*?\):", content, re.MULTILINE
-            )
+            functions = re.findall(r"^def ([^_]\w*)\(.*?\):", content, re.MULTILINE)
 
             tools[tool_file.stem] = {
                 "file": str(tool_file.relative_to(self.repo_root)),
@@ -217,15 +215,9 @@ class WikiGenerator:
         current_date = self._get_current_date()
         loop_type = capabilities["core_loop"]["type"]
         loop_impl = capabilities["core_loop"]["implementation"]
-        confidence_threshold = capabilities["core_loop"][
-            "confidence_threshold"
-        ]
-        providers = self._format_list(
-            capabilities["models"]["supported_providers"]
-        )
-        models_json = json.dumps(
-            capabilities["models"]["current_models"], indent=2
-        )
+        confidence_threshold = capabilities["core_loop"]["confidence_threshold"]
+        providers = self._format_list(capabilities["models"]["supported_providers"])
+        models_json = json.dumps(capabilities["models"]["current_models"], indent=2)
 
         content = f"""# 🤖 JARVYS_DEV - Agent DevOps Autonome
 
@@ -457,9 +449,7 @@ Les secrets sont automatiquement masqués dans les logs grâce au `_SecretFilter
             formatted.append(f"- **Fichier**: `{info['file']}`")
             formatted.append(f"- **Description**: {info['description']}")
             if info["functions"]:
-                formatted.append(
-                    f"- **Fonctions**: {', '.join(info['functions'])}"
-                )
+                formatted.append(f"- **Fonctions**: {', '.join(info['functions'])}")
             formatted.append("")
         return "\n".join(formatted)
 
@@ -480,9 +470,7 @@ Les secrets sont automatiquement masqués dans les logs grâce au `_SecretFilter
         """Formate la liste des workflows."""
         formatted = []
         for name, info in workflows.items():
-            triggers = (
-                ", ".join(info["triggers"]) if info["triggers"] else "manual"
-            )
+            triggers = ", ".join(info["triggers"]) if info["triggers"] else "manual"
             formatted.append(f"- **{name}**: {triggers}")
         return "\n".join(formatted)
 
@@ -494,9 +482,7 @@ Les secrets sont automatiquement masqués dans les logs grâce au `_SecretFilter
                 formatted.append(f"### Serveur MCP")
                 formatted.append(f"- **Port**: {info['port']}")
                 formatted.append(f"- **Type**: {info['type']}")
-                formatted.append(
-                    "- **Endpoints**: " + ", ".join(info["endpoints"])
-                )
+                formatted.append("- **Endpoints**: " + ", ".join(info["endpoints"]))
             elif isinstance(info, dict) and "features" in info:
                 formatted.append(f"### {name.title()}")
                 formatted.append(

@@ -11,6 +11,7 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 import openai
+
 from supabase import Client, create_client
 
 logger = logging.getLogger(__name__)
@@ -24,18 +25,18 @@ class JarvysInfiniteMemory:
         self.user_context = user_context
         self.supabase: Optional[Client] = None
         self.openai_client = None
-        
+
         # Initialisation Supabase
         supabase_url = os.getenv("SUPABASE_URL")
         supabase_key = os.getenv("SUPABASE_KEY")
-        
+
         if supabase_url and supabase_key:
             try:
                 self.supabase = create_client(supabase_url, supabase_key)
                 logger.info(f"✅ Mémoire infinie initialisée pour {agent_name}")
             except Exception as e:
                 logger.error(f"❌ Erreur connexion Supabase: {e}")
-        
+
         # Initialisation OpenAI pour embeddings
         openai_key = os.getenv("OPENAI_API_KEY")
         if openai_key:
@@ -51,14 +52,14 @@ class JarvysInfiniteMemory:
     ) -> bool:
         """
         Mémorise une information dans la mémoire infinie.
-        
+
         Args:
             content: Le contenu à mémoriser
             memory_type: Type de mémoire ('conversation', 'preference', 'knowledge', 'experience')
             importance_score: Score d'importance (0.0 à 1.0)
             tags: Tags pour catégoriser
             metadata: Métadonnées additionnelles
-            
+
         Returns:
             True si succès, False sinon
         """
@@ -107,13 +108,13 @@ class JarvysInfiniteMemory:
     ) -> List[Dict[str, Any]]:
         """
         Recherche dans la mémoire infinie.
-        
+
         Args:
             query: Requête de recherche
             memory_types: Types de mémoire à rechercher
             min_importance: Score d'importance minimum
             limit: Nombre maximum de résultats
-            
+
         Returns:
             Liste des souvenirs trouvés
         """
@@ -157,7 +158,9 @@ class JarvysInfiniteMemory:
                 # Trier par similarité décroissante
                 memories.sort(key=lambda x: x["similarity"], reverse=True)
 
-                logger.info(f"🧠 {len(memories)} souvenirs trouvés pour: {query[:30]}...")
+                logger.info(
+                    f"🧠 {len(memories)} souvenirs trouvés pour: {query[:30]}..."
+                )
                 return memories[:limit]
 
             return []
@@ -198,8 +201,14 @@ class JarvysInfiniteMemory:
 
             return {
                 "total_memories": total_result.count or 0,
-                "by_agent": {item["agent_source"]: item["count"] for item in agents_result.data or []},
-                "by_type": {item["memory_type"]: item["count"] for item in types_result.data or []},
+                "by_agent": {
+                    item["agent_source"]: item["count"]
+                    for item in agents_result.data or []
+                },
+                "by_type": {
+                    item["memory_type"]: item["count"]
+                    for item in types_result.data or []
+                },
                 "user_context": self.user_context,
                 "last_updated": datetime.now().isoformat(),
             }
@@ -223,7 +232,9 @@ class JarvysInfiniteMemory:
             logger.error(f"❌ Erreur génération embedding: {e}")
             return None
 
-    def _calculate_similarity(self, embedding1: List[float], embedding2: List[float]) -> float:
+    def _calculate_similarity(
+        self, embedding1: List[float], embedding2: List[float]
+    ) -> float:
         """Calcule la similarité cosinus entre deux embeddings."""
         try:
             import numpy as np
@@ -239,7 +250,9 @@ class JarvysInfiniteMemory:
         except Exception:
             return 0.0
 
-    def log_interaction(self, interaction_type: str, content: str, success: bool = True):
+    def log_interaction(
+        self, interaction_type: str, content: str, success: bool = True
+    ):
         """Log une interaction pour le monitoring."""
         if not self.supabase:
             return
@@ -251,7 +264,10 @@ class JarvysInfiniteMemory:
                     "event_type": "memory_operation",
                     "service": "supabase",
                     "success": success,
-                    "metadata": {"interaction_type": interaction_type, "content_hash": hashlib.md5(content.encode()).hexdigest()[:8]},
+                    "metadata": {
+                        "interaction_type": interaction_type,
+                        "content_hash": hashlib.md5(content.encode()).hexdigest()[:8],
+                    },
                     "user_context": self.user_context,
                 }
             ).execute()
@@ -264,13 +280,15 @@ class JarvysInfiniteMemory:
 _memory_instance = None
 
 
-def get_memory(agent_name: str = "JARVYS_DEV", user_context: str = "default") -> JarvysInfiniteMemory:
+def get_memory(
+    agent_name: str = "JARVYS_DEV", user_context: str = "default"
+) -> JarvysInfiniteMemory:
     """Récupère l'instance de mémoire (singleton par agent/user)."""
     global _memory_instance
-    
+
     if _memory_instance is None or _memory_instance.agent_name != agent_name:
         _memory_instance = JarvysInfiniteMemory(agent_name, user_context)
-    
+
     return _memory_instance
 
 
@@ -291,17 +309,17 @@ def get_memory_context(user_context: str = "default") -> str:
     """Récupère le contexte de mémoire récent pour un utilisateur."""
     memory = get_memory("JARVYS_DEV", user_context)
     recent_memories = memory.recall(
-        "contexte récent conversation", 
-        memory_types=["conversation", "preference"], 
-        limit=5
+        "contexte récent conversation",
+        memory_types=["conversation", "preference"],
+        limit=5,
     )
-    
+
     if recent_memories:
         context_parts = []
         for mem in recent_memories:
             context_parts.append(f"{mem['memory_type']}: {mem['content']}")
         return "\n".join(context_parts)
-    
+
     return "Aucun contexte de mémoire disponible."
 
 
