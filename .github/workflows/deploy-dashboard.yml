@@ -1,6 +1,6 @@
 name: Deploy JARVYS Dashboard to Supabase
 
-on:
+"on":
   push:
     branches: [ main, develop ]
     paths:
@@ -356,12 +356,3 @@ jobs:
           fi
           
           # Future: Add Slack/Discord/Teams notifications here
-          echo "❌ Échec du déploiement automatique"
-          echo "🔍 Vérification des logs requise"
-          echo "🛠️ Intervention manuelle nécessaire"
-        elif [[ "${{ needs.auto-detect-changes.outputs.deploy_needed }}" == "false" ]]; then
-          echo "ℹ️ Aucun déploiement nécessaire"
-          echo "📝 Changements non critiques détectés"
-        fi
-        
-        # Future: Add Slack/Discord/Teams notifications here

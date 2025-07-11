@@ -1,7 +1,7 @@
 ---
 name: 🚀 Early Launch Issues Setup Automation
 
-on:
+"on":
   workflow_dispatch:
     inputs:
       mode:

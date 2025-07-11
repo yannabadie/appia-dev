@@ -1,5 +1,4 @@
 # Docker Compose pour JARVYS_AI - Windows 11 Support
-version: "3.8"
 
 services:
   jarvys_ai:
@@ -53,7 +52,7 @@ services:
 
     # Health check
     healthcheck:
-      test: ["/app/healthcheck.sh"]
+      test: ["CMD", "/app/healthcheck.sh"]
       interval: 30s
       timeout: 10s
       retries: 3

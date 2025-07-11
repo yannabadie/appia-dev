@@ -10,7 +10,10 @@ from typing import Dict, List, Any, Optional, Tuple, Callable
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor, TimeoutError
 import json
-import psutil
+try:
+    import psutil
+except ImportError:
+    psutil = None
 import threading
 
 
@@ -37,7 +40,7 @@ class PerformanceTest:
         for i in range(iterations):
             try:
                 start_time = time.perf_counter()
-                start_memory = psutil.Process().memory_info().rss / 1024 / 1024  # MB
+                start_memory = psutil.Process().memory_info().rss / 1024 / 1024 if psutil else 0  # MB
                 
                 # Run test with timeout
                 with ThreadPoolExecutor() as executor:
@@ -45,7 +48,7 @@ class PerformanceTest:
                     result = future.result(timeout=self.timeout)
                 
                 end_time = time.perf_counter()
-                end_memory = psutil.Process().memory_info().rss / 1024 / 1024  # MB
+                end_memory = psutil.Process().memory_info().rss / 1024 / 1024 if psutil else 0  # MB
                 
                 measurement = {
                     "iteration": i + 1,
@@ -97,16 +100,20 @@ class JarvysPerformanceTester:
         
     def _get_system_info(self) -> Dict[str, Any]:
         """Get system information."""
-        return {
+        info = {
             "python_version": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
             "platform": sys.platform,
-            "cpu_count": psutil.cpu_count(),
-            "memory_total_mb": psutil.virtual_memory().total / 1024 / 1024,
-            "disk_usage": {
-                "total_gb": psutil.disk_usage(self.project_root).total / (1024**3),
-                "free_gb": psutil.disk_usage(self.project_root).free / (1024**3)
-            }
         }
+        if psutil:
+            info.update({
+                "cpu_count": psutil.cpu_count(),
+                "memory_total_mb": psutil.virtual_memory().total / 1024 / 1024,
+                "disk_usage": {
+                    "total_gb": psutil.disk_usage(self.project_root).total / (1024**3),
+                    "free_gb": psutil.disk_usage(self.project_root).free / (1024**3)
+                }
+            })
+        return info
     
     def test_import_performance(self) -> bool:
         """Test module import performance."""
@@ -167,19 +174,19 @@ class JarvysPerformanceTester:
     
     def test_memory_usage_pattern(self) -> Dict[str, float]:
         """Test memory usage patterns."""
-        initial_memory = psutil.Process().memory_info().rss / 1024 / 1024
+        initial_memory = psutil.Process().memory_info().rss / 1024 / 1024 if psutil else 0
         
         # Allocate some memory
         data = []
         for i in range(1000):
             data.append("x" * 1024)  # 1KB strings
         
-        peak_memory = psutil.Process().memory_info().rss / 1024 / 1024
+        peak_memory = psutil.Process().memory_info().rss / 1024 / 1024 if psutil else 0
         
         # Release memory
         del data
         
-        final_memory = psutil.Process().memory_info().rss / 1024 / 1024
+        final_memory = psutil.Process().memory_info().rss / 1024 / 1024 if psutil else 0
         
         return {
             "initial_mb": initial_memory,
@@ -305,14 +312,14 @@ class JarvysPerformanceTester:
             print(f"Benchmarking {component_name} at load level {load_level}...")
             
             start_time = time.perf_counter()
-            start_memory = psutil.Process().memory_info().rss / 1024 / 1024
+            start_memory = psutil.Process().memory_info().rss / 1024 / 1024 if psutil else 0
             
             try:
                 # Run test function with specified load
                 result = test_func(load_level)
                 
                 end_time = time.perf_counter()
-                end_memory = psutil.Process().memory_info().rss / 1024 / 1024
+                end_memory = psutil.Process().memory_info().rss / 1024 / 1024 if psutil else 0
                 
                 benchmark_results["load_tests"][load_level] = {
                     "duration": end_time - start_time,
