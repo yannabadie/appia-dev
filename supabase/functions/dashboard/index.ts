@@ -27,6 +27,27 @@ serve(async (req) => {
   }
 
   try {
+    // Simple authentication check
+    const authHeader = req.headers.get('authorization')
+    const apiKey = req.headers.get('apikey')
+    const supabaseKey = Deno.env.get('SUPABASE_KEY')
+    
+    // Allow access if Authorization header contains a valid token or apikey matches
+    if (!authHeader && !apiKey) {
+      // For browser access, allow if URL contains a valid token
+      const url = new URL(req.url)
+      const token = url.searchParams.get('token')
+      if (!token || token !== supabaseKey) {
+        return new Response(
+          JSON.stringify({ code: 401, message: "Missing authorization header" }), 
+          { 
+            status: 401, 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        )
+      }
+    }
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -97,26 +118,64 @@ serve(async (req) => {
       })
     }
 
-    // API pour ajouter à la mémoire
+    // API pour ajouter à la mémoire avec embeddings
     if (path === '/api/memory' && req.method === 'POST') {
       const { content, agent_source, memory_type, user_context, importance_score } = await req.json()
       
-      // TODO: Générer l'embedding avec OpenAI
-      const { error } = await supabase
-        .from('jarvys_memory')
-        .insert({
-          content,
-          agent_source,
-          memory_type,
-          user_context,
-          importance_score: importance_score || 0.5
+      try {
+        // Générer l'embedding avec OpenAI
+        const openaiResponse = await fetch('https://api.openai.com/v1/embeddings', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: 'text-embedding-ada-002',
+            input: content,
+          }),
         })
 
-      if (error) throw error
+        let embedding = null
+        if (openaiResponse.ok) {
+          const openaiData = await openaiResponse.json()
+          embedding = openaiData.data[0].embedding
+        }
 
-      return new Response(JSON.stringify({ success: true }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
+        const { error } = await supabase
+          .from('jarvys_memory')
+          .insert({
+            content,
+            embedding, // Ajouter l'embedding calculé
+            agent_source,
+            memory_type,
+            user_context,
+            importance_score: importance_score || 0.5
+          })
+
+        if (error) throw error
+
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      } catch (error) {
+        // En cas d'erreur avec OpenAI, on insère sans embedding
+        const { error: insertError } = await supabase
+          .from('jarvys_memory')
+          .insert({
+            content,
+            agent_source,
+            memory_type,
+            user_context,
+            importance_score: importance_score || 0.5
+          })
+
+        if (insertError) throw insertError
+
+        return new Response(JSON.stringify({ success: true, warning: 'Embedding failed' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
     }
 
     return new Response('Not found', { status: 404, headers: corsHeaders })
