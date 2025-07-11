@@ -1,71 +1,104 @@
 """
 OpenAI Data Importer pour JARVYS
-Module pour importer et traiter les données OpenAI dans l'écosystème JARVYS
+Module pour importer les données réelles des conversations ChatGPT
 """
 
 import json
 import os
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, asdict
 from pathlib import Path
+import zipfile
+import requests
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 
 import openai
 from openai import OpenAI
-import requests
 from supabase import create_client, Client
 
 
 @dataclass
-class OpenAIDataPoint:
-    """Structure de données pour un point de données OpenAI"""
-    timestamp: str
+class ChatGPTConversation:
+    """Structure de données pour une conversation ChatGPT"""
+    conversation_id: str
+    title: str
+    create_time: float
+    update_time: float
+    messages: List[Dict[str, Any]]
     model: str
-    prompt_tokens: int
-    completion_tokens: int
-    total_tokens: int
-    cost_usd: float
-    response_time_ms: float
-    success: bool
-    metadata: Dict[str, Any]
-    user_context: str
+    total_tokens_estimated: int
+    cost_estimated_usd: float
+    user_email: str
 
 
 class OpenAIDataImporter:
-    """Importateur de données OpenAI pour JARVYS"""
+    """Importateur de données ChatGPT réelles pour JARVYS"""
     
     def __init__(self):
         """Initialise l'importateur avec les configurations nécessaires"""
-        self.openai_client = None
         self.supabase_client = None
         self.setup_clients()
         
-        # Configuration des modèles OpenAI et leurs coûts
+        # Configuration des modèles OpenAI et leurs coûts (2024 mis à jour)
         self.model_costs = {
-            "gpt-4o": {"input": 0.0025, "output": 0.01},
-            "gpt-4o-mini": {"input": 0.00015, "output": 0.0006},
+            # GPT-4 Models
+            "gpt-4": {"input": 0.03, "output": 0.06},
+            "gpt-4-0314": {"input": 0.03, "output": 0.06},
+            "gpt-4-0613": {"input": 0.03, "output": 0.06},
+            "gpt-4-32k": {"input": 0.06, "output": 0.12},
             "gpt-4-turbo": {"input": 0.01, "output": 0.03},
+            "gpt-4-turbo-preview": {"input": 0.01, "output": 0.03},
+            "gpt-4-0125-preview": {"input": 0.01, "output": 0.03},
+            "gpt-4-1106-preview": {"input": 0.01, "output": 0.03},
+            "gpt-4-vision-preview": {"input": 0.01, "output": 0.03},
+            
+            # GPT-4o Models (latest)
+            "gpt-4o": {"input": 0.005, "output": 0.015},
+            "gpt-4o-2024-05-13": {"input": 0.005, "output": 0.015},
+            "gpt-4o-mini": {"input": 0.00015, "output": 0.0006},
+            "gpt-4o-mini-2024-07-18": {"input": 0.00015, "output": 0.0006},
+            
+            # GPT-3.5 Models
             "gpt-3.5-turbo": {"input": 0.0005, "output": 0.0015},
+            "gpt-3.5-turbo-0301": {"input": 0.0015, "output": 0.002},
+            "gpt-3.5-turbo-0613": {"input": 0.0015, "output": 0.002},
+            "gpt-3.5-turbo-1106": {"input": 0.001, "output": 0.002},
+            "gpt-3.5-turbo-16k": {"input": 0.003, "output": 0.004},
+            
+            # Embedding Models
             "text-embedding-3-large": {"input": 0.00013, "output": 0},
             "text-embedding-3-small": {"input": 0.00002, "output": 0},
+            "text-embedding-ada-002": {"input": 0.0001, "output": 0},
+            
+            # Other Models
             "whisper-1": {"input": 0.006, "output": 0},  # per minute
+            "tts-1": {"input": 0.015, "output": 0},      # per 1K characters
+            "tts-1-hd": {"input": 0.030, "output": 0},   # per 1K characters
+            "dall-e-2": {"input": 0.020, "output": 0},   # per image 1024x1024
+            "dall-e-3": {"input": 0.040, "output": 0},   # per image 1024x1024
+        }
+        
+        # Default model mapping for conversations without explicit model info
+        self.default_model_by_date = {
+            "2024-05-01": "gpt-4o",
+            "2024-01-01": "gpt-4-turbo",
+            "2023-11-01": "gpt-4-1106-preview",
+            "2023-06-01": "gpt-4",
+            "2022-11-01": "gpt-3.5-turbo",
         }
     
     def setup_clients(self):
-        """Configure les clients OpenAI et Supabase"""
+        """Configure le client Supabase"""
         try:
-            # Configuration OpenAI
-            openai_key = os.getenv("OPENAI_API_KEY")
-            if openai_key:
-                self.openai_client = OpenAI(api_key=openai_key)
-                print("✅ Client OpenAI configuré")
-            else:
-                print("⚠️ OPENAI_API_KEY non trouvé")
-            
             # Configuration Supabase
             supabase_url = os.getenv("SUPABASE_URL")
-            supabase_key = os.getenv("SUPABASE_KEY")
+            supabase_key = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_KEY")
             if supabase_url and supabase_key:
                 self.supabase_client = create_client(supabase_url, supabase_key)
                 print("✅ Client Supabase configuré")
@@ -75,262 +108,252 @@ class OpenAIDataImporter:
         except Exception as e:
             print(f"❌ Erreur configuration clients: {e}")
     
-    def calculate_cost(self, model: str, prompt_tokens: int, completion_tokens: int) -> float:
-        """Calcule le coût d'une requête OpenAI"""
-        if model not in self.model_costs:
-            return 0.0
-        
-        costs = self.model_costs[model]
-        input_cost = (prompt_tokens / 1000) * costs["input"]
-        output_cost = (completion_tokens / 1000) * costs["output"]
-        return input_cost + output_cost
+    def estimate_tokens(self, text: str) -> int:
+        """Estime le nombre de tokens dans un texte"""
+        # Approximation: 1 token ≈ 4 caractères en anglais, 3.5 en français
+        return max(1, len(text) // 4)
     
-    def import_chat_completion(self, 
-                              model: str, 
-                              messages: List[Dict], 
-                              user_context: str = "unknown",
-                              **kwargs) -> OpenAIDataPoint:
-        """Importe une completion de chat et enregistre les métriques"""
-        if not self.openai_client:
-            raise ValueError("Client OpenAI non configuré")
+    def determine_model_from_date(self, timestamp: float) -> str:
+        """Détermine le modèle probable basé sur la date"""
+        conversation_date = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
         
-        start_time = time.time()
+        for date_threshold, model in sorted(self.default_model_by_date.items(), reverse=True):
+            if conversation_date >= date_threshold:
+                return model
+        
+        return "gpt-3.5-turbo"  # Fallback
+    
+    def calculate_conversation_cost(self, conversation: Dict) -> tuple:
+        """Calcule le coût estimé d'une conversation"""
+        total_tokens = 0
+        total_cost = 0.0
+        
+        # Déterminer le modèle
+        model = conversation.get("model", self.determine_model_from_date(conversation.get("create_time", time.time())))
+        
+        if "mapping" in conversation:
+            for message_id, message_data in conversation["mapping"].items():
+                if message_data and "message" in message_data:
+                    message = message_data["message"]
+                    if message and "content" in message and "parts" in message["content"]:
+                        for part in message["content"]["parts"]:
+                            if isinstance(part, str):
+                                tokens = self.estimate_tokens(part)
+                                total_tokens += tokens
+                                
+                                # Calcul du coût
+                                if model in self.model_costs:
+                                    # Approximation: 70% input, 30% output
+                                    input_tokens = int(tokens * 0.7)
+                                    output_tokens = int(tokens * 0.3)
+                                    
+                                    cost = (input_tokens / 1000 * self.model_costs[model]["input"] + 
+                                           output_tokens / 1000 * self.model_costs[model]["output"])
+                                    total_cost += cost
+        
+        return total_tokens, total_cost, model
+    
+    def import_from_chatgpt_export(self, export_file_path: str, user_email: str = "unknown") -> List[ChatGPTConversation]:
+        """Importe les données depuis un export ChatGPT (fichier JSON)"""
+        conversations = []
         
         try:
-            # Appel à l'API OpenAI
-            response = self.openai_client.chat.completions.create(
-                model=model,
-                messages=messages,
-                **kwargs
-            )
+            # Si c'est un ZIP, l'extraire
+            if export_file_path.endswith('.zip'):
+                with zipfile.ZipFile(export_file_path, 'r') as zip_ref:
+                    zip_ref.extractall(os.path.dirname(export_file_path))
+                    # Chercher le fichier conversations.json
+                    json_files = [f for f in zip_ref.namelist() if f.endswith('conversations.json')]
+                    if json_files:
+                        export_file_path = os.path.join(os.path.dirname(export_file_path), json_files[0])
             
-            end_time = time.time()
-            response_time_ms = (end_time - start_time) * 1000
+            # Lire le fichier JSON
+            with open(export_file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
             
-            # Extraction des métriques
-            usage = response.usage
-            prompt_tokens = usage.prompt_tokens if usage else 0
-            completion_tokens = usage.completion_tokens if usage else 0
-            total_tokens = usage.total_tokens if usage else 0
+            print(f"📊 Traitement de {len(data)} conversations...")
             
-            # Calcul du coût
-            cost_usd = self.calculate_cost(model, prompt_tokens, completion_tokens)
+            for conversation_data in data:
+                try:
+                    tokens_estimated, cost_estimated, model = self.calculate_conversation_cost(conversation_data)
+                    
+                    # Extraire les messages
+                    messages = []
+                    if "mapping" in conversation_data:
+                        for message_id, message_data in conversation_data["mapping"].items():
+                            if message_data and "message" in message_data:
+                                message = message_data["message"]
+                                if message and message.get("content"):
+                                    messages.append({
+                                        "id": message_id,
+                                        "role": message.get("author", {}).get("role", "unknown"),
+                                        "content": message.get("content", {}),
+                                        "create_time": message.get("create_time"),
+                                        "tokens_estimated": self.estimate_tokens(str(message.get("content", "")))
+                                    })
+                    
+                    conversation = ChatGPTConversation(
+                        conversation_id=conversation_data.get("id", "unknown"),
+                        title=conversation_data.get("title", "Untitled"),
+                        create_time=conversation_data.get("create_time", 0),
+                        update_time=conversation_data.get("update_time", 0),
+                        messages=messages,
+                        model=model,
+                        total_tokens_estimated=tokens_estimated,
+                        cost_estimated_usd=cost_estimated,
+                        user_email=user_email
+                    )
+                    
+                    conversations.append(conversation)
+                    
+                except Exception as e:
+                    print(f"⚠️ Erreur traitement conversation {conversation_data.get('id', 'unknown')}: {e}")
             
-            # Création du point de données
-            data_point = OpenAIDataPoint(
-                timestamp=datetime.now().isoformat(),
-                model=model,
-                prompt_tokens=prompt_tokens,
-                completion_tokens=completion_tokens,
-                total_tokens=total_tokens,
-                cost_usd=cost_usd,
-                response_time_ms=response_time_ms,
-                success=True,
-                metadata={
-                    "response_id": response.id,
-                    "messages_count": len(messages),
-                    "finish_reason": response.choices[0].finish_reason if response.choices else None,
-                    **kwargs
-                },
-                user_context=user_context
-            )
+            print(f"✅ {len(conversations)} conversations traitées")
             
-            # Enregistrement dans Supabase
-            self.save_to_supabase(data_point)
+            # Sauvegarder dans Supabase
+            self.save_conversations_to_supabase(conversations)
             
-            return data_point
-            
-        except Exception as e:
-            end_time = time.time()
-            response_time_ms = (end_time - start_time) * 1000
-            
-            # Enregistrement de l'erreur
-            error_data_point = OpenAIDataPoint(
-                timestamp=datetime.now().isoformat(),
-                model=model,
-                prompt_tokens=0,
-                completion_tokens=0,
-                total_tokens=0,
-                cost_usd=0.0,
-                response_time_ms=response_time_ms,
-                success=False,
-                metadata={"error": str(e), "messages_count": len(messages)},
-                user_context=user_context
-            )
-            
-            self.save_to_supabase(error_data_point)
-            raise e
-    
-    def import_embedding(self, 
-                        model: str, 
-                        input_text: str, 
-                        user_context: str = "unknown") -> OpenAIDataPoint:
-        """Importe un embedding et enregistre les métriques"""
-        if not self.openai_client:
-            raise ValueError("Client OpenAI non configuré")
-        
-        start_time = time.time()
-        
-        try:
-            # Appel à l'API OpenAI
-            response = self.openai_client.embeddings.create(
-                model=model,
-                input=input_text
-            )
-            
-            end_time = time.time()
-            response_time_ms = (end_time - start_time) * 1000
-            
-            # Estimation des tokens (approximation)
-            estimated_tokens = len(input_text.split()) * 1.3  # Approximation
-            
-            # Calcul du coût
-            cost_usd = self.calculate_cost(model, int(estimated_tokens), 0)
-            
-            # Création du point de données
-            data_point = OpenAIDataPoint(
-                timestamp=datetime.now().isoformat(),
-                model=model,
-                prompt_tokens=int(estimated_tokens),
-                completion_tokens=0,
-                total_tokens=int(estimated_tokens),
-                cost_usd=cost_usd,
-                response_time_ms=response_time_ms,
-                success=True,
-                metadata={
-                    "input_length": len(input_text),
-                    "embedding_dimension": len(response.data[0].embedding) if response.data else 0,
-                    "usage_estimate": True
-                },
-                user_context=user_context
-            )
-            
-            # Enregistrement dans Supabase
-            self.save_to_supabase(data_point)
-            
-            return data_point
+            return conversations
             
         except Exception as e:
-            end_time = time.time()
-            response_time_ms = (end_time - start_time) * 1000
-            
-            # Enregistrement de l'erreur
-            error_data_point = OpenAIDataPoint(
-                timestamp=datetime.now().isoformat(),
-                model=model,
-                prompt_tokens=0,
-                completion_tokens=0,
-                total_tokens=0,
-                cost_usd=0.0,
-                response_time_ms=response_time_ms,
-                success=False,
-                metadata={"error": str(e), "input_length": len(input_text)},
-                user_context=user_context
-            )
-            
-            self.save_to_supabase(error_data_point)
-            raise e
+            print(f"❌ Erreur import fichier: {e}")
+            return []
     
-    def save_to_supabase(self, data_point: OpenAIDataPoint):
-        """Sauvegarde un point de données dans Supabase"""
-        if not self.supabase_client:
-            print("⚠️ Client Supabase non configuré, données non sauvegardées")
-            return
-        
-        try:
-            # Conversion en format Supabase
-            supabase_data = {
-                "timestamp": data_point.timestamp,
-                "metric_type": "openai_api_call",
-                "metric_value": asdict(data_point),
-                "agent_id": "jarvys_dev",
-                "session_id": f"session_{int(time.time())}"
-            }
-            
-            # Insertion dans la table jarvys_metrics
-            result = self.supabase_client.table("jarvys_metrics").insert(supabase_data).execute()
-            
-            if result.data:
-                print(f"✅ Données sauvegardées: {data_point.model} - {data_point.total_tokens} tokens")
-            else:
-                print("⚠️ Aucune donnée retournée lors de la sauvegarde")
-                
-        except Exception as e:
-            print(f"❌ Erreur sauvegarde Supabase: {e}")
-    
-    def import_usage_data(self, start_date: str, end_date: str) -> List[OpenAIDataPoint]:
-        """Importe les données d'usage depuis l'API OpenAI (si disponible)"""
-        print("⚠️ Import direct des données d'usage OpenAI non encore implémenté")
-        print("Utilisation recommandée: wrapper des appels API existants")
-        return []
-    
-    def export_metrics_to_json(self, filepath: str = "openai_metrics.json"):
-        """Exporte les métriques vers un fichier JSON"""
+    def save_conversations_to_supabase(self, conversations: List[ChatGPTConversation]):
+        """Sauvegarde les conversations dans Supabase"""
         if not self.supabase_client:
             print("⚠️ Client Supabase non configuré")
             return
         
         try:
-            # Récupération des métriques OpenAI
-            result = self.supabase_client.table("jarvys_metrics")\
-                .select("*")\
-                .eq("metric_type", "openai_api_call")\
-                .order("timestamp", desc=True)\
-                .execute()
+            for conversation in conversations:
+                # Données pour jarvys_metrics
+                metric_data = {
+                    "agent_type": "chatgpt",
+                    "event_type": "conversation_import",
+                    "service": "openai",
+                    "model": conversation.model,
+                    "tokens_used": conversation.total_tokens_estimated,
+                    "cost_usd": conversation.cost_estimated_usd,
+                    "response_time_ms": 0,  # Non applicable pour import
+                    "success": True,
+                    "metadata": {
+                        "conversation_id": conversation.conversation_id,
+                        "title": conversation.title,
+                        "messages_count": len(conversation.messages),
+                        "user_email": conversation.user_email,
+                        "import_timestamp": datetime.now().isoformat()
+                    },
+                    "user_context": conversation.user_email,
+                    "created_at": datetime.fromtimestamp(conversation.create_time).isoformat()
+                }
+                
+                # Insérer dans jarvys_metrics
+                result = self.supabase_client.table("jarvys_metrics").insert(metric_data).execute()
+                
+                # Sauvegarder dans jarvys_memory pour les conversations importantes
+                if conversation.total_tokens_estimated > 100:  # Seulement les conversations substantielles
+                    memory_content = f"Conversation: {conversation.title}\n"
+                    memory_content += f"Modèle: {conversation.model}\n"
+                    memory_content += f"Messages: {len(conversation.messages)}\n"
+                    memory_content += f"Tokens: {conversation.total_tokens_estimated}\n"
+                    
+                    # Ajouter un extrait des premiers messages
+                    for i, msg in enumerate(conversation.messages[:3]):
+                        if msg["role"] in ["user", "assistant"]:
+                            content_str = str(msg.get("content", "")).replace("'", "").replace('"', '')[:200]
+                            memory_content += f"{msg['role']}: {content_str}...\n"
+                    
+                    memory_data = {
+                        "content": memory_content,
+                        "agent_source": "chatgpt_import",
+                        "memory_type": "conversation_history",
+                        "user_context": conversation.user_email,
+                        "importance_score": min(1.0, conversation.total_tokens_estimated / 1000),
+                        "created_at": datetime.fromtimestamp(conversation.create_time).isoformat()
+                    }
+                    
+                    self.supabase_client.table("jarvys_memory").insert(memory_data).execute()
             
-            # Sauvegarde en JSON
-            with open(filepath, 'w', encoding='utf-8') as f:
-                json.dump(result.data, f, indent=2, ensure_ascii=False)
-            
-            print(f"✅ Métriques exportées vers {filepath}: {len(result.data)} entrées")
+            print(f"✅ {len(conversations)} conversations sauvegardées dans Supabase")
             
         except Exception as e:
-            print(f"❌ Erreur export JSON: {e}")
+            print(f"❌ Erreur sauvegarde Supabase: {e}")
     
-    def get_usage_summary(self, days: int = 7) -> Dict[str, Any]:
-        """Récupère un résumé d'usage des derniers jours"""
+    def download_chatgpt_data_instructions(self):
+        """Affiche les instructions pour télécharger les données ChatGPT"""
+        instructions = """
+📥 INSTRUCTIONS POUR TÉLÉCHARGER VOS DONNÉES CHATGPT:
+
+1. Connectez-vous à ChatGPT (https://chat.openai.com)
+2. Cliquez sur votre profil (en bas à gauche)
+3. Allez dans "Settings" → "Data controls"
+4. Cliquez sur "Export data"
+5. Confirmez votre demande d'export
+6. Attendez l'email de confirmation (peut prendre quelques heures)
+7. Téléchargez le fichier ZIP depuis l'email
+8. Utilisez ce script avec le fichier téléchargé
+
+⚠️ IMPORTANT:
+- Répétez cette opération pour chaque compte:
+  - yann.abadie@gmail.com
+  - yann.abadie.exakis@gmail.com
+- Les exports contiennent TOUTES vos conversations
+- Le fichier à utiliser sera "conversations.json" dans le ZIP
+        """
+        
+        print(instructions)
+        return instructions
+    
+    def get_usage_summary_from_imports(self, user_email: Optional[str] = None) -> Dict[str, Any]:
+        """Récupère un résumé des données importées"""
         if not self.supabase_client:
             return {"error": "Client Supabase non configuré"}
         
         try:
-            # Calcul de la date de début
-            from datetime import datetime, timedelta
-            start_date = (datetime.now() - timedelta(days=days)).isoformat()
+            query = self.supabase_client.table("jarvys_metrics")\
+                .select("*")\
+                .eq("event_type", "conversation_import")
             
-            # Récupération des métriques
-            result = self.supabase_client.table("jarvys_metrics")\
-                .select("metric_value")\
-                .eq("metric_type", "openai_api_call")\
-                .gte("timestamp", start_date)\
-                .execute()
+            if user_email:
+                query = query.eq("user_context", user_email)
+            
+            result = query.execute()
             
             if not result.data:
-                return {"message": "Aucune donnée trouvée", "days": days}
+                return {"message": "Aucune donnée importée trouvée"}
             
             # Calcul des statistiques
-            total_calls = len(result.data)
-            total_tokens = sum(item["metric_value"]["total_tokens"] for item in result.data)
-            total_cost = sum(item["metric_value"]["cost_usd"] for item in result.data)
-            successful_calls = sum(1 for item in result.data if item["metric_value"]["success"])
+            total_conversations = len(result.data)
+            total_tokens = sum(item["tokens_used"] or 0 for item in result.data)
+            total_cost = sum(item["cost_usd"] or 0 for item in result.data)
             
             # Modèles utilisés
             models_used = {}
+            users = {}
             for item in result.data:
-                model = item["metric_value"]["model"]
-                if model in models_used:
-                    models_used[model] += 1
-                else:
-                    models_used[model] = 1
+                model = item["model"] or "unknown"
+                user = item["user_context"] or "unknown"
+                
+                models_used[model] = models_used.get(model, 0) + 1
+                users[user] = users.get(user, 0) + 1
+            
+            # Coût par utilisateur
+            cost_by_user = {}
+            for item in result.data:
+                user = item["user_context"] or "unknown"
+                cost_by_user[user] = cost_by_user.get(user, 0) + (item["cost_usd"] or 0)
             
             return {
-                "period_days": days,
-                "total_calls": total_calls,
-                "successful_calls": successful_calls,
-                "success_rate": (successful_calls / total_calls * 100) if total_calls > 0 else 0,
+                "total_conversations": total_conversations,
                 "total_tokens": total_tokens,
                 "total_cost_usd": round(total_cost, 4),
-                "avg_tokens_per_call": round(total_tokens / total_calls) if total_calls > 0 else 0,
-                "models_used": models_used
+                "avg_tokens_per_conversation": round(total_tokens / total_conversations) if total_conversations > 0 else 0,
+                "avg_cost_per_conversation": round(total_cost / total_conversations, 4) if total_conversations > 0 else 0,
+                "models_used": models_used,
+                "users": users,
+                "cost_by_user": {k: round(v, 4) for k, v in cost_by_user.items()}
             }
             
         except Exception as e:
@@ -338,30 +361,41 @@ class OpenAIDataImporter:
 
 
 def main():
-    """Fonction principale pour tester l'importateur"""
-    print("🔄 Test de l'OpenAI Data Importer pour JARVYS")
+    """Fonction principale pour importer les données ChatGPT"""
+    print("🔄 OpenAI Data Importer pour JARVYS - Import données ChatGPT réelles")
     
     importer = OpenAIDataImporter()
     
-    # Test simple (nécessite OPENAI_API_KEY)
-    if importer.openai_client:
-        try:
-            # Test d'embedding
-            data_point = importer.import_embedding(
-                model="text-embedding-3-small",
-                input_text="Test d'embedding pour JARVYS",
-                user_context="test_import"
-            )
-            print(f"✅ Test embedding réussi: {data_point.cost_usd} USD")
-            
-        except Exception as e:
-            print(f"❌ Erreur test embedding: {e}")
+    # Afficher les instructions
+    importer.download_chatgpt_data_instructions()
     
-    # Affichage du résumé d'usage
-    summary = importer.get_usage_summary(days=30)
-    print(f"\n📊 Résumé d'usage (30 derniers jours):")
+    # Demander les fichiers d'export
+    print("\n" + "="*60)
+    print("📁 IMPORTATION DES DONNÉES")
+    
+    # Import pour yann.abadie@gmail.com
+    gmail_file = input("\n📎 Chemin vers l'export ChatGPT pour yann.abadie@gmail.com (ou 'skip'): ").strip()
+    if gmail_file and gmail_file.lower() != 'skip' and os.path.exists(gmail_file):
+        print(f"🔄 Import en cours pour yann.abadie@gmail.com...")
+        conversations_gmail = importer.import_from_chatgpt_export(gmail_file, "yann.abadie@gmail.com")
+        print(f"✅ {len(conversations_gmail)} conversations importées pour Gmail")
+    
+    # Import pour yann.abadie.exakis@gmail.com
+    exakis_file = input("\n📎 Chemin vers l'export ChatGPT pour yann.abadie.exakis@gmail.com (ou 'skip'): ").strip()
+    if exakis_file and exakis_file.lower() != 'skip' and os.path.exists(exakis_file):
+        print(f"🔄 Import en cours pour yann.abadie.exakis@gmail.com...")
+        conversations_exakis = importer.import_from_chatgpt_export(exakis_file, "yann.abadie.exakis@gmail.com")
+        print(f"✅ {len(conversations_exakis)} conversations importées pour Exakis")
+    
+    # Affichage du résumé final
+    print("\n" + "="*60)
+    print("📊 RÉSUMÉ GLOBAL DES IMPORTS")
+    
+    summary = importer.get_usage_summary_from_imports()
     for key, value in summary.items():
         print(f"  {key}: {value}")
+    
+    print("\n🎉 Import terminé! Données disponibles dans le dashboard JARVYS.")
 
 
 if __name__ == "__main__":

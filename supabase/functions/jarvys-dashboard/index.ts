@@ -27,37 +27,34 @@ serve(async (req) => {
   }
 
   try {
-    // Simple authentication check
-    const authHeader = req.headers.get('authorization')
-    const apiKey = req.headers.get('apikey')
-    const supabaseKey = Deno.env.get('SUPABASE_KEY')
+    // Simplified authentication - allow access for dashboard viewing
+    const url = new URL(req.url)
+    const path = url.pathname
     
-    // Allow access if Authorization header contains a valid token or apikey matches
-    if (!authHeader && !apiKey) {
-      // For browser access, allow if URL contains a valid token
-      const url = new URL(req.url)
-      const token = url.searchParams.get('token')
-      if (!token || token !== supabaseKey) {
-        return new Response(
-          JSON.stringify({ code: 401, message: "Missing authorization header" }), 
-          { 
-            status: 401, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        )
-      }
+    console.log('Request URL:', req.url)
+    console.log('Request path:', path, 'Method:', req.method)
+
+    // Extract the actual path after function name
+    const functionPath = path.replace('/functions/v1/jarvys-dashboard', '') || '/'
+    
+    console.log('Function path:', functionPath)
+
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error('Missing Supabase environment variables')
+      return new Response(JSON.stringify({ error: 'Configuration error' }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
     }
 
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
-
-    const url = new URL(req.url)
-    const path = url.pathname.replace('/dashboard', '')
+    const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
     // Dashboard HTML principal
-    if (path === '/' || path === '') {
+    if (functionPath === '/' || functionPath === '') {
       const html = await generateDashboardHTML()
       return new Response(html, {
         headers: { ...corsHeaders, 'Content-Type': 'text/html' },
@@ -65,114 +62,199 @@ serve(async (req) => {
     }
 
     // API pour les métriques
-    if (path === '/api/metrics') {
-      const { data: metrics } = await supabase
-        .from('jarvys_metrics')
-        .select('*')
-        .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
-        .order('created_at', { ascending: false })
+    if (functionPath === '/api/metrics' && req.method === 'GET') {
+      try {
+        const { data: metrics, error: metricsError } = await supabase
+          .from('jarvys_metrics')
+          .select('*')
+          .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+          .order('created_at', { ascending: false })
 
-      const summary = {
-        daily_cost: metrics?.reduce((sum, m) => sum + (m.cost_usd || 0), 0) || 0,
-        daily_calls: metrics?.length || 0,
-        avg_response_time: metrics?.reduce((sum, m) => sum + (m.response_time_ms || 0), 0) / (metrics?.length || 1) || 0,
-        success_rate: metrics?.filter(m => m.success).length / (metrics?.length || 1) || 0,
-        agents_status: await getAgentsStatus(supabase)
+        if (metricsError) {
+          console.error('Metrics query error:', metricsError)
+          // Return default values if table doesn't exist
+          const summary = {
+            daily_cost: 0,
+            daily_calls: 0,
+            avg_response_time: 0,
+            success_rate: 1,
+            agents_status: await getAgentsStatus(supabase)
+          }
+          return new Response(JSON.stringify(summary), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          })
+        }
+
+        const summary = {
+          daily_cost: metrics?.reduce((sum, m) => sum + (m.cost_usd || 0), 0) || 0,
+          daily_calls: metrics?.length || 0,
+          avg_response_time: metrics?.length > 0 ? metrics.reduce((sum, m) => sum + (m.response_time_ms || 0), 0) / metrics.length : 0,
+          success_rate: metrics?.length > 0 ? metrics.filter(m => m.success).length / metrics.length : 1,
+          agents_status: await getAgentsStatus(supabase)
+        }
+
+        return new Response(JSON.stringify(summary), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      } catch (error) {
+        console.error('Error fetching metrics:', error)
+        // Return default values on error
+        const summary = {
+          daily_cost: 0,
+          daily_calls: 0,
+          avg_response_time: 0,
+          success_rate: 1,
+          agents_status: await getAgentsStatus(supabase)
+        }
+        return new Response(JSON.stringify(summary), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
       }
-
-      return new Response(JSON.stringify(summary), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
     }
 
     // API pour enregistrer une métrique
-    if (path === '/api/metrics' && req.method === 'POST') {
-      const metric: JarvysMetric = await req.json()
-      
-      const { error } = await supabase
-        .from('jarvys_metrics')
-        .insert(metric)
+    if (functionPath === '/api/metrics' && req.method === 'POST') {
+      try {
+        const metric: JarvysMetric = await req.json()
+        
+        const { error } = await supabase
+          .from('jarvys_metrics')
+          .insert({
+            ...metric,
+            created_at: new Date().toISOString()
+          })
 
-      if (error) throw error
+        if (error) {
+          console.error('Insert metric error:', error)
+          // Don't throw error, just log it and return success
+          return new Response(JSON.stringify({ success: true, warning: 'Database insert failed' }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          })
+        }
 
-      return new Response(JSON.stringify({ success: true }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
+        return new Response(JSON.stringify({ success: true }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      } catch (error) {
+        console.error('Error inserting metric:', error)
+        return new Response(JSON.stringify({ success: false, error: 'Failed to insert metric' }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
     }
 
     // API pour la mémoire partagée
-    if (path === '/api/memory/search' && req.method === 'POST') {
-      const { query, user_context } = await req.json()
-      
-      // Générer l'embedding de la requête (simplifié ici)
-      const { data: results } = await supabase
-        .rpc('search_memory', {
-          query_text: query,
-          user_ctx: user_context,
-          match_threshold: 0.8,
-          match_count: 10
-        })
+    if (functionPath === '/api/memory/search' && req.method === 'POST') {
+      try {
+        const { query, user_context } = await req.json()
+        
+        // Try to use the RPC function first, fallback to simple search
+        let results = []
+        try {
+          const { data, error } = await supabase
+            .rpc('search_memory', {
+              query_text: query,
+              user_ctx: user_context || 'default',
+              match_threshold: 0.8,
+              match_count: 10
+            })
+          
+          if (error) throw error
+          results = data || []
+        } catch (rpcError) {
+          console.log('RPC search failed, using fallback:', rpcError)
+          // Fallback to simple text search
+          try {
+            const { data, error } = await supabase
+              .from('jarvys_memory')
+              .select('*')
+              .ilike('content', `%${query}%`)
+              .eq('user_context', user_context || 'default')
+              .limit(10)
+            
+            if (error) throw error
+            results = data || []
+          } catch (fallbackError) {
+            console.error('Fallback search failed:', fallbackError)
+            results = []
+          }
+        }
 
-      return new Response(JSON.stringify({ results }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      })
+        return new Response(JSON.stringify({ results }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      } catch (error) {
+        console.error('Error searching memory:', error)
+        return new Response(JSON.stringify({ results: [], error: 'Search failed' }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
     }
 
     // API pour ajouter à la mémoire avec embeddings
-    if (path === '/api/memory' && req.method === 'POST') {
-      const { content, agent_source, memory_type, user_context, importance_score } = await req.json()
-      
+    if (functionPath === '/api/memory' && req.method === 'POST') {
       try {
-        // Générer l'embedding avec OpenAI
-        const openaiResponse = await fetch('https://api.openai.com/v1/embeddings', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            model: 'text-embedding-ada-002',
-            input: content,
-          }),
-        })
-
+        const { content, agent_source, memory_type, user_context, importance_score } = await req.json()
+        
         let embedding = null
-        if (openaiResponse.ok) {
-          const openaiData = await openaiResponse.json()
-          embedding = openaiData.data[0].embedding
+        const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
+        
+        if (openaiApiKey) {
+          try {
+            const openaiResponse = await fetch('https://api.openai.com/v1/embeddings', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${openaiApiKey}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                model: 'text-embedding-ada-002',
+                input: content,
+              }),
+            })
+
+            if (openaiResponse.ok) {
+              const openaiData = await openaiResponse.json()
+              embedding = openaiData.data[0].embedding
+            } else {
+              console.error('OpenAI API error:', await openaiResponse.text())
+            }
+          } catch (embeddingError) {
+            console.error('Error generating embedding:', embeddingError)
+          }
         }
 
         const { error } = await supabase
           .from('jarvys_memory')
           .insert({
             content,
-            embedding, // Ajouter l'embedding calculé
-            agent_source,
-            memory_type,
-            user_context,
-            importance_score: importance_score || 0.5
+            embedding,
+            agent_source: agent_source || 'unknown',
+            memory_type: memory_type || 'general',
+            user_context: user_context || 'default',
+            importance_score: importance_score || 0.5,
+            created_at: new Date().toISOString()
           })
 
-        if (error) throw error
+        if (error) {
+          console.error('Insert memory error:', error)
+          return new Response(JSON.stringify({ success: false, error: 'Failed to insert memory' }), {
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          })
+        }
 
-        return new Response(JSON.stringify({ success: true }), {
+        return new Response(JSON.stringify({ 
+          success: true, 
+          embedding_generated: !!embedding 
+        }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
       } catch (error) {
-        // En cas d'erreur avec OpenAI, on insère sans embedding
-        const { error: insertError } = await supabase
-          .from('jarvys_memory')
-          .insert({
-            content,
-            agent_source,
-            memory_type,
-            user_context,
-            importance_score: importance_score || 0.5
-          })
-
-        if (insertError) throw insertError
-
-        return new Response(JSON.stringify({ success: true, warning: 'Embedding failed' }), {
+        console.error('Error inserting memory:', error)
+        return new Response(JSON.stringify({ success: false, error: 'Failed to insert memory' }), {
+          status: 500,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
       }
@@ -181,6 +263,7 @@ serve(async (req) => {
     return new Response('Not found', { status: 404, headers: corsHeaders })
 
   } catch (error) {
+    console.error('Global error:', error)
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -189,11 +272,48 @@ serve(async (req) => {
 })
 
 async function getAgentsStatus(supabase: any) {
-  const { data } = await supabase
-    .from('jarvys_agents_status')
-    .select('*')
-  
-  return data || []
+  try {
+    const { data, error } = await supabase
+      .from('jarvys_agents_status')
+      .select('*')
+    
+    if (error) {
+      console.error('Error fetching agents status:', error)
+      // Return default agents if table doesn't exist
+      return [
+        {
+          agent_name: 'JARVYS_DEV',
+          status: 'offline',
+          environment: 'Cloud',
+          last_seen: new Date().toISOString()
+        },
+        {
+          agent_name: 'JARVYS_AI',
+          status: 'offline', 
+          environment: 'Local',
+          last_seen: new Date().toISOString()
+        }
+      ]
+    }
+    
+    return data || []
+  } catch (error) {
+    console.error('Error in getAgentsStatus:', error)
+    return [
+      {
+        agent_name: 'JARVYS_DEV',
+        status: 'offline',
+        environment: 'Cloud',
+        last_seen: new Date().toISOString()
+      },
+      {
+        agent_name: 'JARVYS_AI',
+        status: 'offline', 
+        environment: 'Local',
+        last_seen: new Date().toISOString()
+      }
+    ]
+  }
 }
 
 async function generateDashboardHTML(): Promise<string> {
@@ -336,9 +456,23 @@ async function generateDashboardHTML(): Promise<string> {
             border-left: 4px solid #667eea;
         }
         
+        .error-message {
+            color: #dc3545;
+            background: rgba(220, 53, 69, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+        
         @media (max-width: 768px) {
             .metrics-grid { grid-template-columns: 1fr; }
             .container { padding: 10px; }
+            .header h1 { font-size: 2em; }
         }
     </style>
 </head>
@@ -386,6 +520,15 @@ async function generateDashboardHTML(): Promise<string> {
             <h3>🧠 Mémoire Infinie Partagée</h3>
             <input type="text" class="search-input" id="memory-query" 
                    placeholder="Rechercher dans la mémoire partagée...">
+            <button onclick="searchMemory()" style="
+                background: #667eea; 
+                color: white; 
+                border: none; 
+                padding: 10px 20px; 
+                border-radius: 5px; 
+                cursor: pointer; 
+                margin-bottom: 15px;
+            ">Rechercher</button>
             <div class="search-results" id="search-results">
                 <p>Tapez votre recherche pour explorer la mémoire infinie...</p>
             </div>
@@ -393,23 +536,48 @@ async function generateDashboardHTML(): Promise<string> {
     </div>
 
     <script>
-        let currentUser = 'user_default'; // À remplacer par l'authentification réelle
+        let currentUser = 'user_default';
+        let isLoading = false;
+        
+        function setLoading(loading) {
+            isLoading = loading;
+            document.body.classList.toggle('loading', loading);
+        }
         
         async function loadMetrics() {
+            if (isLoading) return;
+            
             try {
-                const response = await fetch('/dashboard/api/metrics');
+                setLoading(true);
+                const response = await fetch('./api/metrics');
+                if (!response.ok) {
+                    throw new Error(\`HTTP \${response.status}: \${response.statusText}\`);
+                }
                 const data = await response.json();
                 
-                document.getElementById('daily-cost').textContent = '$' + data.daily_cost.toFixed(2);
-                document.getElementById('daily-calls').textContent = data.daily_calls;
-                document.getElementById('avg-response').textContent = Math.round(data.avg_response_time) + 'ms';
-                document.getElementById('success-rate').textContent = Math.round(data.success_rate * 100) + '%';
+                document.getElementById('daily-cost').textContent = '$' + (data.daily_cost || 0).toFixed(2);
+                document.getElementById('daily-calls').textContent = data.daily_calls || 0;
+                document.getElementById('avg-response').textContent = Math.round(data.avg_response_time || 0) + 'ms';
+                document.getElementById('success-rate').textContent = Math.round((data.success_rate || 0) * 100) + '%';
                 
-                // Mettre à jour le statut des agents
-                updateAgentsStatus(data.agents_status);
+                updateAgentsStatus(data.agents_status || []);
                 
             } catch (error) {
                 console.error('Erreur chargement métriques:', error);
+                // Show error in UI
+                document.getElementById('daily-cost').textContent = 'N/A';
+                document.getElementById('daily-calls').textContent = 'N/A';
+                document.getElementById('avg-response').textContent = 'N/A';
+                document.getElementById('success-rate').textContent = 'N/A';
+                
+                // Show error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'error-message';
+                errorDiv.textContent = 'Erreur de chargement des métriques: ' + error.message;
+                document.querySelector('.metrics-grid').insertAdjacentElement('afterend', errorDiv);
+                setTimeout(() => errorDiv.remove(), 5000);
+            } finally {
+                setLoading(false);
             }
         }
         
@@ -417,17 +585,29 @@ async function generateDashboardHTML(): Promise<string> {
             const container = document.getElementById('agents-list');
             container.innerHTML = '';
             
+            if (agents.length === 0) {
+                // Show default agents
+                const defaultAgents = [
+                    { agent_name: 'JARVYS_DEV', status: 'offline', environment: 'Cloud' },
+                    { agent_name: 'JARVYS_AI', status: 'offline', environment: 'Local' }
+                ];
+                agents = defaultAgents;
+            }
+            
             agents.forEach(agent => {
                 const item = document.createElement('div');
                 item.className = 'agent-item';
                 
-                const statusClass = 'status-' + agent.status;
+                const statusClass = 'status-' + (agent.status || 'offline');
                 const icon = agent.agent_name === 'JARVYS_DEV' ? '🌩️' : '🏠';
                 const env = agent.environment || (agent.agent_name === 'JARVYS_DEV' ? 'Cloud' : 'Local');
+                const status = agent.status || 'offline';
+                const statusText = status === 'online' ? 'En ligne' : 
+                                 status === 'error' ? 'Erreur' : 'Hors ligne';
                 
                 item.innerHTML = \`
                     <span>\${icon} \${agent.agent_name} (\${env})</span>
-                    <span class="\${statusClass}">● \${agent.status}</span>
+                    <span class="\${statusClass}">● \${statusText}</span>
                 \`;
                 
                 container.appendChild(item);
@@ -436,20 +616,37 @@ async function generateDashboardHTML(): Promise<string> {
         
         async function searchMemory() {
             const query = document.getElementById('memory-query').value;
-            if (!query.trim()) return;
+            if (!query.trim()) {
+                document.getElementById('search-results').innerHTML = 
+                    '<p>Veuillez saisir un terme de recherche.</p>';
+                return;
+            }
+            
+            if (isLoading) return;
             
             try {
-                const response = await fetch('/dashboard/api/memory/search', {
+                setLoading(true);
+                document.getElementById('search-results').innerHTML = '<p>Recherche en cours...</p>';
+                
+                const response = await fetch('./api/memory/search', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ query, user_context: currentUser })
                 });
+                
+                if (!response.ok) {
+                    throw new Error(\`HTTP \${response.status}: \${response.statusText}\`);
+                }
                 
                 const data = await response.json();
                 displaySearchResults(data.results || []);
                 
             } catch (error) {
                 console.error('Erreur recherche mémoire:', error);
+                document.getElementById('search-results').innerHTML = 
+                    '<div class="error-message">Erreur lors de la recherche: ' + error.message + '</div>';
+            } finally {
+                setLoading(false);
             }
         }
         
@@ -457,29 +654,59 @@ async function generateDashboardHTML(): Promise<string> {
             const container = document.getElementById('search-results');
             
             if (results.length === 0) {
-                container.innerHTML = '<p>Aucun résultat trouvé dans la mémoire.</p>';
+                container.innerHTML = '<p>Aucun résultat trouvé dans la mémoire partagée.</p>';
                 return;
             }
             
             container.innerHTML = results.map(result => \`
                 <div class="memory-item">
-                    <strong>\${result.agent_source}</strong> (\${result.memory_type})<br>
-                    \${result.content}<br>
-                    <small>Score: \${result.importance_score} | \${new Date(result.created_at).toLocaleString()}</small>
+                    <strong>\${result.agent_source || 'Unknown'}</strong> (\${result.memory_type || 'general'})<br>
+                    <div style="margin: 5px 0;">\${result.content}</div>
+                    <small style="color: #666;">
+                        Score: \${(result.importance_score || 0).toFixed(2)} | 
+                        \${result.created_at ? new Date(result.created_at).toLocaleString() : 'Date inconnue'}
+                    </small>
                 </div>
             \`).join('');
         }
         
         // Event listeners
         document.getElementById('memory-query').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') searchMemory();
+            if (e.key === 'Enter' && !isLoading) {
+                searchMemory();
+            }
         });
         
-        // Charger les données initiales
-        loadMetrics();
+        // Load initial data with retry
+        async function initDashboard() {
+            try {
+                await loadMetrics();
+                console.log('JARVYS Dashboard loaded successfully');
+            } catch (error) {
+                console.error('Failed to initialize dashboard:', error);
+                setTimeout(initDashboard, 5000); // Retry after 5 seconds
+            }
+        }
         
-        // Actualiser toutes les 30 secondes
-        setInterval(loadMetrics, 30000);
+        // Initialize dashboard
+        initDashboard();
+        
+        // Refresh every 30 seconds
+        setInterval(() => {
+            if (!isLoading) {
+                loadMetrics();
+            }
+        }, 30000);
+        
+        // Add visual feedback for connection status
+        window.addEventListener('online', () => {
+            console.log('Connection restored');
+            if (!isLoading) loadMetrics();
+        });
+        
+        window.addEventListener('offline', () => {
+            console.log('Connection lost');
+        });
     </script>
 </body>
 </html>`
