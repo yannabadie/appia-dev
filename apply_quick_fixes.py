@@ -3,8 +3,6 @@
 🔧 Quick Fixes pour JARVYS_DEV - Implémentation des correctifs prioritaires
 """
 
-import os
-import subprocess
 from pathlib import Path
 
 
