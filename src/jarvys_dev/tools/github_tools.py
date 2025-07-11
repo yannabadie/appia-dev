@@ -87,12 +87,12 @@ def create_pull_request(
     body: str = "",
     *,
     head: str | None = None,
-    base: str = "dev",
+    base: str = "main",
     repo_fullname: str | None = None,
 ) -> str:
-    """Create a pull request targeting the ``dev`` branch."""
-    if base != "dev":
-        raise ValueError("PRs must target the 'dev' branch")
+    """Create a pull request targeting the ``main`` branch."""
+    if base not in ["main", "dev"]:
+        raise ValueError("PRs must target the 'main' or 'dev' branch")
 
     gh_token = os.getenv("GH_TOKEN")
     repo_fullname = repo_fullname or os.getenv("GH_REPO")
