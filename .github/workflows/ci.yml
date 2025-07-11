@@ -37,6 +37,6 @@ jobs:
 
       - name: Install deps + run tests
         run: |
-          poetry install --with dev
+          poetry install
           poetry run pre-commit run --all-files
           PYTHONPATH=src poetry run pytest -q

@@ -1,5 +1,17 @@
 # 📖 Documentation Complète JARVYS_AI
 
+## ⚠️ ÉTAT DES CORRECTIONS - 11 JUILLET 2025
+
+### ✅ PROBLÈMES CORRIGÉS
+1. **Références branche "dev"** → Tous les workflows utilisent "main"
+2. **Secrets manquants** → 17 secrets transférés vers appIA
+3. **Quick fixes JARVYS_DEV** → Tous appliqués (pause/reprise, embeddings, etc.)
+
+### ❌ PROBLÈMES EN COURS
+1. **Dashboard authentification** → Erreur 401, nécessite patch Supabase
+2. **Interface utilisateur** → Pas d'UI complète actuellement
+3. **Tests end-to-end** → À valider
+
 ## 🎯 Vue d'Ensemble
 
 **JARVYS_AI** est un agent d'intelligence artificielle autonome développé pour fonctionner en synergie avec **JARVYS_DEV**. Contrairement à JARVYS_DEV qui s'exécute exclusivement dans le cloud (GitHub Actions, GCP), JARVYS_AI est conçu pour fonctionner localement tout en maintenant une synchronisation parfaite via Supabase.
