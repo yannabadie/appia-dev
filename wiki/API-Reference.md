@@ -1,6 +1,6 @@
 # 📚 Référence API JARVYS_DEV
 
-*Générée automatiquement le 11/07/2025 à 11:38*
+*Générée automatiquement le 11/07/2025 à 11:41*
 
 ## 🔧 Modules Principaux
 
