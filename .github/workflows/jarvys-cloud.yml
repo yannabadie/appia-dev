@@ -148,7 +148,7 @@ jobs:
         # Test if poetry.lock exists
         if [ -f "poetry.lock" ]; then
           echo "📋 Installing from poetry.lock..."
-          poetry install --only main --no-dev
+          poetry install --only main
         else
           echo "⚠️ poetry.lock not found, installing basic requirements..."
           [ -f "requirements.txt" ] && pip install -r requirements.txt || echo "No requirements.txt found"
@@ -283,7 +283,7 @@ jobs:
     - name: 📦 Install Dependencies  
       run: |
         pip install poetry
-        poetry install --with dev
+        poetry install
         
     - name: 🧪 Run Tests
       run: |
