@@ -51,7 +51,7 @@ if miss:
     sys.exit("❌  Variables manquantes : " + ", ".join(miss))
 
 
-def _check_branch(expected: str = "dev") -> None:
+def _check_branch(expected: str = "main") -> None:
     cur = (
         subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
         .decode()

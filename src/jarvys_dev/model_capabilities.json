@@ -1,0 +1,75 @@
+{
+  "models": {
+    "gpt-4": {
+      "provider": "openai",
+      "context_length": 8192,
+      "cost_per_token": 3e-05,
+      "capabilities": [
+        "reasoning",
+        "code",
+        "analysis",
+        "creative"
+      ],
+      "performance_score": 0.95,
+      "reliability_score": 0.98
+    },
+    "gpt-3.5-turbo": {
+      "provider": "openai",
+      "context_length": 4096,
+      "cost_per_token": 2e-06,
+      "capabilities": [
+        "reasoning",
+        "code",
+        "analysis"
+      ],
+      "performance_score": 0.85,
+      "reliability_score": 0.95
+    },
+    "claude-3-sonnet": {
+      "provider": "anthropic",
+      "context_length": 200000,
+      "cost_per_token": 1.5e-05,
+      "capabilities": [
+        "reasoning",
+        "code",
+        "analysis",
+        "creative",
+        "long_context"
+      ],
+      "performance_score": 0.92,
+      "reliability_score": 0.96
+    },
+    "gemini-pro": {
+      "provider": "google",
+      "context_length": 30720,
+      "cost_per_token": 1e-06,
+      "capabilities": [
+        "reasoning",
+        "code",
+        "analysis"
+      ],
+      "performance_score": 0.88,
+      "reliability_score": 0.93
+    }
+  },
+  "routing_rules": {
+    "cost_optimization": true,
+    "prefer_local": false,
+    "fallback_chain": [
+      "gpt-4",
+      "claude-3-sonnet",
+      "gpt-3.5-turbo"
+    ],
+    "task_routing": {
+      "simple_queries": "gpt-3.5-turbo",
+      "complex_reasoning": "gpt-4",
+      "long_context": "claude-3-sonnet",
+      "cost_sensitive": "gemini-pro"
+    }
+  },
+  "thresholds": {
+    "confidence_threshold": 0.85,
+    "cost_daily_limit": 3.0,
+    "performance_min": 0.8
+  }
+}

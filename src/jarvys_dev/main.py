@@ -21,7 +21,7 @@ def send_to_jarvys_ai(
     return github_create_issue(
         title=task_dict.get("title", "Task from JARVYS_DEV"),
         body=body,
-        labels=["from_jarvys_ai"],
+        labels=["from_jarvys_dev"],
         repo_fullname=repo_fullname,
     )
 

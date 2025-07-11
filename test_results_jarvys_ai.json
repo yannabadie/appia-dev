@@ -1,0 +1,70 @@
+{
+  "timestamp": "2025-07-11T09:23:32.377680",
+  "version": "1.0.0",
+  "total_tests": 17,
+  "success_count": 17,
+  "results": {
+    "initialization": {
+      "status": "success",
+      "details": "JARVYS_AI cr\u00e9\u00e9"
+    },
+    "intelligence_core": {
+      "status": "success"
+    },
+    "digital_twin": {
+      "status": "success"
+    },
+    "continuous_improvement": {
+      "status": "success"
+    },
+    "fallback_engine": {
+      "status": "success"
+    },
+    "extension_email": {
+      "status": "success"
+    },
+    "extension_voice": {
+      "status": "success"
+    },
+    "extension_cloud": {
+      "status": "success"
+    },
+    "extension_files": {
+      "status": "success"
+    },
+    "command_Bonjour JARVYS": {
+      "status": "success",
+      "response_length": 50
+    },
+    "command_Lis mes emails": {
+      "status": "success",
+      "response_length": 378
+    },
+    "command_Chercher fichier projet": {
+      "status": "success",
+      "response_length": 44
+    },
+    "command_Status cloud": {
+      "status": "success",
+      "response_length": 567
+    },
+    "command_Dire bonjour": {
+      "status": "success",
+      "response_length": 50
+    },
+    "command_Aide": {
+      "status": "success",
+      "response_length": 115
+    },
+    "continuous_improvement_sync": {
+      "status": "success",
+      "updates_found": 2,
+      "device_id": "fdfb51df70180189"
+    },
+    "fallback_engine_test": {
+      "status": "success",
+      "test_successful": true,
+      "fallback_active": false
+    }
+  }
+}
