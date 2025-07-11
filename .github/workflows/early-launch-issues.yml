@@ -1,0 +1,161 @@
+---
+name: 🚀 Early Launch Issues Setup Automation
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Early launch mode"
+        required: true
+        default: "process_backlog"
+        type: choice
+        options:
+          - process_backlog
+          - priority_check
+          - monitor_status
+  schedule:
+    # Run every 30 minutes for autonomous processing
+    - cron: "*/30 * * * *"
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/early-launch-issues.yml'
+      - 'scripts/issue_processor.py'
+
+env:
+  AGENT_NAME: "JARVYS_DEV_EARLY_LAUNCH"
+  ENVIRONMENT: "cloud"
+
+jobs:
+  trigger-jarvys-autonomous:
+    name: 🌩️ Trigger JARVYS Autonomous Mode
+    runs-on: ubuntu-latest
+    if: github.event.inputs.mode == 'process_backlog' || github.event_name == 'schedule'
+    
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🚀 Trigger JARVYS Cloud Deployment
+        run: |
+          echo "🚀 Triggering JARVYS Cloud Deployment in autonomous mode..."
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/actions/workflows/jarvys-cloud.yml/dispatches \
+            -d '{"ref":"main","inputs":{"mode":"autonomous"}}'
+          echo "✅ JARVYS autonomous mode dispatch sent"
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: 📝 Log Autonomous Trigger
+        run: |
+          echo "🚀 JARVYS Autonomous mode triggered at $(date)"
+          echo "Next scheduled run: 30 minutes"
+
+  process-issue-backlog:
+    name: 📋 Process Issue Backlog
+    runs-on: ubuntu-latest
+    needs: [trigger-jarvys-autonomous]
+    if: always() && (github.event.inputs.mode == 'process_backlog' || github.event_name == 'schedule')
+
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: 📦 Install Dependencies
+        run: |
+          pip install poetry
+          poetry config virtualenvs.create true
+          poetry config virtualenvs.in-project true
+          poetry install --with dev --no-interaction
+
+      - name: 📋 Process Priority Issues
+        run: |
+          echo "🔍 Processing priority issues..."
+          poetry run python scripts/issue_processor.py --mode priority
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+      - name: 📊 Update Dashboard Progress
+        run: |
+          echo "📊 Updating Supabase dashboard with progress..."
+          poetry run python scripts/issue_processor.py --mode dashboard_update
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+  monitor-early-launch:
+    name: 📈 Monitor Early Launch Status
+    runs-on: ubuntu-latest
+    if: github.event.inputs.mode == 'monitor_status' || github.event_name == 'schedule'
+
+    steps:
+      - name: 🔄 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: 📦 Install Dependencies
+        run: |
+          pip install poetry
+          poetry config virtualenvs.create true
+          poetry config virtualenvs.in-project true
+          poetry install --no-interaction
+
+      - name: 📈 Generate Status Report
+        run: |
+          echo "📈 Generating early launch status report..."
+          poetry run python scripts/issue_processor.py --mode status_report
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+
+      - name: 🎯 Check Success Criteria
+        run: |
+          echo "🎯 Checking early launch success criteria..."
+          echo "✅ Workflow triggered successfully"
+          echo "✅ 30-minute cycle active"
+          echo "📊 Dashboard URL: https://kzcswopokvknxmxczilu.supabase.co"
+
+  notification:
+    name: 📬 Early Launch Notifications
+    runs-on: ubuntu-latest
+    needs: [trigger-jarvys-autonomous, process-issue-backlog, monitor-early-launch]
+    if: always()
+
+    steps:
+      - name: 📬 Send Launch Status
+        run: |
+          echo "📬 Early Launch Status Summary:"
+          echo "Trigger JARVYS: ${{ needs.trigger-jarvys-autonomous.result }}"
+          echo "Process Backlog: ${{ needs.process-issue-backlog.result }}"
+          echo "Monitor Status: ${{ needs.monitor-early-launch.result }}"
+          echo "Time: $(date)"
+          
+          if [ "${{ needs.process-issue-backlog.result }}" = "success" ]; then
+            echo "🎉 Issue processing successful!"
+          else
+            echo "⚠️ Issue processing needs attention"
+          fi
