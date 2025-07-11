@@ -1,0 +1,53 @@
+---
+name: Simple Tests
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Run Simple Tests
+
+    steps:
+      - name: 📦 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: 📚 Install Poetry
+        run: |
+          pip install poetry
+          poetry config virtualenvs.create true
+          poetry config virtualenvs.in-project true
+
+      - name: 📦 Cache Poetry dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            .venv
+            poetry.lock
+            pyproject.toml
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
+      - name: 📦 Install dependencies
+        run: |
+          poetry install --with dev
+
+      - name: 🧪 Run basic tests
+        run: |
+          # Run only non-performance tests to keep it simple
+          PYTHONPATH=src poetry run pytest -q --ignore=tests/test_performance.py
+
+      - name: ✅ Simple test completion
+        run: |
+          echo "✅ Simple tests completed successfully"

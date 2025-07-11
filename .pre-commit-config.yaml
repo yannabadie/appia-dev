@@ -40,4 +40,4 @@ repos:
         language_version: system
         files: \.(js|jsx|ts|tsx|json|md|markdown|yaml|yml)$
         additional_dependencies:
-          - prettier@4.0.0-alpha.8
+          - prettier@3.3.3
