@@ -117,7 +117,7 @@ jobs:
         ls -la supabase/functions/
         
         # Authentification avec Supabase
-        echo "$SUPABASE_ACCESS_TOKEN" | supabase auth login --token -
+        echo "$SUPABASE_ACCESS_TOKEN" | supabase login --token
         
         # Déployer la fonction
         echo "🚀 Déploiement de jarvys-dashboard..."
