@@ -25,7 +25,7 @@ jobs:
   deploy-dashboard:
     runs-on: ubuntu-latest
     name: Deploy JARVYS Dashboard
-    
+
     steps:
     - name: 📦 Checkout code
       uses: actions/checkout@v4
@@ -49,28 +49,28 @@ jobs:
       run: |
         echo "🔍 Vérification de la structure du projet..."
         ls -la supabase/functions/jarvys-dashboard/
-        
+
         if [ ! -f "supabase/functions/jarvys-dashboard/index.ts" ]; then
           echo "❌ Edge Function manquante"
           exit 1
         fi
-        
+
         echo "✅ Structure du projet valide"
 
     - name: 🚀 Deploy Edge Function
       run: |
         echo "🔄 Déploiement de l'Edge Function jarvys-dashboard..."
-        
+
         supabase functions deploy jarvys-dashboard \
           --project-ref $SUPABASE_PROJECT_ID \
           --no-verify-jwt
-        
+
         echo "✅ Déploiement terminé"
 
     - name: 🔑 Configure secrets
       run: |
         echo "🔐 Configuration des secrets..."
-        
+
         if [ ! -z "$SPB_EDGE_FUNCTIONS" ]; then
           supabase secrets set SPB_EDGE_FUNCTIONS="$SPB_EDGE_FUNCTIONS" \
             --project-ref $SUPABASE_PROJECT_ID
@@ -82,17 +82,17 @@ jobs:
     - name: 🧪 Test deployment
       run: |
         echo "🧪 Test de l'Edge Function déployée..."
-        
+
         FUNCTION_URL="https://$SUPABASE_PROJECT_ID.supabase.co/functions/v1/jarvys-dashboard"
-        
+
         # Test health check
         echo "Testing health endpoint..."
         curl -f "$FUNCTION_URL/health" || exit 1
-        
+
         # Test API status
         echo "Testing API status..."
         curl -f "$FUNCTION_URL/api/status" || exit 1
-        
+
         echo "✅ Tests réussis"
 
     - name: 📊 Deployment summary
@@ -120,22 +120,22 @@ jobs:
       with:
         script: |
           const deploymentUrl = `https://${{ env.SUPABASE_PROJECT_ID }}.supabase.co/functions/v1/jarvys-dashboard`;
-          
+
           github.rest.repos.createCommitComment({
             owner: context.repo.owner,
             repo: context.repo.repo,
             commit_sha: context.sha,
             body: `🚀 **JARVYS Dashboard déployé avec succès!**
-            
+
             🌐 **Dashboard:** [${deploymentUrl}](${deploymentUrl})
-            
+
             📊 **APIs disponibles:**
             - \`GET /api/status\` - Statut système
             - \`GET /api/metrics\` - Métriques performance
             - \`GET /api/data\` - Données complètes
             - \`POST /api/chat\` - Chat avec JARVYS
             - \`GET /health\` - Health check
-            
+
             ✅ Déployé sur Supabase Edge Functions`
           });
 
