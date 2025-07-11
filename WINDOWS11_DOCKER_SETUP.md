@@ -1,12 +1,14 @@
 # 🤖 JARVYS_AI - Guide Windows 11 Docker
 
-Ce guide vous permet d'installer et exécuter JARVYS_AI sur Windows 11 avec Docker Desktop et support vocal complet.
+Ce guide vous permet d'installer et exécuter JARVYS_AI sur Windows 11 avec
+Docker Desktop et support vocal complet.
 
 ## 🚀 Installation Rapide
 
 ### 1. Prérequis Windows 11
 
 Assurez-vous d'avoir :
+
 - ✅ Windows 11 (version 21H2 ou plus récente)
 - ✅ WSL 2 activé (`wsl --install`)
 - ✅ Docker Desktop pour Windows (avec WSL 2 backend)
@@ -185,19 +187,21 @@ docker stats jarvys_ai_main
 
 ```powershell
 # Sauvegarder les données
-docker run --rm -v jarvys_data:/data -v ${PWD}:/backup alpine tar czf /backup/jarvys-backup.tar.gz /data
+docker run --rm -v jarvys_data:/data -v ${PWD}:/backup alpine \
+  tar czf /backup/jarvys-backup.tar.gz /data
 
 # Restaurer les données
-docker run --rm -v jarvys_data:/data -v ${PWD}:/backup alpine tar xzf /backup/jarvys-backup.tar.gz -C /
+docker run --rm -v jarvys_data:/data -v ${PWD}:/backup alpine \
+  tar xzf /backup/jarvys-backup.tar.gz -C /
 ```
 
 ## 🌐 Accès Interfaces
 
 Une fois démarré, JARVYS_AI est accessible via :
 
-- 🖥️ **API principale** : http://localhost:8000
-- 📊 **Dashboard** : http://localhost:8001
-- 📈 **Monitoring** : http://localhost:9090 (Prometheus)
+- 🖥️ **API principale** : <http://localhost:8000>
+- 📊 **Dashboard** : <http://localhost:8001>
+- 📈 **Monitoring** : <http://localhost:9090> (Prometheus)
 - 💾 **Base de données** : localhost:5432 (PostgreSQL)
 - 🔄 **Cache** : localhost:6379 (Redis)
 
@@ -323,8 +327,11 @@ docker-compose -f docker-compose.windows.yml up -d
 
 ---
 
-**🎉 Félicitations !** JARVYS_AI est maintenant opérationnel sur votre Windows 11.
+**🎉 Félicitations !** JARVYS_AI est maintenant opérationnel sur votre
+Windows 11.
 
-Pour obtenir de l'aide : `docker exec -it jarvys_ai_main python -m jarvys_ai.main --help`
+Pour obtenir de l'aide :
+`docker exec -it jarvys_ai_main python -m jarvys_ai.main --help`
 
-**🤖 Dites simplement** : *"Hey JARVYS, aide-moi"* et votre assistant numérique répondra !
+**🤖 Dites simplement** : *"Hey JARVYS, aide-moi"* et votre assistant
+numérique répondra !

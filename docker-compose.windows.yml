@@ -1,5 +1,5 @@
 # Docker Compose pour JARVYS_AI - Windows 11 Support
-version: '3.8'
+version: "3.8"
 
 services:
   jarvys_ai:
@@ -8,7 +8,7 @@ services:
       dockerfile: Dockerfile.jarvys_ai
     container_name: jarvys_ai_main
     restart: unless-stopped
-    
+
     # Variables d'environnement
     environment:
       - ENVIRONMENT=local
@@ -21,36 +21,36 @@ services:
       # Support audio Windows
       - PULSE_RUNTIME_PATH=/tmp/pulse
       - DISPLAY=${DISPLAY:-:0}
-    
+
     # Ports exposés
     ports:
-      - "8000:8000"  # API principale
-      - "8001:8001"  # Interface web
-      - "8080:8080"  # Monitoring
-    
+      - "8000:8000" # API principale
+      - "8001:8001" # Interface web
+      - "8080:8080" # Monitoring
+
     # Volumes pour persistence et support Windows
     volumes:
       # Données persistence
       - jarvys_data:/app/data
       - jarvys_logs:/app/logs
       - jarvys_cache:/app/cache
-      
+
       # Support audio Windows/WSL
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
       - /run/user/1000/pulse:/tmp/pulse:ro
-      
+
       # Support fichiers locaux (mount point Windows)
       - ${USERPROFILE}/Documents:/app/windows_documents:ro
       - ${USERPROFILE}/Downloads:/app/windows_downloads:ro
       - ${USERPROFILE}/Desktop:/app/windows_desktop:ro
-      
+
       # Configuration locale
       - ./config:/app/config:ro
-    
+
     # Réseau
     networks:
       - jarvys_network
-    
+
     # Health check
     healthcheck:
       test: ["/app/healthcheck.sh"]
@@ -58,17 +58,17 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-    
+
     # Ressources
     deploy:
       resources:
         limits:
           memory: 2G
-          cpus: '1.0'
+          cpus: "1.0"
         reservations:
           memory: 512M
-          cpus: '0.5'
-    
+          cpus: "0.5"
+
     # Dépendances optionnelles
     depends_on:
       - redis_cache
@@ -130,8 +130,8 @@ services:
     container_name: jarvys_prometheus
     restart: unless-stopped
     command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus

@@ -6,13 +6,13 @@ on:
     branches: [main]
   schedule:
     # Exécution autonome toutes les heures
-    - cron: '0 * * * *'
+    - cron: "0 * * * *"
   workflow_dispatch:
     inputs:
       mode:
         description: "Mode d'exécution"
         required: true
-        default: 'autonomous'
+        default: "autonomous"
         type: choice
         options:
           - autonomous
@@ -103,8 +103,8 @@ jobs:
       - name: 🐍 Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-          cache: 'pip'
+          python-version: "3.12"
+          cache: "pip"
 
       - name: 📦 Install Poetry
         run: |
@@ -159,8 +159,8 @@ jobs:
       - name: 🐍 Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-          cache: 'pip'
+          python-version: "3.12"
+          cache: "pip"
 
       - name: 📦 Install Dependencies
         run: |
