@@ -2,7 +2,7 @@ name: 🌩️ JARVYS_DEV Cloud Deployment
 
 on:
   push:
-    branches: [ main, dev ]
+    branches: [ main ]
   schedule:
     # Exécution autonome toutes les heures
     - cron: '0 * * * *'

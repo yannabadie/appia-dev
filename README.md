@@ -24,14 +24,20 @@
 
 ## 🚀 Démarrage Rapide
 
-### 1. Dashboard Auto-hébergé (Supabase)
+### 1. Dashboard Auto-hébergé (Supabase) 🔐
 
-Le dashboard est automatiquement déployé sur Supabase Edge Functions :
+Le dashboard est automatiquement déployé sur Supabase Edge Functions avec authentification :
 
 ```bash
-# Accédez au dashboard
-# URL fournie après déploiement via GitHub Actions
-https://[votre-projet].supabase.co/functions/v1/dashboard
+# URL du dashboard JARVYS
+https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard/
+
+# Accès avec authentification (Header Authorization)
+curl -H "Authorization: Bearer YOUR_SUPABASE_KEY" \
+  https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard/
+
+# Ou accès browser avec token
+https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard/?token=YOUR_SUPABASE_KEY
 ```
 
 **Fonctionnalités** :
