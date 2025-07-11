@@ -1,105 +1,42 @@
 ---
-name: Wiki Documentation Sync
+name: Wiki Sync
 
 on:
   push:
     branches:
       - main
-    paths:
-      - 'src/**'
-      - 'scripts/generate_wiki_docs.py'
-      - 'pyproject.toml'
-      - 'poetry.lock'
-  workflow_dispatch: {}
+      - dev
 
 jobs:
-  update-wiki:
+  deploy:
     runs-on: ubuntu-latest
-    env:
-      GH_TOKEN: ${{ secrets.GH_TOKEN }}
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-      
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
           cache: 'pip'
-          
-      - name: Install Poetry
+
+      - name: Install docs dependencies
         run: |
-          pip install poetry
-          poetry config virtualenvs.create true
-          poetry config virtualenvs.in-project true
-          
-      - name: Cache Poetry virtualenv
-        uses: actions/cache@v4
-        id: cache-poetry
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            venv-${{ runner.os }}-
-          
-      - name: Install dependencies
+          pip install mkdocs-material mkdocstrings[python]
+
+      - name: Build site
+        run: mkdocs build -d site
+
+      - name: Publish to Wiki
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          # Vérifier et corriger le lock file si nécessaire
-          if ! poetry lock --check; then
-            echo "⚠️ Lock file obsolète, régénération..."
-            poetry lock
-          fi
-          poetry install --with dev --no-interaction --no-interaction
-          
-      - name: Validate installation
-        run: |
-          poetry run python -c "import jarvys_dev; print('✅ Module jarvys_dev importé avec succès')"
-          
-      - name: Generate Wiki Documentation
-        run: |
-          poetry run python scripts/generate_wiki_docs.py
-          
-      - name: Checkout Wiki Repository
-        run: |
-          git config --global user.name 'JARVYS_DEV Auto-Doc'
+          git config --global user.name 'github-actions'
           git config --global user.email 'github-actions@github.com'
           REPO="${{ github.repository }}"
           git clone \
             https://x-access-token:${GH_TOKEN}@github.com/${REPO}.wiki.git \
-            wiki-repo || {
-            echo "⚠️ Wiki repository not found, creating..."
-            # Le wiki sera créé automatiquement lors du premier push
-            mkdir -p wiki-repo
-            cd wiki-repo
-            git init
-            git remote add origin https://x-access-token:${GH_TOKEN}@github.com/${REPO}.wiki.git
-          }
-          
-      - name: Update Wiki Pages
-        run: |
-          # Copier les fichiers générés vers le wiki
-          if [ -d "docs_generated" ]; then
-            cp -r docs_generated/* wiki-repo/ 2>/dev/null || true
-          fi
-          
-          cd wiki-repo
-          
-          # Ajouter les modifications
+            wiki
+          rsync -a --delete site/ wiki/
+          cd wiki
           git add .
-          
-          # Vérifier s'il y a des changements
-          if git diff --staged --quiet; then
-            echo "ℹ️ Aucun changement détecté dans la documentation"
-          else
-            git commit -m "📚 Auto-update documentation - $(date '+%Y-%m-%d %H:%M')"
-            git push origin main || git push origin master || {
-              echo "⚠️ Première publication du wiki"
-              git push --set-upstream origin main
-            }
-            echo "✅ Documentation mise à jour avec succès"
-          fi
+          git commit -m 'Update wiki' || echo 'no changes'
+          git push
