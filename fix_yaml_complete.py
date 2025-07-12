@@ -54,13 +54,13 @@ jobs:
       - name: 🔐 Test Authentication
         run: |
           echo "🔐 Test de l'authentification Supabase..."
-          if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
-            echo "❌ SUPABASE_ACCESS_TOKEN manquant"
+          if [ -z "$SUPABASE_SERVICE_ROLE" ]; then
+            echo "❌ SUPABASE_SERVICE_ROLE manquant"
             exit 1
           fi
           echo "✅ Token Supabase présent"
         env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
 
       - name: 🚀 Deploy Dashboard Function
         run: |
@@ -80,7 +80,7 @@ jobs:
           supabase functions deploy jarvys-dashboard --project-ref ${{ secrets.SUPABASE_PROJECT_ID }}
           echo "✅ Dashboard déployé avec succès"
         env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
 
       - name: 🧪 Test Dashboard Deployment
         run: |

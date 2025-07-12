@@ -13,8 +13,8 @@ if ! command -v supabase &> /dev/null; then
 fi
 
 # Vérification de la connexion Supabase
-if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
-    echo "⚠️  Variable SUPABASE_ACCESS_TOKEN non définie"
+if [ -z "$SUPABASE_SERVICE_ROLE" ]; then
+    echo "⚠️  Variable SUPABASE_SERVICE_ROLE non définie"
     echo "🔑 Connexion manuelle requise: supabase login"
 fi
 

@@ -21,8 +21,8 @@ SPB_EDGE_FUNCTIONS=dHx8o@3?G4!QT86C
    Name: SPB_EDGE_FUNCTIONS
    Value: dHx8o@3?G4!QT86C
    
-   Name: SUPABASE_ACCESS_TOKEN
-   Value: [Votre token Supabase]
+   Name: SUPABASE_SERVICE_ROLE
+   Value: [Votre service role token Supabase]
    
    Name: SUPABASE_PROJECT_REF
    Value: [Votre project ref Supabase]

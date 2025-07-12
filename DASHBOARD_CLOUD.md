@@ -70,7 +70,7 @@ Le déploiement est automatisé via GitHub Actions lors des push sur la branche 
 Dans les paramètres de votre repository GitHub, ajoutez :
 
 ```
-SUPABASE_ACCESS_TOKEN=your-supabase-token
+SUPABASE_SERVICE_ROLE=your-service-role-token
 SUPABASE_PROJECT_ID=your-project-id  
 SPB_EDGE_FUNCTIONS=dHx8o@3?G4!QT86C
 ```
