@@ -40,7 +40,7 @@ class PerformanceTest:
         for i in range(iterations):
             try:
                 start_time = time.perf_counter()
-                start_memory = psutil.Process().memory_info().rss / 1024 / 1024 if psutil else 0  # MB
+                start_memory = self.get_memory_mb()
                 
                 # Run test with timeout
                 with ThreadPoolExecutor() as executor:
