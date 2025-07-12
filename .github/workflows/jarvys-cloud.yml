@@ -1,7 +1,6 @@
----
 name: 🌩️ JARVYS_DEV Cloud Deployment
 
-on:
+"on":
   push:
     branches: [main]
   schedule:

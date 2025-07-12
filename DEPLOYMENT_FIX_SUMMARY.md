@@ -54,9 +54,9 @@ enabled = true
 
 **Secrets disponibles et fonctionnels :**
 ```
-SUPABASE_ACCESS_TOKEN ✅
+SUPABASE_SERVICE_ROLE ✅
 SUPABASE_PROJECT_ID ✅
-SUPABASE_URL ✅  
+SUPABASE_URL ✅
 SUPABASE_KEY ✅
 OPENAI_API_KEY ✅
 GEMINI_API_KEY ✅
