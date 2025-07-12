@@ -1,7 +1,6 @@
----
-name: Simple Test
+name: Simple Tests
 
-"on":
+on:
   push:
     branches: ["main"]
   pull_request:
@@ -9,36 +8,46 @@ name: Simple Test
   workflow_dispatch: {}
 
 jobs:
-  simple-test:
+  test:
     runs-on: ubuntu-latest
-    name: Quick validation tests
+    name: Run Simple Tests
 
     steps:
-      - name: Checkout code
+      - name: 📦 Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: 🐍 Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: "pip"
 
-      - name: Install Poetry
+      - name: 📚 Install Poetry
         run: |
           pip install poetry
           poetry config virtualenvs.create true
           poetry config virtualenvs.in-project true
 
-      - name: Install dependencies
-        run: |
-          poetry install --with dev --no-interaction
+      - name: 📦 Cache Poetry dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            .venv
+            poetry.lock
+            pyproject.toml
+          key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-poetry-
 
-      - name: Quick syntax check
+      - name: 📦 Install dependencies
         run: |
-          poetry run python -c "import jarvys_dev; print('✅ Module loads successfully')"
+          poetry install --with dev
 
-      - name: Basic validation
+      - name: 🧪 Run basic tests
         run: |
-          echo "✅ Repository structure validated"
-          echo "✅ Python environment setup completed"
-          echo "✅ Dependencies installed successfully"
+          # Run only non-performance tests to keep it simple
+          PYTHONPATH=src poetry run pytest -q --ignore=tests/test_performance.py
+
+      - name: ✅ Simple test completion
+        run: |
+          echo "✅ Simple tests completed successfully"
