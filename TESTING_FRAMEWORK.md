@@ -105,7 +105,7 @@ export GEMINI_API_KEY="AIza..."
 export ANTHROPIC_API_KEY="sk-ant-..."
 export GCP_SA_JSON='{"type": "service_account"...}'
 export SUPABASE_PROJECT_REF="xxx"
-export SUPABASE_ACCESS_TOKEN="sbp_..."
+export SUPABASE_SERVICE_ROLE="eyJ..."
 ```
 
 ### Test Configuration

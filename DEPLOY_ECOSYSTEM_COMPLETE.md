@@ -43,9 +43,8 @@ curl https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard/api/
 - `OPENAI_API_KEY`
 - `SUPABASE_URL`
 - `SUPABASE_KEY`
-- `SUPABASE_ACCESS_TOKEN`
-- `SUPABASE_PROJECT_ID`
 - `SUPABASE_SERVICE_ROLE`
+- `SUPABASE_PROJECT_ID`
 
 ### 3. Cloud Run (Fallback)
 

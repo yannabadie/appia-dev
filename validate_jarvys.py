@@ -134,7 +134,7 @@ class JarvysValidator:
             content = f.read()
 
         required_vars = [
-            "SUPABASE_ACCESS_TOKEN",
+            "SUPABASE_SERVICE_ROLE",
             "SUPABASE_PROJECT_ID",
             "SPB_EDGE_FUNCTIONS",
         ]

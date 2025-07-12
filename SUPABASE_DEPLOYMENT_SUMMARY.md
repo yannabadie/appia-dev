@@ -48,7 +48,7 @@ The GitHub Actions workflow will automatically deploy when you push changes to:
 ```
 
 **Required Environment Variables:**
-- `SUPABASE_ACCESS_TOKEN` - Your Supabase access token
+- `SUPABASE_SERVICE_ROLE` - Your Supabase service role token
 - `SUPABASE_PROJECT_ID` - Your Supabase project ID
 - `SPB_EDGE_FUNCTIONS` - Edge function secret (optional, will use default)
 
