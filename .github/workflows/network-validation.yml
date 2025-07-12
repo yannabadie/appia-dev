@@ -1,0 +1,171 @@
+---
+name: 🌐 Network Connectivity Validation
+
+# This workflow validates network connectivity to essential GitHub and Copilot domains
+# IMPORTANT: This must run BEFORE any firewall configuration is applied
+"on":
+  workflow_dispatch: {}
+  workflow_call:
+    outputs:
+      validation_status:
+        description: "Network validation status"
+        value: ${{ jobs.validate-connectivity.outputs.status }}
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/**'
+  pull_request:
+    branches: [main]
+    paths:
+      - '.github/workflows/**'
+
+env:
+  # Essential domains for GitHub Actions and Copilot functionality
+  REQUIRED_DOMAINS: "github.com api.github.com copilot-proxy.githubusercontent.com uploads.github.com objects.githubusercontent.com"
+
+jobs:
+  validate-connectivity:
+    name: 🔍 Validate Essential Domain Connectivity
+    runs-on: ubuntu-latest
+    outputs:
+      status: ${{ steps.validation.outputs.status }}
+    
+    steps:
+      - name: 📋 Pre-flight Domain Connectivity Check
+        id: validation
+        run: |
+          echo "🌐 Testing connectivity to essential GitHub/Copilot domains..."
+          echo "⚠️  CRITICAL: This test must pass before any firewall configuration"
+          
+          DOMAINS="${{ env.REQUIRED_DOMAINS }}"
+          FAILED_DOMAINS=""
+          SUCCESS_COUNT=0
+          TOTAL_COUNT=0
+          
+          for domain in $DOMAINS; do
+            TOTAL_COUNT=$((TOTAL_COUNT + 1))
+            echo "🔍 Testing $domain..."
+            
+            # Test HTTP connectivity
+            if curl -Is --connect-timeout 10 --max-time 30 "https://$domain" >/dev/null 2>&1; then
+              echo "✅ $domain - HTTP connection successful"
+              SUCCESS_COUNT=$((SUCCESS_COUNT + 1))
+            else
+              echo "❌ $domain - HTTP connection failed"
+              FAILED_DOMAINS="$FAILED_DOMAINS $domain"
+            fi
+            
+            # Test DNS resolution
+            if nslookup "$domain" >/dev/null 2>&1; then
+              echo "✅ $domain - DNS resolution successful"
+            else
+              echo "⚠️  $domain - DNS resolution failed"
+            fi
+          done
+          
+          echo ""
+          echo "📊 Connection Summary:"
+          echo "Success: $SUCCESS_COUNT/$TOTAL_COUNT domains"
+          
+          if [ $SUCCESS_COUNT -eq $TOTAL_COUNT ]; then
+            echo "🎉 All essential domains are accessible"
+            echo "✅ Safe to proceed with firewall configuration"
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "💥 Failed domains:$FAILED_DOMAINS"
+            echo "🚫 DO NOT proceed with firewall configuration"
+            echo "status=failure" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+      - name: 🐙 Test GitHub API Connectivity
+        run: |
+          echo "🐙 Testing GitHub API functionality..."
+          
+          # Test GitHub API without authentication (rate limited but should work)
+          if curl -f "https://api.github.com/rate_limit" >/dev/null 2>&1; then
+            echo "✅ GitHub API is accessible"
+          else
+            echo "❌ GitHub API is not accessible"
+            exit 1
+          fi
+
+      - name: 🤖 Test Copilot Proxy Connectivity
+        run: |
+          echo "🤖 Testing Copilot proxy connectivity..."
+          
+          # Test Copilot proxy endpoint (this may return auth errors but connection should work)
+          if curl -Is --connect-timeout 10 "https://copilot-proxy.githubusercontent.com" >/dev/null 2>&1; then
+            echo "✅ Copilot proxy is accessible"
+          else
+            echo "❌ Copilot proxy is not accessible"
+            exit 1
+          fi
+
+      - name: 📊 Generate Connectivity Report
+        run: |
+          echo "📊 Network Connectivity Report" > connectivity-report.md
+          echo "=============================" >> connectivity-report.md
+          echo "" >> connectivity-report.md
+          echo "**Timestamp:** $(date -u)" >> connectivity-report.md
+          echo "**Workflow:** ${{ github.workflow }}" >> connectivity-report.md
+          echo "**Run ID:** ${{ github.run_id }}" >> connectivity-report.md
+          echo "" >> connectivity-report.md
+          echo "## Tested Domains" >> connectivity-report.md
+          echo "" >> connectivity-report.md
+          
+          for domain in ${{ env.REQUIRED_DOMAINS }}; do
+            echo "- ✅ $domain" >> connectivity-report.md
+          done
+          
+          echo "" >> connectivity-report.md
+          echo "## Firewall Configuration Guidelines" >> connectivity-report.md
+          echo "" >> connectivity-report.md
+          echo "### Required Allow Rules" >> connectivity-report.md
+          echo "\`\`\`bash" >> connectivity-report.md
+          echo "# Allow essential GitHub domains" >> connectivity-report.md
+          
+          for domain in ${{ env.REQUIRED_DOMAINS }}; do
+            echo "sudo ufw allow out to $domain" >> connectivity-report.md
+          done
+          
+          echo "" >> connectivity-report.md
+          echo "# Allow HTTPS traffic" >> connectivity-report.md
+          echo "sudo ufw allow out 443" >> connectivity-report.md
+          echo "sudo ufw allow out 80" >> connectivity-report.md
+          echo "\`\`\`" >> connectivity-report.md
+          
+          echo "" >> connectivity-report.md
+          echo "⚠️  **IMPORTANT:** Apply these allow rules BEFORE enabling firewall restrictions" >> connectivity-report.md
+          
+          cat connectivity-report.md
+
+      - name: 📤 Upload Connectivity Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: network-connectivity-report
+          path: connectivity-report.md
+          retention-days: 30
+
+  post-validation:
+    name: 📋 Post-Validation Actions  
+    runs-on: ubuntu-latest
+    needs: validate-connectivity
+    if: always()
+    
+    steps:
+      - name: 📊 Validation Results
+        run: |
+          if [ "${{ needs.validate-connectivity.outputs.status }}" = "success" ]; then
+            echo "🎉 Network validation passed successfully!"
+            echo "✅ All essential domains are accessible"
+            echo "🔒 Firewall configuration can proceed safely"
+          else
+            echo "💥 Network validation failed!"
+            echo "🚫 DO NOT proceed with firewall configuration"
+            echo "🔍 Check connectivity report for details"
+            exit 1
+          fi
+
+      # NOTE: This workflow intentionally does NOT include firewall configuration
+      # as it must test connectivity BEFORE any firewall restrictions are applied
