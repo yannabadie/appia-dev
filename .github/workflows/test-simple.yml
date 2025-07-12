@@ -1,7 +1,7 @@
 ---
 name: Simple Tests
 
-on:
+"on":
   push:
     branches: ["main"]
   pull_request:
@@ -51,3 +51,26 @@ jobs:
       - name: ✅ Simple test completion
         run: |
           echo "✅ Simple tests completed successfully"
+
+      # Firewall configuration - MUST be placed after all Copilot and environment setup
+      - name: 🔒 Configure Firewall (Post-Setup)
+        run: |
+          echo "🔒 Configuring firewall with essential GitHub/Copilot allow rules..."
+
+          # Allow essential GitHub domains for Copilot and Actions
+          echo "Adding allow rules for GitHub/Copilot domains..."
+
+          # GitHub core domains
+          sudo ufw allow out to github.com
+          sudo ufw allow out to api.github.com
+          sudo ufw allow out to copilot-proxy.githubusercontent.com
+          sudo ufw allow out to uploads.github.com
+          sudo ufw allow out to objects.githubusercontent.com
+
+          # Essential ports for HTTPS/HTTP
+          sudo ufw allow out 443
+          sudo ufw allow out 80
+          sudo ufw allow out 53  # DNS
+
+          echo "✅ Firewall allow rules configured for GitHub/Copilot connectivity"
+          echo "⚠️  Firewall not activated in CI to avoid workflow disruption"
