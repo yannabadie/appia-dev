@@ -70,11 +70,11 @@ verify_structure() {
 authenticate() {
     print_status "Authenticating with Supabase..."
     
-    if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
-        print_warning "SUPABASE_ACCESS_TOKEN not set as environment variable"
-        echo "Please enter your Supabase access token:"
-        read -s SUPABASE_ACCESS_TOKEN
-        export SUPABASE_ACCESS_TOKEN
+    if [ -z "$SUPABASE_SERVICE_ROLE" ]; then
+        print_warning "SUPABASE_SERVICE_ROLE not set as environment variable"
+        echo "Please enter your Supabase service role token:"
+        read -s SUPABASE_SERVICE_ROLE
+        export SUPABASE_SERVICE_ROLE
     fi
     
     if [ -z "$SUPABASE_PROJECT_ID" ]; then
@@ -84,7 +84,7 @@ authenticate() {
         export SUPABASE_PROJECT_ID
     fi
     
-    echo "$SUPABASE_ACCESS_TOKEN" | supabase auth login --token -
+    echo "$SUPABASE_SERVICE_ROLE" | supabase auth login --token -
     print_success "Authentication successful"
 }
 
