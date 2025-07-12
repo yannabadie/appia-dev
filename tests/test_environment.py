@@ -48,7 +48,7 @@ class TestEnvironmentSetup:
             "ANTHROPIC_API_KEY",
             "GCP_SA_JSON",
             "SUPABASE_PROJECT_REF",
-            "SUPABASE_ACCESS_TOKEN"
+            "SUPABASE_SERVICE_ROLE"
         ]
         
         available_vars = []

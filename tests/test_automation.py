@@ -233,7 +233,7 @@ class TestDeploymentAutomation:
             
             # Should use deployment secrets
             deployment_secrets = [
-                "SUPABASE_ACCESS_TOKEN",
+                "SUPABASE_SERVICE_ROLE",
                 "GCP_SA_JSON", 
                 "SUPABASE_PROJECT_REF"
             ]

@@ -57,7 +57,7 @@ GITHUB_TOKEN: "ghp_..."
 SUPABASE_URL: "https://xxx.supabase.co"
 SUPABASE_KEY: "eyJ..."
 SUPABASE_PROJECT_REF: "xxx"
-SUPABASE_ACCESS_TOKEN: "sbp_..."
+SUPABASE_SERVICE_ROLE: "eyJ..."
 GEMINI_API_KEY: "AIza..."
 GCP_SA_JSON: '{"type": "service_account"...}'
 ```
