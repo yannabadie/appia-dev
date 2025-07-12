@@ -1,7 +1,7 @@
 ---
 name: 🚀 Early Launch Issues Setup Automation
 
-on:
+"on":
   workflow_dispatch:
     inputs:
       mode:
@@ -31,7 +31,7 @@ jobs:
     name: 🌩️ Trigger JARVYS Autonomous Mode
     runs-on: ubuntu-latest
     if: github.event.inputs.mode == 'process_backlog' || github.event_name == 'schedule'
-    
+
     steps:
       - name: 🔄 Checkout Repository
         uses: actions/checkout@v4
@@ -55,8 +55,32 @@ jobs:
 
       - name: 📝 Log Autonomous Trigger
         run: |
+          echo "📝 Log Autonomous Trigger"
           echo "🚀 JARVYS Autonomous mode triggered at $(date)"
           echo "Next scheduled run: 30 minutes"
+
+      # Firewall configuration - MUST be placed after all Copilot and environment setup
+      - name: 🔒 Configure Firewall (Post-Setup)
+        run: |
+          echo "🔒 Configuring firewall with essential GitHub/Copilot allow rules..."
+
+          # Allow essential GitHub domains for Copilot and Actions
+          echo "Adding allow rules for GitHub/Copilot domains..."
+
+          # GitHub core domains
+          sudo ufw allow out to github.com
+          sudo ufw allow out to api.github.com
+          sudo ufw allow out to copilot-proxy.githubusercontent.com
+          sudo ufw allow out to uploads.github.com
+          sudo ufw allow out to objects.githubusercontent.com
+
+          # Essential ports for HTTPS/HTTP
+          sudo ufw allow out 443
+          sudo ufw allow out 80
+          sudo ufw allow out 53  # DNS
+
+          echo "✅ Firewall allow rules configured for GitHub/Copilot connectivity"
+          echo "⚠️  Firewall not activated in CI to avoid workflow disruption"
 
   process-issue-backlog:
     name: 📋 Process Issue Backlog
@@ -100,6 +124,29 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
 
+      # Firewall configuration - MUST be placed after all Copilot and environment setup
+      - name: 🔒 Configure Firewall (Post-Setup)
+        run: |
+          echo "🔒 Configuring firewall with essential GitHub/Copilot allow rules..."
+
+          # Allow essential GitHub domains for Copilot and Actions
+          echo "Adding allow rules for GitHub/Copilot domains..."
+
+          # GitHub core domains
+          sudo ufw allow out to github.com
+          sudo ufw allow out to api.github.com
+          sudo ufw allow out to copilot-proxy.githubusercontent.com
+          sudo ufw allow out to uploads.github.com
+          sudo ufw allow out to objects.githubusercontent.com
+
+          # Essential ports for HTTPS/HTTP
+          sudo ufw allow out 443
+          sudo ufw allow out 80
+          sudo ufw allow out 53  # DNS
+
+          echo "✅ Firewall allow rules configured for GitHub/Copilot connectivity"
+          echo "⚠️  Firewall not activated in CI to avoid workflow disruption"
+
   monitor-early-launch:
     name: 📈 Monitor Early Launch Status
     runs-on: ubuntu-latest
@@ -139,6 +186,29 @@ jobs:
           echo "✅ 30-minute cycle active"
           echo "📊 Dashboard URL: https://kzcswopokvknxmxczilu.supabase.co"
 
+      # Firewall configuration - MUST be placed after all Copilot and environment setup
+      - name: 🔒 Configure Firewall (Post-Setup)
+        run: |
+          echo "🔒 Configuring firewall with essential GitHub/Copilot allow rules..."
+
+          # Allow essential GitHub domains for Copilot and Actions
+          echo "Adding allow rules for GitHub/Copilot domains..."
+
+          # GitHub core domains
+          sudo ufw allow out to github.com
+          sudo ufw allow out to api.github.com
+          sudo ufw allow out to copilot-proxy.githubusercontent.com
+          sudo ufw allow out to uploads.github.com
+          sudo ufw allow out to objects.githubusercontent.com
+
+          # Essential ports for HTTPS/HTTP
+          sudo ufw allow out 443
+          sudo ufw allow out 80
+          sudo ufw allow out 53  # DNS
+
+          echo "✅ Firewall allow rules configured for GitHub/Copilot connectivity"
+          echo "⚠️  Firewall not activated in CI to avoid workflow disruption"
+
   notification:
     name: 📬 Early Launch Notifications
     runs-on: ubuntu-latest
@@ -153,7 +223,7 @@ jobs:
           echo "Process Backlog: ${{ needs.process-issue-backlog.result }}"
           echo "Monitor Status: ${{ needs.monitor-early-launch.result }}"
           echo "Time: $(date)"
-          
+
           if [ "${{ needs.process-issue-backlog.result }}" = "success" ]; then
             echo "🎉 Issue processing successful!"
           else

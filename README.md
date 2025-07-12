@@ -73,6 +73,75 @@ gh workflow run "🌩️ JARVYS_DEV Cloud Deployment" \
   --field mode=autonomous
 ```
 
+## 🔒 Firewall et Sécurité Réseau
+
+### Configuration Firewall pour GitHub Actions et Copilot
+
+**IMPORTANT:** Tous les workflows de ce repository incluent des étapes de configuration firewall automatiques pour maintenir la connectivité avec les services essentiels GitHub et Copilot.
+
+#### Domaines Essentiels Autorisés
+
+Les domaines suivants **DOIVENT** être autorisés avant toute activation de firewall :
+
+```bash
+# Domaines GitHub essentiels
+github.com                     # Repository et API principale
+api.github.com                 # API GitHub Actions
+copilot-proxy.githubusercontent.com  # Service Copilot
+uploads.github.com             # Upload d'artefacts
+objects.githubusercontent.com   # Objets et contenus
+
+# Ports essentiels
+443/tcp                        # HTTPS
+80/tcp                         # HTTP (redirections)
+53/udp                         # DNS
+```
+
+#### Configuration UFW Recommandée
+
+```bash
+# Étapes à exécuter AVANT activation du firewall
+sudo ufw allow out to github.com
+sudo ufw allow out to api.github.com
+sudo ufw allow out to copilot-proxy.githubusercontent.com
+sudo ufw allow out to uploads.github.com
+sudo ufw allow out to objects.githubusercontent.com
+
+# Ports essentiels
+sudo ufw allow out 443
+sudo ufw allow out 80
+sudo ufw allow out 53
+
+# Activer le firewall seulement après les règles d'autorisation
+sudo ufw --force enable
+```
+
+#### Validation de Connectivité
+
+Un workflow dédié `network-validation.yml` teste la connectivité vers tous les domaines essentiels :
+
+- **Avant déploiement** : Valide que tous les domaines sont accessibles
+- **Test automatique** : Vérifie HTTP/HTTPS et résolution DNS
+- **Rapport détaillé** : Génère un rapport de connectivité avec recommandations firewall
+
+#### Standards Repository
+
+1. **Placement des configurations firewall** : Toujours à la FIN de chaque job de workflow, après toutes les étapes Copilot et d'environnement
+2. **Règles d'autorisation** : Explicites pour chaque domaine GitHub/Copilot requis
+3. **Tests préalables** : Validation de connectivité obligatoire avant activation firewall
+4. **Documentation** : Commentaires dans workflows expliquant le placement et timing
+
+#### Dépannage Connectivité
+
+Si un workflow échoue avec des erreurs réseau :
+
+1. Vérifier que les domaines essentiels sont accessibles
+2. Exécuter le workflow `network-validation.yml` 
+3. Contrôler les règles firewall actives
+4. Consulter les logs de connectivité dans les artefacts
+
+## 🤖 Copilot et GitHub Actions
+
 ## 🛠️ Développement Local (JARVYS_AI)
 
 Pour développer et tester JARVYS_AI en local :
