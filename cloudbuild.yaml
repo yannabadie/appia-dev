@@ -17,5 +17,14 @@ steps:
       - "--region"
       - "europe-west1"
       - "--allow-unauthenticated"
+  - name: "gcr.io/cloud-builders/curl"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        # Get the service URL and perform health check
+        SERVICE_URL=$$(gcloud run services describe jarvys-mcp --region=europe-west1 --format="value(status.url)")
+        echo "Performing health check on $$SERVICE_URL/health"
+        curl -f -s --max-time 30 "$$SERVICE_URL/health" || echo "Health check failed or /health endpoint not available"
 images:
   - "gcr.io/$PROJECT_ID/jarvys-mcp"

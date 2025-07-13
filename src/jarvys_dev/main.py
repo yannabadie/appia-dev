@@ -8,6 +8,20 @@ import os
 from .tools.github_tools import github_create_issue
 from .tools.memory import upsert_embedding
 
+# FastAPI app export
+try:
+    # Try different import paths
+    import os
+    import sys
+
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
+    from app.main import app
+except ImportError:
+    try:
+        from app.main import app
+    except ImportError:
+        app = None
+
 # ---------------------------------------------------------------------------
 # Inter-agent communication
 
@@ -84,4 +98,5 @@ __all__ = [
     "send_to_jarvys_ai",
     "run_once",
     "run_loop",
+    "app",
 ]
