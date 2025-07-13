@@ -30,9 +30,7 @@ class TestJarvysDevAPI:
                 if app is not None:
                     from fastapi import FastAPI
 
-                    assert isinstance(
-                        app, FastAPI
-                    ), "Should be a FastAPI instance"
+                    assert isinstance(app, FastAPI), "Should be a FastAPI instance"
                     app_found = True
                     print(f"Found FastAPI app at {module_path}.{app_name}")
                     break
@@ -241,9 +239,7 @@ class TestSupabaseAPI:
             client = create_client(url, key)
 
             # Test basic API call
-            response = (
-                client.table("test_table").select("*").limit(1).execute()
-            )
+            response = client.table("test_table").select("*").limit(1).execute()
 
             # Should get a response (even if table doesn't exist)
             assert hasattr(
@@ -313,9 +309,7 @@ class TestSupabaseAPI:
             # Dashboard may or may not be deployed
             if response.status_code == 200:
                 print("Dashboard API is accessible")
-                assert response.headers.get(
-                    "content-type"
-                ), "Should have content-type"
+                assert response.headers.get("content-type"), "Should have content-type"
             elif response.status_code == 404:
                 print("Info: Dashboard not deployed yet")
             else:
@@ -494,7 +488,9 @@ class TestExternalAPIIntegration:
 
         try:
             # Test with HTTP request to avoid import issues
-            url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
+            url = (
+                f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
+            )
             response = requests.get(url, timeout=10)
 
             assert (
@@ -559,16 +555,14 @@ class TestAPIErrorHandling:
         try:
             from jarvys_dev.multi_model_router import MultiModelRouter
 
-            with patch.dict(
-                os.environ, {"OPENAI_API_KEY": "sk-test123"}, clear=True
-            ):
+            with patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test123"}, clear=True):
                 router = MultiModelRouter()
 
                 # Mock rate limit response
                 with patch("openai.OpenAI") as mock_openai:
                     mock_client = Mock()
-                    mock_client.chat.completions.create.side_effect = (
-                        Exception("Rate limit exceeded")
+                    mock_client.chat.completions.create.side_effect = Exception(
+                        "Rate limit exceeded"
                     )
                     mock_openai.return_value = mock_client
 
@@ -589,9 +583,7 @@ class TestAPIErrorHandling:
             from jarvys_dev.multi_model_router import MultiModelRouter
 
             # Test with invalid API key
-            with patch.dict(
-                os.environ, {"OPENAI_API_KEY": "invalid-key"}, clear=True
-            ):
+            with patch.dict(os.environ, {"OPENAI_API_KEY": "invalid-key"}, clear=True):
                 router = MultiModelRouter()
 
                 # Should handle auth errors gracefully
@@ -616,9 +608,7 @@ class TestAPIErrorHandling:
 
                 # Should handle network errors gracefully
                 try:
-                    _ = requests.get(
-                        "https://api.openai.com/v1/models", timeout=1
-                    )
+                    _ = requests.get("https://api.openai.com/v1/models", timeout=1)
                 except requests.exceptions.ConnectionError:
                     # Expected - connection error should be caught
                     pass
@@ -650,9 +640,7 @@ class TestAPIPerformance:
             response_time = end_time - start_time
 
             # Should respond quickly (less than 5 seconds for local API)
-            assert (
-                response_time < 5.0
-            ), f"API response too slow: {response_time}s"
+            assert response_time < 5.0, f"API response too slow: {response_time}s"
 
             print(f"API response time: {response_time:.3f}s")
 

@@ -18,9 +18,7 @@ class TestWorkflowStructure:
 
         # Should have some workflow files
         workflow_files = list(workflows_path.glob("*.yml"))
-        assert (
-            len(workflow_files) > 0
-        ), "Should have at least one workflow file"
+        assert len(workflow_files) > 0, "Should have at least one workflow file"
 
     def test_workflow_files_yaml_syntax(self):
         """Test that all workflow files have valid YAML syntax."""
@@ -38,9 +36,7 @@ class TestWorkflowStructure:
             except yaml.YAMLError as e:
                 invalid_files.append((workflow_file.name, str(e)))
 
-        assert (
-            not invalid_files
-        ), f"Invalid YAML syntax in workflows: {invalid_files}"
+        assert not invalid_files, f"Invalid YAML syntax in workflows: {invalid_files}"
 
     def test_core_workflows_exist(self):
         """Test that core workflows exist."""
@@ -56,13 +52,9 @@ class TestWorkflowStructure:
         ]
 
         existing_workflows = [f.name for f in workflows_path.glob("*.yml")]
-        missing_workflows = [
-            w for w in core_workflows if w not in existing_workflows
-        ]
+        missing_workflows = [w for w in core_workflows if w not in existing_workflows]
 
-        assert (
-            not missing_workflows
-        ), f"Missing core workflows: {missing_workflows}"
+        assert not missing_workflows, f"Missing core workflows: {missing_workflows}"
 
 
 class TestCIWorkflow:
@@ -70,9 +62,7 @@ class TestCIWorkflow:
 
     def test_ci_workflow_structure(self):
         """Test CI workflow has proper structure."""
-        ci_path = (
-            Path(__file__).parent.parent / ".github" / "workflows" / "ci.yml"
-        )
+        ci_path = Path(__file__).parent.parent / ".github" / "workflows" / "ci.yml"
         if not ci_path.exists():
             pytest.skip("CI workflow not found")
 
@@ -89,9 +79,7 @@ class TestCIWorkflow:
 
     def test_ci_workflow_triggers(self):
         """Test CI workflow has appropriate triggers."""
-        ci_path = (
-            Path(__file__).parent.parent / ".github" / "workflows" / "ci.yml"
-        )
+        ci_path = Path(__file__).parent.parent / ".github" / "workflows" / "ci.yml"
         if not ci_path.exists():
             pytest.skip("CI workflow not found")
 
@@ -108,9 +96,7 @@ class TestCIWorkflow:
 
     def test_ci_workflow_python_version(self):
         """Test CI workflow uses appropriate Python version."""
-        ci_path = (
-            Path(__file__).parent.parent / ".github" / "workflows" / "ci.yml"
-        )
+        ci_path = Path(__file__).parent.parent / ".github" / "workflows" / "ci.yml"
         if not ci_path.exists():
             pytest.skip("CI workflow not found")
 
@@ -127,10 +113,7 @@ class TestAgentWorkflow:
     def test_agent_workflow_structure(self):
         """Test agent workflow has proper structure."""
         agent_path = (
-            Path(__file__).parent.parent
-            / ".github"
-            / "workflows"
-            / "agent.yml"
+            Path(__file__).parent.parent / ".github" / "workflows" / "agent.yml"
         )
         if not agent_path.exists():
             pytest.skip("Agent workflow not found")
@@ -146,10 +129,7 @@ class TestAgentWorkflow:
     def test_agent_workflow_secrets(self):
         """Test agent workflow references required secrets."""
         agent_path = (
-            Path(__file__).parent.parent
-            / ".github"
-            / "workflows"
-            / "agent.yml"
+            Path(__file__).parent.parent / ".github" / "workflows" / "agent.yml"
         )
         if not agent_path.exists():
             pytest.skip("Agent workflow not found")
@@ -167,17 +147,13 @@ class TestAgentWorkflow:
 
         if missing_secrets:
             print(
-                f"Warning: Agent workflow may be missing secrets:"
-                "{missing_secrets}"
+                f"Warning: Agent workflow may be missing secrets:" "{missing_secrets}"
             )
 
     def test_agent_workflow_schedule(self):
         """Test agent workflow has schedule trigger."""
         agent_path = (
-            Path(__file__).parent.parent
-            / ".github"
-            / "workflows"
-            / "agent.yml"
+            Path(__file__).parent.parent / ".github" / "workflows" / "agent.yml"
         )
         if not agent_path.exists():
             pytest.skip("Agent workflow not found")
@@ -202,10 +178,7 @@ class TestJarvysCloudWorkflow:
     def test_jarvys_cloud_workflow_structure(self):
         """Test JARVYS cloud workflow has proper structure."""
         cloud_path = (
-            Path(__file__).parent.parent
-            / ".github"
-            / "workflows"
-            / "jarvys-cloud.yml"
+            Path(__file__).parent.parent / ".github" / "workflows" / "jarvys-cloud.yml"
         )
         if not cloud_path.exists():
             pytest.skip("JARVYS cloud workflow not found")
@@ -221,10 +194,7 @@ class TestJarvysCloudWorkflow:
     def test_jarvys_cloud_deployment_steps(self):
         """Test JARVYS cloud workflow has deployment steps."""
         cloud_path = (
-            Path(__file__).parent.parent
-            / ".github"
-            / "workflows"
-            / "jarvys-cloud.yml"
+            Path(__file__).parent.parent / ".github" / "workflows" / "jarvys-cloud.yml"
         )
         if not cloud_path.exists():
             pytest.skip("JARVYS cloud workflow not found")
@@ -234,9 +204,7 @@ class TestJarvysCloudWorkflow:
 
         # Should have deployment-related steps
         deployment_keywords = ["deploy", "build", "setup", "install"]
-        found_keywords = [
-            kw for kw in deployment_keywords if kw in content.lower()
-        ]
+        found_keywords = [kw for kw in deployment_keywords if kw in content.lower()]
 
         assert (
             len(found_keywords) > 0
@@ -262,15 +230,9 @@ class TestModelDetectionWorkflow:
             model_config = yaml.safe_load(f)
 
         # Should have required sections
-        assert (
-            "name" in model_config
-        ), "Model detection workflow should have a name"
-        assert (
-            "on" in model_config
-        ), "Model detection workflow should have triggers"
-        assert (
-            "jobs" in model_config
-        ), "Model detection workflow should have jobs"
+        assert "name" in model_config, "Model detection workflow should have a name"
+        assert "on" in model_config, "Model detection workflow should have triggers"
+        assert "jobs" in model_config, "Model detection workflow should have jobs"
 
     def test_model_detection_schedule(self):
         """Test model detection has scheduled execution."""
@@ -336,15 +298,9 @@ class TestDashboardDeploymentWorkflow:
                 dashboard_config = yaml.safe_load(f)
 
             # Should have required sections
-            assert (
-                "name" in dashboard_config
-            ), "Dashboard deployment should have a name"
-            assert (
-                "on" in dashboard_config
-            ), "Dashboard deployment should have triggers"
-            assert (
-                "jobs" in dashboard_config
-            ), "Dashboard deployment should have jobs"
+            assert "name" in dashboard_config, "Dashboard deployment should have a name"
+            assert "on" in dashboard_config, "Dashboard deployment should have triggers"
+            assert "jobs" in dashboard_config, "Dashboard deployment should have jobs"
         else:
             pytest.skip("Dashboard deployment workflow not found")
 
@@ -416,10 +372,7 @@ class TestWorkflowSecurity:
 
             # Should use secrets.VARIABLE_NAME format, not hardcoded values
             if "sk-" in content or "eyJ" in content:
-                print(
-                    f"Warning: {workflow_file.name} may contain"
-                    "hardcoded secrets"
-                )
+                print(f"Warning: {workflow_file.name} may contain" "hardcoded secrets")
 
     def test_workflow_environment_restrictions(self):
         """Test workflows have appropriate environment restrictions."""
@@ -435,9 +388,7 @@ class TestWorkflowSecurity:
 
             # Check for environment protection
             if "environment" in str(workflow_config):
-                print(
-                    f"Info: {workflow_file.name} uses environment protection"
-                )
+                print(f"Info: {workflow_file.name} uses environment protection")
 
 
 class TestWorkflowValidation:
@@ -509,9 +460,7 @@ class TestWorkflowIntegration:
             workflows = repo.get_workflows()
             workflow_list = list(workflows)
 
-            assert (
-                len(workflow_list) >= 0
-            ), "Should be able to access workflows"
+            assert len(workflow_list) >= 0, "Should be able to access workflows"
 
         except Exception as e:
             pytest.skip(f"GitHub API access test failed: {e}")
@@ -565,9 +514,7 @@ class TestWorkflowMonitoring:
             ]
 
             if not found_logging:
-                print(
-                    f"Info: {workflow_file.name} may lack logging/debug output"
-                )
+                print(f"Info: {workflow_file.name} may lack logging/debug output")
 
     def test_workflow_error_handling(self):
         """Test workflows have error handling."""
