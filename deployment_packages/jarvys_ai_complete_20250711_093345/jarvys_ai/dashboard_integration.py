@@ -278,7 +278,7 @@ class SupabaseDashboardIntegration:
             "is_connected": self.is_connected,
             "device_id": self.device_id,
             "dashboard_url": self.dashboard_url,
-            "last_sync": self.last_sync.isoformat() if self.last_sync else None,
+            "last_sync": (self.last_sync.isoformat() if self.last_sync else None),
             "version": "1.0.0",
         }
 

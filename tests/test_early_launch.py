@@ -54,9 +54,7 @@ class TestIssueProcessor(unittest.TestCase):
         mock_repo = Mock()
         mock_github.return_value.get_repo.return_value = mock_repo
 
-        processor = IssueProcessor(
-            self.mock_github_token, self.mock_repo_name
-        )
+        processor = IssueProcessor(self.mock_github_token, self.mock_repo_name)
 
         # Test high priority autonomy issues
         self.assertEqual(processor.PRIORITY_ISSUES[44]["priority"], 1)
@@ -68,12 +66,8 @@ class TestIssueProcessor(unittest.TestCase):
         self.assertEqual(processor.PRIORITY_ISSUES[3]["category"], "epic")
 
         # Test automation issues
-        self.assertEqual(
-            processor.PRIORITY_ISSUES[41]["category"], "automation"
-        )
-        self.assertEqual(
-            processor.PRIORITY_ISSUES[42]["category"], "automation"
-        )
+        self.assertEqual(processor.PRIORITY_ISSUES[41]["category"], "automation")
+        self.assertEqual(processor.PRIORITY_ISSUES[42]["category"], "automation")
 
     @patch("issue_processor.Github")
     def test_prioritize_issues(self, mock_github):
@@ -81,9 +75,7 @@ class TestIssueProcessor(unittest.TestCase):
         mock_repo = Mock()
         mock_github.return_value.get_repo.return_value = mock_repo
 
-        processor = IssueProcessor(
-            self.mock_github_token, self.mock_repo_name
-        )
+        processor = IssueProcessor(self.mock_github_token, self.mock_repo_name)
 
         # Create mock issues
         mock_issue_44 = Mock()
@@ -120,9 +112,7 @@ class TestIssueProcessor(unittest.TestCase):
 
         mock_repo.get_issues.return_value = [mock_issue_44]
 
-        processor = IssueProcessor(
-            self.mock_github_token, self.mock_repo_name
-        )
+        processor = IssueProcessor(self.mock_github_token, self.mock_repo_name)
         report = processor.generate_status_report()
 
         # Check report structure
@@ -153,9 +143,7 @@ class TestWorkflowIntegration(unittest.TestCase):
             "workflows",
             "early-launch-issues.yml",
         )
-        self.assertTrue(
-            os.path.exists(workflow_path), "Workflow file should exist"
-        )
+        self.assertTrue(os.path.exists(workflow_path), "Workflow file should exist")
 
     def test_script_file_exists(self):
         """Test that the issue processor script was created."""
@@ -176,9 +164,7 @@ class TestWorkflowIntegration(unittest.TestCase):
             # Check if file is readable and contains shebang
             with open(script_path, "r") as f:
                 first_line = f.readline()
-            self.assertTrue(
-                first_line.startswith("#!"), "Script should have shebang"
-            )
+            self.assertTrue(first_line.startswith("#!"), "Script should have shebang")
 
 
 class TestEarlyLaunchRequirements(unittest.TestCase):

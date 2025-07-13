@@ -603,7 +603,12 @@ if __name__ == '__main__':
                         "provider": "openai",
                         "context_length": 8192,
                         "cost_per_token": 0.00003,
-                        "capabilities": ["reasoning", "code", "analysis", "creative"],
+                        "capabilities": [
+                            "reasoning",
+                            "code",
+                            "analysis",
+                            "creative",
+                        ],
                         "performance_score": 0.95,
                         "reliability_score": 0.98,
                     },
@@ -633,7 +638,11 @@ if __name__ == '__main__':
                 "routing_rules": {
                     "cost_optimization": True,
                     "prefer_local": False,
-                    "fallback_chain": ["gpt-4", "claude-3-sonnet", "gpt-3.5-turbo"],
+                    "fallback_chain": [
+                        "gpt-4",
+                        "claude-3-sonnet",
+                        "gpt-3.5-turbo",
+                    ],
                     "task_routing": {
                         "simple_queries": "gpt-3.5-turbo",
                         "complex_reasoning": "gpt-4",
@@ -659,7 +668,8 @@ if __name__ == '__main__':
             # Ajouter l'import de json si manquant
             if "import json" not in content:
                 content = content.replace(
-                    "from pathlib import Path", "from pathlib import Path\nimport json"
+                    "from pathlib import Path",
+                    "from pathlib import Path\nimport json",
                 )
 
             # Vérifier que le chargement de config est présent

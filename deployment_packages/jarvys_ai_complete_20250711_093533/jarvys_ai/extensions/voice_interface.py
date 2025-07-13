@@ -193,7 +193,12 @@ class VoiceInterface:
         text_lower = text.lower()
 
         # Patterns de reconnaissance
-        patterns = [f"{self.wake_word},", f"{self.wake_word} ", "jarvys,", "jarvys "]
+        patterns = [
+            f"{self.wake_word},",
+            f"{self.wake_word} ",
+            "jarvys,",
+            "jarvys ",
+        ]
 
         for pattern in patterns:
             if pattern in text_lower:

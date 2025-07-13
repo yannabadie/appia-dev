@@ -157,8 +157,22 @@ class DigitalTwin:
 
     def _analyze_sentiment(self, text: str) -> str:
         """Analyser le sentiment d'un texte (simple)"""
-        positive_words = ["merci", "parfait", "excellent", "super", "génial", "bravo"]
-        negative_words = ["problème", "erreur", "bug", "cassé", "marche pas", "nul"]
+        positive_words = [
+            "merci",
+            "parfait",
+            "excellent",
+            "super",
+            "génial",
+            "bravo",
+        ]
+        negative_words = [
+            "problème",
+            "erreur",
+            "bug",
+            "cassé",
+            "marche pas",
+            "nul",
+        ]
 
         text_lower = text.lower()
 

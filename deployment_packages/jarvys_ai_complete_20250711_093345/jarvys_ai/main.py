@@ -25,7 +25,8 @@ from .intelligence_core import IntelligenceCore
 
 # Configuration logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - JARVYS_AI - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - JARVYS_AI - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
