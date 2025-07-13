@@ -130,9 +130,10 @@ class TestGitHubCommunication:
             pytest.skip("GITHUB_TOKEN not available")
 
         try:
-            from github import Github
+            from github import Github, Auth
 
-            client = Github(token)
+            auth = Auth.Token(token)
+            client = Github(auth=auth)
             assert client is not None
 
             # Test basic access
@@ -165,9 +166,10 @@ class TestGitHubCommunication:
             pytest.skip("GITHUB_TOKEN not available")
 
         try:
-            from github import Github
+            from github import Github, Auth
 
-            client = Github(token)
+            auth = Auth.Token(token)
+            client = Github(auth=auth)
 
             # Try to access the current repository
             # Note: This assumes the repo name, adjust as needed
