@@ -90,29 +90,6 @@ jobs:
 
           echo "Dashboard URL: $DASHBOARD_URL"
 
-      # Firewall configuration - MUST be placed after all Copilot and environment setup
-      - name: 🔒 Configure Firewall (Post-Setup)
-        run: |
-          echo "🔒 Configuring firewall with essential GitHub/Copilot allow rules..."
-
-          # Allow essential GitHub domains for Copilot and Actions
-          echo "Adding allow rules for GitHub/Copilot domains..."
-
-          # GitHub core domains
-          sudo ufw allow out to github.com
-          sudo ufw allow out to api.github.com
-          sudo ufw allow out to copilot-proxy.githubusercontent.com
-          sudo ufw allow out to uploads.github.com
-          sudo ufw allow out to objects.githubusercontent.com
-
-          # Essential ports for HTTPS/HTTP
-          sudo ufw allow out 443
-          sudo ufw allow out 80
-          sudo ufw allow out 53  # DNS
-
-          echo "✅ Firewall allow rules configured for GitHub/Copilot connectivity"
-          echo "⚠️  Firewall not activated in CI to avoid workflow disruption"
-
   autonomous-analysis:
     name: 🤖 Analyse Autonome
     runs-on: ubuntu-latest
@@ -169,29 +146,6 @@ jobs:
           echo "Commit: ${{ github.sha }}"
           echo "✅ Analyse autonome complétée"
 
-      # Firewall configuration - MUST be placed after all Copilot and environment setup
-      - name: 🔒 Configure Firewall (Post-Setup)
-        run: |
-          echo "🔒 Configuring firewall with essential GitHub/Copilot allow rules..."
-
-          # Allow essential GitHub domains for Copilot and Actions
-          echo "Adding allow rules for GitHub/Copilot domains..."
-
-          # GitHub core domains
-          sudo ufw allow out to github.com
-          sudo ufw allow out to api.github.com
-          sudo ufw allow out to copilot-proxy.githubusercontent.com
-          sudo ufw allow out to uploads.github.com
-          sudo ufw allow out to objects.githubusercontent.com
-
-          # Essential ports for HTTPS/HTTP
-          sudo ufw allow out 443
-          sudo ufw allow out 80
-          sudo ufw allow out 53  # DNS
-
-          echo "✅ Firewall allow rules configured for GitHub/Copilot connectivity"
-          echo "⚠️  Firewall not activated in CI to avoid workflow disruption"
-
   memory-sync:
     name: 🧠 Synchronisation Mémoire
     runs-on: ubuntu-latest
@@ -225,29 +179,6 @@ jobs:
           echo "- Base de données: Supabase"
           echo "- Embeddings: Activés"
           echo "- Synchronisation: Complétée"
-
-      # Firewall configuration - MUST be placed after all Copilot and environment setup
-      - name: 🔒 Configure Firewall (Post-Setup)
-        run: |
-          echo "🔒 Configuring firewall with essential GitHub/Copilot allow rules..."
-
-          # Allow essential GitHub domains for Copilot and Actions
-          echo "Adding allow rules for GitHub/Copilot domains..."
-
-          # GitHub core domains
-          sudo ufw allow out to github.com
-          sudo ufw allow out to api.github.com
-          sudo ufw allow out to copilot-proxy.githubusercontent.com
-          sudo ufw allow out to uploads.github.com
-          sudo ufw allow out to objects.githubusercontent.com
-
-          # Essential ports for HTTPS/HTTP
-          sudo ufw allow out 443
-          sudo ufw allow out 80
-          sudo ufw allow out 53  # DNS
-
-          echo "✅ Firewall allow rules configured for GitHub/Copilot connectivity"
-          echo "⚠️  Firewall not activated in CI to avoid workflow disruption"
 
   notification:
     name: 📬 Notifications
