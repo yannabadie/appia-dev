@@ -30,7 +30,7 @@ env:
   SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
   SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
   SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+  SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
 jobs:
@@ -261,8 +261,8 @@ jobs:
             supabase secrets set SUPABASE_URL="$SUPABASE_URL" --project-ref $SUPABASE_PROJECT_ID || echo "⚠️ Échec SUPABASE_URL"
           fi
 
-          if [[ -n "$SUPABASE_SERVICE_ROLE_KEY" ]]; then
-            supabase secrets set SUPABASE_SERVICE_ROLE_KEY="$SUPABASE_SERVICE_ROLE_KEY" --project-ref $SUPABASE_PROJECT_ID || echo "⚠️ Échec SUPABASE_SERVICE_ROLE_KEY"
+          if [[ -n "$SUPABASE_SERVICE_ROLE" ]]; then
+            supabase secrets set SUPABASE_SERVICE_ROLE="$SUPABASE_SERVICE_ROLE" --project-ref $SUPABASE_PROJECT_ID || echo "⚠️ Échec SUPABASE_SERVICE_ROLE"
           fi
 
           if [[ -n "$OPENAI_API_KEY" ]]; then

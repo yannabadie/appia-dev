@@ -154,7 +154,7 @@ class JarvysDebugDashboard:
             }
         
         # Test GitHub
-        github_token = os.getenv("GITHUB_TOKEN")
+        github_token = os.getenv("GH_TOKEN")
         if github_token:
             try:
                 from github import Github

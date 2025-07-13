@@ -331,9 +331,9 @@ class TestGitHubAPI:
     @pytest.mark.integration
     def test_github_api_connection(self):
         """Test GitHub API connection."""
-        token = os.getenv("GITHUB_TOKEN")
+        token = os.getenv("GH_TOKEN")
         if not token:
-            pytest.skip("GITHUB_TOKEN not available")
+            pytest.skip("GH_TOKEN not available")
 
         try:
             from github import Github
@@ -362,9 +362,9 @@ class TestGitHubAPI:
     @pytest.mark.integration
     def test_github_repository_api(self):
         """Test GitHub repository API access."""
-        token = os.getenv("GITHUB_TOKEN")
+        token = os.getenv("GH_TOKEN")
         if not token:
-            pytest.skip("GITHUB_TOKEN not available")
+            pytest.skip("GH_TOKEN not available")
 
         try:
             from github import Github
@@ -390,9 +390,9 @@ class TestGitHubAPI:
     @pytest.mark.integration
     def test_github_issues_api(self):
         """Test GitHub Issues API for agent communication."""
-        token = os.getenv("GITHUB_TOKEN")
+        token = os.getenv("GH_TOKEN")
         if not token:
-            pytest.skip("GITHUB_TOKEN not available")
+            pytest.skip("GH_TOKEN not available")
 
         try:
             from github import Github

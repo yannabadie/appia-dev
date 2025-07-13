@@ -492,9 +492,9 @@ class TestWorkflowIntegration:
     @pytest.mark.integration
     def test_workflow_github_api_access(self):
         """Test workflows can access GitHub API."""
-        token = os.getenv("GITHUB_TOKEN")
+        token = os.getenv("GH_TOKEN")
         if not token:
-            pytest.skip("GITHUB_TOKEN not available")
+            pytest.skip("GH_TOKEN not available")
 
         try:
             from github import Github
