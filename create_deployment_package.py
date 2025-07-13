@@ -146,7 +146,12 @@ class JarvysDeploymentPackager:
                 "build_date": datetime.now().isoformat(),
                 "deployment": {
                     "mode": "production",
-                    "supported_platforms": ["windows", "linux", "docker", "cloud_run"],
+                    "supported_platforms": [
+                        "windows",
+                        "linux",
+                        "docker",
+                        "cloud_run",
+                    ],
                     "requirements": {
                         "python": ">=3.9",
                         "docker": ">=20.0",

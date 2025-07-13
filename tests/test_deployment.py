@@ -1,10 +1,8 @@
 """Test automated deployments and error handling."""
 
-import json
-import os
 import subprocess
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import pytest
 import yaml
@@ -32,9 +30,7 @@ class TestSupabaseDeployment:
         assert schema_file.exists(), "Schema SQL file should exist"
 
         content = schema_file.read_text()
-        assert (
-            "CREATE" in content.upper()
-        ), "Schema should contain CREATE statements"
+        assert "CREATE" in content.upper(), "Schema should contain CREATE statements"
 
         # Check for dangerous operations
         dangerous_ops = ["DROP DATABASE", "TRUNCATE"]
@@ -43,9 +39,7 @@ class TestSupabaseDeployment:
 
     def test_supabase_functions_deployment(self):
         """Test Supabase Edge Functions deployment readiness."""
-        functions_path = (
-            Path(__file__).parent.parent / "supabase" / "functions"
-        )
+        functions_path = Path(__file__).parent.parent / "supabase" / "functions"
         if not functions_path.exists():
             pytest.skip("Supabase functions directory not found")
 
@@ -59,8 +53,7 @@ class TestSupabaseDeployment:
 
                 # Should have Deno serve pattern for Edge Functions
                 assert any(
-                    pattern in content
-                    for pattern in ["Deno.serve", "new Response"]
+                    pattern in content for pattern in ["Deno.serve", "new Response"]
                 ), f"Function {func_dir.name} should be a valid Edge Function"
 
     def test_supabase_deployment_script(self):
@@ -146,9 +139,7 @@ class TestCloudBuildDeployment:
 
         # Should use substitution variables
         substitution_patterns = ["$PROJECT_ID", "$REPO_NAME", "$BRANCH_NAME"]
-        found_substitutions = [
-            s for s in substitution_patterns if s in content
-        ]
+        found_substitutions = [s for s in substitution_patterns if s in content]
 
         if found_substitutions:
             print(f"Found Cloud Build substitutions: {found_substitutions}")
@@ -169,9 +160,7 @@ class TestCloudBuildDeployment:
 
             # Should have reasonable timeout (not too short or too long)
             if "h" in timeout:
-                hours = int(
-                    timeout.replace("h", "").replace("m", "").replace("s", "")
-                )
+                hours = int(timeout.replace("h", "").replace("m", "").replace("s", ""))
                 assert hours <= 2, "Build timeout should not exceed 2 hours"
 
 
@@ -201,9 +190,7 @@ class TestDockerDeployment:
 
     def test_docker_compose_deployment(self):
         """Test Docker Compose deployment configuration."""
-        compose_file = (
-            Path(__file__).parent.parent / "docker-compose.windows.yml"
-        )
+        compose_file = Path(__file__).parent.parent / "docker-compose.windows.yml"
         if not compose_file.exists():
             pytest.skip("Docker Compose file not found")
 
@@ -218,9 +205,7 @@ class TestDockerDeployment:
             if "build" in service_config:
                 print(f"Service {service_name} has build configuration")
             if "image" in service_config:
-                print(
-                    f"Service {service_name} uses image: {service_config['image']}"
-                )
+                print(f"Service {service_name} uses image: {service_config['image']}")
 
     def test_dockerignore_exists(self):
         """Test .dockerignore exists for efficient builds."""
@@ -261,9 +246,7 @@ class TestDockerDeployment:
         if from_count > 1:
             print(f"Multi-stage build detected with {from_count} stages")
         else:
-            print(
-                "Info: Single-stage build - consider multi-stage for optimization"
-            )
+            print("Info: Single-stage build - consider multi-stage for optimization")
 
 
 class TestGitHubPagesDeployment:
@@ -324,14 +307,10 @@ class TestDeploymentErrorHandling:
                 content = f.read()
 
             found_rollback = [
-                pattern
-                for pattern in rollback_patterns
-                if pattern in content.lower()
+                pattern for pattern in rollback_patterns if pattern in content.lower()
             ]
             if found_rollback:
-                print(
-                    f"Rollback capability in {workflow_file.name}: {found_rollback}"
-                )
+                print(f"Rollback capability in {workflow_file.name}: {found_rollback}")
 
     def test_deployment_health_checks(self):
         """Test deployment includes health checks."""
@@ -346,18 +325,13 @@ class TestDeploymentErrorHandling:
                 content = f.read()
 
             if any(
-                keyword in workflow_file.name.lower()
-                for keyword in ["deploy", "build"]
+                keyword in workflow_file.name.lower() for keyword in ["deploy", "build"]
             ):
                 found_health = [
-                    pattern
-                    for pattern in health_patterns
-                    if pattern in content.lower()
+                    pattern for pattern in health_patterns if pattern in content.lower()
                 ]
                 if found_health:
-                    print(
-                        f"Health checks in {workflow_file.name}: {found_health}"
-                    )
+                    print(f"Health checks in {workflow_file.name}: {found_health}")
                 else:
                     print(f"Info: {workflow_file.name} may lack health checks")
 
@@ -374,8 +348,7 @@ class TestDeploymentErrorHandling:
                 content = f.read()
 
             if any(
-                keyword in workflow_file.name.lower()
-                for keyword in ["deploy", "build"]
+                keyword in workflow_file.name.lower() for keyword in ["deploy", "build"]
             ):
                 found_notifications = [
                     pattern
@@ -491,8 +464,7 @@ class TestDeploymentMonitoring:
                 content = f.read()
 
             if any(
-                keyword in workflow_file.name.lower()
-                for keyword in ["deploy", "build"]
+                keyword in workflow_file.name.lower() for keyword in ["deploy", "build"]
             ):
                 # Should have logging statements
                 logging_patterns = ["echo", "log", "print"]
@@ -518,9 +490,7 @@ class TestDeploymentMonitoring:
         )
 
         if metrics_files:
-            print(
-                f"Deployment metrics collection: {[f.name for f in metrics_files]}"
-            )
+            print(f"Deployment metrics collection: {[f.name for f in metrics_files]}")
         else:
             print("Info: Deployment metrics collection not found")
 
@@ -571,9 +541,7 @@ class TestDeploymentPerformance:
             # Look for caching mechanisms
             cache_patterns = ["cache", "restore", "save"]
             found_caching = [
-                pattern
-                for pattern in cache_patterns
-                if pattern in content.lower()
+                pattern for pattern in cache_patterns if pattern in content.lower()
             ]
 
             if found_caching:

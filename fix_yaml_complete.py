@@ -5,12 +5,13 @@
 
 from pathlib import Path
 
+
 def fix_yaml_file():
     """Corriger complètement le fichier YAML"""
     yaml_file = Path("/workspaces/appia-dev/.github/workflows/jarvys-cloud.yml")
-    
+
     # Contenu YAML correct
-    corrected_yaml = '''---
+    corrected_yaml = """---
 name: 🌩️ JARVYS_DEV Cloud Deployment
 
 on:
@@ -214,10 +215,11 @@ jobs:
           else
             echo "⚠️ Certains jobs ont échoué, vérification nécessaire"
           fi
-'''
+"""
 
     yaml_file.write_text(corrected_yaml.strip())
     print(f"✅ Fichier YAML corrigé: {yaml_file}")
+
 
 if __name__ == "__main__":
     fix_yaml_file()

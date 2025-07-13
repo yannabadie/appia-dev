@@ -16,9 +16,7 @@ class TestJarvysAIStructure:
         if jarvys_ai_path.exists():
             assert jarvys_ai_path.is_dir(), "JARVYS_AI should be a directory"
         else:
-            pytest.skip(
-                "JARVYS_AI directory not found - may not be implemented yet"
-            )
+            pytest.skip("JARVYS_AI directory not found - may not be implemented yet")
 
     def test_jarvys_ai_main_exists(self):
         """Test that JARVYS_AI main module exists."""
@@ -34,9 +32,7 @@ class TestJarvysAIStructure:
             content = main_file.read_text()
             assert len(content.strip()) > 0, "main.py should not be empty"
         else:
-            pytest.skip(
-                "JARVYS_AI main.py not found - may not be implemented yet"
-            )
+            pytest.skip("JARVYS_AI main.py not found - may not be implemented yet")
 
     def test_jarvys_ai_requirements_exists(self):
         """Test that JARVYS_AI requirements file exists."""
@@ -50,9 +46,7 @@ class TestJarvysAIStructure:
             ), "requirements-jarvys-ai.txt should not be empty"
 
             # Should contain some basic dependencies
-            lines = [
-                line.strip() for line in content.split("\n") if line.strip()
-            ]
+            lines = [line.strip() for line in content.split("\n") if line.strip()]
             assert len(lines) > 0, "Should have at least some dependencies"
         else:
             pytest.skip("requirements-jarvys-ai.txt not found")
@@ -63,45 +57,18 @@ class TestJarvysAICompletePackage:
 
     def test_complete_package_directory_exists(self):
         """Test that complete package directory exists."""
-        package_path = Path(__file__).parent.parent / "appIA_complete_package"
-        if package_path.exists():
-            assert (
-                package_path.is_dir()
-            ), "Complete package should be a directory"
-        else:
-            pytest.skip("Complete package directory not found")
+        # Package moved to separate appIA repository
+        pytest.skip("Complete package moved to separate appIA repository")
 
     def test_complete_package_structure(self):
         """Test complete package structure."""
-        package_path = Path(__file__).parent.parent / "appIA_complete_package"
-        if not package_path.exists():
-            pytest.skip("Complete package directory not found")
-
-        # Check for expected files
-        expected_files = ["README.md", "requirements.txt"]
-
-        found_files = []
-        for file in expected_files:
-            if (package_path / file).exists():
-                found_files.append(file)
-
-        # At least some structure should exist
-        assert (
-            len(found_files) > 0
-        ), f"Expected some files from {expected_files}, found: {found_files}"
+        # Package moved to separate appIA repository
+        pytest.skip("Complete package moved to separate appIA repository")
 
     def test_complete_package_workflows(self):
         """Test complete package has workflows."""
-        package_path = Path(__file__).parent.parent / "appIA_complete_package"
-        if not package_path.exists():
-            pytest.skip("Complete package directory not found")
-
-        workflows_path = package_path / ".github" / "workflows"
-        if workflows_path.exists():
-            workflow_files = list(workflows_path.glob("*.yml"))
-            assert len(workflow_files) > 0, "Should have some workflow files"
-        else:
-            pytest.skip("No workflows found in complete package")
+        # Package moved to separate appIA repository
+        pytest.skip("Complete package moved to separate appIA repository")
 
 
 class TestJarvysAILocalFeatures:
@@ -150,12 +117,9 @@ class TestJarvysAILocalFeatures:
             memory_functions = [
                 attr
                 for attr in dir(memory_infinite)
-                if callable(getattr(memory_infinite, attr))
-                and not attr.startswith("_")
+                if callable(getattr(memory_infinite, attr)) and not attr.startswith("_")
             ]
-            assert (
-                len(memory_functions) > 0
-            ), "Memory functions should be available"
+            assert len(memory_functions) > 0, "Memory functions should be available"
 
         except ImportError:
             pytest.skip("Memory tools not available for local access")
@@ -176,8 +140,7 @@ class TestJarvysAIHybridFeatures:
             github_functions = [
                 attr
                 for attr in dir(github_tools)
-                if callable(getattr(github_tools, attr))
-                and not attr.startswith("_")
+                if callable(getattr(github_tools, attr)) and not attr.startswith("_")
             ]
             assert (
                 len(github_functions) > 0
@@ -211,9 +174,7 @@ class TestJarvysAIHybridFeatures:
 
             # Should be able to make HTTP requests for API communication
             assert hasattr(requests, "get"), "Should have HTTP GET capability"
-            assert hasattr(
-                requests, "post"
-            ), "Should have HTTP POST capability"
+            assert hasattr(requests, "post"), "Should have HTTP POST capability"
 
         except ImportError:
             pytest.fail("Requests library not available for API communication")
@@ -341,9 +302,7 @@ class TestJarvysAIDeployment:
         if sync_script.exists():
             content = sync_script.read_text()
             assert len(content.strip()) > 0, "Sync script should not be empty"
-            assert (
-                "jarvys" in content.lower()
-            ), "Sync script should reference JARVYS"
+            assert "jarvys" in content.lower(), "Sync script should reference JARVYS"
         else:
             pytest.skip("Sync script not found")
 
@@ -354,9 +313,7 @@ class TestJarvysAIDeployment:
 
         if test_script.exists():
             content = test_script.read_text()
-            assert (
-                len(content.strip()) > 0
-            ), "Complete test script should not be empty"
+            assert len(content.strip()) > 0, "Complete test script should not be empty"
             assert "test" in content.lower(), "Should contain test functions"
         else:
             pytest.skip("Complete test script not found")

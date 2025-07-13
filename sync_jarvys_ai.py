@@ -386,7 +386,8 @@ echo "📝 Check logs: docker-compose -f docker-compose.windows.yml logs -f"
             # Configure git
             subprocess.run(["git", "config", "user.name", "JARVYS_DEV"], check=True)
             subprocess.run(
-                ["git", "config", "user.email", "jarvys@appia-dev.ai"], check=True
+                ["git", "config", "user.email", "jarvys@appia-dev.ai"],
+                check=True,
             )
 
             # Add all files

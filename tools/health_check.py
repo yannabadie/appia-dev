@@ -21,7 +21,12 @@ class JarvysHealthChecker:
 
     def check_environment_health(self) -> Dict[str, Any]:
         """Check environment health status."""
-        health = {"status": "healthy", "checks": {}, "warnings": [], "errors": []}
+        health = {
+            "status": "healthy",
+            "checks": {},
+            "warnings": [],
+            "errors": [],
+        }
 
         # Python version check
         python_version = f"{sys.version_info.major}.{sys.version_info.minor}"
@@ -43,7 +48,10 @@ class JarvysHealthChecker:
         for dir_name in required_dirs:
             dir_path = self.project_root / dir_name
             if dir_path.exists():
-                health["checks"][f"dir_{dir_name}"] = {"status": "ok", "exists": True}
+                health["checks"][f"dir_{dir_name}"] = {
+                    "status": "ok",
+                    "exists": True,
+                }
             else:
                 health["checks"][f"dir_{dir_name}"] = {
                     "status": "error",
@@ -53,7 +61,11 @@ class JarvysHealthChecker:
                 health["status"] = "unhealthy"
 
         # Configuration files check
-        config_files = ["pyproject.toml", "pytest.ini", ".pre-commit-config.yaml"]
+        config_files = [
+            "pyproject.toml",
+            "pytest.ini",
+            ".pre-commit-config.yaml",
+        ]
         for file_name in config_files:
             file_path = self.project_root / file_name
             if file_path.exists():
@@ -74,7 +86,12 @@ class JarvysHealthChecker:
 
     def check_dependencies_health(self) -> Dict[str, Any]:
         """Check Python dependencies health."""
-        health = {"status": "healthy", "checks": {}, "warnings": [], "errors": []}
+        health = {
+            "status": "healthy",
+            "checks": {},
+            "warnings": [],
+            "errors": [],
+        }
 
         # Core dependencies
         core_deps = [
@@ -108,7 +125,12 @@ class JarvysHealthChecker:
 
     def check_api_health(self) -> Dict[str, Any]:
         """Check external API health."""
-        health = {"status": "healthy", "checks": {}, "warnings": [], "errors": []}
+        health = {
+            "status": "healthy",
+            "checks": {},
+            "warnings": [],
+            "errors": [],
+        }
 
         # OpenAI API
         openai_key = os.getenv("OPENAI_API_KEY")
@@ -232,7 +254,12 @@ class JarvysHealthChecker:
 
     def check_services_health(self) -> Dict[str, Any]:
         """Check local services health."""
-        health = {"status": "healthy", "checks": {}, "warnings": [], "errors": []}
+        health = {
+            "status": "healthy",
+            "checks": {},
+            "warnings": [],
+            "errors": [],
+        }
 
         # FastAPI app health
         try:
@@ -261,12 +288,18 @@ class JarvysHealthChecker:
                     if str(self.project_root) in sys.path:
                         sys.path.remove(str(self.project_root))
             else:
-                health["checks"]["fastapi_app"] = {"status": "warning", "exists": False}
+                health["checks"]["fastapi_app"] = {
+                    "status": "warning",
+                    "exists": False,
+                }
                 health["warnings"].append("FastAPI app file not found")
                 if health["status"] == "healthy":
                     health["status"] = "warning"
         except Exception as e:
-            health["checks"]["fastapi_app"] = {"status": "error", "error": str(e)[:100]}
+            health["checks"]["fastapi_app"] = {
+                "status": "error",
+                "error": str(e)[:100],
+            }
             health["errors"].append("FastAPI app check failed")
             health["status"] = "unhealthy"
 
@@ -311,7 +344,12 @@ class JarvysHealthChecker:
 
     def check_workflows_health(self) -> Dict[str, Any]:
         """Check GitHub workflows health."""
-        health = {"status": "healthy", "checks": {}, "warnings": [], "errors": []}
+        health = {
+            "status": "healthy",
+            "checks": {},
+            "warnings": [],
+            "errors": [],
+        }
 
         workflows_dir = self.project_root / ".github" / "workflows"
         if not workflows_dir.exists():
@@ -376,7 +414,12 @@ class JarvysHealthChecker:
         overall_health = {
             "timestamp": self.check_timestamp.isoformat(),
             "overall_status": "healthy",
-            "summary": {"total_checks": 0, "passed": 0, "warnings": 0, "errors": 0},
+            "summary": {
+                "total_checks": 0,
+                "passed": 0,
+                "warnings": 0,
+                "errors": 0,
+            },
             "components": {},
         }
 
@@ -462,9 +505,11 @@ class JarvysHealthChecker:
         # Show component status
         print("🔧 Component Status:")
         for component_name, component_health in health["components"].items():
-            status_emoji = {"healthy": "✅", "warning": "⚠️", "unhealthy": "❌"}.get(
-                component_health["status"], "❓"
-            )
+            status_emoji = {
+                "healthy": "✅",
+                "warning": "⚠️",
+                "unhealthy": "❌",
+            }.get(component_health["status"], "❓")
 
             print(
                 f"  {status_emoji} {component_name.title()}: {component_health['status']}"

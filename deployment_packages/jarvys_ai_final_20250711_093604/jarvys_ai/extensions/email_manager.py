@@ -371,7 +371,11 @@ Que souhaitez-vous faire exactement ?"""
 
     def _extract_search_term(self, command: str) -> Optional[str]:
         """Extraire terme de recherche"""
-        patterns = [r"chercher?\s+([^.]+)", r"search\s+([^.]+)", r"trouver?\s+([^.]+)"]
+        patterns = [
+            r"chercher?\s+([^.]+)",
+            r"search\s+([^.]+)",
+            r"trouver?\s+([^.]+)",
+        ]
 
         for pattern in patterns:
             match = re.search(pattern, command, re.IGNORECASE)

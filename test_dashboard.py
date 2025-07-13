@@ -85,7 +85,11 @@ class DashboardTester:
             ("/api/metrics", "GET"),
             ("/api/data", "GET"),
             ("/api/tasks", "GET"),
-            ("/api/chat", "POST", {"message": "Hello JARVYS, what is your status?"}),
+            (
+                "/api/chat",
+                "POST",
+                {"message": "Hello JARVYS, what is your status?"},
+            ),
         ]
 
         for test_data in endpoints:

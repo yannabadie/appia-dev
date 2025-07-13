@@ -231,7 +231,7 @@ class ContinuousImprovement:
             }
 
             params = {
-                "last_sync": self.last_sync.isoformat() if self.last_sync else None,
+                "last_sync": (self.last_sync.isoformat() if self.last_sync else None),
                 "device_type": "jarvys_ai_local",
             }
 
@@ -528,7 +528,7 @@ class ContinuousImprovement:
             "is_initialized": self.is_initialized,
             "device_id": self.device_id,
             "auto_update": self.auto_update,
-            "last_sync": self.last_sync.isoformat() if self.last_sync else None,
+            "last_sync": (self.last_sync.isoformat() if self.last_sync else None),
             "pending_updates": len(self.pending_updates),
             "applied_updates": len(self.applied_updates),
             "performance_metrics": self.performance_metrics,
@@ -649,7 +649,13 @@ class ContinuousImprovement:
                 self.temp_repo_path = tempfile.mkdtemp(prefix="jarvys_sync_")
 
                 result = subprocess.run(
-                    ["gh", "repo", "clone", self.github_repo, self.temp_repo_path],
+                    [
+                        "gh",
+                        "repo",
+                        "clone",
+                        self.github_repo,
+                        self.temp_repo_path,
+                    ],
                     capture_output=True,
                     text=True,
                 )
@@ -931,7 +937,7 @@ class ContinuousImprovement:
             metrics = {
                 "device_id": self.device_id,
                 "timestamp": datetime.now().isoformat(),
-                "last_sync": self.last_sync.isoformat() if self.last_sync else None,
+                "last_sync": (self.last_sync.isoformat() if self.last_sync else None),
                 "applied_updates": len(self.applied_updates),
                 "performance": self.performance_metrics,
                 "status": "healthy" if self.is_running else "stopped",

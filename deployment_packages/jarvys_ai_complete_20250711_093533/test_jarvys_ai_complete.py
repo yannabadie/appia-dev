@@ -17,7 +17,8 @@ from jarvys_ai.main import JarvysAI
 
 # Configuration logging pour tests
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - TEST - %(levelname)s - %(message)s"
+    level=logging.INFO,
+    format="%(asctime)s - TEST - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
 
@@ -87,7 +88,10 @@ class JarvysAITester:
             logger.info("✅ Initialisation réussie")
 
         except Exception as e:
-            self.test_results["initialization"] = {"status": "failed", "error": str(e)}
+            self.test_results["initialization"] = {
+                "status": "failed",
+                "error": str(e),
+            }
             logger.error(f"❌ Erreur initialisation: {e}")
             raise
 
@@ -113,7 +117,10 @@ class JarvysAITester:
             self.test_results["digital_twin"] = {"status": "success"}
             logger.info("✅ Digital Twin OK")
         except Exception as e:
-            self.test_results["digital_twin"] = {"status": "failed", "error": str(e)}
+            self.test_results["digital_twin"] = {
+                "status": "failed",
+                "error": str(e),
+            }
             logger.error(f"❌ Digital Twin: {e}")
 
         # Test Continuous Improvement
@@ -134,7 +141,10 @@ class JarvysAITester:
             self.test_results["fallback_engine"] = {"status": "success"}
             logger.info("✅ Fallback Engine OK")
         except Exception as e:
-            self.test_results["fallback_engine"] = {"status": "failed", "error": str(e)}
+            self.test_results["fallback_engine"] = {
+                "status": "failed",
+                "error": str(e),
+            }
             logger.error(f"❌ Fallback Engine: {e}")
 
     async def _test_extensions(self):

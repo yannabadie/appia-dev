@@ -264,7 +264,10 @@ class EnhancedFallbackEngine:
 
             # Copy requirements and Docker files
             workspace_path = jarvys_source.parent
-            files_to_copy = ["requirements-jarvys-ai.txt", "Dockerfile.jarvys_ai"]
+            files_to_copy = [
+                "requirements-jarvys-ai.txt",
+                "Dockerfile.jarvys_ai",
+            ]
 
             for file_name in files_to_copy:
                 source_file = workspace_path / file_name
@@ -594,7 +597,10 @@ echo "🌐 Service URL: $SERVICE_URL"
         for tool in tools:
             try:
                 result = subprocess.run(
-                    [tool, "--version"], capture_output=True, text=True, timeout=5
+                    [tool, "--version"],
+                    capture_output=True,
+                    text=True,
+                    timeout=5,
                 )
                 if result.returncode == 0:
                     logger.debug(f"✅ {tool} available")
