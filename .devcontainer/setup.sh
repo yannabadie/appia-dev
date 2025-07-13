@@ -159,6 +159,14 @@ fi
 
 if poetry install --with dev --no-root --no-interaction; then
   log_success "Dépendances Python installées"
+  
+  # Mise à jour automatique des packages AI vers les dernières versions
+  log_section "Mise à jour des packages AI vers les dernières versions"
+  if poetry run pip install --upgrade anthropic google-generativeai openai; then
+    log_success "Packages AI mis à jour vers les dernières versions"
+  else
+    log_info "Échec mise à jour packages AI (non critique)"
+  fi
 else
   log_error "Échec installation dépendances Python"
 fi
@@ -183,5 +191,17 @@ log_info "  - npm: $(npm --version 2>/dev/null || echo '❌ non trouvé')"
 log_info "  - gcloud: $(gcloud --version 2>/dev/null | head -1 || echo '❌ non trouvé')"
 log_info "  - poetry: $(poetry --version 2>/dev/null || echo '❌ non trouvé')"
 log_info "  - supabase: $(supabase --version 2>/dev/null || echo '❌ non trouvé')"
+
+log_section "Versions des packages AI"
+if poetry run python -c "
+import anthropic, google.generativeai, openai
+print(f'  - anthropic: {anthropic.__version__}')
+print(f'  - google-generativeai: {google.generativeai.__version__}')  
+print(f'  - openai: {openai.__version__}')
+" 2>/dev/null; then
+  log_success "Packages AI installés et fonctionnels"
+else
+  log_error "Problème avec les packages AI"
+fi
 
 echo -e "\n✅ Environnement prêt !"

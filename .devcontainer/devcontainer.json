@@ -9,6 +9,7 @@
   },
 
   "postCreateCommand": "bash -l /workspaces/appia-dev/.devcontainer/setup.sh",
+  "postStartCommand": "bash -l /workspaces/appia-dev/.devcontainer/postStartCommand.sh",
 
   "forwardPorts": [8080, 54321, 3000],
 
