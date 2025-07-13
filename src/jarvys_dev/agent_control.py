@@ -8,7 +8,6 @@ import asyncio
 import logging
 import os
 from datetime import datetime
-from typing import Any, Dict
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +25,7 @@ class AgentController:
         try:
             if self.supabase:
                 # Vérifier le statut dans Supabase
-                result = (
+                _result = (
                     self.supabase.table("jarvys_agents_status")
                     .select("*")
                     .eq("agent_id", "jarvys_dev_cloud")

@@ -118,7 +118,18 @@ def run_loop(steps: int = 1) -> LoopState:
     return state
 
 
-__all__ = ["run_loop", "build_graph", "LoopState"]
+class JarvysLoop:
+    """Minimaliste wrapper pour le loop LangGraph."""
+
+    def __init__(self):
+        """Initialize the loop."""
+
+    def run(self, steps: int = 1) -> dict:
+        """Run the loop and delegate to run_loop function."""
+        return run_loop(steps)
+
+
+__all__ = ["run_loop", "build_graph", "LoopState", "JarvysLoop"]
 
 if __name__ == "__main__":  # pragma: no cover
     final_state = run_loop(steps=1)
