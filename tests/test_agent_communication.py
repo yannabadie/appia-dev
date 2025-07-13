@@ -132,7 +132,7 @@ class TestGitHubCommunication:
         try:
             from github import Github
 
-            _client = Github(token)
+            client = Github(token)
             assert client is not None
 
             # Test basic access
@@ -167,7 +167,7 @@ class TestGitHubCommunication:
         try:
             from github import Github
 
-            _client = Github(token)
+            client = Github(token)
 
             # Try to access the current repository
             # Note: This assumes the repo name, adjust as needed
@@ -238,10 +238,10 @@ class TestAPIBasedCommunication:
 
             from jarvys_dev.main import app
 
-            _client = TestClient(app)
+            client = TestClient(app)
 
             # Test basic communication endpoint
-            _response = client.get("/")
+            response = client.get("/")
 
             # Should get a valid response
             assert response.status_code in [
@@ -322,7 +322,7 @@ class TestCommunicationSecurity:
             import requests
 
             # Should support HTTPS requests
-            _response = requests.get("https://httpbin.org/get", timeout=5)
+            response = requests.get("https://httpbin.org/get", timeout=5)
             assert response.status_code == 200, "HTTPS requests should work"
 
         except Exception:

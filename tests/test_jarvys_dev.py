@@ -166,7 +166,7 @@ class TestAgentControl:
             from jarvys_dev import agent_control
 
             # Check for key functions (adjust based on actual implementation)
-            _expected_functions = [
+            expected_functions = [
                 "start_agent",
                 "stop_agent",
                 "get_agent_status",
@@ -283,8 +283,8 @@ class TestJarvysDevAPI:
 
             from jarvys_dev.main import app
 
-            _client = TestClient(app)
-            _response = client.get("/")
+            client = TestClient(app)
+            response = client.get("/")
 
             # Should return successful response
             assert response.status_code == 200

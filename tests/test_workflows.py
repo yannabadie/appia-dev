@@ -499,7 +499,7 @@ class TestWorkflowIntegration:
         try:
             from github import Github
 
-            _client = Github(token)
+            client = Github(token)
 
             # Test repository access for workflow operations
             repo_name = "yannabadie/appia-dev"

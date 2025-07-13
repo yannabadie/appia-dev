@@ -56,8 +56,8 @@ class TestJarvysDevAPI:
 
             from app.main import app
 
-            _client = TestClient(app)
-            _response = client.get("/")
+            client = TestClient(app)
+            response = client.get("/")
 
             # Should return successful response
             assert response.status_code in [
@@ -82,14 +82,14 @@ class TestJarvysDevAPI:
 
             from app.main import app
 
-            _client = TestClient(app)
+            client = TestClient(app)
 
             # Common health endpoint paths
             health_paths = ["/health", "/api/health", "/status", "/ping"]
 
             found_health_endpoint = False
             for path in health_paths:
-                _response = client.get(path)
+                response = client.get(path)
                 if response.status_code == 200:
                     found_health_endpoint = True
                     print(f"Found health endpoint at {path}")
@@ -119,10 +119,10 @@ class TestJarvysDevAPI:
 
             from app.main import app
 
-            _client = TestClient(app)
+            client = TestClient(app)
 
             # Test CORS preflight request
-            _response = client.options(
+            response = client.options(
                 "/",
                 headers={
                     "Origin": "http://localhost:3000",
@@ -205,10 +205,10 @@ class TestMCPServerAPI:
 
             from app.main import app
 
-            _client = TestClient(app)
+            client = TestClient(app)
 
             # Test basic connectivity
-            _response = client.get("/")
+            response = client.get("/")
 
             # Should return some response
             assert response.status_code in [
@@ -238,7 +238,7 @@ class TestSupabaseAPI:
         try:
             from supabase import create_client
 
-            _client = create_client(url, key)
+            client = create_client(url, key)
 
             # Test basic API call
             _response = (
@@ -278,7 +278,7 @@ class TestSupabaseAPI:
                 "Content-Type": "application/json",
             }
 
-            _response = requests.get(
+            response = requests.get(
                 functions_url, headers=headers, timeout=10
             )
 
@@ -310,7 +310,7 @@ class TestSupabaseAPI:
 
             headers = {"Authorization": f"Bearer {key}"}
 
-            _response = requests.get(
+            response = requests.get(
                 dashboard_url, headers=headers, timeout=10
             )
 
@@ -342,7 +342,7 @@ class TestGitHubAPI:
         try:
             from github import Github
 
-            _client = Github(token)
+            client = Github(token)
 
             # Test basic API access
             user = client.get_user()
@@ -373,7 +373,7 @@ class TestGitHubAPI:
         try:
             from github import Github
 
-            _client = Github(token)
+            client = Github(token)
 
             # Test repository access
             repo_name = "yannabadie/appia-dev"
@@ -401,7 +401,7 @@ class TestGitHubAPI:
         try:
             from github import Github
 
-            _client = Github(token)
+            client = Github(token)
 
             repo_name = "yannabadie/appia-dev"
             repo = client.get_repo(repo_name)
@@ -431,7 +431,7 @@ class TestOpenAIAPI:
         try:
             from openai import OpenAI
 
-            _client = OpenAI(api_key=api_key)
+            client = OpenAI(api_key=api_key)
 
             # Test API access with models list
             models = client.models.list()
@@ -461,10 +461,10 @@ class TestOpenAIAPI:
         try:
             from openai import OpenAI
 
-            _client = OpenAI(api_key=api_key)
+            client = OpenAI(api_key=api_key)
 
             # Test minimal chat completion
-            _response = client.chat.completions.create(
+            response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": "Hi"}],
                 max_tokens=10,
@@ -499,7 +499,7 @@ class TestExternalAPIIntegration:
         try:
             # Test with HTTP request to avoid import issues
             url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
-            _response = requests.get(url, timeout=10)
+            response = requests.get(url, timeout=10)
 
             assert (
                 response.status_code == 200
@@ -534,7 +534,7 @@ class TestExternalAPIIntegration:
                 "messages": [{"role": "user", "content": "Hi"}],
             }
 
-            _response = requests.post(
+            response = requests.post(
                 "https://api.anthropic.com/v1/messages",
                 headers=headers,
                 json=data,
@@ -620,7 +620,7 @@ class TestAPIErrorHandling:
 
                 # Should handle network errors gracefully
                 try:
-                    _response = requests.get(
+                    response = requests.get(
                         "https://api.openai.com/v1/models", timeout=1
                     )
                 except requests.exceptions.ConnectionError:
@@ -643,7 +643,7 @@ class TestAPIPerformance:
 
             from app.main import app
 
-            _client = TestClient(app)
+            client = TestClient(app)
 
             import time
 
@@ -672,12 +672,12 @@ class TestAPIPerformance:
 
             from app.main import app
 
-            _client = TestClient(app)
+            client = TestClient(app)
             results = []
 
             def make_request():
                 try:
-                    _response = client.get("/")
+                    response = client.get("/")
                     results.append(response.status_code)
                 except Exception as e:
                     results.append(str(e))
@@ -712,10 +712,10 @@ class TestAPIDocumentation:
 
             from app.main import app
 
-            _client = TestClient(app)
+            client = TestClient(app)
 
             # FastAPI automatically provides OpenAPI schema
-            _response = client.get("/openapi.json")
+            response = client.get("/openapi.json")
 
             if response.status_code == 200:
                 schema = response.json()
@@ -738,10 +738,10 @@ class TestAPIDocumentation:
 
             from app.main import app
 
-            _client = TestClient(app)
+            client = TestClient(app)
 
             # FastAPI automatically provides docs
-            _response = client.get("/docs")
+            response = client.get("/docs")
 
             if response.status_code == 200:
                 assert (

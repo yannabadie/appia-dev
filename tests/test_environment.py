@@ -154,7 +154,7 @@ class TestEnvironmentSetup:
     def test_poetry_environment(self):
         """Test that poetry environment is properly set up."""
         try:
-            _result = subprocess.run(
+            result = subprocess.run(
                 ["poetry", "--version"],
                 capture_output=True,
                 text=True,
@@ -169,7 +169,7 @@ class TestEnvironmentSetup:
     def test_git_availability(self):
         """Test that git is available."""
         try:
-            _result = subprocess.run(
+            result = subprocess.run(
                 ["git", "--version"],
                 capture_output=True,
                 text=True,

@@ -13,7 +13,7 @@ class TestDockerAvailability:
     def test_docker_installed(self):
         """Test that Docker is installed and accessible."""
         try:
-            _result = subprocess.run(
+            result = subprocess.run(
                 ["docker", "--version"],
                 capture_output=True,
                 text=True,
@@ -31,7 +31,7 @@ class TestDockerAvailability:
     def test_docker_daemon_running(self):
         """Test that Docker daemon is running."""
         try:
-            _result = subprocess.run(
+            result = subprocess.run(
                 ["docker", "info"], capture_output=True, text=True, timeout=15
             )
             if result.returncode != 0:
@@ -51,7 +51,7 @@ class TestDockerAvailability:
                 ["docker", "compose", "--version"],
             ]:
                 try:
-                    _result = subprocess.run(
+                    result = subprocess.run(
                         cmd, capture_output=True, text=True, timeout=10
                     )
                     if result.returncode == 0:
@@ -74,7 +74,7 @@ class TestDockerImages:
     def test_python_base_image_available(self):
         """Test that Python base image can be pulled."""
         try:
-            _result = subprocess.run(
+            result = subprocess.run(
                 [
                     "docker",
                     "images",
@@ -95,7 +95,7 @@ class TestDockerImages:
             # If image is not locally available, try to pull it (but don't fail if can't)
             if "python:3.12" not in result.stdout:
                 try:
-                    pull_result = subprocess.run(
+                    pullresult = subprocess.run(
                         ["docker", "pull", "python:3.12-slim"],
                         capture_output=True,
                         text=True,
@@ -207,7 +207,7 @@ class TestDockerCompose:
             pytest.skip("Docker Compose file not found")
 
         try:
-            _result = subprocess.run(
+            result = subprocess.run(
                 ["docker", "compose", "-f", str(compose_file), "config"],
                 capture_output=True,
                 text=True,
@@ -259,7 +259,7 @@ class TestContainerEnvironment:
         """Test that container resource limits can be applied."""
         try:
             # Simple test to check if resource limits work
-            _result = subprocess.run(
+            result = subprocess.run(
                 [
                     "docker",
                     "run",
@@ -295,7 +295,7 @@ class TestContainerEnvironment:
         """Test container networking capabilities."""
         try:
             # Test basic networking
-            _result = subprocess.run(
+            result = subprocess.run(
                 ["docker", "network", "ls"],
                 capture_output=True,
                 text=True,
