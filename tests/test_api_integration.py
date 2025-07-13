@@ -241,7 +241,7 @@ class TestSupabaseAPI:
             client = create_client(url, key)
 
             # Test basic API call
-            _response = (
+            response = (
                 client.table("test_table").select("*").limit(1).execute()
             )
 
@@ -278,9 +278,7 @@ class TestSupabaseAPI:
                 "Content-Type": "application/json",
             }
 
-            response = requests.get(
-                functions_url, headers=headers, timeout=10
-            )
+            response = requests.get(functions_url, headers=headers, timeout=10)
 
             # Should get some response (even if no functions deployed)
             assert response.status_code in [
@@ -310,9 +308,7 @@ class TestSupabaseAPI:
 
             headers = {"Authorization": f"Bearer {key}"}
 
-            response = requests.get(
-                dashboard_url, headers=headers, timeout=10
-            )
+            response = requests.get(dashboard_url, headers=headers, timeout=10)
 
             # Dashboard may or may not be deployed
             if response.status_code == 200:
@@ -545,7 +541,7 @@ class TestExternalAPIIntegration:
                 response.status_code == 200
             ), f"Anthropic API returned {response.status_code}"
 
-            _result = response.json()
+            result = response.json()
             assert "content" in result, "Anthropic API should return content"
 
             print("Anthropic API accessible")
@@ -620,7 +616,7 @@ class TestAPIErrorHandling:
 
                 # Should handle network errors gracefully
                 try:
-                    response = requests.get(
+                    _ = requests.get(
                         "https://api.openai.com/v1/models", timeout=1
                     )
                 except requests.exceptions.ConnectionError:
@@ -684,7 +680,7 @@ class TestAPIPerformance:
 
             # Make concurrent requests
             threads = []
-            for i in range(3):
+            for _ in range(3):
                 thread = threading.Thread(target=make_request)
                 threads.append(thread)
                 thread.start()

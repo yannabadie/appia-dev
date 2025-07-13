@@ -98,7 +98,7 @@ class TestSupabaseConnectivity:
 
             # Test basic connectivity with a simple query
             # This will fail if credentials are invalid
-            _response = (
+            response = (
                 client.table("test_connectivity_check")
                 .select("*")
                 .limit(1)
