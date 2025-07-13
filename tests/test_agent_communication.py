@@ -125,9 +125,9 @@ class TestGitHubCommunication:
 
     def test_github_client_initialization(self):
         """Test GitHub client initialization."""
-        token = os.getenv("GITHUB_TOKEN")
+        token = os.getenv("GH_TOKEN")
         if not token:
-            pytest.skip("GITHUB_TOKEN not available")
+            pytest.skip("GH_TOKEN not available")
 
         try:
             from github import Github, Auth
@@ -161,9 +161,9 @@ class TestGitHubCommunication:
     @pytest.mark.integration
     def test_github_repository_access(self):
         """Test access to current repository."""
-        token = os.getenv("GITHUB_TOKEN")
+        token = os.getenv("GH_TOKEN")
         if not token:
-            pytest.skip("GITHUB_TOKEN not available")
+            pytest.skip("GH_TOKEN not available")
 
         try:
             from github import Github, Auth

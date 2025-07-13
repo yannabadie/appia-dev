@@ -237,9 +237,9 @@ class TestGitHubConnectivity:
     @pytest.mark.integration
     def test_github_token_format(self):
         """Test GitHub token format."""
-        token = os.getenv("GITHUB_TOKEN")
+        token = os.getenv("GH_TOKEN")
         if not token:
-            pytest.skip("GITHUB_TOKEN not available")
+            pytest.skip("GH_TOKEN not available")
 
         # GitHub tokens can be various formats
         valid_prefixes = ["ghp_", "gho_", "ghu_", "ghs_", "ghr_"]
@@ -250,9 +250,9 @@ class TestGitHubConnectivity:
     @pytest.mark.integration
     def test_github_connectivity(self):
         """Test actual GitHub API connectivity."""
-        token = os.getenv("GITHUB_TOKEN")
+        token = os.getenv("GH_TOKEN")
         if not token:
-            pytest.skip("GITHUB_TOKEN not available")
+            pytest.skip("GH_TOKEN not available")
 
         try:
             from github import Github
