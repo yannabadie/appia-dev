@@ -247,7 +247,7 @@ class JarvysPerformanceTester:
             # Test GitHub client creation
             from github import Github
 
-            github_client = Github("test-token")
+            githubclient = Github("test-token")
 
             return True
         except ImportError:

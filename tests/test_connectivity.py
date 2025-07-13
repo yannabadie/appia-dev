@@ -32,10 +32,10 @@ class TestOpenAIConnectivity:
         try:
             from openai import OpenAI
 
-            _client = OpenAI(api_key=api_key)
+            client = OpenAI(api_key=api_key)
 
             # Test with a minimal request
-            _response = client.models.list()
+            response = client.models.list()
             assert hasattr(response, "data"), "Invalid OpenAI API response"
             assert len(response.data) > 0, "No models available from OpenAI"
 
@@ -94,7 +94,7 @@ class TestSupabaseConnectivity:
         try:
             from supabase import create_client
 
-            _client = create_client(url, key)
+            client = create_client(url, key)
 
             # Test basic connectivity with a simple query
             # This will fail if credentials are invalid
@@ -156,7 +156,7 @@ class TestGeminiConnectivity:
         try:
             # Test with a simple HTTP request to avoid import issues
             url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
-            _response = requests.get(url, timeout=10)
+            response = requests.get(url, timeout=10)
 
             if response.status_code == 401:
                 pytest.fail("Gemini API key is invalid")
@@ -211,7 +211,7 @@ class TestAnthropicConnectivity:
                 "messages": [{"role": "user", "content": "Hi"}],
             }
 
-            _response = requests.post(
+            response = requests.post(
                 "https://api.anthropic.com/v1/messages",
                 headers=headers,
                 json=data,
@@ -350,7 +350,7 @@ class TestNetworkConnectivity:
     def test_internet_connectivity(self):
         """Test basic internet connectivity."""
         try:
-            _response = requests.get("https://httpbin.org/get", timeout=10)
+            response = requests.get("https://httpbin.org/get", timeout=10)
             assert (
                 response.status_code == 200
             ), "Internet connectivity check failed"

@@ -36,7 +36,7 @@ class TestIssueProcessor(unittest.TestCase):
         mock_repo = Mock()
         mock_github.return_value.get_repo.return_value = mock_repo
 
-        _processor = IssueProcessor(
+        processor = IssueProcessor(
             self.mock_github_token,
             self.mock_repo_name,
             self.mock_supabase_url,
@@ -54,7 +54,7 @@ class TestIssueProcessor(unittest.TestCase):
         mock_repo = Mock()
         mock_github.return_value.get_repo.return_value = mock_repo
 
-        _processor = IssueProcessor(
+        processor = IssueProcessor(
             self.mock_github_token, self.mock_repo_name
         )
 
@@ -81,7 +81,7 @@ class TestIssueProcessor(unittest.TestCase):
         mock_repo = Mock()
         mock_github.return_value.get_repo.return_value = mock_repo
 
-        _processor = IssueProcessor(
+        processor = IssueProcessor(
             self.mock_github_token, self.mock_repo_name
         )
 
@@ -120,7 +120,7 @@ class TestIssueProcessor(unittest.TestCase):
 
         mock_repo.get_issues.return_value = [mock_issue_44]
 
-        _processor = IssueProcessor(
+        processor = IssueProcessor(
             self.mock_github_token, self.mock_repo_name
         )
         report = processor.generate_status_report()
@@ -205,7 +205,7 @@ class TestEarlyLaunchRequirements(unittest.TestCase):
         try:
             from issue_processor import IssueProcessor
 
-            _processor = IssueProcessor("dummy", "dummy")
+            processor = IssueProcessor("dummy", "dummy")
 
             for issue_num in all_issues:
                 self.assertIn(
@@ -253,7 +253,7 @@ class TestEarlyLaunchRequirements(unittest.TestCase):
             os.path.dirname(__file__), "..", "scripts", "issue_processor.py"
         )
 
-        _success_criteria = [
+        success_criteria = [
             "Early launch workflow successfully triggers",
             "Issues are processed in priority order",
             "Automation reports progress to dashboard",

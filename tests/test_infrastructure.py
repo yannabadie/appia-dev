@@ -46,10 +46,10 @@ class TestSupabaseInfrastructure:
         try:
             from supabase import create_client
 
-            _client = create_client(url, key)
+            client = create_client(url, key)
 
             # Test with a simple system query that should always work
-            _response = client.rpc("version").execute()
+            response = client.rpc("version").execute()
             assert response is not None, "Could not get database version"
 
         except Exception as e:
@@ -74,7 +74,7 @@ class TestSupabaseInfrastructure:
         try:
             from supabase import create_client
 
-            _client = create_client(url, key)
+            client = create_client(url, key)
 
             # Try to query the memory table structure
             _response = (
@@ -291,7 +291,7 @@ class TestStorageConfiguration:
         try:
             from supabase import create_client
 
-            _client = create_client(url, key)
+            client = create_client(url, key)
 
             # Test storage access (will fail if storage not set up, but connection works)
             try:

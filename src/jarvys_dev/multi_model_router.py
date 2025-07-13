@@ -121,8 +121,7 @@ class MultiModelRouter:
 
     # ------------------------------------------------------------------ public
     def generate(self, prompt: str, *, task_type: str = "auto") -> str:
-        """Generate a completion using the optimal model selected by"
-        "AI orchestrator."""
+        """Generate a completion using the optimal model selected by AI orchestrator."""
 
         # Analyse intelligente de la tâche
         task_analysis = self.orchestrator.analyze_task(prompt, task_type)
@@ -188,7 +187,7 @@ class MultiModelRouter:
 
             self._record_bench(optimal_model, start, prompt)
 
-            return result
+            return _result
 
         except Exception as exc:
             logger.error(
@@ -301,19 +300,19 @@ class MultiModelRouter:
                 if provider == "openai" and self.openai_client:
                     _result = self._execute_openai(model_map[provider], prompt)
                     self._record_bench(model_map[provider], start, prompt)
-                    return result
+                    return _result
 
                 if provider == "gemini" and self.gemini_available:
                     _result = self._execute_gemini(model_map[provider], prompt)
                     self._record_bench(model_map[provider], start, prompt)
-                    return result
+                    return _result
 
                 if provider == "anthropic" and self.anthropic_client:
                     _result = self._execute_anthropic(
                         model_map[provider], prompt
                     )
                     self._record_bench(model_map[provider], start, prompt)
-                    return result
+                    return _result
 
             except Exception as exc:  # pragma: no cover - network failures
                 logger.warning("%s failed: %s", provider, exc)
