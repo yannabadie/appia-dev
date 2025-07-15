@@ -1,7 +1,6 @@
-"""
-Outils de gestion de la mémoire infinie partagée entre JARVYS_DEV et JARVYS_AI.
-Utilise Supabase comme base vectorielle pour persistance et recherche sémantique.
-"""
+"""Outils de gestion de la mémoire infinie partagée entre JARVYS_DEV
+et JARVYS_AI. Utilise Supabase comme base vectorielle pour persistance
+et recherche sémantique."""
 
 import hashlib
 import logging
@@ -20,7 +19,9 @@ class JarvysInfiniteMemory:
     """Gestionnaire de mémoire infinie partagée pour l'écosystème JARVYS."""
 
     def __init__(
-        self, agent_name: str = "JARVYS_DEV", user_context: str = "default"
+        self,
+        agent_name: str = "JARVYS_DEV",
+        user_context: str = "default",
     ):
         self.agent_name = agent_name
         self.user_context = user_context
@@ -34,9 +35,7 @@ class JarvysInfiniteMemory:
         if supabase_url and supabase_key:
             try:
                 self.supabase = create_client(supabase_url, supabase_key)
-                logger.info(
-                    f"✅ Mémoire infinie initialisée pour {agent_name}"
-                )
+                logger.info(f"✅ Mémoire infinie initialisée pour {agent_name}")
             except Exception as e:
                 logger.error(f"❌ Erreur connexion Supabase: {e}")
 
@@ -58,7 +57,9 @@ class JarvysInfiniteMemory:
 
         Args:
             content: Le contenu à mémoriser
-            memory_type: Type de mémoire ('conversation', 'preference', 'knowledge', 'experience')
+            memory_type: Type de mémoire (
+                'conversation', 'preference', 'knowledge', 'experience'
+            )
             importance_score: Score d'importance (0.0 à 1.0)
             tags: Tags pour catégoriser
             metadata: Métadonnées additionnelles
@@ -68,7 +69,7 @@ class JarvysInfiniteMemory:
         """
         if not self.supabase or not self.openai_client:
             logger.warning(
-                "Mémoire non disponible (Supabase ou OpenAI manquant)"
+                "Mémoire non disponible (Supabase ou OpenAI manquant)"  # noqa: E501
             )
             return False
 
@@ -94,7 +95,7 @@ class JarvysInfiniteMemory:
             _result = (
                 self.supabase.table("jarvys_memory")
                 .insert(memory_data)
-                .execute()
+                .execute()  # noqa: E501
             )
 
             if _result.data:
@@ -168,8 +169,9 @@ class JarvysInfiniteMemory:
                 memories.sort(key=lambda x: x["similarity"], reverse=True)
 
                 logger.info(
-                    f"🧠 {len(memories)} souvenirs trouvés pour:"
-                    "{query[:30]}..."
+                    "🧠 %d souvenirs trouvés pour: %s...",
+                    len(memories),
+                    query[:30],
                 )
                 return memories[:limit]
 
@@ -268,6 +270,7 @@ class JarvysInfiniteMemory:
             return
 
         try:
+            content_hash = hashlib.md5(content.encode()).hexdigest()[:8]
             self.supabase.table("jarvys_metrics").insert(
                 {
                     "agent_type": self.agent_name,
@@ -276,9 +279,7 @@ class JarvysInfiniteMemory:
                     "success": success,
                     "metadata": {
                         "interaction_type": interaction_type,
-                        "content_hash": hashlib.md5(
-                            content.encode()
-                        ).hexdigest()[:8],
+                        "content_hash": content_hash,
                     },
                     "user_context": self.user_context,
                 }
@@ -293,12 +294,17 @@ _memory_instance = None
 
 
 def get_memory(
-    agent_name: str = "JARVYS_DEV", user_context: str = "default"
+    agent_name: str = "JARVYS_DEV",
+    user_context: str = "default",
 ) -> JarvysInfiniteMemory:
     """Récupère l'instance de mémoire (singleton par agent/user)."""
     global _memory_instance
 
-    if _memory_instance is None or _memory_instance.agent_name != agent_name:
+    if (
+        _memory_instance is None
+        or _memory_instance.agent_name != agent_name
+        or _memory_instance.user_context != user_context
+    ):
         _memory_instance = JarvysInfiniteMemory(agent_name, user_context)
 
     return _memory_instance
@@ -307,7 +313,7 @@ def get_memory(
 # Fonctions de compatibilité avec l'ancien code
 def memory_search(
     query: str, user_context: str = "default"
-) -> List[Dict[str, Any]]:
+) -> List[Dict[str, Any]]:  # noqa: E501
     """Recherche dans la mémoire (fonction de compatibilité)."""
     memory = get_memory("JARVYS_DEV", user_context)
     return memory.recall(query)
