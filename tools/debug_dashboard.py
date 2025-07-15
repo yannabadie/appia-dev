@@ -2,12 +2,10 @@
 
 import json
 import os
-import subprocess
 import sys
-import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 
 class JarvysDebugDashboard:
@@ -55,7 +53,9 @@ class JarvysDebugDashboard:
             env_status["environment_vars"][var] = {
                 "present": value is not None,
                 "length": len(value) if value else 0,
-                "prefix": (value[:10] + "..." if value and len(value) > 10 else value),
+                "prefix": (
+                    value[:10] + "..." if value and len(value) > 10 else value
+                ),
             }
 
         # Check required files
@@ -125,7 +125,7 @@ class JarvysDebugDashboard:
             try:
                 from openai import OpenAI
 
-                client = OpenAI(api_key=api_key)
+                _client = OpenAI(api_key=api_key)
                 models = client.models.list()
                 connectivity_status["openai"] = {
                     "status": "connected",
@@ -151,7 +151,7 @@ class JarvysDebugDashboard:
 
                 client = create_client(supabase_url, supabase_key)
                 # Try a simple operation
-                response = client.table("test_table").select("*").limit(1).execute()
+                client.table("test_table").select("*").limit(1).execute()
                 connectivity_status["supabase"] = {
                     "status": "connected",
                     "details": "Connection successful",
@@ -180,7 +180,7 @@ class JarvysDebugDashboard:
             try:
                 from github import Github
 
-                client = Github(github_token)
+                _client = Github(github_token)
                 user = client.get_user()
                 rate_limit = client.get_rate_limit()
                 connectivity_status["github"] = {
@@ -383,7 +383,9 @@ def main():
 
         else:
             print(f"Unknown command: {command}")
-            print("Usage: python debug_dashboard.py [report|check] [output_file]")
+            print(
+                "Usage: python debug_dashboard.py [report|check] [output_file]"
+            )
     else:
         dashboard.interactive_mode()
 

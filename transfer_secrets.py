@@ -4,11 +4,9 @@
 Exporte l'intégralité des secrets présents chez JARVYS_DEV dans JARVYS_AI
 """
 
-import json
 import os
 import subprocess
 import sys
-from typing import Dict, List
 
 
 class SecretsTransfer:
@@ -31,7 +29,7 @@ class SecretsTransfer:
     def check_gh_auth(self):
         """Vérifier l'authentification GitHub CLI"""
         try:
-            result = subprocess.run(
+            _result = subprocess.run(
                 ["gh", "auth", "status"], capture_output=True, text=True
             )
             if result.returncode == 0:
@@ -55,7 +53,9 @@ class SecretsTransfer:
             print(f"⚠️ Secret {secret_name} non trouvé dans l'environnement")
             return ""
 
-    def set_secret_in_target_repo(self, secret_name: str, secret_value: str) -> bool:
+    def set_secret_in_target_repo(
+        self, secret_name: str, secret_value: str
+    ) -> bool:
         """Définir un secret dans le repo cible"""
         try:
             if not secret_value:
@@ -73,10 +73,12 @@ class SecretsTransfer:
                 secret_value,
             ]
 
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            _result = subprocess.run(cmd, capture_output=True, text=True)
 
             if result.returncode == 0:
-                print(f"✅ Secret {secret_name} transféré vers {self.target_repo}")
+                print(
+                    f"✅ Secret {secret_name} transféré vers {self.target_repo}"
+                )
                 return True
             else:
                 print(f"❌ Erreur transfert {secret_name}: {result.stderr}")
@@ -108,11 +110,15 @@ class SecretsTransfer:
                     f"⚠️ Secret {secret_name} non disponible, création d'un placeholder"
                 )
                 # Créer un placeholder pour les secrets manquants
-                placeholder = f"PLACEHOLDER_FOR_{secret_name}_UPDATE_WITH_REAL_VALUE"
+                placeholder = (
+                    f"PLACEHOLDER_FOR_{secret_name}_UPDATE_WITH_REAL_VALUE"
+                )
                 if self.set_secret_in_target_repo(secret_name, placeholder):
                     success_count += 1
 
-        print(f"\n📊 Résultat: {success_count}/{total_count} secrets transférés")
+        print(
+            f"\n📊 Résultat: {success_count}/{total_count} secrets transférés"
+        )
 
         if success_count == total_count:
             print("✅ Tous les secrets ont été transférés avec succès!")
@@ -125,7 +131,7 @@ class SecretsTransfer:
         """Vérifier que les secrets ont bien été créés dans le repo cible"""
         try:
             cmd = ["gh", "secret", "list", "-R", self.target_repo]
-            result = subprocess.run(cmd, capture_output=True, text=True)
+            _result = subprocess.run(cmd, capture_output=True, text=True)
 
             if result.returncode == 0:
                 print(f"\n📋 Secrets dans {self.target_repo}:")
@@ -158,8 +164,12 @@ def main():
         # Vérifier les secrets dans le repo cible
         transfer.verify_secrets_in_target()
 
-        print(f"\n🔗 Repo JARVYS_AI: https://github.com/{transfer.target_repo}")
-        print("📝 Les secrets sont maintenant disponibles pour les GitHub Actions")
+        print(
+            f"\n🔗 Repo JARVYS_AI: https://github.com/{transfer.target_repo}"
+        )
+        print(
+            "📝 Les secrets sont maintenant disponibles pour les GitHub Actions"
+        )
     else:
         print("\n❌ Le transfert des secrets a échoué")
         sys.exit(1)

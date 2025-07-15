@@ -4,7 +4,6 @@ Script de test pour le JARVYS Dashboard déployé sur Supabase
 Teste tous les endpoints et vérifie le bon fonctionnement.
 """
 
-import json
 import sys
 import time
 from typing import Any, Dict
@@ -27,16 +26,16 @@ class DashboardTester:
             start_time = time.time()
 
             if method == "GET":
-                response = requests.get(url, timeout=10)
+                _response = requests.get(url, timeout=10)
             elif method == "POST":
-                response = requests.post(url, json=data, timeout=10)
+                _response = requests.post(url, json=data, timeout=10)
             else:
                 raise ValueError(f"Méthode {method} non supportée")
 
             end_time = time.time()
             duration = round((end_time - start_time) * 1000, 2)
 
-            result = {
+            _result = {
                 "endpoint": endpoint,
                 "method": method,
                 "status_code": response.status_code,
@@ -51,7 +50,7 @@ class DashboardTester:
                 if "application/json" in result["content_type"]:
                     try:
                         result["json_data"] = response.json()
-                    except:
+                    except Exception:
                         result["json_data"] = None
 
                 # Pour HTML, vérifier la présence de contenu clé
@@ -98,11 +97,13 @@ class DashboardTester:
             data = test_data[2] if len(test_data) > 2 else None
 
             print(f"Testing {method} {endpoint}...", end=" ")
-            result = self.test_endpoint(endpoint, method, data)
+            _result = self.test_endpoint(endpoint, method, data)
             self.results.append(result)
 
             if result["success"]:
-                print(f"✅ {result['status_code']} ({result['duration_ms']}ms)")
+                print(
+                    f"✅ {result['status_code']} ({result['duration_ms']}ms)"
+                )
             else:
                 print(f"❌ {result.get('status_code', 'ERROR')}")
                 if "error" in result:
@@ -140,11 +141,15 @@ class DashboardTester:
                     print(f"      Error: {test['error']}")
 
         # Statistiques de performance
-        successful_durations = [r["duration_ms"] for r in self.results if r["success"]]
+        successful_durations = [
+            r["duration_ms"] for r in self.results if r["success"]
+        ]
         if successful_durations:
-            avg_duration = sum(successful_durations) / len(successful_durations)
+            avg_duration = sum(successful_durations) / len(
+                successful_durations
+            )
             max_duration = max(successful_durations)
-            print(f"\n⚡ Performance:")
+            print("\n⚡ Performance:")
             print(f"   Temps de réponse moyen: {avg_duration:.2f}ms")
             print(f"   Temps de réponse max: {max_duration:.2f}ms")
 

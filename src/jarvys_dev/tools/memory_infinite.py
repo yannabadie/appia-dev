@@ -19,7 +19,9 @@ logger = logging.getLogger(__name__)
 class JarvysInfiniteMemory:
     """Gestionnaire de mémoire infinie partagée pour l'écosystème JARVYS."""
 
-    def __init__(self, agent_name: str = "JARVYS_DEV", user_context: str = "default"):
+    def __init__(
+        self, agent_name: str = "JARVYS_DEV", user_context: str = "default"
+    ):
         self.agent_name = agent_name
         self.user_context = user_context
         self.supabase: Optional[Client] = None
@@ -32,7 +34,9 @@ class JarvysInfiniteMemory:
         if supabase_url and supabase_key:
             try:
                 self.supabase = create_client(supabase_url, supabase_key)
-                logger.info(f"✅ Mémoire infinie initialisée pour {agent_name}")
+                logger.info(
+                    f"✅ Mémoire infinie initialisée pour {agent_name}"
+                )
             except Exception as e:
                 logger.error(f"❌ Erreur connexion Supabase: {e}")
 
@@ -63,7 +67,9 @@ class JarvysInfiniteMemory:
             True si succès, False sinon
         """
         if not self.supabase or not self.openai_client:
-            logger.warning("Mémoire non disponible (Supabase ou OpenAI manquant)")
+            logger.warning(
+                "Mémoire non disponible (Supabase ou OpenAI manquant)"
+            )
             return False
 
         try:
@@ -85,7 +91,11 @@ class JarvysInfiniteMemory:
             }
 
             # Insérer dans Supabase
-            _result = self.supabase.table("jarvys_memory").insert(memory_data).execute()
+            _result = (
+                self.supabase.table("jarvys_memory")
+                .insert(memory_data)
+                .execute()
+            )
 
             if _result.data:
                 logger.info(f"💾 Mémoire sauvegardée: {content[:50]}...")
@@ -158,7 +168,8 @@ class JarvysInfiniteMemory:
                 memories.sort(key=lambda x: x["similarity"], reverse=True)
 
                 logger.info(
-                    f"🧠 {len(memories)} souvenirs trouvés pour:" "{query[:30]}..."
+                    f"🧠 {len(memories)} souvenirs trouvés pour:"
+                    "{query[:30]}..."
                 )
                 return memories[:limit]
 
@@ -265,7 +276,9 @@ class JarvysInfiniteMemory:
                     "success": success,
                     "metadata": {
                         "interaction_type": interaction_type,
-                        "content_hash": hashlib.md5(content.encode()).hexdigest()[:8],
+                        "content_hash": hashlib.md5(
+                            content.encode()
+                        ).hexdigest()[:8],
                     },
                     "user_context": self.user_context,
                 }
@@ -292,7 +305,9 @@ def get_memory(
 
 
 # Fonctions de compatibilité avec l'ancien code
-def memory_search(query: str, user_context: str = "default") -> List[Dict[str, Any]]:
+def memory_search(
+    query: str, user_context: str = "default"
+) -> List[Dict[str, Any]]:
     """Recherche dans la mémoire (fonction de compatibilité)."""
     memory = get_memory("JARVYS_DEV", user_context)
     return memory.recall(query)

@@ -33,9 +33,9 @@ def fix_long_lines(file_path, max_length=79):
                     continue
 
             # F-strings longs
-            if 'f"' in stripped and len(stripped) > max_length:
+            if '"' in stripped and len(stripped) > max_length:
                 # Essayer de couper les f-strings
-                if '"' in stripped[stripped.find('f"') + 2 :]:
+                if '"' in stripped[stripped.find('"') + 2 :]:
                     base_indent = re.match(r"^(\s*)", stripped).group(1)
                     # Solution simple: couper au milieu si possible
                     mid = len(stripped) // 2
@@ -50,7 +50,10 @@ def fix_long_lines(file_path, max_length=79):
                             ]:
                                 new_lines.append(stripped[: pos + 1] + " \\\n")
                                 new_lines.append(
-                                    base_indent + "    " + stripped[pos + 1 :] + "\n"
+                                    base_indent
+                                    + "    "
+                                    + stripped[pos + 1 :]
+                                    + "\n"
                                 )
                                 modified = True
                                 break
@@ -67,7 +70,9 @@ def fix_long_lines(file_path, max_length=79):
                     if char in stripped:
                         pos = stripped.find(char)
                         if pos > 40:  # Assez long pour couper
-                            new_lines.append(stripped[: pos + len(char)] + "\\\n")
+                            new_lines.append(
+                                stripped[: pos + len(char)] + "\\\n"
+                            )
                             new_lines.append(
                                 base_indent
                                 + "    "

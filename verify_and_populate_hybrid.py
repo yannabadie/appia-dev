@@ -92,8 +92,12 @@ def _populate(sb: Client, ocl: OpenAI) -> None:
 
     # Note: Avec la clé 'anon', nous ne pouvons pas insérer de données
     # car Row Level Security (RLS) est activé. Ceci est normal et sécurisé.
-    logging.info("User context processed (insertion skipped due to RLS with anon key)")
-    logging.info("To enable data insertion, use service_role key instead of anon key")
+    logging.info(
+        "User context processed (insertion skipped due to RLS with anon key)"
+    )
+    logging.info(
+        "To enable data insertion, use service_role key instead of anon key"
+    )
 
 
 # ---------------------------- verification per context

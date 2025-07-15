@@ -134,7 +134,7 @@ def log_exceptions(
 
 
 # Exemple d'utilisation:
-# @log_exceptions(log_to_memory=True, supabase_client=supabase)
+# @log_exceptions(log_to_memory=True, _supabase_client =supabase)
 # async def ma_fonction():
 #     # Code qui peut lever une exception
 #     pass

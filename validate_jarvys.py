@@ -4,10 +4,7 @@ Script de validation finale pour le déploiement JARVYS Dashboard
 Vérifie la cohérence de tous les composants et la configuration
 """
 
-import json
-import os
 from pathlib import Path
-from typing import Any, Dict, List
 
 
 class JarvysValidator:
@@ -95,7 +92,7 @@ class JarvysValidator:
             ("Variable PROJECT_ID", "SUPABASE_PROJECT_ID" in content),
             ("Pas de PROJECT_REF", "SUPABASE_PROJECT_REF" not in content),
             ("Secret SPB_EDGE_FUNCTIONS", "SPB_EDGE_FUNCTIONS" in content),
-            ("Health check test", "curl -f" in content),
+            ("Health check test", "curl -" in content),
             ("Deploy command", "functions deploy" in content),
         ]
 
@@ -127,7 +124,9 @@ class JarvysValidator:
     def check_environment_consistency(self):
         """Vérifie la cohérence des variables d'environnement."""
         devcontainer_path = ".devcontainer/devcontainer.json"
-        if not self.check_file_exists(devcontainer_path, "DevContainer config"):
+        if not self.check_file_exists(
+            devcontainer_path, "DevContainer config"
+        ):
             return False
 
         with open(devcontainer_path, "r") as f:
@@ -241,7 +240,9 @@ class JarvysValidator:
             print(f"{icon} {check['name']}: {check['message']}")
 
         # Résumé
-        print(f"\n📈 Résumé: {len(passed)}/{len(self.checks)} vérifications réussies")
+        print(
+            f"\n📈 Résumé: {len(passed)}/{len(self.checks)} vérifications réussies"
+        )
 
         if critical_failed:
             print(f"\n❌ {len(critical_failed)} erreur(s) critique(s):")

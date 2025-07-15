@@ -49,7 +49,7 @@ def copilot_generate_patch(
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY manquant")
 
-    client = OpenAI(api_key=api_key)
+    _client = OpenAI(api_key=api_key)
     payload = json.dumps({"prompt": prompt, "files": files})
     resp = client.chat.completions.create(
         model="gpt-3.5-turbo",
@@ -68,7 +68,7 @@ def copilot_commit_patch(
     """Generate changes with Copilot, write files and commit them."""
     new_files, message = copilot_generate_patch(files, prompt)
     cur = (
-        subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"])
+        subprocess.check_output(["git", "rev-parse", "--abbrev-re", "HEAD"])
         .decode()
         .strip()
     )

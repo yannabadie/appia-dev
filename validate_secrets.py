@@ -4,8 +4,6 @@ Script de validation de la cohérence des noms de secrets d'environnement.
 Vérifie que tous les secrets utilisés dans le code correspondent aux secrets déclarés.
 """
 
-import glob
-import os
 import re
 from collections import defaultdict
 from pathlib import Path
@@ -99,7 +97,9 @@ def scan_repository():
 
             secrets = extract_secrets_from_file(filepath)
             for secret in secrets:
-                used_secrets[secret].append(str(filepath.relative_to(repo_root)))
+                used_secrets[secret].append(
+                    str(filepath.relative_to(repo_root))
+                )
 
     return used_secrets
 
@@ -133,7 +133,9 @@ def main():
             print(f"  🚨 {secret}")
             print(f"     Utilisé dans: {', '.join(used_secrets[secret][:3])}")
             if len(used_secrets[secret]) > 3:
-                print(f"     ... et {len(used_secrets[secret]) - 3} autres fichiers")
+                print(
+                    f"     ... et {len(used_secrets[secret]) - 3} autres fichiers"
+                )
         print()
 
     if unused_declarations:
@@ -147,8 +149,10 @@ def main():
         print("✅ Tous les secrets sont cohérents!")
         return 0
     else:
-        print(f"📊 Résumé:")
-        print(f"  - Secrets cohérents: {len(declared_secrets & used_secrets.keys())}")
+        print("📊 Résumé:")
+        print(
+            f"  - Secrets cohérents: {len(declared_secrets & used_secrets.keys())}"
+        )
         print(f"  - Manquent déclarations: {len(missing_declarations)}")
         print(f"  - Déclarations inutilisées: {len(unused_declarations)}")
         return 1

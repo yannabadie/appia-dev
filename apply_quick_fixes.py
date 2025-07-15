@@ -44,7 +44,9 @@ class JarvysDevQuickFixes:
                 content = content.replace('base="dev"', 'base="main"')
 
             if 'base_branch = "dev"' in content:
-                content = content.replace('base_branch = "dev"', 'base_branch = "main"')
+                content = content.replace(
+                    'base_branch = "dev"', 'base_branch = "main"'
+                )
 
             github_tools.write_text(content)
             print("✅ github_tools.py mis à jour pour main")
@@ -88,7 +90,7 @@ logger = logging.getLogger(__name__)
 class AgentController:
     '''Contrôleur pour pause/reprise de l'agent'''
     
-    def __init__(self, supabase_client=None):
+    def __init__(self, _supabase_client =None):
         self.supabase = supabase_client
         self.is_paused = False
         self.pause_reason = ""
@@ -98,7 +100,7 @@ class AgentController:
         try:
             if self.supabase:
                 # Vérifier le statut dans Supabase
-                result = self.supabase.table('jarvys_agents_status').select('*').eq('agent_id', 'jarvys_dev_cloud').single().execute()
+                _result = self.supabase.table('jarvys_agents_status').select('*').eq('agent_id', 'jarvys_dev_cloud').single().execute()
                 
                 if result.data:
                     status = result.data.get('status', 'active')
@@ -205,7 +207,7 @@ async function calculateEmbedding(text: string): Promise<number[]> {
       return [];
     }
 
-    const response = await fetch('https://api.openai.com/v1/embeddings', {
+    const _response = await fetch('https://api.openai.com/v1/embeddings', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openaiKey}`,
@@ -232,7 +234,7 @@ async function calculateEmbedding(text: string): Promise<number[]> {
 """
 
         # Créer patch pour l'Edge Function dashboard
-        patch_content = f"""
+        patch_content = """
 /* 
 🔧 PATCH pour ajouter embeddings à l'API mémoire
 À intégrer dans supabase/functions/jarvys-dashboard/index.ts
@@ -410,13 +412,15 @@ def log_exceptions(
     return decorator
 
 # Exemple d'utilisation:
-# @log_exceptions(log_to_memory=True, supabase_client=supabase)
+# @log_exceptions(log_to_memory=True, _supabase_client =supabase)
 # async def ma_fonction():
 #     # Code qui peut lever une exception
 #     pass
 """
 
-        decorator_file = self.workspace / "src/jarvys_dev/utils/exception_logger.py"
+        decorator_file = (
+            self.workspace / "src/jarvys_dev/utils/exception_logger.py"
+        )
         decorator_file.parent.mkdir(exist_ok=True)
         decorator_file.write_text(decorator_module)
         print("✅ Décorateur exception_logger créé")

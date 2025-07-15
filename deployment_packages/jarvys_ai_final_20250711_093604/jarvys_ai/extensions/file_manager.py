@@ -4,15 +4,10 @@
 Gestionnaire de fichiers locaux et cloud (OneDrive, Google Drive)
 """
 
-import asyncio
-import json
 import logging
-import mimetypes
-import os
-import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -195,13 +190,19 @@ class FileManager:
                 return await self._handle_file_search(command)
             elif any(word in command_lower for word in ["ouvrir", "open"]):
                 return await self._handle_open_file(command)
-            elif any(word in command_lower for word in ["créer", "create", "nouveau"]):
+            elif any(
+                word in command_lower
+                for word in ["créer", "create", "nouveau"]
+            ):
                 return await self._handle_create_file(command)
             elif any(
-                word in command_lower for word in ["déplacer", "move", "copier", "copy"]
+                word in command_lower
+                for word in ["déplacer", "move", "copier", "copy"]
             ):
                 return await self._handle_file_operation(command)
-            elif any(word in command_lower for word in ["sync", "synchroniser"]):
+            elif any(
+                word in command_lower for word in ["sync", "synchroniser"]
+            ):
                 return await self._handle_sync_command(command)
             elif any(word in command_lower for word in ["récent", "recent"]):
                 return await self._handle_recent_files()
@@ -225,16 +226,12 @@ class FileManager:
             if not results:
                 return f"❌ Aucun fichier trouvé pour '{search_term}'"
 
-            response = (
-                f"🔍 **Résultats pour '{search_term}'** ({len(results)} fichiers):\n\n"
-            )
+            _response = f"🔍 **Résultats pour '{search_term}'** ({len(results)} fichiers):\n\n"
 
             for i, file_info in enumerate(results[:5], 1):
                 response += f"{i}. 📄 **{file_info['name']}**\n"
                 response += f"   📁 {file_info['directory']}\n"
-                response += (
-                    f"   📊 {file_info['size']} | 📅 {file_info['modified']}\n\n"
-                )
+                response += f"   📊 {file_info['size']} | 📅 {file_info['modified']}\n\n"
 
             if len(results) > 5:
                 response += f"... et {len(results) - 5} autres fichiers.\n"
@@ -278,7 +275,9 @@ class FileManager:
                         "name": Path(file_info["path"]).name,
                         "path": file_info["path"],
                         "size": self._format_file_size(file_info["size"]),
-                        "modified": file_info["modified"].strftime("%d/%m/%Y %H:%M"),
+                        "modified": file_info["modified"].strftime(
+                            "%d/%m/%Y %H:%M"
+                        ),
                         "directory": file_info["directory"],
                     }
                 )
@@ -322,7 +321,7 @@ class FileManager:
                 break
 
         if self.demo_mode:
-            return f"""✅ **Fichier ouvert**
+            return """✅ **Fichier ouvert**
 
 📄 **Nom**: {filename}
 📁 **Emplacement**: {file_found['directory'] if file_found else 'Documents'}
@@ -360,7 +359,7 @@ Le fichier s'ouvre dans votre application par défaut."""
             return "❌ Veuillez spécifier le nom et type du fichier à créer."
 
         if self.demo_mode:
-            return f"""✅ **Fichier créé**
+            return """✅ **Fichier créé**
 
 📄 **Nom**: {file_info['name']}
 📁 **Emplacement**: {file_info['location']}
@@ -371,7 +370,7 @@ Le fichier a été créé et est prêt à être modifié."""
 
         else:
             # TODO: Création réelle de fichier
-            return f"Création réelle du fichier (TODO)"
+            return "Création réelle du fichier (TODO)"
 
     def _extract_create_info(self, command: str) -> Optional[Dict[str, str]]:
         """Extraire informations de création"""
@@ -404,7 +403,7 @@ Le fichier a été créé et est prêt à être modifié."""
         if self.demo_mode:
             action_fr = "copié" if operation_type == "copy" else "déplacé"
 
-            return f"""✅ **Fichier {action_fr}**
+            return """✅ **Fichier {action_fr}**
 
 📄 **Opération**: {'Copie' if operation_type == 'copy' else 'Déplacement'}
 📁 **Source**: Documents/
@@ -448,12 +447,14 @@ L'opération s'est déroulée avec succès."""
         if not self.recent_files:
             return "📁 Aucun fichier récent trouvé."
 
-        response = "📁 **Fichiers Récents** (5 derniers):\n\n"
+        _response = "📁 **Fichiers Récents** (5 derniers):\n\n"
 
         for i, file_info in enumerate(self.recent_files[:5], 1):
             response += f"{i}. 📄 **{file_info['name']}**\n"
             response += f"   📁 {file_info['path'].name}\n"
-            response += f"   📊 {file_info['size']} | 📅 {file_info['modified']}\n\n"
+            response += (
+                f"   📊 {file_info['size']} | 📅 {file_info['modified']}\n\n"
+            )
 
         response += "💡 Dites 'Ouvrir [nom]' pour ouvrir un fichier."
 
@@ -463,7 +464,7 @@ L'opération s'est déroulée avec succès."""
         """Gérer requête générale fichiers"""
         stats = await self.get_file_stats()
 
-        return f"""📁 **Gestionnaire de Fichiers JARVYS_AI**
+        return """📁 **Gestionnaire de Fichiers JARVYS_AI**
 
 📊 **Statistiques**:
 - Fichiers indexés: {stats['indexed_files']}

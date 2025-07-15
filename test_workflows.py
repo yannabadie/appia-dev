@@ -5,7 +5,6 @@
 
 import json
 import subprocess
-import sys
 from pathlib import Path
 
 
@@ -14,7 +13,7 @@ def test_wiki_generation():
     print("🧪 Test génération documentation Wiki...")
 
     try:
-        result = subprocess.run(
+        _result = subprocess.run(
             ["poetry", "run", "python", "scripts/generate_wiki_docs.py"],
             capture_output=True,
             text=True,
@@ -40,7 +39,7 @@ def test_poetry_installation():
 
     try:
         # Tester la commande du workflow
-        result = subprocess.run(
+        _result = subprocess.run(
             ["poetry", "install", "--with", "dev", "--no-interaction"],
             capture_output=True,
             text=True,
@@ -110,7 +109,7 @@ def simulate_workflow_run():
     # Étape 6: Validate installation (réel)
     print("🔍 Étape 6: Validation de l'installation...")
     try:
-        result = subprocess.run(
+        _result = subprocess.run(
             [
                 "poetry",
                 "run",
@@ -160,7 +159,7 @@ def create_workflow_test_report():
     """Créer un rapport de test du workflow"""
     print("📋 Création du rapport de test...")
 
-    report = {
+    _report = {
         "date": "2025-07-11",
         "workflow_tests": {
             "wiki_sync": {

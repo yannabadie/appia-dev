@@ -9,7 +9,7 @@ import json
 import logging
 import os
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 import requests
 
@@ -33,12 +33,8 @@ class SupabaseDashboardIntegration:
         self.config = config
 
         # Configuration Supabase
-        self.dashboard_url = (
-            "https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard"
-        )
-        self.api_endpoint = (
-            "https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard/api"
-        )
+        self.dashboard_url = "https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard"
+        self.api_endpoint = "https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard/api"
 
         # Identifiant device unique
         self.device_id = self._generate_device_id()
@@ -55,7 +51,9 @@ class SupabaseDashboardIntegration:
         import hashlib
         import socket
 
-        identifier = f"jarvys_ai_local_{socket.gethostname()}_{getpass.getuser()}"
+        identifier = (
+            f"jarvys_ai_local_{socket.gethostname()}_{getpass.getuser()}"
+        )
         return hashlib.sha256(identifier.encode()).hexdigest()[:16]
 
     async def connect_to_dashboard(self):
@@ -73,7 +71,7 @@ class SupabaseDashboardIntegration:
             }
 
             # Test connexion dashboard
-            response = requests.get(f"{self.dashboard_url}/health", timeout=10)
+            _response = requests.get(f"{self.dashboard_url}/health", timeout=10)
 
             if response.status_code == 200:
                 self.is_connected = True
@@ -84,7 +82,9 @@ class SupabaseDashboardIntegration:
 
                 return True
             else:
-                logger.warning(f"⚠️ Dashboard non accessible: {response.status_code}")
+                logger.warning(
+                    f"⚠️ Dashboard non accessible: {response.status_code}"
+                )
                 return False
 
         except Exception as e:
@@ -113,7 +113,7 @@ class SupabaseDashboardIntegration:
             logger.info(f"📡 [DÉMO] Registration: {data['device_id']}")
 
             # TODO: Implémenter envoi réel vers Supabase
-            # response = requests.post(f"{self.api_endpoint}/agents/register", json=data)
+            # _response = requests.post(f"{self.api_endpoint}/agents/register", json=data)
 
         except Exception as e:
             logger.error(f"❌ Erreur envoi registration: {e}")
@@ -182,11 +182,13 @@ class SupabaseDashboardIntegration:
         """Envoyer métriques au dashboard"""
         try:
             # Pour la démo, on log les métriques
-            logger.info(f"📊 [DÉMO] Métriques envoyées: {metrics['device_id']}")
+            logger.info(
+                f"📊 [DÉMO] Métriques envoyées: {metrics['device_id']}"
+            )
             logger.debug(f"Détails: {json.dumps(metrics, indent=2)}")
 
             # TODO: Implémenter envoi réel
-            # response = requests.post(f"{self.api_endpoint}/metrics", json=metrics)
+            # _response = requests.post(f"{self.api_endpoint}/metrics", json=metrics)
 
         except Exception as e:
             logger.error(f"❌ Erreur envoi métriques: {e}")
@@ -227,7 +229,7 @@ class SupabaseDashboardIntegration:
 
                 # Traiter la commande
                 if self.jarvys_ai:
-                    response = await self.jarvys_ai.process_command(
+                    _response = await self.jarvys_ai.process_command(
                         command, "dashboard"
                     )
                     logger.info(f"📤 Réponse envoyée: {response[:50]}...")
@@ -238,7 +240,7 @@ class SupabaseDashboardIntegration:
     async def send_status_update(self, status: str, details: str = ""):
         """Envoyer mise à jour de statut"""
         try:
-            update = {
+            _update = {
                 "device_id": self.device_id,
                 "timestamp": datetime.now().isoformat(),
                 "status": status,
@@ -253,10 +255,12 @@ class SupabaseDashboardIntegration:
         except Exception as e:
             logger.error(f"❌ Erreur envoi status: {e}")
 
-    async def send_alert(self, alert_type: str, message: str, severity: str = "info"):
+    async def send_alert(
+        self, alert_type: str, message: str, severity: str = "info"
+    ):
         """Envoyer alerte au dashboard"""
         try:
-            alert = {
+            _alert = {
                 "device_id": self.device_id,
                 "timestamp": datetime.now().isoformat(),
                 "type": alert_type,
@@ -278,7 +282,9 @@ class SupabaseDashboardIntegration:
             "is_connected": self.is_connected,
             "device_id": self.device_id,
             "dashboard_url": self.dashboard_url,
-            "last_sync": (self.last_sync.isoformat() if self.last_sync else None),
+            "last_sync": (
+                self.last_sync.isoformat() if self.last_sync else None
+            ),
             "version": "1.0.0",
         }
 

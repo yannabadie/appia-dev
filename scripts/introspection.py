@@ -15,7 +15,6 @@ sys.path.insert(0, str(Path(__file__).parent / "src"))
 
 try:
     from jarvys_dev.multi_model_router import MultiModelRouter
-    from jarvys_dev.tools.memory import memory_search, upsert_embedding
 except ImportError as e:
     print(f"Import warning: {e}")
 
@@ -32,7 +31,7 @@ class JarvysIntrospection:
 
     def analyze_codebase_structure(self) -> Dict[str, Any]:
         """Analyse la structure du codebase pour identifier les points d'amélioration."""
-        repo_root = Path(__file__).parent
+        Path(__file__).parent
 
         analysis = {
             "architecture": self._analyze_architecture(),
@@ -143,7 +142,9 @@ class JarvysIntrospection:
             ],
         }
 
-    def generate_improvement_roadmap(self, analysis: Dict[str, Any]) -> Dict[str, Any]:
+    def generate_improvement_roadmap(
+        self, analysis: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Génère une roadmap d'amélioration basée sur l'analyse."""
         roadmap = {
             "immediate_actions": [
@@ -218,7 +219,7 @@ class JarvysIntrospection:
             return "Router non disponible pour l'auto-analyse"
 
         # Construire le contexte d'introspection
-        context = f"""
+        context = """
         Tu es JARVYS_DEV, un agent DevOps autonome. Tu t'analyses toi-même.
         
         Ton architecture actuelle:
@@ -234,14 +235,18 @@ class JarvysIntrospection:
         """
 
         try:
-            response = self.router.generate(context, task_type="reasoning")
-            return response.get("content", "Erreur dans la génération de réponse")
+            _response = self.router.generate(context, task_type="reasoning")
+            return response.get(
+                "content", "Erreur dans la génération de réponse"
+            )
         except Exception as e:
             return f"Erreur lors de l'auto-analyse: {e}"
 
-    def save_analysis_report(self, analysis: Dict[str, Any], roadmap: Dict[str, Any]):
+    def save_analysis_report(
+        self, analysis: Dict[str, Any], roadmap: Dict[str, Any]
+    ):
         """Sauvegarde le rapport d'analyse."""
-        report = {
+        _report = {
             "timestamp": datetime.now().isoformat(),
             "analysis": analysis,
             "roadmap": roadmap,
@@ -283,7 +288,9 @@ def main():
 
     print("\n🚀 **Actions immédiates recommandées:**")
     for action in roadmap["immediate_actions"]:
-        print(f"- [{action['priority']}] {action['task']} (Effort: {action['effort']})")
+        print(
+            f"- [{action['priority']}] {action['task']} (Effort: {action['effort']})"
+        )
 
     # Questions d'introspection interactives
     print("\n💬 **Session d'auto-questionnement:**")
@@ -296,7 +303,7 @@ def main():
 
     for question in questions:
         print(f"\n❓ {question}")
-        response = introspector.chat_with_self(question)
+        _response = introspector.chat_with_self(question)
         print(f"🤖 {response[:200]}...")
 
     # Sauvegarde du rapport

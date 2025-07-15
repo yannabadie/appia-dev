@@ -4,7 +4,6 @@
 """
 
 import subprocess
-import sys
 from pathlib import Path
 
 
@@ -14,7 +13,7 @@ def fix_poetry_lock_issue():
 
     try:
         # Vérifier le statut actuel
-        result = subprocess.run(
+        _result = subprocess.run(
             ["poetry", "check"],
             capture_output=True,
             text=True,
@@ -36,7 +35,9 @@ def fix_poetry_lock_issue():
 
         if lock_result.returncode != 0:
             print("🔄 Régénération du fichier poetry.lock...")
-            subprocess.run(["poetry", "lock"], cwd="/workspaces/appia-dev", check=True)
+            subprocess.run(
+                ["poetry", "lock"], cwd="/workspaces/appia-dev", check=True
+            )
             print("✅ Fichier poetry.lock régénéré")
         else:
             print("✅ Fichier poetry.lock synchronisé")
@@ -55,7 +56,7 @@ def test_workflow_locally():
     try:
         # Simuler l'installation des dépendances
         print("📦 Test installation des dépendances...")
-        result = subprocess.run(
+        _result = subprocess.run(
             ["poetry", "install", "--with", "dev"],
             capture_output=True,
             text=True,
@@ -70,7 +71,7 @@ def test_workflow_locally():
 
         # Tester la génération de documentation
         print("📚 Test génération documentation...")
-        result = subprocess.run(
+        _result = subprocess.run(
             ["poetry", "run", "python", "scripts/generate_wiki_docs.py"],
             capture_output=True,
             text=True,
@@ -202,7 +203,9 @@ jobs:
 """
 
     # Écrire le workflow optimisé
-    workflow_file = Path("/workspaces/appia-dev/.github/workflows/wiki-sync.yml")
+    workflow_file = Path(
+        "/workspaces/appia-dev/.github/workflows/wiki-sync.yml"
+    )
     workflow_file.write_text(workflow_content)
     print("✅ Workflow optimisé avec gestion d'erreurs robuste")
 

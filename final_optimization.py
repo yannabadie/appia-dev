@@ -4,11 +4,7 @@
 """
 
 import json
-import subprocess
-import time
 from pathlib import Path
-
-import requests
 
 
 class JarvysSystemOptimizer:
@@ -350,7 +346,7 @@ echo "✅ JARVYS System prêt !"
             self.create_final_documentation()
 
             # Créer le résumé de déploiement
-            summary = self.create_deployment_summary()
+            self.create_deployment_summary()
 
             # Créer le script de démarrage rapide
             self.create_quick_start_script()
@@ -365,7 +361,9 @@ echo "✅ JARVYS System prêt !"
             print("\n🚀 Commandes utiles :")
             print("  ./quickstart.sh --dashboard  # Démarrer avec dashboard")
             print("  python test_workflows.py     # Valider les workflows")
-            print("  poetry run python src/jarvys_dev/main.py  # Démarrer JARVYS_DEV")
+            print(
+                "  poetry run python src/jarvys_dev/main.py  # Démarrer JARVYS_DEV"
+            )
 
             return True
 
