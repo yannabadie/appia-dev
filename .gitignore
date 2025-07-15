@@ -6,3 +6,7 @@ __pycache__/
 gcp-sa.json
 *-sa.json
 node_modules/
+.env
+
+# Deployment packages
+deployment_packages/

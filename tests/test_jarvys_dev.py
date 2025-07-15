@@ -284,10 +284,10 @@ class TestJarvysDevAPI:
             from jarvys_dev.main import app
 
             _client = TestClient(app)
-            _response = client.get("/")
+            _response = _client.get("/")
 
             # Should return successful response
-            assert response.status_code == 200
+            assert _response.status_code == 200
 
         except Exception as e:
             pytest.fail(f"API health endpoint test failed: {e}")
