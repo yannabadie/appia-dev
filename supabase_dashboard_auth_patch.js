@@ -5,7 +5,7 @@
 const ADMIN_TOKEN = Deno.env.get('SUPABASE_SERVICE_ROLE') || 'admin-token';
 
 // Fonction d'authentification simple
-function authenticateRequest(req: Request): boolean {
+function authenticateRequest(req) {
   const authHeader = req.headers.get('Authorization');
   
   // Accepter les tokens suivants:
