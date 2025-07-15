@@ -4,8 +4,6 @@
 """
 
 import json
-import os
-import subprocess
 from pathlib import Path
 
 import requests
@@ -348,7 +346,7 @@ serve(async (req) => {
 
         try:
             # Test avec token valide
-            response = requests.get(
+            _response = requests.get(
                 "https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard/health",
                 timeout=10,
             )
@@ -369,7 +367,9 @@ serve(async (req) => {
                 print(
                     "⚠️ L'authentification nécessite encore la mise à jour de la Edge Function"
                 )
-                print("📝 Le patch doit être appliqué manuellement dans Supabase")
+                print(
+                    "📝 Le patch doit être appliqué manuellement dans Supabase"
+                )
             else:
                 print(f"🔍 Status metrics: {response_metrics.status_code}")
 

@@ -34,7 +34,8 @@ def fix_line_length_issues(file_path):
                                 lines[i] = before_paren + comma_parts[0] + ","
                                 lines.insert(
                                     i + 1,
-                                    " " * (indent + 4) + comma_parts[1].lstrip(),
+                                    " " * (indent + 4)
+                                    + comma_parts[1].lstrip(),
                                 )
                                 modified = True
                                 continue
@@ -76,11 +77,11 @@ def fix_line_length_issues(file_path):
 
 
 def fix_bare_except(file_path):
-    """Remplace les 'except:' nus par 'except Exception:'."""
+    """Remplace les 'except Exception:' nus par 'except Exception:'."""
     with open(file_path, "r", encoding="utf-8") as f:
         content = f.read()
 
-    # Remplacer les except: par except Exception:
+    # Remplacer les except Exception: par except Exception:
     new_content = re.sub(r"except\s*:", "except Exception:", content)
 
     if new_content != content:

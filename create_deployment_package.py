@@ -328,7 +328,7 @@ docker-compose -f docker-compose.windows.yml up -d
 echo ""
 echo "✅ JARVYS_AI deployed successfully!"
 echo "🌐 Web interface: http://localhost:8000"
-echo "📝 Check logs: docker-compose -f docker-compose.windows.yml logs -f"
+echo "📝 Check logs: docker-compose -f docker-compose.windows.yml logs -"
 echo "🛑 Stop JARVYS_AI: docker-compose -f docker-compose.windows.yml down"
 """
 
@@ -573,7 +573,9 @@ For support and updates: https://github.com/yannabadie/appIA
 
         logger.info("✅ Package README created")
 
-    def _create_zip_archive(self, package_path: Path, package_name: str) -> Path:
+    def _create_zip_archive(
+        self, package_path: Path, package_name: str
+    ) -> Path:
         """Create ZIP archive of the deployment package"""
         logger.info("🗜️ Creating ZIP archive...")
 
@@ -587,7 +589,9 @@ For support and updates: https://github.com/yannabadie/appIA
 
         # Calculate size
         size_mb = zip_path.stat().st_size / (1024 * 1024)
-        logger.info(f"✅ ZIP archive created: {zip_path.name} ({size_mb:.1f} MB)")
+        logger.info(
+            f"✅ ZIP archive created: {zip_path.name} ({size_mb:.1f} MB)"
+        )
 
         return zip_path
 
@@ -602,7 +606,7 @@ def main():
     zip_path = packager.create_deployment_package()
 
     if zip_path:
-        print(f"\n🎉 Deployment package created successfully!")
+        print("\n🎉 Deployment package created successfully!")
         print(f"📁 Location: {zip_path}")
         print(f"📏 Size: {zip_path.stat().st_size / (1024 * 1024):.1f} MB")
         print("\n📋 Next Steps:")

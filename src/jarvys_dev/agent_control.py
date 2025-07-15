@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class AgentController:
     """Contrôleur pour pause/reprise de l'agent"""
 
-    def __init__(self, supabase_client=None):
+    def __init__(self, _supabase_client =None):
         self.supabase = supabase_client
         self.is_paused = False
         self.pause_reason = ""

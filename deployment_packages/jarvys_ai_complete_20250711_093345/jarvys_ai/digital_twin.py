@@ -4,13 +4,12 @@
 Module de personnalisation et apprentissage continu
 """
 
-import asyncio
 import json
 import logging
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict
 
 logger = logging.getLogger(__name__)
 
@@ -125,7 +124,9 @@ class DigitalTwin:
         await self.save_profile()
         logger.info("👤 Profil par défaut créé pour Yann Abadie")
 
-    async def update_interaction(self, command: str, response: str, interface: str):
+    async def update_interaction(
+        self, command: str, response: str, interface: str
+    ):
         """Enregistrer une nouvelle interaction"""
         try:
             interaction = {
@@ -248,7 +249,9 @@ class DigitalTwin:
         """Sauvegarder l'historique des interactions"""
         try:
             with open(self.history_file, "w", encoding="utf-8") as f:
-                json.dump(self.interaction_history, f, indent=2, ensure_ascii=False)
+                json.dump(
+                    self.interaction_history, f, indent=2, ensure_ascii=False
+                )
 
             logger.debug("💾 Historique sauvegardé")
 
@@ -273,7 +276,9 @@ class DigitalTwin:
             "recent_interactions": len(recent_interactions),
             "total_interactions": len(self.interaction_history),
             "last_interaction": (
-                recent_interactions[-1]["timestamp"] if recent_interactions else None
+                recent_interactions[-1]["timestamp"]
+                if recent_interactions
+                else None
             ),
             "most_used_category": self._get_most_used_category(),
         }
@@ -290,9 +295,13 @@ class DigitalTwin:
 
         return max(categories, key=categories.get)
 
-    def get_personalized_response(self, base_response: str, context: str = "") -> str:
+    def get_personalized_response(
+        self, base_response: str, context: str = ""
+    ) -> str:
         """Personnaliser une réponse selon le profil"""
-        style = self.preferences.get("communication_style", "professional_friendly")
+        style = self.preferences.get(
+            "communication_style", "professional_friendly"
+        )
 
         if style == "formal":
             if not base_response.startswith(("Monsieur", "Bonjour")):

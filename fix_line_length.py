@@ -2,8 +2,6 @@
 """
 Script pour corriger automatiquement les lignes trop longues (E501)
 """
-import os
-import re
 from pathlib import Path
 
 
@@ -68,28 +66,28 @@ def fix_line_length_issues():
     f_string_fixes = {
         "fix_precommit_errors.py": [
             (
-                'f"\\n✅ Toutes les corrections de formatage appliquées!"',
+                '"\\n✅ Toutes les corrections de formatage appliquées!"',
                 '"\\n✅ Toutes les corrections de formatage appliquées!"',
             ),
         ],
         "src/jarvys_dev/auto_model_updater.py": [
             (
-                'f"[AutoUpdater] Checking model updates..."',
+                '"[AutoUpdater] Checking model updates..."',
                 '"[AutoUpdater] Checking model updates..."',
             ),
         ],
         "tests/test_docker.py": [
             (
-                'f"Expected Docker container test"',
+                '"Expected Docker container test"',
                 '"Expected Docker container test"',
             ),
             (
-                'f"This test verifies Docker functionality"',
+                '"This test verifies Docker functionality"',
                 '"This test verifies Docker functionality"',
             ),
         ],
         "tools/log_analyzer.py": [
-            ('f"Log analysis report"', '"Log analysis report"'),
+            ('"Log analysis report"', '"Log analysis report"'),
         ],
     }
 

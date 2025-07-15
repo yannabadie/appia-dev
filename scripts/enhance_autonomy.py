@@ -4,9 +4,6 @@ Améliorations pour l'autonomie de JARVYS_DEV
 Analyse continue et suggestions d'optimisation
 """
 
-import json
-import logging
-import os
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -220,7 +217,7 @@ class AutonomyEnhancer:
             if category["priority"] == "HIGH":
                 title = f"🤖 Enhance Autonomy: {category['category']}"
 
-                body = f"""# Amélioration de l'autonomie - {category['category']}
+                body = """# Amélioration de l'autonomie - {category['category']}
 
 ## Contexte
 Cette issue fait partie du plan d'amélioration de l'autonomie de JARVYS_DEV.
@@ -253,7 +250,7 @@ Cette issue fait partie du plan d'amélioration de l'autonomie de JARVYS_DEV.
         """Génère un rapport complet sur l'état de l'autonomie."""
         plan = self.generate_enhancement_plan()
 
-        report = f"""# 🤖 Rapport d'Autonomie JARVYS_DEV
+        _report = """# 🤖 Rapport d'Autonomie JARVYS_DEV
 
 *Généré automatiquement le {datetime.now().strftime('%d/%m/%Y à %H:%M')}*
 

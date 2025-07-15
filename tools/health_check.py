@@ -2,14 +2,11 @@
 
 import json
 import os
-import subprocess
 import sys
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
-
-import requests
+from typing import Any, Dict, Optional
 
 
 class JarvysHealthChecker:
@@ -78,7 +75,9 @@ class JarvysHealthChecker:
                     "status": "warning",
                     "exists": False,
                 }
-                health["warnings"].append(f"Missing configuration file: {file_name}")
+                health["warnings"].append(
+                    f"Missing configuration file: {file_name}"
+                )
                 if health["status"] == "healthy":
                     health["status"] = "warning"
 
@@ -138,7 +137,7 @@ class JarvysHealthChecker:
             try:
                 from openai import OpenAI
 
-                client = OpenAI(api_key=openai_key)
+                _client = OpenAI(api_key=openai_key)
 
                 start_time = time.time()
                 models = client.models.list()
@@ -175,7 +174,7 @@ class JarvysHealthChecker:
                 client = create_client(supabase_url, supabase_key)
 
                 start_time = time.time()
-                response = client.table("health_check").select("*").limit(1).execute()
+                client.table("health_check").select("*").limit(1).execute()
                 response_time = time.time() - start_time
 
                 health["checks"]["supabase_api"] = {
@@ -212,7 +211,7 @@ class JarvysHealthChecker:
             try:
                 from github import Github
 
-                client = Github(github_token)
+                _client = Github(github_token)
 
                 start_time = time.time()
                 user = client.get_user()
@@ -456,7 +455,9 @@ class JarvysHealthChecker:
                 overall_warnings.extend(component_health.get("warnings", []))
 
             # Count passed/warning/error checks
-            for check_name, check_result in component_health.get("checks", {}).items():
+            for check_name, check_result in component_health.get(
+                "checks", {}
+            ).items():
                 if check_result["status"] == "ok":
                     overall_health["summary"]["passed"] += 1
                 elif check_result["status"] == "warning":
@@ -495,7 +496,7 @@ class JarvysHealthChecker:
         print()
 
         summary = health["summary"]
-        print(f"📊 Summary:")
+        print("📊 Summary:")
         print(f"  Total Checks: {summary['total_checks']}")
         print(f"  ✅ Passed: {summary['passed']}")
         print(f"  ⚠️  Warnings: {summary['warnings']}")
