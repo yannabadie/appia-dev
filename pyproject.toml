@@ -73,6 +73,16 @@ ignore = [
 [tool.black]
 line-length = 88
 
+[tool.ruff.lint]
+ignore = [
+    "RUF001",
+    "RUF002",
+    "E501",
+]
+
+[tool.black]
+line-length = 88
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
