@@ -42,7 +42,8 @@ class ContinuousImprovement:
 
         # Configuration JARVYS_DEV
         self.jarvys_dev_endpoint = config.get(
-            "jarvys_dev_endpoint", "https://kzcswopokvknxmxczilu.supabase.co"
+            "jarvys_dev_endpoint",
+            "https://kzcswopokvknxmxczilu.supabase.co",
         )
         self.sync_token = config.get("sync_token")
         self.device_id = self._generate_device_id()
@@ -161,7 +162,7 @@ class ContinuousImprovement:
 
             if self.demo_mode:
                 logger.info(
-                    f"🔄 [DÉMO] Enregistrement: {registration_data['device_id']}"
+                    f"🔄 [DÉMO] Enregistrement: " f"{registration_data['device_id']}"
                 )
                 return True
             else:
@@ -346,7 +347,9 @@ class ContinuousImprovement:
         """Appliquer une mise à jour de fonctionnalité"""
         if self.demo_mode:
             await asyncio.sleep(2)  # Simulation délai
-            logger.info(f"✨ [DÉMO] Fonctionnalité appliquée: {update['description']}")
+            logger.info(
+                f"✨ [DÉMO] Fonctionnalité appliquée: " f"{update['description']}"
+            )
             return True
         else:
             # TODO: Implémenter application réelle
@@ -549,7 +552,7 @@ class ContinuousImprovement:
 
     # Enhanced Real-time Sync Methods
 
-    async def start_continuous_sync(self):
+    def start_continuous_sync(self):
         """Start continuous sync with JARVYS_DEV and GitHub repository"""
         if self.is_running:
             logger.warning("Continuous sync already running")
@@ -560,28 +563,6 @@ class ContinuousImprovement:
         self.update_thread.start()
         logger.info(
             "🔄 Started continuous sync (interval: " f"{self.sync_interval} minutes)"
-        )
-
-    def stop_continuous_sync(self):
-        """Stop continuous sync"""
-        }
-
-    # Enhanced Real-time Sync Methods
-
-    async def start_continuous_sync(self):
-        """Start continuous sync with JARVYS_DEV and GitHub repository"""
-        if self.is_running:
-            logger.warning("Continuous sync already running")
-            return
-
-        self.is_running = True
-        self.update_thread = threading.Thread(
-            target=self._sync_loop, daemon=True
-        )
-        self.update_thread.start()
-        logger.info(
-            "🔄 Started continuous sync (interval: "
-            f"{self.sync_interval} minutes)"
         )
 
     def stop_continuous_sync(self):
@@ -611,6 +592,25 @@ class ContinuousImprovement:
             logger.info("🔄 Starting sync cycle...")
 
             # 1. Check for updates from GitHub repository
+            github_updates = await self._check_github_updates()
+
+            # 2. Check JARVYS_DEV dashboard for commands/improvements
+            dashboard_updates = await self._check_dashboard_updates()
+
+            # 3. Apply updates if available and auto_update is enabled
+            if (github_updates or dashboard_updates) and self.auto_update:
+                await self._apply_updates(github_updates, dashboard_updates)
+
+            # 4. Report performance metrics to JARVYS_DEV
+            await self._report_metrics()
+
+            logger.info("✅ Sync cycle completed")
+
+        except Exception as e:
+            logger.error(f"❌ Sync cycle execution failed: {e}")
+
+    async def _check_github_updates(self) -> List[Dict[str, Any]]:
+        """Check GitHub repository for code updates"""
         try:
             # Clone/update temporary repository
             if not await self._update_temp_repo():
@@ -769,7 +769,7 @@ class ContinuousImprovement:
         try:
             # Create backup before applying updates
             if self.backup_before_update:
-                backup_id = await self._create_backup()
+                backup_id = await self._create_backup_sync()
                 if not backup_id:
                     logger.error("❌ Failed to create backup, skipping updates")
                     return
@@ -884,7 +884,7 @@ class ContinuousImprovement:
             logger.error(f"❌ Error applying dashboard update: {e}")
             return False
 
-    async def _create_backup(self) -> Optional[str]:
+    async def _create_backup_sync(self) -> Optional[str]:
         """Create backup of current JARVYS_AI code"""
         try:
             backup_id = datetime.now().strftime("%Y%m%d_%H%M%S")
