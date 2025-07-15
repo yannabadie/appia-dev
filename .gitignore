@@ -13,3 +13,6 @@ deployment_packages/
 
 # Add grok_fix_flake8.py to gitignore as it contains sensitive data
 grok_fix_flake8.py
+appIA/
+appia-dev/
+local_logs.json
