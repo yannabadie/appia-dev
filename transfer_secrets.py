@@ -32,7 +32,7 @@ class SecretsTransfer:
             _result = subprocess.run(
                 ["gh", "auth", "status"], capture_output=True, text=True
             )
-            if result.returncode == 0:
+            if _result.returncode == 0:
                 print("✅ GitHub CLI authentifié")
                 return True
             else:
@@ -44,8 +44,12 @@ class SecretsTransfer:
             return False
 
     def get_secret_value(self, secret_name: str) -> str:
-        """Récupérer la valeur d'un secret depuis les variables d'environnement GitHub Actions"""
-        # En mode GitHub Actions, les secrets sont disponibles via l'environnement
+        (
+            """Récupérer la valeur d'un secret depuis les variables "
+            "d'environnement GitHub Actions"""
+        )
+        # En mode GitHub Actions, les secrets sont disponibles via
+        # l'environnement
         value = os.environ.get(secret_name)
         if value:
             return value
@@ -54,7 +58,9 @@ class SecretsTransfer:
             return ""
 
     def set_secret_in_target_repo(
-        self, secret_name: str, secret_value: str
+        self,
+        secret_name: str,
+        secret_value: str,
     ) -> bool:
         """Définir un secret dans le repo cible"""
         try:
@@ -75,13 +81,13 @@ class SecretsTransfer:
 
             _result = subprocess.run(cmd, capture_output=True, text=True)
 
-            if result.returncode == 0:
+            if _result.returncode == 0:
                 print(
                     f"✅ Secret {secret_name} transféré vers {self.target_repo}"
-                )
+                )  # noqa: E501
                 return True
             else:
-                print(f"❌ Erreur transfert {secret_name}: {result.stderr}")
+                print(f"❌ Erreur transfert {secret_name}: {_result.stderr}")
                 return False
 
         except Exception as e:
@@ -107,18 +113,18 @@ class SecretsTransfer:
                     success_count += 1
             else:
                 print(
-                    f"⚠️ Secret {secret_name} non disponible, création d'un placeholder"
+                    f"⚠️ Secret {secret_name} non disponible, création d'un "
+                    "placeholder"
                 )
                 # Créer un placeholder pour les secrets manquants
-                placeholder = (
-                    f"PLACEHOLDER_FOR_{secret_name}_UPDATE_WITH_REAL_VALUE"
-                )
+                ph = f"PLACEHOLDER_FOR_{secret_name}_UPDATE_WITH_REAL_VALUE"
+                placeholder = ph
                 if self.set_secret_in_target_repo(secret_name, placeholder):
                     success_count += 1
 
         print(
             f"\n📊 Résultat: {success_count}/{total_count} secrets transférés"
-        )
+        )  # noqa: E501
 
         if success_count == total_count:
             print("✅ Tous les secrets ont été transférés avec succès!")
@@ -133,12 +139,12 @@ class SecretsTransfer:
             cmd = ["gh", "secret", "list", "-R", self.target_repo]
             _result = subprocess.run(cmd, capture_output=True, text=True)
 
-            if result.returncode == 0:
+            if _result.returncode == 0:
                 print(f"\n📋 Secrets dans {self.target_repo}:")
-                print(result.stdout)
+                print(_result.stdout)
                 return True
             else:
-                print(f"❌ Erreur lors de la vérification: {result.stderr}")
+                print(f"❌ Erreur lors de la vérification: {_result.stderr}")
                 return False
 
         except Exception as e:
@@ -166,10 +172,10 @@ def main():
 
         print(
             f"\n🔗 Repo JARVYS_AI: https://github.com/{transfer.target_repo}"
-        )
+        )  # noqa: E501
         print(
             "📝 Les secrets sont maintenant disponibles pour les GitHub Actions"
-        )
+        )  # noqa: E501
     else:
         print("\n❌ Le transfert des secrets a échoué")
         sys.exit(1)

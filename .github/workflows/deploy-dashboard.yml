@@ -126,7 +126,7 @@ jobs:
             exit 1
           fi
 
-          echo "$SUPABASE_SERVICE_ROLE" | supabase auth login --token -
+          supabase auth login --token "$SUPABASE_SERVICE_ROLE" >/dev/null 2>&1
           echo "✅ Authentification réussie"
 
       - name: 🏗️ Auto-validate project structure
@@ -172,7 +172,7 @@ jobs:
       - name: 🔧 Setup environment
         run: |
           npm install -g supabase@latest
-          echo "$SUPABASE_SERVICE_ROLE" | supabase auth login --token -
+          supabase auth login --token "$SUPABASE_SERVICE_ROLE" >/dev/null 2>&1
 
       - name: 🚀 Auto-deploy with retry logic
         run: |
