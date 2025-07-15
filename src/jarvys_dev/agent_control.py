@@ -125,3 +125,10 @@ async def check_and_wait_if_paused():
         await agent_controller.check_pause_status()
 
     return True
+
+
+def route_to_grok(query):
+    from grok_api import GrokClient
+
+    client = GrokClient(api_key=os.getenv("GROK_API_KEY"))
+    return client.complete(query, model="grok-4")
