@@ -228,7 +228,7 @@ Quel type de déploiement souhaitez-vous ?"""
 
     async def _get_demo_cost_report(self) -> str:
         """Rapport de coûts simulé"""
-        total_cost = sum(
+        sum(
             provider["cost_today"]
             for provider in self.cloud_providers.values()
             if provider.get("cost_today", 0) > 0
@@ -325,7 +325,7 @@ Quel type de déploiement souhaitez-vous ?"""
         if self.demo_mode:
             await asyncio.sleep(1.5)  # Simulation création backup
 
-            backup_id = f"backup-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+            f"backup-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
 
             return """💾 **Sauvegarde Créée**
 
@@ -388,10 +388,8 @@ Commandes: "Restaurer backup-[ID]" ou "Créer backup"."""
 
     async def _get_mcp_status(self) -> str:
         """Obtenir statut MCP"""
-        active_servers = sum(
-            1 for server in self.mcp_config["servers"] if server["status"] == "active"
-        )
-        total_servers = len(self.mcp_config["servers"])
+        sum(1 for server in self.mcp_config["servers"] if server["status"] == "active")
+        len(self.mcp_config["servers"])
 
         return """🔗 **Model Context Protocol (MCP)**
 
@@ -413,7 +411,7 @@ Commandes: "Restaurer backup-[ID]" ou "Créer backup"."""
 
     async def _handle_general_cloud_query(self, command: str) -> str:
         """Gérer requête générale cloud"""
-        stats = await self.get_cloud_stats()
+        await self.get_cloud_stats()
 
         return """☁️ **Gestionnaire Cloud JARVYS_AI**
 

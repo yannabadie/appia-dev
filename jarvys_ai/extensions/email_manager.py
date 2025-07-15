@@ -396,7 +396,7 @@ Que souhaitez-vous faire exactement ?"""
 
     async def _handle_general_email_query(self, command: str) -> str:
         """Gérer requête générale sur les emails"""
-        stats = await self.get_email_stats()
+        await self.get_email_stats()
 
         return """📧 **État de vos emails**
 

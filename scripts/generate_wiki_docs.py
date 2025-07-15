@@ -204,15 +204,15 @@ class WikiGenerator:
     def generate_home_page(self) -> str:
         """Génère la page d'accueil du Wiki."""
         capabilities = self.analyze_code_capabilities()
-        workflows = self._analyze_workflows()
+        self._analyze_workflows()
 
         # Préparer les données pour éviter les f-string complexes
-        current_date = self._get_current_date()
-        loop_type = capabilities["core_loop"]["type"]
-        loop_impl = capabilities["core_loop"]["implementation"]
-        confidence_threshold = capabilities["core_loop"]["confidence_threshold"]
-        providers = self._format_list(capabilities["models"]["supported_providers"])
-        models_json = json.dumps(capabilities["models"]["current_models"], indent=2)
+        self._get_current_date()
+        capabilities["core_loop"]["type"]
+        capabilities["core_loop"]["implementation"]
+        capabilities["core_loop"]["confidence_threshold"]
+        self._format_list(capabilities["models"]["supported_providers"])
+        json.dumps(capabilities["models"]["current_models"], indent=2)
 
         content = """# 🤖 JARVYS_DEV - Agent DevOps Autonome
 
@@ -327,7 +327,7 @@ JARVYS_DEV communique avec **JARVYS_AI** via :
 
     def generate_api_reference(self) -> str:
         """Génère la référence API complète."""
-        capabilities = self.analyze_code_capabilities()
+        self.analyze_code_capabilities()
 
         content = """# 📚 Référence API JARVYS_DEV
 

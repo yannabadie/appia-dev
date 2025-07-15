@@ -36,7 +36,7 @@ class TestIssueProcessor(unittest.TestCase):
         mock_repo = Mock()
         mock_github.return_value.get_repo.return_value = mock_repo
 
-        processor = IssueProcessor(
+        IssueProcessor(
             self.mock_github_token,
             self.mock_repo_name,
             self.mock_supabase_url,

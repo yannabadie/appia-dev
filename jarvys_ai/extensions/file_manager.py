@@ -220,7 +220,7 @@ class FileManager:
             if not results:
                 return f"❌ Aucun fichier trouvé pour '{search_term}'"
 
-            _response = (
+            response = (
                 f"🔍 **Résultats pour '{search_term}'** ({len(results)} fichiers):\n\n"
             )
 
@@ -310,10 +310,8 @@ class FileManager:
             return "❌ Veuillez spécifier le nom du fichier à ouvrir."
 
         # Rechercher le fichier
-        file_found = None
         for indexed_name, file_info in self.file_index.items():
             if filename.lower() in indexed_name:
-                file_found = file_info
                 break
 
         if self.demo_mode:
@@ -394,11 +392,9 @@ Le fichier a été créé et est prêt à être modifié."""
 
     async def _handle_file_operation(self, command: str) -> str:
         """Gérer opérations sur fichiers (copier, déplacer)"""
-        operation_type = "copy" if "copier" in command.lower() else "move"
+        "copy" if "copier" in command.lower() else "move"
 
         if self.demo_mode:
-            action_fr = "copié" if operation_type == "copy" else "déplacé"
-
             return """✅ **Fichier {action_fr}**
 
 📄 **Opération**: {'Copie' if operation_type == 'copy' else 'Déplacement'}
@@ -443,7 +439,7 @@ L'opération s'est déroulée avec succès."""
         if not self.recent_files:
             return "📁 Aucun fichier récent trouvé."
 
-        _response = "📁 **Fichiers Récents** (5 derniers):\n\n"
+        response = "📁 **Fichiers Récents** (5 derniers):\n\n"
 
         for i, file_info in enumerate(self.recent_files[:5], 1):
             response += f"{i}. 📄 **{file_info['name']}**\n"
@@ -456,7 +452,7 @@ L'opération s'est déroulée avec succès."""
 
     async def _handle_general_file_query(self, command: str) -> str:
         """Gérer requête générale fichiers"""
-        stats = await self.get_file_stats()
+        await self.get_file_stats()
 
         return """📁 **Gestionnaire de Fichiers JARVYS_AI**
 

@@ -5,6 +5,7 @@ Analyse continue et suggestions d'optimisation
 """
 
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List
 
@@ -249,7 +250,7 @@ Cette issue fait partie du plan d'amélioration de l'autonomie de JARVYS_DEV.
         """Génère un rapport complet sur l'état de l'autonomie."""
         plan = self.generate_enhancement_plan()
 
-        _report = """# 🤖 Rapport d'Autonomie JARVYS_DEV
+        report = f"""# 🤖 Rapport d'Autonomie JARVYS_DEV
 
 *Généré automatiquement le {datetime.now().strftime('%d/%m/%Y à %H:%M')}*
 

@@ -171,7 +171,7 @@ class VoiceInterface:
                 logger.info(f"🎤 Traitement commande: {command}")
 
                 # Envoyer au système principal
-                _response = await self.command_callback(command, "voice")
+                response = await self.command_callback(command, "voice")
 
                 # Prononcer la réponse
                 await self.speak(response)
@@ -330,9 +330,7 @@ class VoiceInterface:
 
     async def _handle_voice_info_query(self) -> str:
         """Gérer requête d'information sur l'interface vocale"""
-        stats = self.get_voice_stats()
-
-        status = "🟢 Active" if self.is_listening else "🔴 Inactive"
+        self.get_voice_stats()
 
         return """🎤 **Interface Vocale JARVYS_AI**
 
