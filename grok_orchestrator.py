@@ -348,7 +348,7 @@ def run_orchestrator():
     state = AgentState(
         task="",
         sub_agent="",
-        repo_dir="",
+        repo_dir="/workspaces/appia-dev",
         repo_obj=None,
         code_generated="",
         test_result="",
