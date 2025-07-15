@@ -9,6 +9,8 @@ import logging
 import os
 from datetime import datetime
 
+from dotenv import load_dotenv
+
 logger = logging.getLogger(__name__)
 
 
@@ -130,5 +132,10 @@ async def check_and_wait_if_paused():
 def route_to_grok(query):
     from grok_api import GrokClient
 
-    client = GrokClient(api_key=os.getenv("GROK_API_KEY"))
+    load_dotenv()
+    api_key = os.getenv("XAI_API_KEY")
+    if not api_key:
+        raise ValueError("XAI_API_KEY not found in environment variables")
+
+    client = GrokClient(api_key=api_key)
     return client.complete(query, model="grok-4")

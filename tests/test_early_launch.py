@@ -66,12 +66,8 @@ class TestIssueProcessor(unittest.TestCase):
         self.assertEqual(processor.PRIORITY_ISSUES[3]["category"], "epic")
 
         # Test automation issues
-        self.assertEqual(
-            processor.PRIORITY_ISSUES[41]["category"], "automation"
-        )
-        self.assertEqual(
-            processor.PRIORITY_ISSUES[42]["category"], "automation"
-        )
+        self.assertEqual(processor.PRIORITY_ISSUES[41]["category"], "automation")
+        self.assertEqual(processor.PRIORITY_ISSUES[42]["category"], "automation")
 
     @patch("issue_processor.Github")
     def test_prioritize_issues(self, mock_github):
@@ -147,9 +143,7 @@ class TestWorkflowIntegration(unittest.TestCase):
             "workflows",
             "early-launch-issues.yml",
         )
-        self.assertTrue(
-            os.path.exists(workflow_path), "Workflow file should exist"
-        )
+        self.assertTrue(os.path.exists(workflow_path), "Workflow file should exist")
 
     def test_script_file_exists(self):
         """Test that the issue processor script was created."""
@@ -170,9 +164,7 @@ class TestWorkflowIntegration(unittest.TestCase):
             # Check if file is readable and contains shebang
             with open(script_path, "r") as f:
                 first_line = f.readline()
-            self.assertTrue(
-                first_line.startswith("#!"), "Script should have shebang"
-            )
+            self.assertTrue(first_line.startswith("#!"), "Script should have shebang")
 
 
 class TestEarlyLaunchRequirements(unittest.TestCase):

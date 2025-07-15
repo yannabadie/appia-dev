@@ -6,3 +6,4 @@ __pycache__/
 gcp-sa.json
 *-sa.json
 node_modules/
+.env

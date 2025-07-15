@@ -50,10 +50,7 @@ def fix_long_lines(file_path, max_length=79):
                             ]:
                                 new_lines.append(stripped[: pos + 1] + " \\\n")
                                 new_lines.append(
-                                    base_indent
-                                    + "    "
-                                    + stripped[pos + 1 :]
-                                    + "\n"
+                                    base_indent + "    " + stripped[pos + 1 :] + "\n"
                                 )
                                 modified = True
                                 break
@@ -70,9 +67,7 @@ def fix_long_lines(file_path, max_length=79):
                     if char in stripped:
                         pos = stripped.find(char)
                         if pos > 40:  # Assez long pour couper
-                            new_lines.append(
-                                stripped[: pos + len(char)] + "\\\n"
-                            )
+                            new_lines.append(stripped[: pos + len(char)] + "\\\n")
                             new_lines.append(
                                 base_indent
                                 + "    "

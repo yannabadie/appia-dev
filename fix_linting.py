@@ -34,8 +34,7 @@ def fix_line_length_issues(file_path):
                                 lines[i] = before_paren + comma_parts[0] + ","
                                 lines.insert(
                                     i + 1,
-                                    " " * (indent + 4)
-                                    + comma_parts[1].lstrip(),
+                                    " " * (indent + 4) + comma_parts[1].lstrip(),
                                 )
                                 modified = True
                                 continue

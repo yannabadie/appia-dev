@@ -182,9 +182,7 @@ class JarvysAITester:
                     "status": "success",
                     "response_length": len(response),
                 }
-                logger.info(
-                    f"✅ Commande '{command}' OK ({len(response)} chars)"
-                )
+                logger.info(f"✅ Commande '{command}' OK ({len(response)} chars)")
 
             except Exception as e:
                 self.test_results[f"command_{command}"] = {
@@ -204,18 +202,14 @@ class JarvysAITester:
             )
 
             # Test status
-            status = (
-                self.jarvys.continuous_improvement.get_improvement_status()
-            )
+            status = self.jarvys.continuous_improvement.get_improvement_status()
 
             self.test_results["continuous_improvement_sync"] = {
                 "status": "success",
                 "updates_found": updates_count,
                 "device_id": status["device_id"],
             }
-            logger.info(
-                f"✅ Amélioration continue OK ({updates_count} updates)"
-            )
+            logger.info(f"✅ Amélioration continue OK ({updates_count} updates)")
 
         except Exception as e:
             self.test_results["continuous_improvement_sync"] = {
@@ -233,9 +227,7 @@ class JarvysAITester:
             status = await self.jarvys.fallback_engine.get_fallback_status()
 
             # Test fallback manuel
-            test_result = (
-                await self.jarvys.fallback_engine.force_fallback_test()
-            )
+            test_result = await self.jarvys.fallback_engine.force_fallback_test()
 
             self.test_results["fallback_engine_test"] = {
                 "status": "success",
@@ -260,16 +252,10 @@ class JarvysAITester:
 
         total_tests = len(self.test_results)
         successful_tests = len(
-            [
-                r
-                for r in self.test_results.values()
-                if r.get("status") == "success"
-            ]
+            [r for r in self.test_results.values() if r.get("status") == "success"]
         )
         failed_tests = total_tests - successful_tests
-        success_rate = (
-            (successful_tests / total_tests) * 100 if total_tests > 0 else 0
-        )
+        success_rate = (successful_tests / total_tests) * 100 if total_tests > 0 else 0
 
         logger.info("📈 RAPPORT DE TESTS JARVYS_AI")
         logger.info(f"📊 Tests totaux: {total_tests}")
@@ -291,9 +277,7 @@ class JarvysAITester:
         if success_rate >= 90:
             logger.info("🎉 JARVYS_AI fonctionne parfaitement!")
         elif success_rate >= 70:
-            logger.info(
-                "⚠️ JARVYS_AI fonctionne avec quelques problèmes mineurs"
-            )
+            logger.info("⚠️ JARVYS_AI fonctionne avec quelques problèmes mineurs")
         else:
             logger.info("🚨 JARVYS_AI a des problèmes significatifs")
 
@@ -325,9 +309,7 @@ class JarvysAITester:
             with open("test_results_jarvys_ai.json", "w") as f:
                 json.dump(results, f, indent=2)
 
-            logger.info(
-                "💾 Résultats sauvegardés dans test_results_jarvys_ai.json"
-            )
+            logger.info("💾 Résultats sauvegardés dans test_results_jarvys_ai.json")
 
         except Exception as e:
             logger.error(f"❌ Erreur sauvegarde résultats: {e}")

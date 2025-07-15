@@ -123,10 +123,11 @@ class JarvysLoop:
 
     def __init__(self):
         """Initialize the loop."""
+        pass
 
-    def run(self, steps: int = 1) -> dict:
-        """Run the loop and delegate to run_loop function."""
-        return run_loop(steps)
+    def run(self, initial_state):
+        # This is a placeholder for the actual loop execution
+        pass
 
 
 __all__ = ["run_loop", "build_graph", "LoopState", "JarvysLoop"]

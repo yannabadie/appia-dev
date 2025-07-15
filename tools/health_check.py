@@ -75,9 +75,7 @@ class JarvysHealthChecker:
                     "status": "warning",
                     "exists": False,
                 }
-                health["warnings"].append(
-                    f"Missing configuration file: {file_name}"
-                )
+                health["warnings"].append(f"Missing configuration file: {file_name}")
                 if health["status"] == "healthy":
                     health["status"] = "warning"
 
@@ -455,9 +453,7 @@ class JarvysHealthChecker:
                 overall_warnings.extend(component_health.get("warnings", []))
 
             # Count passed/warning/error checks
-            for check_name, check_result in component_health.get(
-                "checks", {}
-            ).items():
+            for check_name, check_result in component_health.get("checks", {}).items():
                 if check_result["status"] == "ok":
                     overall_health["summary"]["passed"] += 1
                 elif check_result["status"] == "warning":

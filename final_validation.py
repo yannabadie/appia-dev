@@ -113,9 +113,7 @@ def check_documentation():
     with open(readme_file, "r") as f:
         content = f.read()
 
-    has_firewall_section = (
-        "Firewall" in content and "Sécurité Réseau" in content
-    )
+    has_firewall_section = "Firewall" in content and "Sécurité Réseau" in content
     has_copilot_section = "copilot-proxy.githubusercontent.com" in content
     has_ufw_commands = "sudo ufw allow" in content
 
@@ -143,12 +141,8 @@ def main():
 
     # 2. Check explicit allow rules
     print("\n2. Explicit Allow Rules for Required Domains:")
-    github_allow_count = len(
-        [r for r in firewall_results if r["has_github_allow"]]
-    )
-    copilot_allow_count = len(
-        [r for r in firewall_results if r["has_copilot_allow"]]
-    )
+    github_allow_count = len([r for r in firewall_results if r["has_github_allow"]])
+    copilot_allow_count = len([r for r in firewall_results if r["has_copilot_allow"]])
 
     print(
         f"   ✅ GitHub allow rules: {github_allow_count}/{len(firewall_results)} workflows"
@@ -185,17 +179,13 @@ def main():
     print("\n5. Test/Validation Workflow:")
     has_validation = check_validation_workflow()
     status = "✅" if has_validation else "❌"
-    print(
-        f"   {status} Network validation workflow exists and configured properly"
-    )
+    print(f"   {status} Network validation workflow exists and configured properly")
 
     # 6. Check documentation
     print("\n6. Documentation Updates:")
     has_docs = check_documentation()
     status = "✅" if has_docs else "❌"
-    print(
-        f"   {status} README.md updated with firewall and Copilot requirements"
-    )
+    print(f"   {status} README.md updated with firewall and Copilot requirements")
 
     # Final summary
     print("\n" + "=" * 50)
@@ -213,9 +203,7 @@ def main():
 
     if all_requirements_met:
         print("🎉 ALL REQUIREMENTS MET!")
-        print(
-            "✅ Repository is now compliant with firewall and Copilot standards"
-        )
+        print("✅ Repository is now compliant with firewall and Copilot standards")
         return 0
     else:
         print("⚠️  Some requirements need attention")

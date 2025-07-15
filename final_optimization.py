@@ -361,9 +361,7 @@ echo "✅ JARVYS System prêt !"
             print("\n🚀 Commandes utiles :")
             print("  ./quickstart.sh --dashboard  # Démarrer avec dashboard")
             print("  python test_workflows.py     # Valider les workflows")
-            print(
-                "  poetry run python src/jarvys_dev/main.py  # Démarrer JARVYS_DEV"
-            )
+            print("  poetry run python src/jarvys_dev/main.py  # Démarrer JARVYS_DEV")
 
             return True
 

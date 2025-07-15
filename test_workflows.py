@@ -5,6 +5,7 @@
 
 import json
 import subprocess
+from datetime import datetime
 from pathlib import Path
 
 
@@ -13,7 +14,7 @@ def test_wiki_generation():
     print("🧪 Test génération documentation Wiki...")
 
     try:
-        _result = subprocess.run(
+        result = subprocess.run(
             ["poetry", "run", "python", "scripts/generate_wiki_docs.py"],
             capture_output=True,
             text=True,
@@ -39,7 +40,7 @@ def test_poetry_installation():
 
     try:
         # Tester la commande du workflow
-        _result = subprocess.run(
+        result = subprocess.run(
             ["poetry", "install", "--with", "dev", "--no-interaction"],
             capture_output=True,
             text=True,
@@ -109,7 +110,7 @@ def simulate_workflow_run():
     # Étape 6: Validate installation (réel)
     print("🔍 Étape 6: Validation de l'installation...")
     try:
-        _result = subprocess.run(
+        result = subprocess.run(
             [
                 "poetry",
                 "run",
@@ -128,7 +129,7 @@ def simulate_workflow_run():
             print(f"❌ Validation échouée: {result.stderr}")
         steps_results.append(validation_success)
     except Exception as e:
-        print(f"❌ Erreur validation: {e}")
+        print(f"❌ Exception: {e}")
         steps_results.append(False)
 
     # Étape 7: Generate Wiki Documentation (réel)
@@ -159,29 +160,16 @@ def create_workflow_test_report():
     """Créer un rapport de test du workflow"""
     print("📋 Création du rapport de test...")
 
-    _report = {
-        "date": "2025-07-11",
-        "workflow_tests": {
-            "wiki_sync": {
-                "status": "fixed",
-                "issues_resolved": [
-                    "poetry.lock synchronization",
-                    "pyproject.toml modernization",
-                    "dependency group configuration",
-                ],
-            },
-            "deploy_dashboard": {
-                "status": "ready",
-                "components": [
-                    "supabase_dashboard_auth_patch_v2.js",
-                    "dashboard_local.py",
-                    "GitHub Actions workflow",
-                ],
-            },
-        },
+    report = {
+        "simulation_date": datetime.now().isoformat(),
+        "workflow_name": "CI/CD JARVYS_DEV",
+        "total_steps": len(steps_results),
+        "successful_steps": sum(steps_results),
+        "failed_steps": len(steps_results) - sum(steps_results),
+        "overall_status": "✅ Success" if all(steps_results) else "❌ Failed",
         "recommendations": [
-            "Test the wiki-sync workflow with a real commit",
-            "Apply the Supabase authentication patch manually",
+            "Check logs for failed steps",
+            "Ensure all dependencies are correctly specified in pyproject.toml",
             "Monitor workflow execution in GitHub Actions",
         ],
     }

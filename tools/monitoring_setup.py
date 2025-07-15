@@ -230,9 +230,7 @@ class JarvysMonitoringSetup:
             memory_mb = memory.used / 1024 / 1024
             metrics["memory_usage_percent"] = memory_percent
             metrics["memory_usage_mb"] = memory_mb
-            self.record_metric(
-                "system", "memory_usage_percent", memory_percent
-            )
+            self.record_metric("system", "memory_usage_percent", memory_percent)
             self.record_metric("system", "memory_usage_mb", memory_mb)
 
             # Disk metrics
@@ -306,9 +304,7 @@ class JarvysMonitoringSetup:
                     "status": "healthy",
                     "response_time": response_time,
                 }
-                self.record_health_check(
-                    "supabase_api", "healthy", response_time
-                )
+                self.record_health_check("supabase_api", "healthy", response_time)
 
             except Exception as e:
                 error_str = str(e).lower()
@@ -342,9 +338,7 @@ class JarvysMonitoringSetup:
             cursor = conn.cursor()
 
             # Clean up old metrics
-            cursor.execute(
-                "DELETE FROM metrics WHERE timestamp < ?", (cutoff_date,)
-            )
+            cursor.execute("DELETE FROM metrics WHERE timestamp < ?", (cutoff_date,))
             cleanup_results["metrics_deleted"] = cursor.rowcount
 
             # Clean up old health checks
@@ -354,9 +348,7 @@ class JarvysMonitoringSetup:
             cleanup_results["health_checks_deleted"] = cursor.rowcount
 
             # Clean up old error logs
-            cursor.execute(
-                "DELETE FROM error_log WHERE timestamp < ?", (cutoff_date,)
-            )
+            cursor.execute("DELETE FROM error_log WHERE timestamp < ?", (cutoff_date,))
             cleanup_results["error_logs_deleted"] = cursor.rowcount
 
             # Clean up old performance benchmarks
@@ -388,18 +380,16 @@ class JarvysMonitoringSetup:
         }
 
         if self.metrics_db_path.exists():
-            status["database"][
-                "size_mb"
-            ] = self.metrics_db_path.stat().st_size / (1024 * 1024)
+            status["database"]["size_mb"] = self.metrics_db_path.stat().st_size / (
+                1024 * 1024
+            )
 
             try:
                 conn = sqlite3.connect(self.metrics_db_path)
                 cursor = conn.cursor()
 
                 # Check tables exist
-                cursor.execute(
-                    "SELECT name FROM sqlite_master WHERE type='table'"
-                )
+                cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
                 tables = [row[0] for row in cursor.fetchall()]
                 status["database"]["tables"] = tables
 
@@ -432,12 +422,8 @@ class JarvysMonitoringSetup:
             # Schedule metrics collection
             if config["metrics_collection"]["enabled"]:
                 interval = config["metrics_collection"]["interval_minutes"]
-                schedule.every(interval).minutes.do(
-                    self.collect_system_metrics
-                )
-                print(
-                    f"✅ Scheduled metrics collection every {interval} minutes"
-                )
+                schedule.every(interval).minutes.do(self.collect_system_metrics)
+                print(f"✅ Scheduled metrics collection every {interval} minutes")
 
             # Schedule health checks
             if config["health_checks"]["enabled"]:
@@ -483,9 +469,7 @@ class JarvysMonitoringSetup:
         except Exception as e:
             print(f"❌ Monitoring daemon error: {e}")
 
-    def generate_monitoring_report(
-        self, output_file: Optional[str] = None
-    ) -> str:
+    def generate_monitoring_report(self, output_file: Optional[str] = None) -> str:
         """Generate monitoring status report."""
         status = self.get_monitoring_status()
 
@@ -537,9 +521,7 @@ class JarvysMonitoringSetup:
             output_path = Path(output_file)
         else:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_path = (
-                self.project_root / f"monitoring_report_{timestamp}.json"
-            )
+            output_path = self.project_root / f"monitoring_report_{timestamp}.json"
 
         with open(output_path, "w") as f:
             json.dump(status, f, indent=2, default=str)
@@ -570,9 +552,7 @@ class JarvysMonitoringSetup:
         if status["recent_activity"]:
             print("📈 Recent Activity (24 hours):")
             for activity, count in status["recent_activity"].items():
-                activity_name = (
-                    activity.replace("_24h", "").replace("_", " ").title()
-                )
+                activity_name = activity.replace("_24h", "").replace("_", " ").title()
                 print(f"  {activity_name}: {count}")
             print()
 
@@ -640,9 +620,7 @@ if __name__ == "__main__":
     try:
         import schedule
     except ImportError:
-        print(
-            "❌ Missing dependencies. Install with: pip install schedule psutil"
-        )
+        print("❌ Missing dependencies. Install with: pip install schedule psutil")
         sys.exit(1)
 
     main()

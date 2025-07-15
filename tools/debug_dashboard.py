@@ -53,9 +53,7 @@ class JarvysDebugDashboard:
             env_status["environment_vars"][var] = {
                 "present": value is not None,
                 "length": len(value) if value else 0,
-                "prefix": (
-                    value[:10] + "..." if value and len(value) > 10 else value
-                ),
+                "prefix": (value[:10] + "..." if value and len(value) > 10 else value),
             }
 
         # Check required files
@@ -383,9 +381,7 @@ def main():
 
         else:
             print(f"Unknown command: {command}")
-            print(
-                "Usage: python debug_dashboard.py [report|check] [output_file]"
-            )
+            print("Usage: python debug_dashboard.py [report|check] [output_file]")
     else:
         dashboard.interactive_mode()
 

@@ -124,18 +124,13 @@ class CloudManager:
 
             if any(word in command_lower for word in ["deploy", "déployer"]):
                 return await self._handle_deployment(command)
-            elif any(
-                word in command_lower for word in ["cost", "coût", "facture"]
-            ):
+            elif any(word in command_lower for word in ["cost", "coût", "facture"]):
                 return await self._handle_cost_query(command)
             elif any(
-                word in command_lower
-                for word in ["status", "état", "monitoring"]
+                word in command_lower for word in ["status", "état", "monitoring"]
             ):
                 return await self._handle_status_query(command)
-            elif any(
-                word in command_lower for word in ["backup", "sauvegarde"]
-            ):
+            elif any(word in command_lower for word in ["backup", "sauvegarde"]):
                 return await self._handle_backup_command(command)
             elif "mcp" in command_lower:
                 return await self._handle_mcp_command(command)
@@ -239,7 +234,7 @@ Quel type de déploiement souhaitez-vous ?"""
             if provider.get("cost_today", 0) > 0
         )
 
-        return """💰 **Rapport de Coûts Cloud** ({datetime.now().strftime('%d/%m/%Y')})
+        return f"""💰 **Rapport de Coûts Cloud** ({datetime.now().strftime('%d/%m/%Y')})
 
 📊 **Coûts aujourd'hui**: ${total_cost:.2f}
 
@@ -332,7 +327,7 @@ Quel type de déploiement souhaitez-vous ?"""
 
             backup_id = f"backup-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
 
-            return """💾 **Sauvegarde Créée**
+            return f"""💾 **Sauvegarde Créée**
 
 ✅ **Succès !** Sauvegarde complète réalisée
 
@@ -394,15 +389,13 @@ Commandes: "Restaurer backup-[ID]" ou "Créer backup"."""
     async def _get_mcp_status(self) -> str:
         """Obtenir statut MCP"""
         active_servers = sum(
-            1
-            for server in self.mcp_config["servers"]
-            if server["status"] == "active"
+            1 for server in self.mcp_config["servers"] if server["status"] == "active"
         )
         total_servers = len(self.mcp_config["servers"])
 
-        return """🔗 **Model Context Protocol (MCP)**
+        return f"""🔗 **Model Context Protocol (MCP)**
 
-📊 **État**: {'🟢 Acti' if self.mcp_config['enabled'] else '🔴 Inactif'}
+📊 **État**: {'🟢 Actif' if self.mcp_config['enabled'] else '🔴 Inactif'}
 🖥️ **Serveurs**: {active_servers}/{total_servers} actifs
 
 📋 **Serveurs MCP**:
@@ -422,52 +415,49 @@ Commandes: "Restaurer backup-[ID]" ou "Créer backup"."""
         """Gérer requête générale cloud"""
         stats = await self.get_cloud_stats()
 
-        return """☁️ **Gestionnaire Cloud JARVYS_AI**
+        return f"""☁️ **Gestionnaire Cloud JARVYS_AI**
 
 📊 **Vue d'ensemble**:
 - Providers configurés: {stats['providers_connected']}/3
-- Services actifs: {stats['active_services']}
-- Coût aujourd'hui: ${stats['total_cost_today']:.2f}
+- Services actifs: {stats['active_services']}/{stats['total_services']}
+- Santé globale: {stats['global_health']}
 
-🔧 **Commandes disponibles**:
-- "Déployer [type] [nom]" - Déploiement services
-- "Coût cloud" / "Facture" - Rapports financiers  
-- "Status cloud" - État des services
-- "Créer backup" - Sauvegarde système
-- "MCP status" - État Model Context Protocol
+✨ **Fonctionnalités**:
+- Déploiement (apps, functions)
+- Suivi des coûts
+- Monitoring de statut
+- Sauvegardes automatiques
+- Gestion MCP
 
-🌐 **Providers supportés**:
-- 🔵 Google Cloud Platform (GCP)
-- 🔷 Microsoft Azure
-- 🔶 Amazon Web Services (AWS)
-
-Comment puis-je vous aider avec vos services cloud ?"""
+💡 **Essayez**:
+- "Déploie une fonction de test"
+- "Quel est le coût du cloud aujourd'hui ?"
+- "État des services GCP"
+- "Crée une nouvelle sauvegarde"
+- "Statut du MCP"
+"""
 
     async def get_cloud_stats(self) -> Dict[str, Any]:
         """Obtenir statistiques cloud"""
-        providers_connected = sum(
-            1
-            for provider in self.cloud_providers.values()
-            if provider.get("status") == "connected"
+        active_providers = sum(
+            1 for p in self.cloud_providers.values() if p.get("enabled")
         )
-
-        active_services = sum(
-            len(provider.get("services", []))
-            for provider in self.cloud_providers.values()
-            if provider.get("enabled")
-        )
-
-        total_cost_today = sum(
-            provider.get("cost_today", 0)
-            for provider in self.cloud_providers.values()
-        )
+        active_services = 0
+        total_services = 0
+        for provider in self.cloud_providers.values():
+            if provider.get("enabled"):
+                services = provider.get("services", [])
+                active_services += len(services)
+                total_services += len(services)
 
         return {
-            "providers_connected": providers_connected,
+            "providers_connected": active_providers,
             "active_services": active_services,
-            "total_cost_today": total_cost_today,
-            "mcp_enabled": self.mcp_config.get("enabled", False),
-            "demo_mode": self.demo_mode,
+            "total_services": total_services,
+            "global_health": "🟢 Excellente",  # Simulation
+            "total_cost_today": sum(
+                p.get("cost_today", 0) for p in self.cloud_providers.values()
+            ),
         }
 
     def get_stats(self) -> Dict[str, Any]:

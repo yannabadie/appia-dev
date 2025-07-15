@@ -142,9 +142,7 @@ class JarvysIntrospection:
             ],
         }
 
-    def generate_improvement_roadmap(
-        self, analysis: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def generate_improvement_roadmap(self, analysis: Dict[str, Any]) -> Dict[str, Any]:
         """Génère une roadmap d'amélioration basée sur l'analyse."""
         roadmap = {
             "immediate_actions": [
@@ -236,15 +234,11 @@ class JarvysIntrospection:
 
         try:
             _response = self.router.generate(context, task_type="reasoning")
-            return response.get(
-                "content", "Erreur dans la génération de réponse"
-            )
+            return response.get("content", "Erreur dans la génération de réponse")
         except Exception as e:
             return f"Erreur lors de l'auto-analyse: {e}"
 
-    def save_analysis_report(
-        self, analysis: Dict[str, Any], roadmap: Dict[str, Any]
-    ):
+    def save_analysis_report(self, analysis: Dict[str, Any], roadmap: Dict[str, Any]):
         """Sauvegarde le rapport d'analyse."""
         _report = {
             "timestamp": datetime.now().isoformat(),
@@ -288,9 +282,7 @@ def main():
 
     print("\n🚀 **Actions immédiates recommandées:**")
     for action in roadmap["immediate_actions"]:
-        print(
-            f"- [{action['priority']}] {action['task']} (Effort: {action['effort']})"
-        )
+        print(f"- [{action['priority']}] {action['task']} (Effort: {action['effort']})")
 
     # Questions d'introspection interactives
     print("\n💬 **Session d'auto-questionnement:**")

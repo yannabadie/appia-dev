@@ -223,11 +223,22 @@ class IntelligentOrchestrator:
                 ],
                 last_updated="2024-12-01",
             ),
+            # Grok
+            "grok-4": ModelCapabilities(
+                name="grok-4",
+                provider="grok",
+                reasoning_score=0.92,
+                creativity_score=0.90,
+                speed_score=0.88,
+                multimodal=False,
+                max_tokens=8192,
+                cost_per_1k_tokens=0.0,  # Assuming free for now
+                specialties=["realtime", "humor", "unfiltered"],
+                last_updated=datetime.now().isoformat(),
+            ),
         }
 
-        logger.info(
-            f"🧠 Orchestrateur initialisé avec {len(self.models_db)} modèles"
-        )
+        logger.info(f"🧠 Orchestrateur initialisé avec {len(self.models_db)} modèles")
 
     def _load_from_huggingface(self):
         """Met à jour la base de modèles depuis Hugging Face."""
@@ -243,9 +254,7 @@ class IntelligentOrchestrator:
             _response = requests.get(hf_url, params=params, timeout=10)
             if _response.status_code == 200:
                 trending_models = _response.json()
-                logger.info(
-                    f"📈 Récupéré {len(trending_models)} modèles tendance HF"
-                )
+                logger.info(f"📈 Récupéré {len(trending_models)} modèles tendance HF")
 
                 # Analyser les nouveaux modèles pour mise à jour future
                 self._analyze_hf_models(trending_models)
@@ -272,13 +281,9 @@ class IntelligentOrchestrator:
                 )
 
         if new_models:
-            logger.info(
-                f"🆕 Détecté {len(new_models)} nouveaux modèles potentiels"
-            )
+            logger.info(f"🆕 Détecté {len(new_models)} nouveaux modèles potentiels")
 
-    def analyze_task(
-        self, prompt: str, task_type: str = "auto"
-    ) -> TaskAnalysis:
+    def analyze_task(self, prompt: str, task_type: str = "auto") -> TaskAnalysis:
         """Analyse une tâche pour déterminer les besoins."""
 
         # Détection automatique du type de tâche
@@ -351,8 +356,7 @@ class IntelligentOrchestrator:
         ):
             return "multimodal"
         elif any(
-            kw in prompt_lower
-            for kw in ["quick", "fast", "simple", "brie", "summary"]
+            kw in prompt_lower for kw in ["quick", "fast", "simple", "brie", "summary"]
         ):
             return "fast"
         else:
@@ -374,9 +378,7 @@ class IntelligentOrchestrator:
             "analysis",
             "synthesis",
         ]
-        complex_count = sum(
-            1 for word in complex_words if word in prompt.lower()
-        )
+        complex_count = sum(1 for word in complex_words if word in prompt.lower())
         complexity_factor = min(complex_count / len(complex_words), 1.0)
         factors.append(complexity_factor)
 
@@ -406,8 +408,7 @@ class IntelligentOrchestrator:
         if task_type in ["mathematical", "reasoning", "coding"]:
             return 0.9
         elif any(
-            kw in prompt.lower()
-            for kw in ["why", "how", "explain", "analyze", "logic"]
+            kw in prompt.lower() for kw in ["why", "how", "explain", "analyze", "logic"]
         ):
             return 0.8
         else:
@@ -462,8 +463,7 @@ class IntelligentOrchestrator:
                 best_name = model_name
 
         logger.info(
-            f"🎯 Modèle optimal sélectionné: {best_name} (score:"
-            "{best_score:.2f})"
+            f"🎯 Modèle optimal sélectionné: {best_name} (score:" "{best_score:.2f})"
         )
         return best_name, best_model, best_score
 
@@ -597,14 +597,9 @@ class IntelligentOrchestrator:
                 # Analyser pour nouveaux modèles GPT-4, o1, etc.
                 for model in models:
                     model_id = model.get("id", "")
-                    if any(
-                        prefix in model_id
-                        for prefix in ["gpt-4", "o1-", "gpt-5"]
-                    ):
+                    if any(prefix in model_id for prefix in ["gpt-4", "o1-", "gpt-5"]):
                         if model_id not in self.models_db:
-                            logger.info(
-                                f"🆕 Nouveau modèle OpenAI détecté: {model_id}"
-                            )
+                            logger.info(f"🆕 Nouveau modèle OpenAI détecté: {model_id}")
 
         except Exception as e:
             logger.warning(f"⚠️ Erreur vérification OpenAI: {e}")
@@ -613,9 +608,7 @@ class IntelligentOrchestrator:
         """Vérifie les nouveaux modèles Anthropic."""
         # Anthropic ne fournit pas d'API publique pour lister les modèles
         # On peut surveiller leur blog/docs pour les nouveautés
-        logger.info(
-            "🔍 Vérification manuelle recommandée pour nouveaux modèles Claude"
-        )
+        logger.info("🔍 Vérification manuelle recommandée pour nouveaux modèles Claude")
 
     def _check_gemini_updates(self):
         """Vérifie les nouveaux modèles Gemini."""
@@ -638,13 +631,8 @@ class IntelligentOrchestrator:
 
                 for model in models:
                     model_name = model.get("name", "").replace("models/", "")
-                    if (
-                        "gemini" in model_name
-                        and model_name not in self.models_db
-                    ):
-                        logger.info(
-                            f"🆕 Nouveau modèle Gemini détecté: {model_name}"
-                        )
+                    if "gemini" in model_name and model_name not in self.models_db:
+                        logger.info(f"🆕 Nouveau modèle Gemini détecté: {model_name}")
 
         except Exception as e:
             logger.warning(f"⚠️ Erreur vérification Gemini: {e}")
@@ -657,15 +645,9 @@ class IntelligentOrchestrator:
             "last_update": self.last_update,
             "models_by_provider": {
                 provider: len(
-                    [
-                        m
-                        for m in self.models_db.values()
-                        if m.provider == provider
-                    ]
+                    [m for m in self.models_db.values() if m.provider == provider]
                 )
-                for provider in set(
-                    m.provider for m in self.models_db.values()
-                )
+                for provider in set(m.provider for m in self.models_db.values())
             },
             "avg_scores": {
                 "reasoning": (
@@ -729,9 +711,7 @@ if __name__ == "__main__":
 
     for prompt, expected_type in test_prompts:
         task_analysis = orchestrator.analyze_task(prompt)
-        model_name, model, score = orchestrator.select_optimal_model(
-            task_analysis
-        )
+        model_name, model, score = orchestrator.select_optimal_model(task_analysis)
 
         print(f"\n📝 Prompt: {prompt[:50]}...")
         print(f"🎯 Type détecté: {task_analysis.task_type}")

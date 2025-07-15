@@ -90,9 +90,7 @@ class ContinuousImprovement:
             logger.info("🔄 Continuous Improvement prêt")
 
         except Exception as e:
-            logger.error(
-                f"❌ Erreur initialisation Continuous Improvement: {e}"
-            )
+            logger.error(f"❌ Erreur initialisation Continuous Improvement: {e}")
             raise
 
     def _generate_device_id(self) -> str:
@@ -201,9 +199,7 @@ class ContinuousImprovement:
             for update in updates:
                 if not self._is_update_applied(update["id"]):
                     self.pending_updates.append(update)
-                    logger.info(
-                        f"📥 Nouvelle mise à jour: {update['description']}"
-                    )
+                    logger.info(f"📥 Nouvelle mise à jour: {update['description']}")
 
             self.last_sync = datetime.now()
 
@@ -234,23 +230,17 @@ class ContinuousImprovement:
             }
 
             params = {
-                "last_sync": (
-                    self.last_sync.isoformat() if self.last_sync else None
-                ),
+                "last_sync": (self.last_sync.isoformat() if self.last_sync else None),
                 "device_type": "jarvys_ai_local",
             }
 
             url = f"{self.jarvys_dev_endpoint}/api/improvements/fetch"
-            _response = requests.get(
-                url, headers=headers, params=params, timeout=30
-            )
+            _response = requests.get(url, headers=headers, params=params, timeout=30)
 
             if response.status_code == 200:
                 return response.json().get("updates", [])
             else:
-                logger.error(
-                    f"❌ Erreur API JARVYS_DEV: {response.status_code}"
-                )
+                logger.error(f"❌ Erreur API JARVYS_DEV: {response.status_code}")
                 return []
 
         except Exception as e:
@@ -276,22 +266,16 @@ class ContinuousImprovement:
                         }
                     )
                     self.pending_updates.remove(update)
-                    logger.info(
-                        f"✅ Mise à jour appliquée: {update['description']}"
-                    )
+                    logger.info(f"✅ Mise à jour appliquée: {update['description']}")
 
                     # Rapport à JARVYS_DEV
                     await self._report_update_success(update)
                 else:
-                    logger.error(
-                        f"❌ Échec mise à jour: {update['description']}"
-                    )
+                    logger.error(f"❌ Échec mise à jour: {update['description']}")
                     await self._report_update_failure(update)
 
             except Exception as e:
-                logger.error(
-                    f"❌ Erreur application update {update['id']}: {e}"
-                )
+                logger.error(f"❌ Erreur application update {update['id']}: {e}")
                 await self._report_update_failure(update, str(e))
 
     async def _apply_single_update(self, update: Dict[str, Any]) -> bool:
@@ -312,9 +296,7 @@ class ContinuousImprovement:
             elif update["type"] == "bugfix":
                 success = await self._apply_bugfix_update(update)
             else:
-                logger.warning(
-                    f"⚠️ Type de mise à jour inconnu: {update['type']}"
-                )
+                logger.warning(f"⚠️ Type de mise à jour inconnu: {update['type']}")
                 return False
 
             # 3. Vérifier l'application
@@ -350,9 +332,7 @@ class ContinuousImprovement:
                 if os.path.exists(file_path):
                     import shutil
 
-                    backup_file = os.path.join(
-                        backup_dir, os.path.basename(file_path)
-                    )
+                    backup_file = os.path.join(backup_dir, os.path.basename(file_path))
                     shutil.copy2(file_path, backup_file)
 
             logger.info(f"💾 Sauvegarde créée: {backup_dir}")
@@ -366,9 +346,7 @@ class ContinuousImprovement:
         """Appliquer une mise à jour de fonctionnalité"""
         if self.demo_mode:
             await asyncio.sleep(2)  # Simulation délai
-            logger.info(
-                f"✨ [DÉMO] Fonctionnalité appliquée: {update['description']}"
-            )
+            logger.info(f"✨ [DÉMO] Fonctionnalité appliquée: {update['description']}")
             return True
         else:
             # TODO: Implémenter application réelle
@@ -378,9 +356,7 @@ class ContinuousImprovement:
         """Appliquer une mise à jour d'optimisation"""
         if self.demo_mode:
             await asyncio.sleep(1.5)  # Simulation délai
-            logger.info(
-                f"⚡ [DÉMO] Optimisation appliquée: {update['description']}"
-            )
+            logger.info(f"⚡ [DÉMO] Optimisation appliquée: {update['description']}")
             return True
         else:
             # TODO: Implémenter optimisation réelle
@@ -390,9 +366,7 @@ class ContinuousImprovement:
         """Appliquer une correction de bug"""
         if self.demo_mode:
             await asyncio.sleep(1)  # Simulation délai
-            logger.info(
-                f"🔧 [DÉMO] Correction appliquée: {update['description']}"
-            )
+            logger.info(f"🔧 [DÉMO] Correction appliquée: {update['description']}")
             return True
         else:
             # TODO: Implémenter correction réelle
@@ -444,9 +418,7 @@ class ContinuousImprovement:
             # TODO: Envoyer rapport à JARVYS_DEV
             pass
 
-    async def _report_update_failure(
-        self, update: Dict[str, Any], error: str = None
-    ):
+    async def _report_update_failure(self, update: Dict[str, Any], error: str = None):
         """Rapporter l'échec d'une mise à jour à JARVYS_DEV"""
         _report = {
             "device_id": self.device_id,
@@ -555,9 +527,7 @@ class ContinuousImprovement:
             "is_initialized": self.is_initialized,
             "device_id": self.device_id,
             "auto_update": self.auto_update,
-            "last_sync": (
-                self.last_sync.isoformat() if self.last_sync else None
-            ),
+            "last_sync": (self.last_sync.isoformat() if self.last_sync else None),
             "pending_updates": len(self.pending_updates),
             "applied_updates": len(self.applied_updates),
             "performance_metrics": self.performance_metrics,
@@ -586,9 +556,7 @@ class ContinuousImprovement:
             return
 
         self.is_running = True
-        self.update_thread = threading.Thread(
-            target=self._sync_loop, daemon=True
-        )
+        self.update_thread = threading.Thread(target=self._sync_loop, daemon=True)
         self.update_thread.start()
         logger.info(
             f"🔄 Started continuous sync (interval: {self.sync_interval} minutes)"
@@ -652,9 +620,7 @@ class ContinuousImprovement:
             updates = await self._detect_code_changes()
 
             if updates:
-                logger.info(
-                    f"🔄 Found {len(updates)} potential updates from GitHub"
-                )
+                logger.info(f"🔄 Found {len(updates)} potential updates from GitHub")
 
             return updates
 
@@ -786,9 +752,7 @@ class ContinuousImprovement:
                 data = response.json()
                 return data.get("improvements", [])
             else:
-                logger.warning(
-                    f"Dashboard API returned {response.status_code}"
-                )
+                logger.warning(f"Dashboard API returned {response.status_code}")
                 return []
 
         except Exception as e:
@@ -804,9 +768,7 @@ class ContinuousImprovement:
             if self.backup_before_update:
                 backup_id = await self._create_backup()
                 if not backup_id:
-                    logger.error(
-                        "❌ Failed to create backup, skipping updates"
-                    )
+                    logger.error("❌ Failed to create backup, skipping updates")
                     return
 
             applied_successfully = []
@@ -821,9 +783,7 @@ class ContinuousImprovement:
                     else:
                         failed_updates.append(update)
                 except Exception as e:
-                    logger.error(
-                        f"❌ Error applying update {update.get('file')}: {e}"
-                    )
+                    logger.error(f"❌ Error applying update {update.get('file')}: {e}")
                     failed_updates.append(update)
 
             # Apply dashboard updates
@@ -882,9 +842,7 @@ class ContinuousImprovement:
                     logger.info(f"🗑️ Removed file: {update['file']}")
                     return True
                 else:
-                    logger.info(
-                        f"⏭️ Skipped low-priority removal: {update['file']}"
-                    )
+                    logger.info(f"⏭️ Skipped low-priority removal: {update['file']}")
                     return True
 
             return False
@@ -902,9 +860,7 @@ class ContinuousImprovement:
                 # Update configuration
                 config_updates = update.get("config", {})
                 self.config.update(config_updates)
-                logger.info(
-                    f"⚙️ Updated configuration: {list(config_updates.keys())}"
-                )
+                logger.info(f"⚙️ Updated configuration: {list(config_updates.keys())}")
                 return True
 
             elif command_type == "restart_required":
@@ -980,15 +936,15 @@ class ContinuousImprovement:
             metrics = {
                 "device_id": self.device_id,
                 "timestamp": datetime.now().isoformat(),
-                "last_sync": (
-                    self.last_sync.isoformat() if self.last_sync else None
-                ),
+                "last_sync": (self.last_sync.isoformat() if self.last_sync else None),
                 "applied_updates": len(self.applied_updates),
                 "performance": self.performance_metrics,
                 "status": "healthy" if self.is_running else "stopped",
             }
 
-            url = f"{self.jarvys_dev_endpoint}/functions/v1/jarvys-dashboard/api/metrics"
+            url = (
+                f"{self.jarvys_dev_endpoint}/functions/v1/jarvys-dashboard/api/metrics"
+            )
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": (
@@ -1000,16 +956,12 @@ class ContinuousImprovement:
             # Remove None headers
             headers = {k: v for k, v in headers.items() if v is not None}
 
-            _response = requests.post(
-                url, json=metrics, headers=headers, timeout=10
-            )
+            _response = requests.post(url, json=metrics, headers=headers, timeout=10)
 
             if response.status_code == 200:
                 logger.debug("📊 Metrics reported successfully")
             else:
-                logger.warning(
-                    f"⚠️ Metrics reporting failed: {response.status_code}"
-                )
+                logger.warning(f"⚠️ Metrics reporting failed: {response.status_code}")
 
         except Exception as e:
             logger.debug(f"❌ Error reporting metrics: {e}")
@@ -1043,9 +995,7 @@ class ContinuousImprovement:
                 self.sync_interval = optimization.get(
                     "sync_interval", self.sync_interval
                 )
-                logger.info(
-                    f"⚡ Updated sync interval to {self.sync_interval} minutes"
-                )
+                logger.info(f"⚡ Updated sync interval to {self.sync_interval} minutes")
 
         except Exception as e:
             logger.error(f"❌ Error applying optimization: {e}")

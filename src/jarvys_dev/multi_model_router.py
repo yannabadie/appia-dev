@@ -127,8 +127,8 @@ class MultiModelRouter:
         task_analysis = self.orchestrator.analyze_task(prompt, task_type)
 
         # Sélection du modèle optimal
-        optimal_model, model_info, confidence = (
-            self.orchestrator.select_optimal_model(task_analysis)
+        optimal_model, model_info, confidence = self.orchestrator.select_optimal_model(
+            task_analysis
         )
 
         logger.info(
@@ -162,9 +162,7 @@ class MultiModelRouter:
                 logger.warning(
                     f"⚠️ Modèle optimal {optimal_model} indisponible, fallback"
                 )
-                _result = self._fallback_generation(
-                    prompt, task_analysis.task_type
-                )
+                _result = self._fallback_generation(prompt, task_analysis.task_type)
                 success = True
 
             # Enregistrer les performances
@@ -190,9 +188,7 @@ class MultiModelRouter:
             return _result
 
         except Exception as exc:
-            logger.error(
-                f"❌ Erreur avec modèle optimal {optimal_model}: {exc}"
-            )
+            logger.error(f"❌ Erreur avec modèle optimal {optimal_model}: {exc}")
 
             # Enregistrer l'échec
             self.orchestrator.record_performance(
@@ -246,18 +242,14 @@ class MultiModelRouter:
                 "order": ["gemini", "anthropic", "openai"],
                 "models": {
                     "gemini": models["gemini"],  # gemini-2.5-pro
-                    "anthropic": models[
-                        "anthropic"
-                    ],  # claude-sonnet-4-20250514
+                    "anthropic": models["anthropic"],  # claude-sonnet-4-20250514
                     "openai": models["openai"],  # gpt-4o
                 },
             },
             "reasoning": {
                 "order": ["anthropic", "openai", "gemini"],
                 "models": {
-                    "anthropic": models[
-                        "anthropic"
-                    ],  # claude-sonnet-4-20250514
+                    "anthropic": models["anthropic"],  # claude-sonnet-4-20250514
                     "openai": models["openai"],  # gpt-4o
                     "gemini": models["gemini"],  # gemini-2.5-pro
                 },
@@ -265,9 +257,7 @@ class MultiModelRouter:
             "creativity": {
                 "order": ["anthropic", "gemini", "openai"],
                 "models": {
-                    "anthropic": models[
-                        "anthropic"
-                    ],  # claude-sonnet-4-20250514
+                    "anthropic": models["anthropic"],  # claude-sonnet-4-20250514
                     "gemini": models["gemini"],  # gemini-2.5-pro
                     "openai": models["openai"],  # gpt-4o
                 },
@@ -276,17 +266,13 @@ class MultiModelRouter:
                 "order": ["openai", "anthropic", "gemini"],
                 "models": {
                     "openai": models["openai"],  # gpt-4o
-                    "anthropic": models[
-                        "anthropic"
-                    ],  # claude-sonnet-4-20250514
+                    "anthropic": models["anthropic"],  # claude-sonnet-4-20250514
                     "gemini": models["gemini"],  # gemini-2.5-pro
                 },
             },
             "mathematical": {
                 "order": ["openai"],
-                "models": {
-                    "openai": "o1-preview"
-                },  # Spécialisé pour le raisonnement
+                "models": {"openai": "o1-preview"},  # Spécialisé pour le raisonnement
             },
         }
 
@@ -308,9 +294,7 @@ class MultiModelRouter:
                     return _result
 
                 if provider == "anthropic" and self.anthropic_client:
-                    _result = self._execute_anthropic(
-                        model_map[provider], prompt
-                    )
+                    _result = self._execute_anthropic(model_map[provider], prompt)
                     self._record_bench(model_map[provider], start, prompt)
                     return _result
 

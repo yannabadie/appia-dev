@@ -144,7 +144,7 @@ class IntelligenceCore:
     async def _analyze_with_ai(self, command: str) -> Dict[str, Any]:
         """Analyse avancée avec OpenAI"""
         try:
-            _response = await self.openai_client.ChatCompletion.acreate(
+            response = await self.openai_client.ChatCompletion.acreate(
                 model="gpt-3.5-turbo",
                 messages=[
                     {
@@ -221,7 +221,7 @@ class IntelligenceCore:
     async def _generate_ai_response(self, command: str) -> str:
         """Générer réponse avec IA"""
         try:
-            _response = await self.openai_client.ChatCompletion.acreate(
+            response = await self.openai_client.ChatCompletion.acreate(
                 model="gpt-3.5-turbo",
                 messages=[
                     {
@@ -255,9 +255,7 @@ class IntelligenceCore:
             if keyword in command_lower:
                 return response
 
-        return (
-            "Je suis là pour vous aider. Pouvez-vous préciser votre demande ?"
-        )
+        return "Je suis là pour vous aider. Pouvez-vous préciser votre demande ?"
 
     def get_stats(self) -> Dict[str, Any]:
         """Obtenir statistiques du cœur d'intelligence"""

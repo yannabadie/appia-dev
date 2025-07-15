@@ -27,9 +27,7 @@ class TestAutomatedScheduling:
                 schedules = triggers["schedule"]
                 for schedule in schedules:
                     if "cron" in schedule:
-                        cron_schedules.append(
-                            (workflow_file.name, schedule["cron"])
-                        )
+                        cron_schedules.append((workflow_file.name, schedule["cron"]))
 
         # Validate cron syntax
         for workflow_name, cron_expr in cron_schedules:
@@ -51,10 +49,7 @@ class TestAutomatedScheduling:
     def test_hourly_execution_schedule(self):
         """Test that agent has hourly execution schedule."""
         agent_path = (
-            Path(__file__).parent.parent
-            / ".github"
-            / "workflows"
-            / "agent.yml"
+            Path(__file__).parent.parent / ".github" / "workflows" / "agent.yml"
         )
         if not agent_path.exists():
             pytest.skip("Agent workflow not found")
@@ -74,16 +69,13 @@ class TestAutomatedScheduling:
             for schedule in schedules:
                 cron = schedule.get("cron", "")
                 if any(
-                    pattern in cron
-                    for pattern in hourly_patterns + frequent_patterns
+                    pattern in cron for pattern in hourly_patterns + frequent_patterns
                 ):
                     has_frequent_schedule = True
                     break
 
             if not has_frequent_schedule:
-                print(
-                    "Info: Agent workflow may not have frequent execution schedule"
-                )
+                print("Info: Agent workflow may not have frequent execution schedule")
         else:
             print("Info: Agent workflow has no scheduled execution")
 
@@ -124,9 +116,7 @@ class TestCIPipeline:
 
     def test_ci_pipeline_stages(self):
         """Test CI pipeline has proper stages."""
-        ci_path = (
-            Path(__file__).parent.parent / ".github" / "workflows" / "ci.yml"
-        )
+        ci_path = Path(__file__).parent.parent / ".github" / "workflows" / "ci.yml"
         if not ci_path.exists():
             pytest.skip("CI workflow not found")
 
@@ -146,9 +136,7 @@ class TestCIPipeline:
 
     def test_ci_dependency_installation(self):
         """Test CI pipeline installs dependencies correctly."""
-        ci_path = (
-            Path(__file__).parent.parent / ".github" / "workflows" / "ci.yml"
-        )
+        ci_path = Path(__file__).parent.parent / ".github" / "workflows" / "ci.yml"
         if not ci_path.exists():
             pytest.skip("CI workflow not found")
 
@@ -165,9 +153,7 @@ class TestCIPipeline:
 
     def test_ci_testing_execution(self):
         """Test CI pipeline executes tests."""
-        ci_path = (
-            Path(__file__).parent.parent / ".github" / "workflows" / "ci.yml"
-        )
+        ci_path = Path(__file__).parent.parent / ".github" / "workflows" / "ci.yml"
         if not ci_path.exists():
             pytest.skip("CI workflow not found")
 
@@ -177,16 +163,12 @@ class TestCIPipeline:
         # Should run tests
         test_patterns = ["pytest", "python -m pytest", "poetry run pytest"]
 
-        has_test_execution = any(
-            pattern in content for pattern in test_patterns
-        )
+        has_test_execution = any(pattern in content for pattern in test_patterns)
         assert has_test_execution, "CI should execute tests"
 
     def test_ci_code_quality_checks(self):
         """Test CI pipeline includes code quality checks."""
-        ci_path = (
-            Path(__file__).parent.parent / ".github" / "workflows" / "ci.yml"
-        )
+        ci_path = Path(__file__).parent.parent / ".github" / "workflows" / "ci.yml"
         if not ci_path.exists():
             pytest.skip("CI workflow not found")
 
@@ -232,9 +214,7 @@ class TestDeploymentAutomation:
             # Should have push to main/master or tag triggers
             deployment_triggers = ["push", "release", "workflow_dispatch"]
             found_triggers = [
-                trigger
-                for trigger in deployment_triggers
-                if trigger in triggers
+                trigger for trigger in deployment_triggers if trigger in triggers
             ]
 
             assert (
@@ -256,9 +236,7 @@ class TestDeploymentAutomation:
             for job_name, job_config in jobs.items():
                 if "environment" in job_config:
                     environment = job_config["environment"]
-                    print(
-                        f"Found environment in {workflow_file.name}: {environment}"
-                    )
+                    print(f"Found environment in {workflow_file.name}: {environment}")
 
     def test_deployment_secrets_usage(self):
         """Test deployment uses appropriate secrets."""
@@ -290,9 +268,7 @@ class TestDeploymentAutomation:
             ]
 
             if found_secrets:
-                print(
-                    f"Deployment secrets in {deploy_workflow.name}: {found_secrets}"
-                )
+                print(f"Deployment secrets in {deploy_workflow.name}: {found_secrets}")
 
 
 class TestErrorHandlingAutomation:
@@ -337,9 +313,7 @@ class TestErrorHandlingAutomation:
                     if isinstance(step, dict):
                         # Check for retry mechanisms
                         if "uses" in step and "retry" in step.get("with", {}):
-                            print(
-                                f"Found retry mechanism in {workflow_file.name}"
-                            )
+                            print(f"Found retry mechanism in {workflow_file.name}")
 
     def test_workflow_timeout_handling(self):
         """Test workflows have appropriate timeout handling."""
@@ -357,14 +331,10 @@ class TestErrorHandlingAutomation:
 
             for job_name, job_config in jobs.items():
                 if "timeout-minutes" in job_config:
-                    timeout_configs.append(
-                        (job_name, job_config["timeout-minutes"])
-                    )
+                    timeout_configs.append((job_name, job_config["timeout-minutes"]))
 
             if timeout_configs:
-                print(
-                    f"Timeout configs in {workflow_file.name}: {timeout_configs}"
-                )
+                print(f"Timeout configs in {workflow_file.name}: {timeout_configs}")
 
 
 class TestMonitoringAutomation:
@@ -381,9 +351,7 @@ class TestMonitoringAutomation:
             assert metrics_db.is_file(), "Metrics DB should be a file"
             print("Found metrics database - automation is collecting data")
         else:
-            print(
-                "Info: Metrics database not found - automation may not be running"
-            )
+            print("Info: Metrics database not found - automation may not be running")
 
     def test_log_collection_automation(self):
         """Test automated log collection and analysis."""
@@ -395,9 +363,7 @@ class TestMonitoringAutomation:
         )
 
         if log_scripts:
-            print(
-                f"Found log automation scripts: {[s.name for s in log_scripts]}"
-            )
+            print(f"Found log automation scripts: {[s.name for s in log_scripts]}")
         else:
             print("Info: No log automation scripts found")
 
@@ -457,8 +423,7 @@ class TestIntegrationAutomation:
 
             # Look for issue automation
             if any(
-                keyword in content.lower()
-                for keyword in ["issue", "comment", "label"]
+                keyword in content.lower() for keyword in ["issue", "comment", "label"]
             ):
                 issue_automation_found = True
                 print(f"Found issue automation in {workflow_file.name}")
@@ -469,10 +434,7 @@ class TestIntegrationAutomation:
     def test_wiki_documentation_automation(self):
         """Test wiki documentation automation."""
         wiki_workflow = (
-            Path(__file__).parent.parent
-            / ".github"
-            / "workflows"
-            / "wiki-sync.yml"
+            Path(__file__).parent.parent / ".github" / "workflows" / "wiki-sync.yml"
         )
 
         if wiki_workflow.exists():
@@ -502,9 +464,7 @@ class TestSecurityAutomation:
 
             # Look for security scanning
             security_keywords = ["secret", "security", "scan", "vulnerability"]
-            if any(
-                keyword in content.lower() for keyword in security_keywords
-            ):
+            if any(keyword in content.lower() for keyword in security_keywords):
                 security_workflows.append(workflow_file.name)
 
         if security_workflows:
@@ -557,9 +517,7 @@ class TestPerformanceAutomation:
                     content = f.read()
 
                 perf_keywords = ["benchmark", "performance", "load", "stress"]
-                if any(
-                    keyword in content.lower() for keyword in perf_keywords
-                ):
+                if any(keyword in content.lower() for keyword in perf_keywords):
                     perf_workflows.append(workflow_file.name)
 
             if perf_workflows:
@@ -575,9 +533,7 @@ class TestPerformanceAutomation:
         )
 
         if monitoring_files:
-            print(
-                f"Found monitoring automation: {[f.name for f in monitoring_files]}"
-            )
+            print(f"Found monitoring automation: {[f.name for f in monitoring_files]}")
         else:
             print("Info: Resource monitoring automation not found")
 

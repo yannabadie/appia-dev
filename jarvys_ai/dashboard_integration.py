@@ -33,8 +33,12 @@ class SupabaseDashboardIntegration:
         self.config = config
 
         # Configuration Supabase
-        self.dashboard_url = "https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard"
-        self.api_endpoint = "https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard/api"
+        self.dashboard_url = (
+            "https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard"
+        )
+        self.api_endpoint = (
+            "https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard/api"
+        )
 
         # Identifiant device unique
         self.device_id = self._generate_device_id()
@@ -51,9 +55,7 @@ class SupabaseDashboardIntegration:
         import hashlib
         import socket
 
-        identifier = (
-            f"jarvys_ai_local_{socket.gethostname()}_{getpass.getuser()}"
-        )
+        identifier = f"jarvys_ai_local_{socket.gethostname()}_{getpass.getuser()}"
         return hashlib.sha256(identifier.encode()).hexdigest()[:16]
 
     async def connect_to_dashboard(self):
@@ -82,9 +84,7 @@ class SupabaseDashboardIntegration:
 
                 return True
             else:
-                logger.warning(
-                    f"⚠️ Dashboard non accessible: {response.status_code}"
-                )
+                logger.warning(f"⚠️ Dashboard non accessible: {response.status_code}")
                 return False
 
         except Exception as e:
@@ -182,9 +182,7 @@ class SupabaseDashboardIntegration:
         """Envoyer métriques au dashboard"""
         try:
             # Pour la démo, on log les métriques
-            logger.info(
-                f"📊 [DÉMO] Métriques envoyées: {metrics['device_id']}"
-            )
+            logger.info(f"📊 [DÉMO] Métriques envoyées: {metrics['device_id']}")
             logger.debug(f"Détails: {json.dumps(metrics, indent=2)}")
 
             # TODO: Implémenter envoi réel
@@ -255,9 +253,7 @@ class SupabaseDashboardIntegration:
         except Exception as e:
             logger.error(f"❌ Erreur envoi status: {e}")
 
-    async def send_alert(
-        self, alert_type: str, message: str, severity: str = "info"
-    ):
+    async def send_alert(self, alert_type: str, message: str, severity: str = "info"):
         """Envoyer alerte au dashboard"""
         try:
             _alert = {
@@ -282,9 +278,7 @@ class SupabaseDashboardIntegration:
             "is_connected": self.is_connected,
             "device_id": self.device_id,
             "dashboard_url": self.dashboard_url,
-            "last_sync": (
-                self.last_sync.isoformat() if self.last_sync else None
-            ),
+            "last_sync": (self.last_sync.isoformat() if self.last_sync else None),
             "version": "1.0.0",
         }
 

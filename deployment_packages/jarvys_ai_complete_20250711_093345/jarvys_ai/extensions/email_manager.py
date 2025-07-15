@@ -131,8 +131,7 @@ Yann Abadie
             {
                 "name": "urgent_emails",
                 "condition": lambda subject: any(
-                    word in subject.lower()
-                    for word in ["urgent", "asap", "important"]
+                    word in subject.lower() for word in ["urgent", "asap", "important"]
                 ),
                 "action": "priority_flag",
                 "notification": True,
@@ -187,7 +186,9 @@ Yann Abadie
             summary = f"📧 Vous avez {len(emails)} nouveaux emails:\n\n"
 
             for i, email_data in enumerate(emails[:5], 1):
-                summary += f"{i}. **{email_data['sender']}** - {email_data['subject']}\n"
+                summary += (
+                    f"{i}. **{email_data['sender']}** - {email_data['subject']}\n"
+                )
                 summary += f"   📅 {email_data['date']}\n"
                 if email_data.get("urgent"):
                     summary += "   🚨 **URGENT**\n"
@@ -248,9 +249,7 @@ Yann Abadie
 
             # Simulation envoi
             if self.demo_mode:
-                return await self._simulate_send_email(
-                    recipient, subject, content
-                )
+                return await self._simulate_send_email(recipient, subject, content)
             else:
                 return await self._real_send_email(recipient, subject, content)
 
@@ -284,9 +283,7 @@ Yann Abadie
     def _extract_subject(self, command: str) -> str:
         """Extraire le sujet de la commande"""
         # Recherche pattern "sujet: ..."
-        subject_match = re.search(
-            r"sujet[:\s]+([^,]+)", command, re.IGNORECASE
-        )
+        subject_match = re.search(r"sujet[:\s]+([^,]+)", command, re.IGNORECASE)
         if subject_match:
             return subject_match.group(1).strip()
 
@@ -326,9 +323,7 @@ Yann Abadie
 ⏰ Envoyé le {datetime.now().strftime('%d/%m/%Y à %H:%M')}
 """
 
-    async def _real_send_email(
-        self, recipient: str, subject: str, content: str
-    ) -> str:
+    async def _real_send_email(self, recipient: str, subject: str, content: str) -> str:
         """Envoi réel d'email (à implémenter)"""
         # TODO: Implémenter envoi réel via SMTP
         logger.info(f"Envoi réel email à {recipient}")
@@ -363,9 +358,7 @@ Que souhaitez-vous faire exactement ?"""
         summary = f"🔍 **Résultats pour '{search_term}'** ({len(results)} emails):\n\n"
 
         for email_data in results[:3]:
-            summary += (
-                f"📧 **{email_data['sender']}** - {email_data['subject']}\n"
-            )
+            summary += f"📧 **{email_data['sender']}** - {email_data['subject']}\n"
             summary += f"   📅 {email_data['date']}\n\n"
 
         return summary
@@ -405,23 +398,25 @@ Que souhaitez-vous faire exactement ?"""
         """Gérer requête générale sur les emails"""
         stats = await self.get_email_stats()
 
-        return """📧 **État de vos emails**
+        return f"""📧 **État de vos emails**
 
 📊 **Statistiques**:
 - Comptes configurés: {stats['accounts_count']}
 - Emails non lus: {stats['unread_total']}
-- Dernière synchro: {stats['last_sync']}
+- Emails importants: {stats['important_total']}
+- Brouillons: {stats['drafts_total']}
 
-🔧 **Commandes disponibles**:
-- "Lire mes emails" - Afficher nouveaux emails
-- "Envoyer email à [contact]" - Composer email
-- "Chercher [terme]" - Rechercher emails
-- "RDV avec [contact]" - Planifier meeting
+**Actions rapides**:
+- `Lire mes emails`
+- `Chercher email de [nom]`
+- `Envoyer email à [adresse]`
+- `Montre-moi les emails importants`
 
-Comment puis-je vous aider ?"""
+Comment puis-je vous aider avec vos emails ?
+"""
 
     async def get_email_stats(self) -> Dict[str, Any]:
-        """Obtenir statistiques des emails"""
+        """Obtenir les statistiques des emails"""
         total_unread = sum(
             account["unread_count"] for account in self.email_accounts.values()
         )

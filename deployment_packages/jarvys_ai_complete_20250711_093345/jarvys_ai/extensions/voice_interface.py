@@ -171,7 +171,7 @@ class VoiceInterface:
                 logger.info(f"🎤 Traitement commande: {command}")
 
                 # Envoyer au système principal
-                _response = await self.command_callback(command, "voice")
+                response = await self.command_callback(command, "voice")
 
                 # Prononcer la réponse
                 await self.speak(response)
@@ -225,9 +225,7 @@ class VoiceInterface:
         words_count = len(text.split())
         duration = max(1, words_count * 0.3)  # ~0.3s par mot
 
-        logger.info(
-            f"🔊 [DÉMO] Prononciation simulée ({duration:.1f}s): {text}"
-        )
+        logger.info(f"🔊 [DÉMO] Prononciation simulée ({duration:.1f}s): {text}")
         await asyncio.sleep(min(duration, 5))  # Max 5s pour démo
 
     async def _real_speak(self, text: str, voice: Optional[str] = None):
@@ -272,9 +270,7 @@ class VoiceInterface:
     async def _real_listen_once(self, timeout: int) -> Optional[str]:
         """Écoute ponctuelle réelle"""
         # TODO: Implémenter reconnaissance vocale ponctuelle
-        logger.info(
-            f"🎤 Écoute ponctuelle réelle (TODO) - timeout: {timeout}s"
-        )
+        logger.info(f"🎤 Écoute ponctuelle réelle (TODO) - timeout: {timeout}s")
         return None
 
     async def process_command(self, command: str) -> str:
@@ -282,10 +278,7 @@ class VoiceInterface:
         try:
             command_lower = command.lower()
 
-            if any(
-                word in command_lower
-                for word in ["dire", "parler", "prononcer"]
-            ):
+            if any(word in command_lower for word in ["dire", "parler", "prononcer"]):
                 # Extraire texte à prononcer
                 text_to_speak = self._extract_text_to_speak(command)
                 if text_to_speak:
@@ -337,27 +330,29 @@ class VoiceInterface:
 
     async def _handle_voice_info_query(self) -> str:
         """Gérer requête d'information sur l'interface vocale"""
-        stats = self.get_voice_stats()
+        self.get_voice_stats()
 
         status = "🟢 Active" if self.is_listening else "🔴 Inactive"
 
-        return """🎤 **Interface Vocale JARVYS_AI**
+        return f"""🎤 **Interface Vocale JARVYS_AI**
 
 📊 **État**: {status}
 🗣️ **Langue**: {self.language}
-⚡ **Services**: {stats['services_ready']}/3 prêts
+⚡ **Vitesse**: {self.voice_speed}x
+🔑 **Mot d'activation**: "{self.wake_word}"
 
-🔧 **Commandes disponibles**:
-- "Hey JARVYS, [commande]" - Commande vocale
-- "Dire [texte]" - Prononcer texte
-- "Écouter" / "Arrêter" - Contrôle écoute
+**Services disponibles**:
+- Reconnaissance vocale: {'✅' if self.services_available['speech_recognition'] else '❌'}
+- Synthèse vocale: {'✅' if self.services_available['text_to_speech'] else '❌'}
+- Détection mot-clé: {'✅' if self.services_available['wake_word_detection'] else '❌'}
 
-🎯 **Mot d'activation**: "{self.wake_word}"
-
-Comment puis-je vous aider avec l'interface vocale ?"""
+**Commandes**:
+- `Écouter` / `Arrêter l'écoute`
+- `Dire [texte]`
+"""
 
     def get_voice_stats(self) -> Dict[str, Any]:
-        """Obtenir statistiques interface vocale"""
+        """Obtenir les statistiques de l'interface vocale"""
         services_ready = sum(self.services_available.values())
 
         return {

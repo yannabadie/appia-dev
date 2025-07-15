@@ -144,7 +144,7 @@ class IntelligenceCore:
     async def _analyze_with_ai(self, command: str) -> Dict[str, Any]:
         """Analyse avancée avec OpenAI"""
         try:
-            _response = await self.openai_client.ChatCompletion.acreate(
+            response = await self.openai_client.ChatCompletion.acreate(
                 model="gpt-3.5-turbo",
                 messages=[
                     {
@@ -221,7 +221,7 @@ class IntelligenceCore:
     async def _generate_ai_response(self, command: str) -> str:
         """Générer réponse avec IA"""
         try:
-            _response = await self.openai_client.ChatCompletion.acreate(
+            response = await self.openai_client.ChatCompletion.acreate(
                 model="gpt-3.5-turbo",
                 messages=[
                     {
@@ -237,27 +237,21 @@ class IntelligenceCore:
             return response.choices[0].message.content
 
         except Exception as e:
-            logger.error(f"❌ Erreur génération IA: {e}")
-            return self._generate_simple_response(command)
+            logger.error(f"❌ Erreur génération réponse AI: {e}")
+            return (
+                "Désolé, une erreur est survenue lors de la génération de la réponse."
+            )
 
     def _generate_simple_response(self, command: str) -> str:
-        """Générer réponse simple sans IA"""
-        responses = {
-            "aide": "Je suis JARVYS_AI, votre assistant personnel. Je peux vous aider avec vos emails, fichiers, et tâches quotidiennes.",
-            "status": "JARVYS_AI fonctionne normalement. Tous les systèmes sont opérationnels.",
-            "bonjour": "Bonjour ! Comment puis-je vous aider aujourd'hui ?",
-            "merci": "Je vous en prie ! C'est un plaisir de vous aider.",
-        }
-
+        """Générer une réponse simple sans IA"""
         command_lower = command.lower()
 
-        for keyword, response in responses.items():
-            if keyword in command_lower:
-                return response
-
-        return (
-            "Je suis là pour vous aider. Pouvez-vous préciser votre demande ?"
-        )
+        if "bonjour" in command_lower or "salut" in command_lower:
+            return "Bonjour! Comment puis-je vous aider aujourd'hui ?"
+        elif "merci" in command_lower:
+            return "De rien! N'hésitez pas si vous avez d'autres questions."
+        else:
+            return "Je ne suis pas sûr de comprendre. Pouvez-vous reformuler ?"
 
     def get_stats(self) -> Dict[str, Any]:
         """Obtenir statistiques du cœur d'intelligence"""
