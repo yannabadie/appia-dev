@@ -284,7 +284,7 @@ def reflect_commit(state: AgentState) -> AgentState:
             print(f"Supabase update failed: {db_e} – using local log fallback")
             with open("local_logs.json", "a") as f:
                 json.dump(state["log_entry"], f)
-        return {"next": "generate_code"}
+        return state
     else:
         os.system(
             f"git add . && git commit -m 'Grok Auto: {state['task']} with docs' && git push origin grok-evolution"
