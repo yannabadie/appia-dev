@@ -564,6 +564,28 @@ class ContinuousImprovement:
 
     def stop_continuous_sync(self):
         """Stop continuous sync"""
+        }
+
+    # Enhanced Real-time Sync Methods
+
+    async def start_continuous_sync(self):
+        """Start continuous sync with JARVYS_DEV and GitHub repository"""
+        if self.is_running:
+            logger.warning("Continuous sync already running")
+            return
+
+        self.is_running = True
+        self.update_thread = threading.Thread(
+            target=self._sync_loop, daemon=True
+        )
+        self.update_thread.start()
+        logger.info(
+            "🔄 Started continuous sync (interval: "
+            f"{self.sync_interval} minutes)"
+        )
+
+    def stop_continuous_sync(self):
+        """Stop continuous sync"""
         self.is_running = False
         if self.update_thread:
             self.update_thread.join(timeout=5)
@@ -589,28 +611,6 @@ class ContinuousImprovement:
             logger.info("🔄 Starting sync cycle...")
 
             # 1. Check for updates from GitHub repository
-            updates_available = await self._check_github_updates()
-
-            # 2. Check JARVYS_DEV dashboard for commands/improvements
-            dashboard_updates = await self._check_dashboard_updates()
-
-            # 3. Apply updates if available and auto_update is enabled
-            if (updates_available or dashboard_updates) and self.auto_update:
-                await self._apply_updates(updates_available, dashboard_updates)
-
-            # 4. Report performance metrics to JARVYS_DEV
-            await self._report_metrics()
-
-            # 5. Update last sync timestamp
-            self.last_sync = datetime.now()
-
-            logger.info("✅ Sync cycle completed successfully")
-
-        except Exception as e:
-            logger.error(f"❌ Sync cycle failed: {e}")
-
-    async def _check_github_updates(self) -> List[Dict[str, Any]]:
-        """Check GitHub repository for code updates"""
         try:
             # Clone/update temporary repository
             if not await self._update_temp_repo():
