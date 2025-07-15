@@ -54,46 +54,32 @@ for dir_path, repo_url in [(REPO_DIR_DEV, GH_REPO_DEV), (REPO_DIR_AI, GH_REPO_AI
         )
     else:
         os.chdir(dir_path)
-        # Check if branch exists, create if not
-        try:
-            subprocess.check_call(
-                ["git", "checkout", "grok-evolution"], stderr=subprocess.DEVNULL
-            )
-        except subprocess.CalledProcessError:
+        # Check if branch exists remotely
+        branch_check = subprocess.run(
+            ["git", "ls-remote", "--heads", "origin", "grok-evolution"],
+            capture_output=True,
+            text=True,
+        )
+        if "grok-evolution" not in branch_check.stdout:
             subprocess.run(["git", "checkout", "-b", "grok-evolution"], check=True)
             subprocess.run(
                 ["git", "push", "-u", "origin", "grok-evolution"], check=True
             )
+        else:
+            try:
+                subprocess.check_call(["git", "checkout", "grok-evolution"])
+            except subprocess.CalledProcessError:
+                subprocess.run(
+                    [
+                        "git",
+                        "checkout",
+                        "-b",
+                        "grok-evolution",
+                        "origin/grok-evolution",
+                    ],
+                    check=True,
+                )
         subprocess.run(["git", "pull", "origin", "grok-evolution"], check=True)
-
-# Create Supabase table if not exists (use SQL with service role auth)
-if SUPABASE_SERVICE_ROLE:
-    supabase.auth.sign_in_with_password(
-        {"email": "service@supabase.io", "password": SUPABASE_SERVICE_ROLE}
-    )  # Use valid service email
-try:
-    supabase.table("logs").select("*").limit(1).execute()  # Test if exists
-except Exception:
-    # Create table via SQL (use postgrest for execute)
-    sql = """
-    CREATE TABLE IF NOT EXISTS logs (
-        id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-        task text,
-        repo text,
-        status text,
-        timestamp timestamptz DEFAULT now(),
-        test_result text,
-        reflection text,
-        doc_update text,
-        error text,
-        lint_output text,
-        adapt_fix text,
-        pr_url text
-    );
-    """
-    supabase.postgrest.rpc(
-        "execute", {"statement": sql, "params": {}}
-    ).execute()  # Use RPC if available, or adjust
 
 
 # État (TypedDict avec reducers pour éviter InvalidUpdateError)
@@ -333,7 +319,7 @@ def reflect_commit(state: AgentState) -> AgentState:
             print(f"Supabase update failed: {db_e} – using local log fallback")
             with open("local_logs.json", "a") as f:
                 json.dump(state["log_entry"], f)
-        return {"next": "generate_code"}
+        return state
     else:
         os.system(
             f"git add . && git commit -m 'Grok Auto: {state['task']} with docs' && git push origin grok-evolution"
