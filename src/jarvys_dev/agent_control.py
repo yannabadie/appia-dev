@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 class AgentController:
     """Contrôleur pour pause/reprise de l'agent"""
 
-    def __init__(self, _supabase_client =None):
-        self.supabase = supabase_client
+    def __init__(self, _supabase_client=None):
+        self.supabase = _supabase_client
         self.is_paused = False
         self.pause_reason = ""
 
@@ -33,11 +33,11 @@ class AgentController:
                     .execute()
                 )
 
-                if result.data:
-                    status = result.data.get("status", "active")
+                if _result.data:
+                    status = _result.data.get("status", "active")
                     self.is_paused = status == "paused"
                     if self.is_paused:
-                        self.pause_reason = result.data.get(
+                        self.pause_reason = _result.data.get(
                             "pause_reason", "Manual pause"
                         )
                         logger.info(f"🛑 Agent en pause: {self.pause_reason}")
