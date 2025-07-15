@@ -157,8 +157,11 @@ class EnhancedFallbackEngine:
                 "Accept": "application/vnd.github.v3+json",
             }
 
-            url = f"https://api.github.com/repos/{self.repo_owner}/{self.repo_name}/actions/billing/usage"
-            _response = requests.get(url, headers=headers, timeout=10)
+            url = (
+                f"https://api.github.com/repos/{self.repo_owner}/"
+                f"{self.repo_name}/actions/billing/usage"
+            )
+            response = requests.get(url, headers=headers, timeout=10)
 
             if response.status_code == 200:
                 data = response.json()
@@ -372,7 +375,9 @@ gcloud run deploy $SERVICE_NAME \\
 echo "✅ Deployment completed!"
 
 # Get service URL
-SERVICE_URL=$(gcloud run services describe $SERVICE_NAME --platform managed --region $REGION --format 'value(status.url)' --project $PROJECT_ID)
+SERVICE_URL=$(gcloud run services describe $SERVICE_NAME \\
+    --platform managed --region $REGION --format 'value(status.url)' \\
+    --project $PROJECT_ID)
 echo "🌐 Service URL: $SERVICE_URL"
 """
 
@@ -398,7 +403,7 @@ echo "🌐 Service URL: $SERVICE_URL"
                 image_name = f"gcr.io/{self.project_id}/{self.service_name}:latest"
 
                 logger.info("🏗️ Building Docker image...")
-                _result = subprocess.run(
+                result = subprocess.run(
                     ["docker", "build", "-t", image_name, "."],
                     capture_output=True,
                     text=True,
@@ -411,7 +416,7 @@ echo "🌐 Service URL: $SERVICE_URL"
 
                 # Push image
                 logger.info("📤 Pushing image to Container Registry...")
-                _result = subprocess.run(
+                result = subprocess.run(
                     ["docker", "push", image_name],
                     capture_output=True,
                     text=True,
@@ -448,7 +453,7 @@ echo "🌐 Service URL: $SERVICE_URL"
                     self.project_id,
                 ]
 
-                _result = subprocess.run(
+                result = subprocess.run(
                     deploy_cmd, capture_output=True, text=True, timeout=600
                 )
 
@@ -517,7 +522,7 @@ echo "🌐 Service URL: $SERVICE_URL"
 
             logger.info("📉 Scaling down Cloud Run service...")
 
-            _result = subprocess.run(
+            result = subprocess.run(
                 [
                     "gcloud",
                     "run",
@@ -564,7 +569,7 @@ echo "🌐 Service URL: $SERVICE_URL"
                 return False
 
             # Check gcloud authentication
-            _result = subprocess.run(
+            result = subprocess.run(
                 [
                     "gcloud",
                     "auth",
@@ -594,7 +599,7 @@ echo "🌐 Service URL: $SERVICE_URL"
 
         for tool in tools:
             try:
-                _result = subprocess.run(
+                result = subprocess.run(
                     [tool, "--version"],
                     capture_output=True,
                     text=True,

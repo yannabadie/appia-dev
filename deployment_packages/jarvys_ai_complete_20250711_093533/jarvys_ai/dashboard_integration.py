@@ -73,7 +73,7 @@ class SupabaseDashboardIntegration:
             }
 
             # Test connexion dashboard
-            _response = requests.get(f"{self.dashboard_url}/health", timeout=10)
+            response = requests.get(f"{self.dashboard_url}/health", timeout=10)
 
             if response.status_code == 200:
                 self.is_connected = True
@@ -113,7 +113,9 @@ class SupabaseDashboardIntegration:
             logger.info(f"📡 [DÉMO] Registration: {data['device_id']}")
 
             # TODO: Implémenter envoi réel vers Supabase
-            # _response = requests.post(f"{self.api_endpoint}/agents/register", json=data)
+            # response = requests.post(
+            #     f"{self.api_endpoint}/agents/register", json=data
+            # )
 
         except Exception as e:
             logger.error(f"❌ Erreur envoi registration: {e}")
@@ -186,7 +188,9 @@ class SupabaseDashboardIntegration:
             logger.debug(f"Détails: {json.dumps(metrics, indent=2)}")
 
             # TODO: Implémenter envoi réel
-            # _response = requests.post(f"{self.api_endpoint}/metrics", json=metrics)
+            # response = requests.post(
+            #     f"{self.api_endpoint}/metrics", json=metrics
+            # )
 
         except Exception as e:
             logger.error(f"❌ Erreur envoi métriques: {e}")
@@ -227,7 +231,7 @@ class SupabaseDashboardIntegration:
 
                 # Traiter la commande
                 if self.jarvys_ai:
-                    _response = await self.jarvys_ai.process_command(
+                    response = await self.jarvys_ai.process_command(
                         command, "dashboard"
                     )
                     logger.info(f"📤 Réponse envoyée: {response[:50]}...")
@@ -238,7 +242,7 @@ class SupabaseDashboardIntegration:
     async def send_status_update(self, status: str, details: str = ""):
         """Envoyer mise à jour de statut"""
         try:
-            _update = {
+            update = {
                 "device_id": self.device_id,
                 "timestamp": datetime.now().isoformat(),
                 "status": status,
@@ -256,7 +260,7 @@ class SupabaseDashboardIntegration:
     async def send_alert(self, alert_type: str, message: str, severity: str = "info"):
         """Envoyer alerte au dashboard"""
         try:
-            _alert = {
+            alert = {
                 "device_id": self.device_id,
                 "timestamp": datetime.now().isoformat(),
                 "type": alert_type,

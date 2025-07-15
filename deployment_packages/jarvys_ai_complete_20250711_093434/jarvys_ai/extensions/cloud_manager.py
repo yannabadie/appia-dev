@@ -234,7 +234,7 @@ Quel type de déploiement souhaitez-vous ?"""
             if provider.get("cost_today", 0) > 0
         )
 
-        return """💰 **Rapport de Coûts Cloud** ({datetime.now().strftime('%d/%m/%Y')})
+        return f"""💰 **Rapport de Coûts Cloud** ({datetime.now().strftime('%d/%m/%Y')})
 
 📊 **Coûts aujourd'hui**: ${total_cost:.2f}
 
@@ -279,7 +279,7 @@ Quel type de déploiement souhaitez-vous ?"""
                 active_services += len(services)
                 total_services += len(services)
 
-        return """📊 **État des Services Cloud**
+        return f"""📊 **État des Services Cloud**
 
 🌐 **Vue d'ensemble**:
 - Services actifs: {active_services}/{total_services}
@@ -327,7 +327,7 @@ Quel type de déploiement souhaitez-vous ?"""
 
             backup_id = f"backup-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
 
-            return """💾 **Sauvegarde Créée**
+            return f"""💾 **Sauvegarde Créée**
 
 ✅ **Succès !** Sauvegarde complète réalisée
 
@@ -393,9 +393,9 @@ Commandes: "Restaurer backup-[ID]" ou "Créer backup"."""
         )
         total_servers = len(self.mcp_config["servers"])
 
-        return """🔗 **Model Context Protocol (MCP)**
+        return f"""🔗 **Model Context Protocol (MCP)**
 
-📊 **État**: {'🟢 Acti' if self.mcp_config['enabled'] else '🔴 Inactif'}
+📊 **État**: {'🟢 Actif' if self.mcp_config['enabled'] else '🔴 Inactif'}
 🖥️ **Serveurs**: {active_servers}/{total_servers} actifs
 
 📋 **Serveurs MCP**:
@@ -415,7 +415,7 @@ Commandes: "Restaurer backup-[ID]" ou "Créer backup"."""
         """Gérer requête générale cloud"""
         stats = await self.get_cloud_stats()
 
-        return """☁️ **Gestionnaire Cloud JARVYS_AI**
+        return f"""☁️ **Gestionnaire Cloud JARVYS_AI**
 
 📊 **Vue d'ensemble**:
 - Providers configurés: {stats['providers_connected']}/3

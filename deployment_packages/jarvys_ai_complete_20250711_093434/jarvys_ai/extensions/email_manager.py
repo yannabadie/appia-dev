@@ -314,7 +314,7 @@ Yann Abadie
         """Simuler l'envoi d'email"""
         await asyncio.sleep(0.5)  # Simulation délai
 
-        return """✅ Email envoyé avec succès !
+        return f"""✅ Email envoyé avec succès !
 
 📧 **Destinataire**: {recipient}
 📝 **Sujet**: {subject}
@@ -398,7 +398,7 @@ Que souhaitez-vous faire exactement ?"""
         """Gérer requête générale sur les emails"""
         stats = await self.get_email_stats()
 
-        return """📧 **État de vos emails**
+        return f"""📧 **État de vos emails**
 
 📊 **Statistiques**:
 - Comptes configurés: {stats['accounts_count']}

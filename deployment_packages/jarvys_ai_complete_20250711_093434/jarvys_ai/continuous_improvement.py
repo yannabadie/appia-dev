@@ -235,7 +235,7 @@ class ContinuousImprovement:
             }
 
             url = f"{self.jarvys_dev_endpoint}/api/improvements/fetch"
-            _response = requests.get(url, headers=headers, params=params, timeout=30)
+            response = requests.get(url, headers=headers, params=params, timeout=30)
 
             if response.status_code == 200:
                 return response.json().get("updates", [])
@@ -404,7 +404,7 @@ class ContinuousImprovement:
 
     async def _report_update_success(self, update: Dict[str, Any]):
         """Rapporter le succès d'une mise à jour à JARVYS_DEV"""
-        _report = {
+        report = {
             "device_id": self.device_id,
             "update_id": update["id"],
             "status": "success",
@@ -413,14 +413,14 @@ class ContinuousImprovement:
         }
 
         if self.demo_mode:
-            logger.info(f"📊 [DÉMO] Rapport succès: {update['id']}")
+            logger.info(f"📊 [DÉMO] Rapport succès: {report}")
         else:
             # TODO: Envoyer rapport à JARVYS_DEV
             pass
 
     async def _report_update_failure(self, update: Dict[str, Any], error: str = None):
         """Rapporter l'échec d'une mise à jour à JARVYS_DEV"""
-        _report = {
+        report = {
             "device_id": self.device_id,
             "update_id": update["id"],
             "status": "failed",
@@ -429,7 +429,7 @@ class ContinuousImprovement:
         }
 
         if self.demo_mode:
-            logger.warning(f"📊 [DÉMO] Rapport échec: {update['id']}")
+            logger.warning(f"📊 [DÉMO] Rapport échec: {report}")
         else:
             # TODO: Envoyer rapport à JARVYS_DEV
             pass
@@ -507,7 +507,7 @@ class ContinuousImprovement:
         if not self.performance_metrics:
             return
 
-        _report = {
+        report = {
             "device_id": self.device_id,
             "report_type": "periodic_performance",
             "metrics": self.performance_metrics,
@@ -516,7 +516,7 @@ class ContinuousImprovement:
         }
 
         if self.demo_mode:
-            logger.info("📊 [DÉMO] Rapport périodique envoyé")
+            logger.info(f"📊 [DÉMO] Rapport périodique envoyé: {report}")
         else:
             # TODO: Envoyer à JARVYS_DEV
             pass
@@ -559,7 +559,7 @@ class ContinuousImprovement:
         self.update_thread = threading.Thread(target=self._sync_loop, daemon=True)
         self.update_thread.start()
         logger.info(
-            f"🔄 Started continuous sync (interval: {self.sync_interval} minutes)"
+            "🔄 Started continuous sync (interval: " f"{self.sync_interval} minutes)"
         )
 
     def stop_continuous_sync(self):
@@ -633,7 +633,7 @@ class ContinuousImprovement:
         try:
             if self.temp_repo_path and os.path.exists(self.temp_repo_path):
                 # Update existing repository
-                _result = subprocess.run(
+                result = subprocess.run(
                     ["git", "pull", "origin", self.branch],
                     cwd=self.temp_repo_path,
                     capture_output=True,
@@ -647,7 +647,7 @@ class ContinuousImprovement:
                 # Clone repository
                 self.temp_repo_path = tempfile.mkdtemp(prefix="jarvys_sync_")
 
-                _result = subprocess.run(
+                result = subprocess.run(
                     [
                         "gh",
                         "repo",
@@ -735,7 +735,10 @@ class ContinuousImprovement:
         """Check JARVYS_DEV dashboard for improvement commands"""
         try:
             # Make API call to dashboard
-            url = f"{self.jarvys_dev_endpoint}/functions/v1/jarvys-dashboard/api/improvements"
+            url = (
+                f"{self.jarvys_dev_endpoint}/functions/v1/"
+                "jarvys-dashboard/api/improvements"
+            )
             headers = {
                 "Authorization": (
                     f"Bearer {self.sync_token}" if self.sync_token else None
@@ -746,7 +749,7 @@ class ContinuousImprovement:
             # Remove None headers
             headers = {k: v for k, v in headers.items() if v is not None}
 
-            _response = requests.get(url, headers=headers, timeout=10)
+            response = requests.get(url, headers=headers, timeout=10)
 
             if response.status_code == 200:
                 data = response.json()
@@ -766,7 +769,7 @@ class ContinuousImprovement:
         try:
             # Create backup before applying updates
             if self.backup_before_update:
-                backup_id = await self._create_backup()
+                backup_id = await self._create_backup_sync()
                 if not backup_id:
                     logger.error("❌ Failed to create backup, skipping updates")
                     return
@@ -801,7 +804,7 @@ class ContinuousImprovement:
             # Report results
             if applied_successfully:
                 logger.info(
-                    f"✅ Applied {len(applied_successfully)} updates successfully"
+                    f"✅ Applied {len(applied_successfully)} updates " "successfully"
                 )
                 self.applied_updates.extend(applied_successfully)
 
@@ -860,7 +863,9 @@ class ContinuousImprovement:
                 # Update configuration
                 config_updates = update.get("config", {})
                 self.config.update(config_updates)
-                logger.info(f"⚙️ Updated configuration: {list(config_updates.keys())}")
+                logger.info(
+                    "⚙️ Updated configuration: " f"{list(config_updates.keys())}"
+                )
                 return True
 
             elif command_type == "restart_required":
@@ -879,7 +884,7 @@ class ContinuousImprovement:
             logger.error(f"❌ Error applying dashboard update: {e}")
             return False
 
-    async def _create_backup(self) -> Optional[str]:
+    async def _create_backup_sync(self) -> Optional[str]:
         """Create backup of current JARVYS_AI code"""
         try:
             backup_id = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -943,7 +948,8 @@ class ContinuousImprovement:
             }
 
             url = (
-                f"{self.jarvys_dev_endpoint}/functions/v1/jarvys-dashboard/api/metrics"
+                f"{self.jarvys_dev_endpoint}/functions/v1/"
+                "jarvys-dashboard/api/metrics"
             )
             headers = {
                 "Content-Type": "application/json",
@@ -956,7 +962,7 @@ class ContinuousImprovement:
             # Remove None headers
             headers = {k: v for k, v in headers.items() if v is not None}
 
-            _response = requests.post(url, json=metrics, headers=headers, timeout=10)
+            response = requests.post(url, json=metrics, headers=headers, timeout=10)
 
             if response.status_code == 200:
                 logger.debug("📊 Metrics reported successfully")
@@ -995,7 +1001,9 @@ class ContinuousImprovement:
                 self.sync_interval = optimization.get(
                     "sync_interval", self.sync_interval
                 )
-                logger.info(f"⚡ Updated sync interval to {self.sync_interval} minutes")
+                logger.info(
+                    "⚡ Updated sync interval to " f"{self.sync_interval} minutes"
+                )
 
         except Exception as e:
             logger.error(f"❌ Error applying optimization: {e}")

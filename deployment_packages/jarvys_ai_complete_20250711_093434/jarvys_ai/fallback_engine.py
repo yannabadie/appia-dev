@@ -144,7 +144,7 @@ class FallbackEngine:
                 }
 
                 url = f"https://api.github.com/repos/{self.github_repo}/actions/billing/usage"
-                _response = requests.get(url, headers=headers)
+                response = requests.get(url, headers=headers)
 
                 if response.status_code == 200:
                     return response.json()
@@ -255,7 +255,7 @@ class FallbackEngine:
 
             # Exécution en mode démo seulement
             if not self.demo_mode:
-                _result = subprocess.run(deploy_cmd, capture_output=True, text=True)
+                result = subprocess.run(deploy_cmd, capture_output=True, text=True)
                 if result.returncode != 0:
                     raise Exception(f"Échec déploiement: {result.stderr}")
 

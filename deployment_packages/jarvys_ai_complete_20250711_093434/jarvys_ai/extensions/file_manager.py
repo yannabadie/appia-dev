@@ -220,7 +220,7 @@ class FileManager:
             if not results:
                 return f"❌ Aucun fichier trouvé pour '{search_term}'"
 
-            _response = (
+            response = (
                 f"🔍 **Résultats pour '{search_term}'** ({len(results)} fichiers):\n\n"
             )
 
@@ -317,7 +317,7 @@ class FileManager:
                 break
 
         if self.demo_mode:
-            return """✅ **Fichier ouvert**
+            return f"""✅ **Fichier ouvert**
 
 📄 **Nom**: {filename}
 📁 **Emplacement**: {file_found['directory'] if file_found else 'Documents'}
@@ -355,7 +355,7 @@ Le fichier s'ouvre dans votre application par défaut."""
             return "❌ Veuillez spécifier le nom et type du fichier à créer."
 
         if self.demo_mode:
-            return """✅ **Fichier créé**
+            return f"""✅ **Fichier créé**
 
 📄 **Nom**: {file_info['name']}
 📁 **Emplacement**: {file_info['location']}
@@ -399,7 +399,7 @@ Le fichier a été créé et est prêt à être modifié."""
         if self.demo_mode:
             action_fr = "copié" if operation_type == "copy" else "déplacé"
 
-            return """✅ **Fichier {action_fr}**
+            return f"""✅ **Fichier {action_fr}**
 
 📄 **Opération**: {'Copie' if operation_type == 'copy' else 'Déplacement'}
 📁 **Source**: Documents/
@@ -443,7 +443,7 @@ L'opération s'est déroulée avec succès."""
         if not self.recent_files:
             return "📁 Aucun fichier récent trouvé."
 
-        _response = "📁 **Fichiers Récents** (5 derniers):\n\n"
+        response = "📁 **Fichiers Récents** (5 derniers):\n\n"
 
         for i, file_info in enumerate(self.recent_files[:5], 1):
             response += f"{i}. 📄 **{file_info['name']}**\n"
@@ -458,7 +458,7 @@ L'opération s'est déroulée avec succès."""
         """Gérer requête générale fichiers"""
         stats = await self.get_file_stats()
 
-        return """📁 **Gestionnaire de Fichiers JARVYS_AI**
+        return f"""📁 **Gestionnaire de Fichiers JARVYS_AI**
 
 📊 **Statistiques**:
 - Fichiers indexés: {stats['indexed_files']}

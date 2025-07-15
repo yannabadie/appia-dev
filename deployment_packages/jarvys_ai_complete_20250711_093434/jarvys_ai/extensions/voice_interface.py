@@ -171,7 +171,7 @@ class VoiceInterface:
                 logger.info(f"🎤 Traitement commande: {command}")
 
                 # Envoyer au système principal
-                _response = await self.command_callback(command, "voice")
+                response = await self.command_callback(command, "voice")
 
                 # Prononcer la réponse
                 await self.speak(response)
@@ -334,7 +334,7 @@ class VoiceInterface:
 
         status = "🟢 Active" if self.is_listening else "🔴 Inactive"
 
-        return """🎤 **Interface Vocale JARVYS_AI**
+        return f"""🎤 **Interface Vocale JARVYS_AI**
 
 📊 **État**: {status}
 🗣️ **Langue**: {self.language}

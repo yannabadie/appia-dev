@@ -181,7 +181,7 @@ class JarvysAI:
             analysis = await self.intelligence_core.analyze_command(command)
 
             # Router vers l'extension appropriée
-            _response = await self._route_command(analysis, command)
+            response = await self._route_command(analysis, command)
 
             # Mettre à jour le jumeau numérique
             await self.digital_twin.update_interaction(command, response, interface)

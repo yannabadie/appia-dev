@@ -157,7 +157,10 @@ class EnhancedFallbackEngine:
                 "Accept": "application/vnd.github.v3+json",
             }
 
-            url = f"https://api.github.com/repos/{self.repo_owner}/{self.repo_name}/actions/billing/usage"
+            url = (
+                f"https://api.github.com/repos/{self.repo_owner}/"
+                f"{self.repo_name}/actions/billing/usage"
+            )
             response = requests.get(url, headers=headers, timeout=10)
 
             if response.status_code == 200:
@@ -178,7 +181,9 @@ class EnhancedFallbackEngine:
                     "remaining_minutes": max(included_minutes - total_minutes, 0),
                 }
             else:
-                logger.warning(f"GitHub API returned {response.status_code}")
+                logger.warning(
+                    f"GitHub API returned {response.status_code} - {response.text}"
+                )
                 return None
 
         except Exception as e:
@@ -372,7 +377,9 @@ gcloud run deploy $SERVICE_NAME \\
 echo "✅ Deployment completed!"
 
 # Get service URL
-SERVICE_URL=$(gcloud run services describe $SERVICE_NAME --platform managed --region $REGION --format 'value(status.url)' --project $PROJECT_ID)
+SERVICE_URL=$(gcloud run services describe $SERVICE_NAME \\
+    --platform managed --region $REGION --format 'value(status.url)' \\
+    --project $PROJECT_ID)
 echo "🌐 Service URL: $SERVICE_URL"
 """
 
