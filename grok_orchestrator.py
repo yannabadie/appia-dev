@@ -1,73 +1,76 @@
 #!/usr/bin/env python3
 """
-Grok Orchestrator: Intelligent workflow automation system for appia-dev/appIA repositories.
+GROK Orchestrator - Manages the autonomous operations of GROK AI system.
 
-This script provides an advanced workflow automation system for managing development tasks,
-repository synchronization, and AI-driven code improvements across multiple repositories.
-The orchestrator handles GitHub integration, continuous testing, and coordinates
-with Supabase for state management.
-
-Environment Variables:
-    GH_TOKEN: GitHub Personal Access Token
-    SUPABASE_URL: URL for Supabase instance
-    SUPABASE_KEY: Supabase API key
-    OPENAI_API_KEY: OpenAI API key for AI-powered assistance
-    GEMINI_API_KEY: Google Gemini API key for additional AI models
+This module handles core system operations including:
+- Repository and resource management
+- AI workflows and autonomous decision processes
+- Monitoring and event triggers
+- System self-improvement routines
 """
 
-import os
-import time
-import subprocess
-import logging
-from typing import Dict, List, Any, Optional
 import json
-from pathlib import Path
+import logging
+import os
 import random
-
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
-
-# Environment variables and constants
-XAI_API_KEY = os.environ.get("XAI_API_KEY", "")
-GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
-SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
-SUPABASE_SERVICE_ROLE = os.environ.get("SUPABASE_SERVICE_ROLE", "")
-
-# Global state for tracking operations
-state = MockState()
+import subprocess
+import time
+from typing import Any, Dict, List, Optional
 
 import requests
 from github import Github
+
 from supabase import create_client
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger(__name__)
+
 
 # Mock classes to allow code to work without langgraph
 class MockState:
     def __init__(self):
         self.log_entry = {}
 
-# Define mock classes first for graceful fallbacks
+
 class MockStateGraph:
     def __init__(self, *args, **kwargs):
         pass
+
     def add_node(self, *args, **kwargs):
         pass
+
     def add_edge(self, *args, **kwargs):
         pass
+
+    def add_conditional_edges(self, *args, **kwargs):
+        pass
+
+    def set_entry_point(self, *args, **kwargs):
+        pass
+
     def compile(self, *args, **kwargs):
         return self
+
+    def invoke(self, state):
+        return state
+
 
 # Base State class for our state system
 class State(dict):
     """Base State class (mock for LangGraph State)"""
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-    
+
     def __setattr__(self, key, value):
         self[key] = value
-        
+
     def __getattr__(self, key):
         return self.get(key)
+
 
 # Set defaults assuming imports will fail
 StateGraph = MockStateGraph
@@ -77,294 +80,659 @@ LANGGRAPH_AVAILABLE = False
 # Now attempt to import LangGraph
 try:
     import langgraph.graph
+
     # If we get here, imports succeeded
     StateGraph = langgraph.graph.StateGraph
     END = langgraph.graph.END
-    
+
     # Try to import State from langgraph.prelude with error suppression
     try:
         # pylint: disable=all
         # flake8: noqa
         # type: ignore
         from langgraph.prelude import State as LangGraphState  # type: ignore
+
         # pylint: enable=all
         State = LangGraphState
     except (ImportError, ModuleNotFoundError):
         # Keep our custom State class
-        logger.warning("Using custom State class as langgraph.prelude could not be imported")
-        
+        logger.warning(
+            "Using custom State class as langgraph.prelude could not be imported"
+        )
+
     LANGGRAPH_AVAILABLE = True
     logger.info("LangGraph package successfully imported.")
 except ImportError:
     logger.warning("LangGraph package not found. Some features will be disabled.")
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler()]
-)
-logger = logging.getLogger("grok_orchestrator")
+
+# Environment variables and constants with proper error handling
+def get_required_env(var_name: str) -> str:
+    """Get required environment variable or raise ValueError."""
+    value = os.getenv(var_name)
+    if not value:
+        raise ValueError(f"{var_name} environment variable is required but not set")
+    return value
+
+
+def get_optional_env(var_name: str, default: str = "") -> str:
+    """Get optional environment variable with default."""
+    return os.getenv(var_name, default)
+
 
 # Load environment variables with proper error handling
-def get_env(key: str, required: bool = True, default: Any = None) -> Any:
-    """Get environment variable with proper error handling."""
-    value = os.getenv(key)
-    if value is None and required:
-        raise EnvironmentError(f"Required environment variable '{key}' is missing")
-    return value if value is not None else default
-
-# Environment configuration
-GH_TOKEN = get_env('GH_TOKEN')
-GH_REPO_DEV = get_env('GH_REPO_DEV', False, 'yannabadie/appia-dev')
-GH_REPO_AI = get_env('GH_REPO_AI', False, 'yannabadie/appIA')
-SUPABASE_URL = get_env('SUPABASE_URL')
-SUPABASE_KEY = get_env('SUPABASE_KEY')
-OPENAI_API_KEY = get_env('OPENAI_API_KEY', False)
-GEMINI_API_KEY = get_env('GEMINI_API_KEY', False)
-
-# Initialize clients
 try:
-    logger.info("Initializing GitHub client")
-    github = Github(GH_TOKEN)
-    repo_dev = github.get_repo(GH_REPO_DEV)
-    repo_ai = github.get_repo(GH_REPO_AI)
-    
-    logger.info("Initializing Supabase client")
-    supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+    XAI_API_KEY = get_optional_env("XAI_API_KEY")
+    GH_TOKEN = get_optional_env("GH_TOKEN")
+    GH_REPO_DEV = get_optional_env("GH_REPO_DEV", "yannabadie/appia-dev")
+    GH_REPO_AI = get_optional_env("GH_REPO_AI", "yannabadie/appIA")
+    SUPABASE_URL = get_optional_env("SUPABASE_URL")
+    SUPABASE_KEY = get_optional_env("SUPABASE_KEY")
+    SUPABASE_PROJECT_ID = get_optional_env("SUPABASE_PROJECT_ID")
+    SUPABASE_SERVICE_ROLE = get_optional_env("SUPABASE_SERVICE_ROLE")
+    SUPABASE_ACCESS_TOKEN = get_optional_env("SUPABASE_ACCESS_TOKEN")
+    OPENAI_API_KEY = get_optional_env("OPENAI_API_KEY")
+    GEMINI_API_KEY = get_optional_env("GEMINI_API_KEY")
+    SECRET_ACCESS_TOKEN = get_optional_env("SECRET_ACCESS_TOKEN")
+
+    # Handle GCP credentials
+    gcp_sa_json_str = get_optional_env("GCP_SA_JSON")
+    GCP_SA_JSON = json.loads(gcp_sa_json_str) if gcp_sa_json_str else {}
+
 except Exception as e:
-    logger.error(f"Failed to initialize clients: {e}")
-    raise
+    logger.warning(f"Environment variable setup warning: {e}")
+    # Set safe defaults
+    XAI_API_KEY = ""
+    GH_TOKEN = ""
+    GH_REPO_DEV = "yannabadie/appia-dev"
+    GH_REPO_AI = "yannabadie/appIA"
+    SUPABASE_URL = ""
+    SUPABASE_KEY = ""
+    SUPABASE_PROJECT_ID = ""
+    SUPABASE_SERVICE_ROLE = ""
+    SUPABASE_ACCESS_TOKEN = ""
+    OPENAI_API_KEY = ""
+    GEMINI_API_KEY = ""
+    SECRET_ACCESS_TOKEN = ""
+    GCP_SA_JSON = {}
 
-# Repository synchronization
-REPO_DIR_DEV = 'appia-dev'
-REPO_DIR_AI = 'appIA'
+# Initialize clients with error handling
+github = None
+repo_dev = None
+repo_ai = None
+supabase = None
+gcp_credentials = None
 
-def sync_repository(dir_path: str, repo_url: str, branch: str = "main") -> bool:
-    """
-    Synchronize a local repository with its remote counterpart.
-    
-    Args:
-        dir_path: Local directory path for the repository
-        repo_url: GitHub repository URL in format 'owner/repo'
-        branch: Branch to sync (default: main)
-        
-    Returns:
-        True if successful, False otherwise
-    """
+try:
+    if GH_TOKEN:
+        github = Github(GH_TOKEN)
+        repo_dev = github.get_repo(GH_REPO_DEV)
+        repo_ai = github.get_repo(GH_REPO_AI)
+except Exception as e:
+    logger.warning(f"GitHub client initialization failed: {e}")
+
+try:
+    if SUPABASE_URL and SUPABASE_KEY:
+        supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+except Exception as e:
+    logger.warning(f"Supabase client initialization failed: {e}")
+
+try:
+    if GCP_SA_JSON:
+        from google.oauth2 import service_account
+
+        gcp_credentials = service_account.Credentials.from_service_account_info(
+            GCP_SA_JSON
+        )
+except Exception as e:
+    logger.warning(f"GCP credentials initialization failed: {e}")
+
+# Global state for tracking operations
+state = MockState()
+
+# Repository directories
+REPO_DIR_DEV = "appia-dev"
+REPO_DIR_AI = "appIA"
+
+
+# Repository clone/sync functions
+def ensure_repository(dir_path: str, repo_url: str, token: str) -> bool:
+    """Ensure repository is cloned and up to date."""
     try:
-        if not Path(dir_path).exists():
-            logger.info(f"Cloning repository {repo_url} to {dir_path}")
-            result = subprocess.run(
-                f"git clone https://x-access-token:{GH_TOKEN}@github.com/{repo_url}.git {dir_path}",
-                shell=True, check=True, capture_output=True, text=True
-            )
+        if not os.path.exists(dir_path):
+            if token:
+                cmd = f"git clone https://x-access-token:{token}@github.com/{repo_url}.git {dir_path}"
+                result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+                return result.returncode == 0
         else:
-            cwd = os.getcwd()
-            try:
-                os.chdir(dir_path)
-                logger.info(f"Pulling latest changes from {branch} branch in {repo_url}")
-                result = subprocess.run(
-                    f"git pull origin {branch}",
-                    shell=True, check=True, capture_output=True, text=True
-                )
-            finally:
-                os.chdir(cwd)
-                
-        return True
-    except subprocess.CalledProcessError as e:
-        logger.error(f"Git operation failed: {e.stderr}")
-        return False
+            original_dir = os.getcwd()
+            os.chdir(dir_path)
+            result = subprocess.run(
+                "git pull origin grok-evolution",
+                shell=True,
+                capture_output=True,
+                text=True,
+            )
+            os.chdir(original_dir)
+            return result.returncode == 0
     except Exception as e:
         logger.error(f"Repository synchronization error: {e}")
         return False
 
+
+# Initialize repositories if tokens are available
+if GH_TOKEN:
+    ensure_repository(REPO_DIR_DEV, GH_REPO_DEV, GH_TOKEN)
+    ensure_repository(REPO_DIR_AI, GH_REPO_AI, GH_TOKEN)
+
+
 # État
 class AgentState(State):
-    task: str
-    sub_agent: str
-    repo_dir: str
-    repo_obj: object
-    code_generated: str
-    test_result: str
-    reflection: str
-    doc_update: str
-    log_entry: dict
-    lint_fixed: bool = False
+    """Agent state for tracking workflow progress."""
+
+    def __init__(self):
+        super().__init__()
+        self.task = ""
+        self.sub_agent = ""
+        self.repo_dir = ""
+        self.repo_obj = None
+        self.code_generated = ""
+        self.test_result = ""
+        self.reflection = ""
+        self.doc_update = ""
+        self.log_entry = {}
+        self.lint_fixed = False
+
 
 # Query Grok (créativité temp=0.5, fallback multi-LLMs pour adaptabilité)
 def query_grok(prompt: str) -> str:
+    """Query Grok API with fallbacks to other LLMs."""
     full_prompt = f"Contexte JARVYS_DEV (cloud, MCP/GCP, mémoire Supabase, génère JARVYS_AI in appIA) et JARVYS_AI (local, routing LLMs, self-improve): {prompt}. Sois créatif (innovations alignées comme sentiment analysis ou quantum sim), proactif (suggère extras), adaptable (handle unknown via alternatives)."
-    try:
-        url = "https://api.x.ai/v1/chat/completions"
-        headers = {"Authorization": f"Bearer {XAI_API_KEY}", "Content-Type": "application/json"}
-        data = {"model": "grok-4", "messages": [{"role": "user", "content": full_prompt}], "temperature": 0.5}
-        response = requests.post(url, headers=headers, json=data)
-        return response.json()['choices'][0]['message']['content']
-    except Exception as e:
-        state.log_entry['error'] = str(e)
-        # Fallback proactif Gemini
+
+    # Try Grok first
+    if XAI_API_KEY:
+        try:
+            url = "https://api.x.ai/v1/chat/completions"
+            headers = {
+                "Authorization": f"Bearer {XAI_API_KEY}",
+                "Content-Type": "application/json",
+            }
+            data = {
+                "model": "grok-4",
+                "messages": [{"role": "user", "content": full_prompt}],
+                "temperature": 0.5,
+            }
+            response = requests.post(url, headers=headers, json=data, timeout=30)
+            if response.status_code == 200:
+                return response.json()["choices"][0]["message"]["content"]
+        except Exception as e:
+            state.log_entry["grok_error"] = str(e)
+
+    # Fallback to Gemini
+    if GEMINI_API_KEY:
         try:
             url_f = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={GEMINI_API_KEY}"
             data_f = {"contents": [{"parts": [{"text": full_prompt}]}]}
-            response = requests.post(url_f, json=data_f)
-            return response.json()['candidates'][0]['content']['parts'][0]['text']
-        except:
-            # Ultime fallback OpenAI
+            response = requests.post(url_f, json=data_f, timeout=30)
+            if response.status_code == 200:
+                return response.json()["candidates"][0]["content"]["parts"][0]["text"]
+        except Exception as e:
+            state.log_entry["gemini_error"] = str(e)
+
+    # Ultimate fallback to OpenAI
+    if OPENAI_API_KEY:
+        try:
             url_o = "https://api.openai.com/v1/chat/completions"
-            headers_o = {"Authorization": f"Bearer {OPENAI_API_KEY}", "Content-Type": "application/json"}
-            data_o = {"model": "gpt-4", "messages": [{"role": "user", "content": full_prompt}]}
-            response = requests.post(url_o, headers=headers_o, json=data_o)
-            return response.json()['choices'][0]['message']['content']
+            headers_o = {
+                "Authorization": f"Bearer {OPENAI_API_KEY}",
+                "Content-Type": "application/json",
+            }
+            data_o = {
+                "model": "gpt-4",
+                "messages": [{"role": "user", "content": full_prompt}],
+            }
+            response = requests.post(url_o, headers=headers_o, json=data_o, timeout=30)
+            if response.status_code == 200:
+                return response.json()["choices"][0]["message"]["content"]
+        except Exception as e:
+            state.log_entry["openai_error"] = str(e)
+
+    # Return default response if all APIs fail
+    return f"Unable to query AI APIs. Task: {prompt[:100]}..."
+
 
 # Node: Fix Lint/Erreurs (proactif/adaptable : auto-fix, query si unknown)
-def fix_lint(state: AgentState) -> AgentState:
-    os.chdir(state.repo_dir)
-    commands = [
-        "poetry run ruff check --fix --unsafe-fixes .",
-        "poetry run black .",
-        "pre-commit run --all-files" if os.path.exists('.pre-commit-config.yaml') else "echo 'No pre-commit'",
-        "poetry install --with dev"  # Fix Poetry env issues
-    ]
-    for cmd in commands:
+def fix_lint(agent_state: AgentState) -> AgentState:
+    """Fix linting issues in the repository."""
+    if not agent_state.repo_dir:
+        agent_state.repo_dir = REPO_DIR_DEV
+
+    original_dir = os.getcwd()
+
+    try:
+        os.chdir(agent_state.repo_dir)
+        agent_state.log_entry["lint_output"] = ""
+
+        commands = [
+            "poetry run ruff check --fix --unsafe-fixes . || echo 'Ruff failed'",
+            "poetry run black . || echo 'Black failed'",
+            (
+                "pre-commit run --all-files || echo 'Pre-commit failed'"
+                if os.path.exists(".pre-commit-config.yaml")
+                else "echo 'No pre-commit'"
+            ),
+            "poetry install --with dev || echo 'Poetry install failed'",
+        ]
+
+        for cmd in commands:
+            try:
+                result = subprocess.run(
+                    cmd, shell=True, capture_output=True, text=True, timeout=300
+                )
+                output = result.stdout + result.stderr
+                agent_state.log_entry["lint_output"] += output[:200] + "\n"
+            except subprocess.TimeoutExpired:
+                agent_state.log_entry["lint_output"] += f"Timeout for command: {cmd}\n"
+            except Exception as e:
+                # Adaptabilité : Query pour solution inconnue
+                prompt = f"Erreur in Codespace: {str(e)}. Génère fix commande pour Ruff/Black/Poetry lint bugs (E501/F841 etc.). Sois proactif/créatif (alt tools si fail)."
+                fix_cmd = query_grok(prompt)
+                try:
+                    subprocess.run(fix_cmd, shell=True, timeout=60)
+                    agent_state.log_entry["adapt_fix"] = fix_cmd
+                except:
+                    agent_state.log_entry["adapt_fix_failed"] = fix_cmd
+
+        # Vérification
         try:
-            output = subprocess.run(cmd, shell=True, capture_output=True, text=True).stdout
-            state.log_entry['lint_output'] += output[:200] + '\n'
-        except Exception as e:
-            # Adaptabilité : Query pour solution inconnue
-            prompt = f"Erreur in Codespace: {str(e)}. Génère fix commande pour Ruff/Black/Poetry lint bugs (E501/F841 etc.). Sois proactif/créatif (alt tools si fail)."
-            fix_cmd = query_grok(prompt)
-            subprocess.run(fix_cmd, shell=True)
-            state.log_entry['adapt_fix'] = fix_cmd
-    
-    # Vérif
-    check = subprocess.run("ruff check .", shell=True, capture_output=True, text=True).stdout
-    state.lint_fixed = "no issues" in check.lower()
-    
-    # Log Supabase (avec SERVICE_ROLE pour auth avancé si besoin)
-    if SUPABASE_SERVICE_ROLE:
-        supabase.auth.sign_in_with_password({'email': 'service@example.com', 'password': SUPABASE_SERVICE_ROLE})
-    supabase.table('logs').insert(state.log_entry).execute()
-    
-    return state
+            check_result = subprocess.run(
+                "ruff check . || echo 'No ruff'",
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+            check = check_result.stdout
+            agent_state.lint_fixed = (
+                "no issues" in check.lower() or "All checks passed" in check
+            )
+        except:
+            agent_state.lint_fixed = False
+
+        # Log Supabase (avec SERVICE_ROLE pour auth avancé si besoin)
+        if supabase and SUPABASE_SERVICE_ROLE:
+            try:
+                supabase.auth.sign_in_with_password(
+                    {"email": "service@example.com", "password": SUPABASE_SERVICE_ROLE}
+                )
+                supabase.table("logs").insert(agent_state.log_entry).execute()
+            except Exception as e:
+                logger.warning(f"Supabase logging failed: {e}")
+
+    finally:
+        os.chdir(original_dir)
+
+    return agent_state
+
 
 # Node: Identifier Tâches (proactif : base + créatives aléatoires)
-def identify_tasks(state: AgentState) -> AgentState:
+def identify_tasks(agent_state: AgentState) -> AgentState:
+    """Identify tasks to work on."""
     is_ai = random.choice([True, False])
-    state.repo_dir = REPO_DIR_AI if is_ai else REPO_DIR_DEV
-    state.repo_obj = repo_ai if is_ai else repo_dev
-    state.sub_agent = "AI" if is_ai else "DEV"
-    
-    os.chdir(state.repo_dir)
-    
-    issues = [i.title for i in state.repo_obj.get_issues(state="open")]
-    test_output = subprocess.run("pytest -q", shell=True, capture_output=True, text=True).stdout
-    failing = [line for line in test_output.splitlines() if "FAILED" in line]
-    base_tasks = issues + failing + ["Optim coûts >$3", "Ajouter pruning mémoire", "Impl Docker hybrid"]
-    creative_tasks = ["Ajouter sentiment analysis user (créatif: moods predict)", "Intégrer quantum sim routing (créatif: qubits decisions)", "Proactif: Auto-fine-tune LLM sur feedback"]
-    tasks = base_tasks + random.sample(creative_tasks, random.randint(1, 2))  # Proactif: 1-2 créatives
-    if state.sub_agent == "DEV":
-        tasks += ["Générer/update JARVYS_AI et push to appIA"]
-    state.task = random.choice(tasks) if tasks else "Proactif: Propose new feature architecture"
-    
-    state.log_entry = {'task': state.task, 'repo': state.sub_agent, 'status': 'identified', 'timestamp': time.strftime("%Y-%m-%d %H:%M:%S")}
-    supabase.table('logs').insert(state.log_entry).execute()
-    
-    return state
+    agent_state.repo_dir = REPO_DIR_AI if is_ai else REPO_DIR_DEV
+    agent_state.repo_obj = repo_ai if is_ai else repo_dev
+    agent_state.sub_agent = "AI" if is_ai else "DEV"
+
+    original_dir = os.getcwd()
+
+    try:
+        os.chdir(agent_state.repo_dir)
+
+        issues = []
+        if agent_state.repo_obj:
+            try:
+                issues = [
+                    i.title for i in agent_state.repo_obj.get_issues(state="open")
+                ]
+            except Exception as e:
+                logger.warning(f"Failed to get GitHub issues: {e}")
+
+        # Test output
+        try:
+            test_result = subprocess.run(
+                "pytest -q || echo 'No pytest'",
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
+            test_output = test_result.stdout
+            failing = [line for line in test_output.splitlines() if "FAILED" in line]
+        except:
+            failing = []
+
+        base_tasks = (
+            issues
+            + failing
+            + ["Optim coûts >$3", "Ajouter pruning mémoire", "Impl Docker hybrid"]
+        )
+        creative_tasks = [
+            "Ajouter sentiment analysis user (créatif: moods predict)",
+            "Intégrer quantum sim routing (créatif: qubits decisions)",
+            "Proactif: Auto-fine-tune LLM sur feedback",
+        ]
+
+        tasks = base_tasks + random.sample(
+            creative_tasks, random.randint(1, min(2, len(creative_tasks)))
+        )
+
+        if agent_state.sub_agent == "DEV":
+            tasks += ["Générer/update JARVYS_AI et push to appIA"]
+
+        agent_state.task = (
+            random.choice(tasks)
+            if tasks
+            else "Proactif: Propose new feature architecture"
+        )
+
+        agent_state.log_entry = {
+            "task": agent_state.task,
+            "repo": agent_state.sub_agent,
+            "status": "identified",
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+        }
+
+        if supabase:
+            try:
+                supabase.table("logs").insert(agent_state.log_entry).execute()
+            except Exception as e:
+                logger.warning(f"Supabase logging failed: {e}")
+
+    finally:
+        os.chdir(original_dir)
+
+    return agent_state
+
 
 # Node: Générer Code
-def generate_code(state: AgentState) -> AgentState:
-    prompt = f"Génère code/fix pour '{state.task}' sur {state.sub_agent}. Utilise env/secrets (e.g., SUPABASE_SERVICE_ROLE auth, GCP_SA_JSON cloud). Si générer JARVYS_AI, output pour push appIA."
-    state.code_generated = query_grok(prompt)
-    
-    if "générer JARVYS_AI" in state.task.lower():
-        os.chdir(REPO_DIR_AI)
-        file_path = f"src/jarvys_ai/generated_{state.task.replace(' ', '_')}.py"
-        with open(file_path, 'w') as f:
-            f.write(state.code_generated)
-        os.system(f"git add . && git commit -m 'Generated by JARVYS_DEV: {state.task}' && git push origin main")  # Assume main pour AI
-        os.chdir(state.repo_dir)
-    
-    return state
+def generate_code(agent_state: AgentState) -> AgentState:
+    """Generate code for the identified task."""
+    prompt = f"Génère code/fix pour '{agent_state.task}' sur {agent_state.sub_agent}. Utilise env/secrets (e.g., SUPABASE_SERVICE_ROLE auth, GCP_SA_JSON cloud). Si générer JARVYS_AI, output pour push appIA."
+    agent_state.code_generated = query_grok(prompt)
+
+    if "générer JARVYS_AI" in agent_state.task.lower():
+        original_dir = os.getcwd()
+        try:
+            os.chdir(REPO_DIR_AI)
+            file_path = (
+                f"src/jarvys_ai/generated_{agent_state.task.replace(' ', '_')}.py"
+            )
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write(agent_state.code_generated)
+
+            if GH_TOKEN:
+                try:
+                    subprocess.run(
+                        f"git add . && git commit -m 'Generated by JARVYS_DEV: {agent_state.task}' && git push origin main",
+                        shell=True,
+                        timeout=60,
+                    )
+                except Exception as e:
+                    logger.warning(f"Git operations failed: {e}")
+        finally:
+            os.chdir(original_dir)
+
+    return agent_state
+
 
 # Node: Appliquer & Tester
-def apply_test(state: AgentState) -> AgentState:
-    file_path = f"src/jarvys_{state.sub_agent.lower()}/updated_{state.task.replace(' ', '_')}.py"
-    with open(file_path, 'w') as f:
-        f.write(state.code_generated)
-    
-    # Re-fix lint post-génération
-    subprocess.run(f"ruff check --fix {file_path}", shell=True)
-    
-    state.test_result = subprocess.run(f"pytest {file_path}", shell=True, capture_output=True, text=True).stdout
-    state.log_entry['test_result'] = state.test_result[:500]
-    supabase.table('logs').update(state.log_entry).eq('task', state.task).execute()
-    
-    return state
+def apply_test(agent_state: AgentState) -> AgentState:
+    """Apply generated code and test it."""
+    original_dir = os.getcwd()
+
+    try:
+        os.chdir(agent_state.repo_dir)
+
+        file_path = f"src/jarvys_{agent_state.sub_agent.lower()}/updated_{agent_state.task.replace(' ', '_')}.py"
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write(agent_state.code_generated)
+
+        # Re-fix lint post-génération
+        try:
+            subprocess.run(
+                f"ruff check --fix {file_path} || echo 'Ruff fix failed'",
+                shell=True,
+                timeout=60,
+            )
+        except:
+            pass
+
+        # Test the file
+        try:
+            test_result = subprocess.run(
+                f"pytest {file_path} || echo 'Pytest failed'",
+                shell=True,
+                capture_output=True,
+                text=True,
+                timeout=120,
+            )
+            agent_state.test_result = test_result.stdout + test_result.stderr
+        except:
+            agent_state.test_result = "Test execution failed"
+
+        agent_state.log_entry["test_result"] = agent_state.test_result[:500]
+
+        if supabase:
+            try:
+                supabase.table("logs").update(agent_state.log_entry).eq(
+                    "task", agent_state.task
+                ).execute()
+            except Exception as e:
+                logger.warning(f"Supabase update failed: {e}")
+
+    finally:
+        os.chdir(original_dir)
+
+    return agent_state
+
 
 # Node: Update Docs
-def update_docs(state: AgentState) -> AgentState:
-    prompt = f"Génère update doc Markdown pour '{state.task}' sur {state.sub_agent}. Sections: Description, Changements, Impact, Exemples. Créatif: Ajoute analogies/ideas fun alignées."
-    state.doc_update = query_grok(prompt)
-    
-    with open('README.md', 'a') as f:
-        f.write(f"\n## Update: {state.task} ({time.strftime('%Y-%m-%d')})\n{state.doc_update}\n")
-    
-    os.system("git add README.md")
-    state.log_entry['doc_update'] = state.doc_update[:500]
-    supabase.table('logs').update(state.log_entry).eq('task', state.task).execute()
-    
-    return state
+def update_docs(agent_state: AgentState) -> AgentState:
+    """Update documentation."""
+    prompt = f"Génère update doc Markdown pour '{agent_state.task}' sur {agent_state.sub_agent}. Sections: Description, Changements, Impact, Exemples. Créatif: Ajoute analogies/ideas fun alignées."
+    agent_state.doc_update = query_grok(prompt)
+
+    original_dir = os.getcwd()
+
+    try:
+        os.chdir(agent_state.repo_dir)
+
+        with open("README.md", "a", encoding="utf-8") as f:
+            f.write(
+                f"\n## Update: {agent_state.task} ({time.strftime('%Y-%m-%d')})\n{agent_state.doc_update}\n"
+            )
+
+        try:
+            subprocess.run("git add README.md", shell=True, timeout=30)
+        except:
+            pass
+
+        agent_state.log_entry["doc_update"] = agent_state.doc_update[:500]
+
+        if supabase:
+            try:
+                supabase.table("logs").update(agent_state.log_entry).eq(
+                    "task", agent_state.task
+                ).execute()
+            except Exception as e:
+                logger.warning(f"Supabase update failed: {e}")
+
+    finally:
+        os.chdir(original_dir)
+
+    return agent_state
+
 
 # Node: Self-Reflect & Commit/PR
-def reflect_commit(state: AgentState) -> AgentState:
-    if "FAILED" in state.test_result:
-        prompt = f"Reflect: Failed '{state.test_result}'. Improve, créatif/proactif (alt approaches), adaptable (handle unknown)."
-        state.reflection = query_grok(prompt)
-        state.log_entry['reflection'] = state.reflection
-        supabase.table('logs').update(state.log_entry).eq('task', state.task).execute()
-        return {"next": "generate_code"}
+def reflect_commit(agent_state: AgentState) -> AgentState:
+    """Reflect on results and commit/create PR."""
+    if "FAILED" in agent_state.test_result:
+        prompt = f"Reflect: Failed '{agent_state.test_result}'. Improve, créatif/proactif (alt approaches), adaptable (handle unknown)."
+        agent_state.reflection = query_grok(prompt)
+        agent_state.log_entry["reflection"] = agent_state.reflection
+
+        if supabase:
+            try:
+                supabase.table("logs").update(agent_state.log_entry).eq(
+                    "task", agent_state.task
+                ).execute()
+            except Exception as e:
+                logger.warning(f"Supabase update failed: {e}")
+
+        return agent_state  # Will trigger retry logic in graph
     else:
-        os.system(f"git add . && git commit -m 'Grok Auto: {state.task} with docs' && git push origin grok-evolution")
-        pr = state.repo_obj.create_pull(title=f"Grok PR: {state.task}", body=f"Code: {state.code_generated}\nDocs: {state.doc_update}\nLog: {str(state.log_entry)}", head="grok-evolution", base="main")
-        state.log_entry['pr_url'] = pr.html_url
-        
-        # Transparence: Créer issue avec full log
-        state.repo_obj.create_issue(title=f"Grok Log: {state.task} Completed", body=str(state.log_entry))
-        
-        state.log_entry['status'] = 'completed'
-        supabase.table('logs').update(state.log_entry).eq('task', state.task).execute()
-    
-    return state
+        original_dir = os.getcwd()
+
+        try:
+            os.chdir(agent_state.repo_dir)
+
+            if GH_TOKEN:
+                try:
+                    subprocess.run(
+                        f"git add . && git commit -m 'Grok Auto: {agent_state.task} with docs' && git push origin grok-evolution",
+                        shell=True,
+                        timeout=120,
+                    )
+
+                    if agent_state.repo_obj:
+                        pr = agent_state.repo_obj.create_pull(
+                            title=f"Grok PR: {agent_state.task}",
+                            body=f"Code: {agent_state.code_generated[:500]}\nDocs: {agent_state.doc_update[:500]}\nLog: {str(agent_state.log_entry)}",
+                            head="grok-evolution",
+                            base="main",
+                        )
+                        agent_state.log_entry["pr_url"] = pr.html_url
+
+                        # Transparence: Créer issue avec full log
+                        agent_state.repo_obj.create_issue(
+                            title=f"Grok Log: {agent_state.task} Completed",
+                            body=str(agent_state.log_entry),
+                        )
+                except Exception as e:
+                    logger.warning(f"Git/GitHub operations failed: {e}")
+                    agent_state.log_entry["git_error"] = str(e)
+
+            agent_state.log_entry["status"] = "completed"
+
+            if supabase:
+                try:
+                    supabase.table("logs").update(agent_state.log_entry).eq(
+                        "task", agent_state.task
+                    ).execute()
+                except Exception as e:
+                    logger.warning(f"Supabase update failed: {e}")
+
+        finally:
+            os.chdir(original_dir)
+
+    return agent_state
+
 
 # Build Graph
-graph = StateGraph(AgentState)
-graph.add_node("fix_lint", fix_lint)
-graph.add_node("identify", identify_tasks)
-graph.add_node("generate", generate_code)
-graph.add_node("apply_test", apply_test)
-graph.add_node("update_docs", update_docs)
-graph.add_node("reflect_commit", reflect_commit)
+def build_orchestrator_graph():
+    """Build the orchestrator graph with proper error handling."""
+    try:
+        graph = StateGraph(AgentState)
+        graph.add_node("fix_lint", fix_lint)
+        graph.add_node("identify", identify_tasks)
+        graph.add_node("generate", generate_code)
+        graph.add_node("apply_test", apply_test)
+        graph.add_node("update_docs", update_docs)
+        graph.add_node("reflect_commit", reflect_commit)
 
-graph.set_entry_point("fix_lint")
-graph.add_edge("fix_lint", "identify")
-graph.add_edge("identify", "generate")
-graph.add_edge("generate", "apply_test")
-graph.add_edge("apply_test", "update_docs")
-graph.add_edge("update_docs", "reflect_commit")
-graph.add_conditional_edges("reflect_commit", lambda s: "generate" if "FAILED" in s.test_result else END, {"generate": "generate", END: END})
-graph.add_conditional_edges("fix_lint", lambda s: "fix_lint" if not s.lint_fixed else "identify", {"fix_lint": "fix_lint", "identify": "identify"})
+        graph.set_entry_point("fix_lint")
+        graph.add_edge("fix_lint", "identify")
+        graph.add_edge("identify", "generate")
+        graph.add_edge("generate", "apply_test")
+        graph.add_edge("apply_test", "update_docs")
+        graph.add_edge("update_docs", "reflect_commit")
 
-orchestrator = graph.compile()
+        # Conditional edges with proper handling
+        def should_retry_from_reflect(agent_state: AgentState) -> str:
+            """Determine if we should retry from generate or end."""
+            return "generate" if "FAILED" in agent_state.test_result else END
+
+        def should_retry_lint(agent_state: AgentState) -> str:
+            """Determine if we should retry lint or continue."""
+            return "fix_lint" if not agent_state.lint_fixed else "identify"
+
+        graph.add_conditional_edges(
+            "reflect_commit",
+            should_retry_from_reflect,
+            {"generate": "generate", END: END},
+        )
+        graph.add_conditional_edges(
+            "fix_lint",
+            should_retry_lint,
+            {"fix_lint": "fix_lint", "identify": "identify"},
+        )
+
+        return graph.compile()
+    except Exception as e:
+        logger.error(f"Failed to build graph: {e}")
+        return None
+
+
+# Initialize orchestrator
+orchestrator = build_orchestrator_graph()
+
 
 def run_orchestrator():
-    state = AgentState(task="", sub_agent="", repo_dir="", repo_obj=None, code_generated="", test_result="", reflection="", doc_update="", log_entry={}, lint_fixed=False)
+    """Run the orchestrator with proper error handling."""
+    if not orchestrator:
+        logger.error("Orchestrator not initialized. Exiting.")
+        return
+
+    logger.info("Starting GROK Orchestrator...")
+
     max_cycles = 10  # Guard global
     cycle = 0
+
     while cycle < max_cycles:
-        state = orchestrator.invoke(state)
-        time.sleep(3600)  # 1h
-        cycle += 1
+        try:
+            logger.info(f"Starting cycle {cycle + 1}/{max_cycles}")
+
+            # Create new state for each cycle
+            agent_state = AgentState()
+
+            # Run the orchestrator
+            final_state = orchestrator.invoke(agent_state)
+
+            logger.info(
+                f"Cycle {cycle + 1} completed. Task: {final_state.get('task', 'Unknown')}"
+            )
+
+            # Sleep for 1 hour between cycles
+            logger.info("Sleeping for 1 hour...")
+            time.sleep(3600)
+
+            cycle += 1
+
+        except KeyboardInterrupt:
+            logger.info("Orchestrator stopped by user.")
+            break
+        except Exception as e:
+            logger.error(f"Error in orchestrator cycle {cycle + 1}: {e}")
+            cycle += 1
+            # Sleep for 5 minutes on error before retrying
+            time.sleep(300)
+
+    logger.info("GROK Orchestrator finished.")
+
 
 if __name__ == "__main__":
     run_orchestrator()
