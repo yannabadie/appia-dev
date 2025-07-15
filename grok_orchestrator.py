@@ -56,62 +56,44 @@ for dir_path, repo_url in [(REPO_DIR_DEV, GH_REPO_DEV), (REPO_DIR_AI, GH_REPO_AI
         os.chdir(dir_path)
         # Check if branch exists, create if not
         try:
-            subprocess.check_call(["git", "checkout", "grok-evolution"])
+            subprocess.check_call(
+                ["git", "checkout", "grok-evolution"], stderr=subprocess.DEVNULL
+            )
         except subprocess.CalledProcessError:
             subprocess.run(["git", "checkout", "-b", "grok-evolution"], check=True)
             subprocess.run(
                 ["git", "push", "-u", "origin", "grok-evolution"], check=True
             )
-        os.system("git pull origin grok-evolution")  # Assume branche
+        subprocess.run(["git", "pull", "origin", "grok-evolution"], check=True)
 
-# Create Supabase table if not exists (use admin role)
+# Create Supabase table if not exists (use SQL with service role auth)
+if SUPABASE_SERVICE_ROLE:
+    supabase.auth.sign_in_with_password(
+        {"email": "service@supabase.io", "password": SUPABASE_SERVICE_ROLE}
+    )  # Use valid service email
 try:
     supabase.table("logs").select("*").limit(1).execute()  # Test if exists
 except Exception:
-    # Create table schema
-    schema = {
-        "columns": [
-            {
-                "name": "id",
-                "type": "uuid",
-                "default": "uuid_generate_v4()",
-                "is_primary_key": True,
-            },
-            {"name": "task", "type": "text"},
-            {"name": "repo", "type": "text"},
-            {"name": "status", "type": "text"},
-            {"name": "timestamp", "type": "timestamptz", "default": "now()"},
-            {"name": "test_result", "type": "text"},
-            {"name": "reflection", "type": "text"},
-            {"name": "doc_update", "type": "text"},
-            {"name": "error", "type": "text"},
-            {"name": "lint_output", "type": "text"},
-            {"name": "adapt_fix", "type": "text"},
-            {"name": "pr_url", "type": "text"},
-        ]
-    }
-    # Supabase doesn't have direct create table API; use SQL
-    supabase.rpc(
-        "execute_sql",
-        {
-            "sql": """
-        CREATE TABLE IF NOT EXISTS logs (
-            id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
-            task text,
-            repo text,
-            status text,
-            timestamp timestamptz DEFAULT now(),
-            test_result text,
-            reflection text,
-            doc_update text,
-            error text,
-            lint_output text,
-            adapt_fix text,
-            pr_url text
-        );
+    # Create table via SQL (use postgrest for execute)
+    sql = """
+    CREATE TABLE IF NOT EXISTS logs (
+        id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+        task text,
+        repo text,
+        status text,
+        timestamp timestamptz DEFAULT now(),
+        test_result text,
+        reflection text,
+        doc_update text,
+        error text,
+        lint_output text,
+        adapt_fix text,
+        pr_url text
+    );
     """
-        },
-    ).execute()
+    supabase.postgrest.rpc(
+        "execute", {"statement": sql, "params": {}}
+    ).execute()  # Use RPC if available, or adjust
 
 
 # État (TypedDict avec reducers pour éviter InvalidUpdateError)
@@ -124,7 +106,9 @@ class AgentState(TypedDict):
     test_result: str
     reflection: str
     doc_update: str
-    log_entry: Annotated[dict, operator.add]  # Reducer for multiple updates
+    log_entry: Annotated[
+        dict, operator.setitem
+    ]  # Reducer for dict updates (overrides keys)
     lint_fixed: bool
 
 
@@ -145,9 +129,7 @@ def query_grok(prompt: str, state: AgentState) -> str:  # Pass state for log
         response = requests.post(url, headers=headers, json=data)
         return response.json()["choices"][0]["message"]["content"]
     except Exception as e:
-        state["log_entry"] = state["log_entry"] | {
-            "error": str(e)
-        }  # Merge with reducer
+        state["log_entry"] = {**state["log_entry"], "error": str(e)}
         # Fallback proactif Gemini
         try:
             url_f = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={GEMINI_API_KEY}"
@@ -187,17 +169,18 @@ def fix_lint(state: AgentState) -> AgentState:
             output = subprocess.run(
                 cmd, shell=True, capture_output=True, text=True
             ).stdout
-            state["log_entry"] = state["log_entry"] | {
+            state["log_entry"] = {
+                **state["log_entry"],
                 "lint_output": state["log_entry"].get("lint_output", "")
                 + output[:200]
-                + "\n"
+                + "\n",
             }
         except Exception as e:
             # Adaptabilité : Query pour solution inconnue
             prompt = f"Erreur in Codespace: {str(e)}. Génère fix commande pour Ruff/Black/Poetry lint bugs (E501/F841 etc.). Sois proactif/créatif (alt tools si fail)."
             fix_cmd = query_grok(prompt, state)
             subprocess.run(fix_cmd, shell=True)
-            state["log_entry"] = state["log_entry"] | {"adapt_fix": fix_cmd}
+            state["log_entry"] = {**state["log_entry"], "adapt_fix": fix_cmd}
 
     # Vérif
     check = subprocess.run(
@@ -249,7 +232,8 @@ def identify_tasks(state: AgentState) -> AgentState:
         random.choice(tasks) if tasks else "Proactif: Propose new feature architecture"
     )
 
-    state["log_entry"] = state["log_entry"] | {
+    state["log_entry"] = {
+        **state["log_entry"],
         "task": state["task"],
         "repo": state["sub_agent"],
         "status": "identified",
@@ -295,8 +279,9 @@ def apply_test(state: AgentState) -> AgentState:
     state["test_result"] = subprocess.run(
         f"pytest {file_path}", shell=True, capture_output=True, text=True
     ).stdout
-    state["log_entry"] = state["log_entry"] | {
-        "test_result": state["test_result"][:500]
+    state["log_entry"] = {
+        **state["log_entry"],
+        "test_result": state["test_result"][:500],
     }
     try:
         supabase.table("logs").update(state["log_entry"]).eq(
@@ -321,7 +306,7 @@ def update_docs(state: AgentState) -> AgentState:
         )
 
     os.system("git add README.md")
-    state["log_entry"] = state["log_entry"] | {"doc_update": state["doc_update"][:500]}
+    state["log_entry"] = {**state["log_entry"], "doc_update": state["doc_update"][:500]}
     try:
         supabase.table("logs").update(state["log_entry"]).eq(
             "task", state["task"]
@@ -339,7 +324,7 @@ def reflect_commit(state: AgentState) -> AgentState:
     if "FAILED" in state["test_result"]:
         prompt = f"Reflect: Failed '{state['test_result']}'. Improve, créatif/proactif (alt approaches), adaptable (handle unknown)."
         state["reflection"] = query_grok(prompt, state)
-        state["log_entry"] = state["log_entry"] | {"reflection": state["reflection"]}
+        state["log_entry"] = {**state["log_entry"], "reflection": state["reflection"]}
         try:
             supabase.table("logs").update(state["log_entry"]).eq(
                 "task", state["task"]
@@ -359,14 +344,14 @@ def reflect_commit(state: AgentState) -> AgentState:
             head="grok-evolution",
             base="main",
         )
-        state["log_entry"] = state["log_entry"] | {"pr_url": pr.html_url}
+        state["log_entry"] = {**state["log_entry"], "pr_url": pr.html_url}
 
         # Transparence: Créer issue avec full log
         state["repo_obj"].create_issue(
             title=f"Grok Log: {state['task']} Completed", body=str(state["log_entry"])
         )
 
-        state["log_entry"] = state["log_entry"] | {"status": "completed"}
+        state["log_entry"] = {**state["log_entry"], "status": "completed"}
         try:
             supabase.table("logs").update(state["log_entry"]).eq(
                 "task", state["task"]
