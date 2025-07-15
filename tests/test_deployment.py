@@ -78,17 +78,19 @@ class TestSupabaseDeployment:
         """Test Supabase CLI is available for deployment."""
         try:
             _result = subprocess.run(
-                ["supabase", "--version"],
+                ["bash", "-c", "source ~/.nvm/nvm.sh && supabase -v"],
                 capture_output=True,
                 text=True,
-                timeout=10,
+                check=False,
             )
 
-            if result.returncode == 0:
+            if _result.returncode == 0:
                 assert (
-                    "supabase" in result.stdout.lower()
+                    "supabase" in _result.stdout.lower()
                 ), "Should return Supabase version"
             else:
+                # If Supabase CLI is not installed, not a test failure
+                print(f"Supabase CLI not installed: {_result.stderr}")
                 pytest.skip("Supabase CLI not available")
 
         except (subprocess.TimeoutExpired, FileNotFoundError):
@@ -585,7 +587,6 @@ class TestDeploymentPerformance:
             # Check for resource optimization
             jobs = workflow_config.get("jobs", {})
             for job_name, job_config in jobs.items():
-
                 # Check for timeout settings (prevents resource waste)
                 if "timeout-minutes" in job_config:
                     timeout = job_config["timeout-minutes"]

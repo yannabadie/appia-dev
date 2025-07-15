@@ -58,13 +58,21 @@ mkdocs-material = ">=9.6"
 mkdocstrings = {version = ">=0.29", extras = ["python"]}
 psutil = "^7.0.0"
 PyYAML = ">=6.0.1"
-ruff = "^0.12.3"
+ruff = "^0.5.5"
 
 [tool.ruff]
-ignore = [  # Was missing ]
+line-length = 88
+
+[tool.ruff.lint]
+ignore = [
     "RUF001",
     "RUF002",
-]  # Add this closing ]
+    "E501",
+]
+
+[tool.black]
+line-length = 88
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

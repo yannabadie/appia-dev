@@ -298,9 +298,9 @@ class JarvysLogAnalyzer:
         # Analyze each log file
         for log_file in log_files:
             file_analysis = self.parse_log_file(log_file)
-            overall_analysis["files"][
-                str(log_file.relative_to(self.project_root))
-            ] = file_analysis
+            overall_analysis["files"][str(log_file.relative_to(self.project_root))] = (
+                file_analysis
+            )
 
             # Update summary
             file_info = file_analysis["file_info"]

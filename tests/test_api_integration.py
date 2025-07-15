@@ -79,17 +79,17 @@ class TestJarvysDevAPI:
             found_health_endpoint = False
             for path in health_paths:
                 _response = client.get(path)
-                if response.status_code == 200:
+                if _response.status_code == 200:
                     found_health_endpoint = True
                     print(f"Found health endpoint at {path}")
 
                     # Health response should be JSON
                     try:
-                        health_data = response.json()
+                        health_data = _response.json()
                         assert isinstance(
                             health_data, dict
                         ), "Health response should be JSON object"
-                    except:
+                    except Exception:
                         # Text response is also acceptable
                         pass
                     break
@@ -441,7 +441,7 @@ class TestOpenAIAPI:
             client = OpenAI(api_key=api_key)
 
             # Test minimal chat completion
-            _response = client.chat.completions.create(
+            response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": "Hi"}],
                 max_tokens=10,
@@ -595,9 +595,8 @@ class TestAPIErrorHandling:
 
                 # Should handle network errors gracefully
                 try:
-                    response = requests.get(
-                        "https://api.openai.com/v1/models", timeout=1
-                    )
+                    # Use _ to indicate intentionally unused variable
+                    _ = requests.get("https://api.openai.com/v1/models", timeout=1)
                 except requests.exceptions.ConnectionError:
                     # Expected - connection error should be caught
                     pass
@@ -651,7 +650,7 @@ class TestAPIPerformance:
             def make_request():
                 try:
                     _response = client.get("/")
-                    results.append(response.status_code)
+                    results.append(_response.status_code)
                 except Exception as e:
                     results.append(str(e))
 

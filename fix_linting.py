@@ -111,7 +111,6 @@ def fix_unused_variables(file_path):
                 or "success_criteria" in line
                 or "supabase_client" in line
             ):
-
                 # Remplacer la variable par _variable
                 line_stripped = line.strip()
                 if line_stripped.endswith(","):

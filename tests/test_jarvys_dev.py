@@ -107,8 +107,7 @@ class TestIntelligentOrchestrator:
     def test_orchestrator_importable(self):
         """Test that intelligent orchestrator can be imported."""
         try:
-            from jarvys_dev.intelligent_orchestrator import \
-                IntelligentOrchestrator
+            from jarvys_dev.intelligent_orchestrator import IntelligentOrchestrator
 
             assert IntelligentOrchestrator is not None
         except ImportError as e:
@@ -117,8 +116,7 @@ class TestIntelligentOrchestrator:
     def test_orchestrator_initialization(self):
         """Test orchestrator can be initialized."""
         try:
-            from jarvys_dev.intelligent_orchestrator import \
-                IntelligentOrchestrator
+            from jarvys_dev.intelligent_orchestrator import IntelligentOrchestrator
 
             orchestrator = IntelligentOrchestrator()
             assert orchestrator is not None
@@ -128,8 +126,7 @@ class TestIntelligentOrchestrator:
     def test_task_analysis_method(self):
         """Test task analysis method exists."""
         try:
-            from jarvys_dev.intelligent_orchestrator import \
-                IntelligentOrchestrator
+            from jarvys_dev.intelligent_orchestrator import IntelligentOrchestrator
 
             orchestrator = IntelligentOrchestrator()
             assert hasattr(
@@ -274,10 +271,10 @@ class TestJarvysDevAPI:
             from jarvys_dev.main import app
 
             _client = TestClient(app)
-            _response = client.get("/")
+            _response = _client.get("/")
 
             # Should return successful response
-            assert response.status_code == 200
+            assert _response.status_code == 200
 
         except Exception as e:
             pytest.fail(f"API health endpoint test failed: {e}")

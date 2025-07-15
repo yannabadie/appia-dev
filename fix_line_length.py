@@ -2,6 +2,7 @@
 """
 Script pour corriger automatiquement les lignes trop longues (E501)
 """
+
 from pathlib import Path
 
 

@@ -213,7 +213,6 @@ class AutoModelUpdater:
                             "chatgpt",
                         ]
                     ):
-
                         new_models.append(model_id)
 
                         update = ModelUpdate(
@@ -266,7 +265,6 @@ class AutoModelUpdater:
                         model_name not in known_models
                         and "gemini" in model_name.lower()
                     ):
-
                         new_models.append(model_name)
 
                         update = ModelUpdate(
