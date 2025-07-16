@@ -44,8 +44,15 @@ class SecretsTransfer:
             return False
 
     def get_secret_value(self, secret_name: str) -> str:
+<<<<<<< HEAD
         """Récupérer la valeur d'un secret depuis les variables "
         "d'environnement GitHub Actions"""
+=======
+        (
+            """Récupérer la valeur d'un secret depuis les variables "
+            "d'environnement GitHub Actions"""
+        )
+>>>>>>> origin/main
         # En mode GitHub Actions, les secrets sont disponibles via
         # l'environnement
         value = os.environ.get(secret_name)

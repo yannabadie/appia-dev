@@ -121,14 +121,23 @@ files = [
 
 [[package]]
 name = "certifi"
+<<<<<<< HEAD
 version = "2025.7.14"
+=======
+version = "2025.6.15"
+>>>>>>> origin/main
 description = "Python package for providing Mozilla's CA Bundle."
 optional = false
 python-versions = ">=3.7"
 groups = ["main", "dev"]
 files = [
+<<<<<<< HEAD
     {file = "certifi-2025.7.14-py3-none-any.whl", hash = "sha256:6b31f564a415d79ee77df69d757bb49a5bb53bd9f756cbbe24394ffd6fc1f4b2"},
     {file = "certifi-2025.7.14.tar.gz", hash = "sha256:8ea99dbdfaaf2ba2f9bac77b9249ef62ec5218e7c2b2e903378ed5fccf765995"},
+=======
+    {file = "certifi-2025.6.15-py3-none-any.whl", hash = "sha256:2e0c7ce7cb5d8f8634ca55d2ba7e6ec2689a2fd6537d8dec1296a477a4910057"},
+    {file = "certifi-2025.6.15.tar.gz", hash = "sha256:d747aa5a8b9bbbb1bb8c22bb13e22bd1f18e9796defa16bab421f7f7a317323b"},
+>>>>>>> origin/main
 ]
 
 [[package]]
@@ -413,6 +422,7 @@ test = ["certifi (>=2024)", "cryptography-vectors (==45.0.5)", "pretend (>=0.7)"
 test-randomorder = ["pytest-randomly"]
 
 [[package]]
+<<<<<<< HEAD
 name = "curl-cffi"
 version = "0.12.0"
 description = "libcurl ffi bindings for Python, with impersonation support."
@@ -442,6 +452,8 @@ extra = ["lxml_html_clean", "markdownify (>=1.1.0)", "readability-lxml (>=0.8.1)
 test = ["charset_normalizer (>=3.3.2,<4.0)", "cryptography (>=42.0.5,<43.0)", "fastapi (==0.110.0)", "httpx (==0.23.1)", "proxy.py (>=2.4.3,<3.0)", "pytest (>=8.1.1,<9.0)", "pytest-asyncio (>=0.23.6,<1.0)", "pytest-trio (>=0.8.0,<1.0)", "python-multipart (>=0.0.9,<1.0)", "trio (>=0.25.0,<1.0)", "trustme (>=1.1.0,<2.0)", "typing_extensions", "uvicorn (>=0.29.0,<1.0)", "websockets (>=12.0,<13.0)"]
 
 [[package]]
+=======
+>>>>>>> origin/main
 name = "deprecated"
 version = "1.2.18"
 description = "Python @deprecated decorator to deprecate old python classes, functions or methods."
@@ -774,20 +786,33 @@ grpc = ["grpcio (>=1.44.0,<2.0.0)"]
 
 [[package]]
 name = "gotrue"
+<<<<<<< HEAD
 version = "2.12.3"
+=======
+version = "2.12.2"
+>>>>>>> origin/main
 description = "Python Client Library for Supabase Auth"
 optional = false
 python-versions = "<4.0,>=3.9"
 groups = ["main"]
 files = [
+<<<<<<< HEAD
     {file = "gotrue-2.12.3-py3-none-any.whl", hash = "sha256:b1a3c6a5fe3f92e854a026c4c19de58706a96fd5fbdcc3d620b2802f6a46a26b"},
     {file = "gotrue-2.12.3.tar.gz", hash = "sha256:f874cf9d0b2f0335bfbd0d6e29e3f7aff79998cd1c14d2ad814db8c06cee3852"},
+=======
+    {file = "gotrue-2.12.2-py3-none-any.whl", hash = "sha256:72443e106507545b2814f3c52d66c3b8f5eaf05c1e43b21b0fadf72742971406"},
+    {file = "gotrue-2.12.2.tar.gz", hash = "sha256:9f23c4e45d5129c495867fd95ce14c4ebe5054b07d7449b01874332cb5c1f076"},
+>>>>>>> origin/main
 ]
 
 [package.dependencies]
 httpx = {version = ">=0.26,<0.29", extras = ["http2"]}
 pydantic = ">=1.10,<3"
 pyjwt = ">=2.10.1,<3.0.0"
+<<<<<<< HEAD
+=======
+pytest-mock = ">=3.14.0,<4.0.0"
+>>>>>>> origin/main
 
 [[package]]
 name = "griffe"
@@ -805,6 +830,7 @@ files = [
 colorama = ">=0.4"
 
 [[package]]
+<<<<<<< HEAD
 name = "grok-api"
 version = "0.1.1"
 description = "A simple Python wrapper for interacting with the unofficial Grok API."
@@ -821,6 +847,8 @@ curl_cffi = "*"
 requests = "*"
 
 [[package]]
+=======
+>>>>>>> origin/main
 name = "grpcio"
 version = "1.73.1"
 description = "HTTP/2-based RPC framework"
@@ -1671,14 +1699,23 @@ files = [
 
 [[package]]
 name = "openai"
+<<<<<<< HEAD
 version = "1.95.1"
+=======
+version = "1.93.0"
+>>>>>>> origin/main
 description = "The official Python library for the openai API"
 optional = false
 python-versions = ">=3.8"
 groups = ["main"]
 files = [
+<<<<<<< HEAD
     {file = "openai-1.95.1-py3-none-any.whl", hash = "sha256:8bbdfeceef231b1ddfabbc232b179d79f8b849aab5a7da131178f8d10e0f162f"},
     {file = "openai-1.95.1.tar.gz", hash = "sha256:f089b605282e2a2b6776090b4b46563ac1da77f56402a222597d591e2dcc1086"},
+=======
+    {file = "openai-1.93.0-py3-none-any.whl", hash = "sha256:3d746fe5498f0dd72e0d9ab706f26c91c0f646bf7459e5629af8ba7c9dbdf090"},
+    {file = "openai-1.93.0.tar.gz", hash = "sha256:988f31ade95e1ff0585af11cc5a64510225e4f5cd392698c675d0a9265b8e337"},
+>>>>>>> origin/main
 ]
 
 [package.dependencies]
@@ -1692,7 +1729,11 @@ tqdm = ">4"
 typing-extensions = ">=4.11,<5"
 
 [package.extras]
+<<<<<<< HEAD
 aiohttp = ["aiohttp", "httpx-aiohttp (>=0.1.8)"]
+=======
+aiohttp = ["aiohttp", "httpx-aiohttp (>=0.1.6)"]
+>>>>>>> origin/main
 datalib = ["numpy (>=1)", "pandas (>=1.2.3)", "pandas-stubs (>=1.1.0.11)"]
 realtime = ["websockets (>=13,<16)"]
 voice-helpers = ["numpy (>=2.0.2)", "sounddevice (>=0.5.1)"]
@@ -1887,14 +1928,23 @@ pydantic = ">=1.9,<3.0"
 
 [[package]]
 name = "pre-commit"
+<<<<<<< HEAD
 version = "4.2.0"
+=======
+version = "3.8.0"
+>>>>>>> origin/main
 description = "A framework for managing and maintaining multi-language pre-commit hooks."
 optional = false
 python-versions = ">=3.9"
 groups = ["main", "dev"]
 files = [
+<<<<<<< HEAD
     {file = "pre_commit-4.2.0-py2.py3-none-any.whl", hash = "sha256:a009ca7205f1eb497d10b845e52c838a98b6cdd2102a6c8e4540e94ee75c58bd"},
     {file = "pre_commit-4.2.0.tar.gz", hash = "sha256:601283b9757afd87d40c4c4a9b2b5de9637a8ea02eaff7adc2d0fb4e04841146"},
+=======
+    {file = "pre_commit-3.8.0-py2.py3-none-any.whl", hash = "sha256:9a90a53bf82fdd8778d58085faf8d83df56e40dfe18f45b19446e26bf1b3a63f"},
+    {file = "pre_commit-3.8.0.tar.gz", hash = "sha256:8bb6494d4a20423842e198980c9ecf9f96607a07ea29549e180eef9ae80fe7af"},
+>>>>>>> origin/main
 ]
 
 [package.dependencies]
@@ -2522,6 +2572,7 @@ files = [
 pyasn1 = ">=0.1.3"
 
 [[package]]
+<<<<<<< HEAD
 name = "ruff"
 version = "0.5.7"
 description = "An extremely fast Python linter and code formatter, written in Rust."
@@ -2550,6 +2601,8 @@ files = [
 ]
 
 [[package]]
+=======
+>>>>>>> origin/main
 name = "shellingham"
 version = "1.5.4"
 description = "Tool to Detect Surrounding Shell"
@@ -2731,14 +2784,23 @@ typing-extensions = ">=3.7.4.3"
 
 [[package]]
 name = "typing-extensions"
+<<<<<<< HEAD
 version = "4.14.1"
+=======
+version = "4.14.0"
+>>>>>>> origin/main
 description = "Backported and Experimental Type Hints for Python 3.9+"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
+<<<<<<< HEAD
     {file = "typing_extensions-4.14.1-py3-none-any.whl", hash = "sha256:d1e1e3b58374dc93031d6eda2420a48ea44a36c2b4766a4fdeb3710755731d76"},
     {file = "typing_extensions-4.14.1.tar.gz", hash = "sha256:38b39f4aeeab64884ce9f74c94263ef78f3c22467c8724005483154c26648d36"},
+=======
+    {file = "typing_extensions-4.14.0-py3-none-any.whl", hash = "sha256:a1514509136dd0b477638fc68d6a91497af5076466ad0fa6c338e44e359944af"},
+    {file = "typing_extensions-4.14.0.tar.gz", hash = "sha256:8676b788e32f02ab42d9e7c61324048ae4c6d844a399eebace3d4979d75ceef4"},
+>>>>>>> origin/main
 ]
 
 [[package]]
@@ -3226,4 +3288,8 @@ vector = ["pgvector"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
+<<<<<<< HEAD
 content-hash = "d923d1af4c5d1c021e1babbdfce8f0dfe99c8c5f907341888d0598625def6a8f"
+=======
+content-hash = "90c379aa3493d1ec04812689ecb1aa8fa8cd38e87d11fa226d7a6cfca011f928"
+>>>>>>> origin/main

@@ -17,7 +17,13 @@ class TestOpenAIConnectivity:
         if not api_key:
             pytest.skip("OPENAI_API_KEY not available")
 
+<<<<<<< HEAD
         assert api_key.startswith("sk-"), "OpenAI API key should start with 'sk-'"
+=======
+        assert api_key.startswith(
+            "sk-"
+        ), "OpenAI API key should start with 'sk-'"
+>>>>>>> origin/main
         assert len(api_key) > 20, "OpenAI API key seems too short"
 
     @pytest.mark.integration
@@ -30,10 +36,17 @@ class TestOpenAIConnectivity:
         try:
             from openai import OpenAI
 
+<<<<<<< HEAD
             client = OpenAI(api_key=api_key)
 
             # Test with a minimal request
             response = client.models.list()
+=======
+            _client = OpenAI(api_key=api_key)
+
+            # Test with a minimal request
+            _response = client.models.list()
+>>>>>>> origin/main
             assert hasattr(response, "data"), "Invalid OpenAI API response"
             assert len(response.data) > 0, "No models available from OpenAI"
 
@@ -61,8 +74,17 @@ class TestSupabaseConnectivity:
         if not url:
             pytest.skip("SUPABASE_URL not available")
 
+<<<<<<< HEAD
         assert url.startswith("https://"), "Supabase URL should start with https://"
         assert ".supabase.co" in url, "Supabase URL should contain .supabase.co"
+=======
+        assert url.startswith(
+            "https://"
+        ), "Supabase URL should start with https://"
+        assert (
+            ".supabase.co" in url
+        ), "Supabase URL should contain .supabase.co"
+>>>>>>> origin/main
 
     @pytest.mark.integration
     def test_supabase_key_format(self):
@@ -92,8 +114,16 @@ class TestSupabaseConnectivity:
 
             # Test basic connectivity with a simple query
             # This will fail if credentials are invalid
+<<<<<<< HEAD
             response = (
                 client.table("test_connectivity_check").select("*").limit(1).execute()
+=======
+            _response = (
+                client.table("test_connectivity_check")
+                .select("*")
+                .limit(1)
+                .execute()
+>>>>>>> origin/main
             )
             # We don't care if the table exists, just that we can connect
             assert hasattr(response, "data"), "Invalid Supabase response"
@@ -132,7 +162,13 @@ class TestGeminiConnectivity:
         if not api_key:
             pytest.skip("GEMINI_API_KEY not available")
 
+<<<<<<< HEAD
         assert api_key.startswith("AIza"), "Gemini API key should start with 'AIza'"
+=======
+        assert api_key.startswith(
+            "AIza"
+        ), "Gemini API key should start with 'AIza'"
+>>>>>>> origin/main
         assert len(api_key) > 30, "Gemini API key seems too short"
 
     @pytest.mark.integration
@@ -144,17 +180,28 @@ class TestGeminiConnectivity:
 
         try:
             # Test with a simple HTTP request to avoid import issues
+<<<<<<< HEAD
             url = (
                 f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
             )
             response = requests.get(url, timeout=10)
+=======
+            url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
+            _response = requests.get(url, timeout=10)
+>>>>>>> origin/main
 
             if response.status_code == 401:
                 pytest.fail("Gemini API key is invalid")
             elif response.status_code == 403:
                 pytest.fail("Gemini API access forbidden")
             elif response.status_code != 200:
+<<<<<<< HEAD
                 pytest.fail(f"Gemini API returned status {response.status_code}")
+=======
+                pytest.fail(
+                    f"Gemini API returned status {response.status_code}"
+                )
+>>>>>>> origin/main
 
             data = response.json()
             assert "models" in data, "Invalid Gemini API response format"
@@ -200,7 +247,11 @@ class TestAnthropicConnectivity:
                 "messages": [{"role": "user", "content": "Hi"}],
             }
 
+<<<<<<< HEAD
             response = requests.post(
+=======
+            _response = requests.post(
+>>>>>>> origin/main
                 "https://api.anthropic.com/v1/messages",
                 headers=headers,
                 json=data,
@@ -212,7 +263,13 @@ class TestAnthropicConnectivity:
             elif response.status_code == 403:
                 pytest.fail("Anthropic API access forbidden")
             elif response.status_code != 200:
+<<<<<<< HEAD
                 pytest.fail(f"Anthropic API returned status {response.status_code}")
+=======
+                pytest.fail(
+                    f"Anthropic API returned status {response.status_code}"
+                )
+>>>>>>> origin/main
 
         except requests.exceptions.RequestException as e:
             pytest.fail(f"Anthropic connectivity test failed: {e}")
@@ -252,7 +309,13 @@ class TestGitHubConnectivity:
 
             # Test rate limit to ensure token is working
             rate_limit = g.get_rate_limit()
+<<<<<<< HEAD
             assert rate_limit.core.remaining >= 0, "Invalid rate limit response"
+=======
+            assert (
+                rate_limit.core.remaining >= 0
+            ), "Invalid rate limit response"
+>>>>>>> origin/main
 
         except Exception as e:
             error_str = str(e).lower()
@@ -294,7 +357,13 @@ class TestGCPConnectivity:
             missing_fields = [
                 field for field in required_fields if field not in sa_data
             ]
+<<<<<<< HEAD
             assert not missing_fields, f"Missing GCP SA fields: {missing_fields}"
+=======
+            assert (
+                not missing_fields
+            ), f"Missing GCP SA fields: {missing_fields}"
+>>>>>>> origin/main
             assert (
                 sa_data["type"] == "service_account"
             ), "GCP SA type should be 'service_account'"
@@ -315,8 +384,17 @@ class TestGCPConnectivity:
             assert project_id, "No project_id in GCP Service Account"
 
             # Basic validation that the JSON structure is correct
+<<<<<<< HEAD
             assert "private_key" in sa_data, "No private_key in GCP Service Account"
             assert "client_email" in sa_data, "No client_email in GCP Service Account"
+=======
+            assert (
+                "private_key" in sa_data
+            ), "No private_key in GCP Service Account"
+            assert (
+                "client_email" in sa_data
+            ), "No client_email in GCP Service Account"
+>>>>>>> origin/main
 
         except Exception as e:
             pytest.fail(f"GCP Service Account validation failed: {e}")
@@ -329,8 +407,15 @@ class TestNetworkConnectivity:
     def test_internet_connectivity(self):
         """Test basic internet connectivity."""
         try:
+<<<<<<< HEAD
             response = requests.get("https://httpbin.org/get", timeout=10)
             assert response.status_code == 200, "Internet connectivity check failed"
+=======
+            _response = requests.get("https://httpbin.org/get", timeout=10)
+            assert (
+                response.status_code == 200
+            ), "Internet connectivity check failed"
+>>>>>>> origin/main
         except requests.exceptions.RequestException:
             pytest.skip("No internet connectivity available")
 

@@ -573,7 +573,9 @@ For support and updates: https://github.com/yannabadie/appIA
 
         logger.info("✅ Package README created")
 
-    def _create_zip_archive(self, package_path: Path, package_name: str) -> Path:
+    def _create_zip_archive(
+        self, package_path: Path, package_name: str
+    ) -> Path:
         """Create ZIP archive of the deployment package"""
         logger.info("🗜️ Creating ZIP archive...")
 
@@ -587,7 +589,9 @@ For support and updates: https://github.com/yannabadie/appIA
 
         # Calculate size
         size_mb = zip_path.stat().st_size / (1024 * 1024)
-        logger.info(f"✅ ZIP archive created: {zip_path.name} ({size_mb:.1f} MB)")
+        logger.info(
+            f"✅ ZIP archive created: {zip_path.name} ({size_mb:.1f} MB)"
+        )
 
         return zip_path
 

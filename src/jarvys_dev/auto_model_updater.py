@@ -83,7 +83,13 @@ class AutoModelUpdater:
                     "Nouvelles mises à jour de modèles détectées:"
                     "{len(updates)} "
                     "modèles - "
+<<<<<<< HEAD
                     + ", ".join([f"{u.provider}/{u.model_name}" for u in updates[:3]])
+=======
+                    + ", ".join(
+                        [f"{u.provider}/{u.model_name}" for u in updates[:3]]
+                    )
+>>>>>>> origin/main
                 )
                 self.memory.memorize(
                     update_info,
@@ -97,7 +103,12 @@ class AutoModelUpdater:
                 )
 
             logger.info(
+<<<<<<< HEAD
                 f"✅ Vérification terminée: {len(updates)} mises à jour" "trouvées"
+=======
+                f"✅ Vérification terminée: {len(updates)} mises à jour"
+                "trouvées"
+>>>>>>> origin/main
             )
             return updates
 
@@ -143,7 +154,11 @@ class AutoModelUpdater:
                             if model_date > cutoff_date:
                                 # Analyser si c'est un modèle LLM intéressant
                                 if self._is_interesting_llm(model_id, model):
+<<<<<<< HEAD
                                     update = ModelUpdate(
+=======
+                                    _update = ModelUpdate(
+>>>>>>> origin/main
                                         model_name=model_id,
                                         provider="huggingface",
                                         version=model.get("sha", "latest")[:8],
@@ -156,7 +171,13 @@ class AutoModelUpdater:
                                         ],
                                         breaking_changes=[],
                                         recommended_use_cases=(
+<<<<<<< HEAD
                                             self._extract_use_cases_hf(model_id)
+=======
+                                            self._extract_use_cases_hf(
+                                                model_id
+                                            )
+>>>>>>> origin/main
                                         ),
                                     )
                                     updates.append(update)
@@ -213,14 +234,27 @@ class AutoModelUpdater:
                             "chatgpt",
                         ]
                     ):
+<<<<<<< HEAD
                         new_models.append(model_id)
 
                         update = ModelUpdate(
+=======
+
+                        new_models.append(model_id)
+
+                        _update = ModelUpdate(
+>>>>>>> origin/main
                             model_name=model_id,
                             provider="openai",
                             version="latest",
                             release_date=datetime.now().isoformat(),
+<<<<<<< HEAD
                             capabilities=self._extract_capabilities_openai(model_id),
+=======
+                            capabilities=self._extract_capabilities_openai(
+                                model_id
+                            ),
+>>>>>>> origin/main
                             performance_improvements=["Nouveau modèle OpenAI"],
                             breaking_changes=[],
                             recommended_use_cases=self._extract_use_cases_openai(
@@ -231,7 +265,12 @@ class AutoModelUpdater:
 
                 if new_models:
                     logger.info(
+<<<<<<< HEAD
                         f"🤖 OpenAI: {len(new_models)} nouveaux" "modèles: {new_models}"
+=======
+                        f"🤖 OpenAI: {len(new_models)} nouveaux"
+                        "modèles: {new_models}"
+>>>>>>> origin/main
                     )
 
         except Exception as e:
@@ -265,14 +304,27 @@ class AutoModelUpdater:
                         model_name not in known_models
                         and "gemini" in model_name.lower()
                     ):
+<<<<<<< HEAD
                         new_models.append(model_name)
 
                         update = ModelUpdate(
+=======
+
+                        new_models.append(model_name)
+
+                        _update = ModelUpdate(
+>>>>>>> origin/main
                             model_name=model_name,
                             provider="gemini",
                             version=model.get("version", "latest"),
                             release_date=datetime.now().isoformat(),
+<<<<<<< HEAD
                             capabilities=self._extract_capabilities_gemini(model),
+=======
+                            capabilities=self._extract_capabilities_gemini(
+                                model
+                            ),
+>>>>>>> origin/main
                             performance_improvements=["Nouveau modèle Gemini"],
                             breaking_changes=[],
                             recommended_use_cases=self._extract_use_cases_gemini(
@@ -283,7 +335,12 @@ class AutoModelUpdater:
 
                 if new_models:
                     logger.info(
+<<<<<<< HEAD
                         f"💎 Gemini: {len(new_models)} nouveaux" "modèles: {new_models}"
+=======
+                        f"💎 Gemini: {len(new_models)} nouveaux"
+                        "modèles: {new_models}"
+>>>>>>> origin/main
                     )
 
         except Exception as e:
@@ -380,7 +437,11 @@ class AutoModelUpdater:
 
         for model_name, info in latest_claude_models.items():
             if model_name not in known_models:
+<<<<<<< HEAD
                 update = ModelUpdate(
+=======
+                _update = ModelUpdate(
+>>>>>>> origin/main
                     model_name=model_name,
                     provider="anthropic",
                     version=info["version"],
@@ -392,7 +453,13 @@ class AutoModelUpdater:
                 )
                 updates.append(update)
 
+<<<<<<< HEAD
         logger.info(f"🏛️ Anthropic: {len(updates)} nouveaux modèles Claude détectés")
+=======
+        logger.info(
+            f"🏛️ Anthropic: {len(updates)} nouveaux modèles Claude détectés"
+        )
+>>>>>>> origin/main
         return updates
 
     def _is_interesting_llm(self, model_id: str, model_data: Dict) -> bool:
@@ -491,9 +558,19 @@ class AutoModelUpdater:
         capabilities = ["Text generation", "Conversation"]
 
         if "gpt-4" in model_id:
+<<<<<<< HEAD
             capabilities.extend(["Advanced reasoning", "Code generation", "Multimodal"])
         if "o1" in model_id:
             capabilities.extend(["Complex reasoning", "Mathematical problem solving"])
+=======
+            capabilities.extend(
+                ["Advanced reasoning", "Code generation", "Multimodal"]
+            )
+        if "o1" in model_id:
+            capabilities.extend(
+                ["Complex reasoning", "Mathematical problem solving"]
+            )
+>>>>>>> origin/main
         if "turbo" in model_id:
             capabilities.append("Fast response")
 
@@ -641,7 +718,13 @@ class AutoModelUpdater:
 
         try:
             # Charger la configuration actuelle
+<<<<<<< HEAD
             config_path = "/workspaces/appia-dev/src/jarvys_dev/model_config.json"
+=======
+            config_path = (
+                "/workspaces/appia-dev/src/jarvys_dev/model_config.json"
+            )
+>>>>>>> origin/main
             with open(config_path) as f:
                 current_config = json.load(f)
 
@@ -650,6 +733,7 @@ class AutoModelUpdater:
             # Appliquer les mises à jour recommandées
             for update in updates:
                 try:
+<<<<<<< HEAD
                     if update.provider == "openai" and self._should_update_model(
                         update
                     ):
@@ -658,17 +742,42 @@ class AutoModelUpdater:
 
                     elif update.provider == "anthropic" and self._should_update_model(
                         update
+=======
+                    if (
+                        update.provider == "openai"
+                        and self._should_update_model(update)
+                    ):
+                        current_config["openai"] = update.model_name
+                        results["updated_models"].append(
+                            f"openai: {update.model_name}"
+                        )
+
+                    elif (
+                        update.provider == "anthropic"
+                        and self._should_update_model(update)
+>>>>>>> origin/main
                     ):
                         current_config["anthropic"] = update.model_name
                         results["updated_models"].append(
                             f"anthropic: {update.model_name}"
                         )
 
+<<<<<<< HEAD
                     elif update.provider == "gemini" and self._should_update_model(
                         update
                     ):
                         current_config["gemini"] = update.model_name
                         results["updated_models"].append(f"gemini: {update.model_name}")
+=======
+                    elif (
+                        update.provider == "gemini"
+                        and self._should_update_model(update)
+                    ):
+                        current_config["gemini"] = update.model_name
+                        results["updated_models"].append(
+                            f"gemini: {update.model_name}"
+                        )
+>>>>>>> origin/main
 
                 except Exception as e:
                     results["failed_updates"].append(
@@ -717,7 +826,12 @@ class AutoModelUpdater:
             # Nouveaux modèles Claude majeurs
             "claude-4" in update.model_name,
             # Nouveaux modèles Gemini majeurs
+<<<<<<< HEAD
             "gemini-3" in update.model_name or "gemini-2.5" in update.model_name,
+=======
+            "gemini-3" in update.model_name
+            or "gemini-2.5" in update.model_name,
+>>>>>>> origin/main
         ]
 
         return any(auto_update_criteria)
@@ -742,7 +856,13 @@ class AutoModelUpdater:
             by_provider[update.provider].append(update)
 
         for provider, updates in by_provider.items():
+<<<<<<< HEAD
             report_lines.append(f"\n🔧 {provider.upper()} ({len(updates)} modèles):")
+=======
+            report_lines.append(
+                f"\n🔧 {provider.upper()} ({len(updates)} modèles):"
+            )
+>>>>>>> origin/main
 
             for update in updates[:3]:  # Top 3 par provider
                 report_lines.append(f"  • {update.model_name}")

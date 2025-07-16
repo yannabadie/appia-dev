@@ -157,7 +157,9 @@ class JarvysMetrics:
         conn.commit()
         conn.close()
 
-    def log_conversation(self, user_msg: str, agent_response: str, context: str = ""):
+    def log_conversation(
+        self, user_msg: str, agent_response: str, context: str = ""
+    ):
         """Log une conversation avec l'agent."""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
@@ -271,7 +273,7 @@ Réponds de manière conversationnelle et informative. Si la question concerne:
 
 Réponse:"""
 
-            response = self.router.generate(prompt, task_type="reasoning")
+            _response = self.router.generate(prompt, task_type="reasoning")
 
             # Log la conversation
             self.metrics.log_conversation(user_message, response, context)
@@ -304,7 +306,9 @@ Réponse:"""
 
         # Métriques récentes
         costs = self.metrics.get_api_costs_today()
-        context_parts.append(f"Coûts API aujourd'hui: ${costs['total_cost']:.4f}")
+        context_parts.append(
+            f"Coûts API aujourd'hui: ${costs['total_cost']:.4f}"
+        )
 
         # Tâches récentes
         recent_tasks = self.metrics.get_recent_tasks(3)
@@ -319,7 +323,9 @@ Réponse:"""
                 memories = memory_search(message, k=2)
                 if memories:
                     context_parts.append("Mémoires pertinentes:")
-                    context_parts.extend(f"- {mem[:100]}..." for mem in memories[:2])
+                    context_parts.extend(
+                        f"- {mem[:100]}..." for mem in memories[:2]
+                    )
             except Exception:
                 pass  # Mémoire non disponible
 
@@ -345,7 +351,9 @@ Réponse:"""
                 ),
                 description=f"Loop executed: {state.get('plan', 'No plan')}",
                 github_url=state.get("action_url"),
-                confidence=(1.0 if not state.get("waiting_for_human_review") else 0.5),
+                confidence=(
+                    1.0 if not state.get("waiting_for_human_review") else 0.5
+                ),
                 duration=duration,
             )
 
@@ -426,7 +434,7 @@ async def websocket_chat(websocket: WebSocket):
 
             if user_message:
                 # Générer la réponse
-                response = await jarvys.chat(user_message)
+                _response = await jarvys.chat(user_message)
 
                 # Envoyer la réponse
                 await websocket.send_text(

@@ -53,7 +53,13 @@ class JarvysDebugDashboard:
             env_status["environment_vars"][var] = {
                 "present": value is not None,
                 "length": len(value) if value else 0,
+<<<<<<< HEAD
                 "prefix": (value[:10] + "..." if value and len(value) > 10 else value),
+=======
+                "prefix": (
+                    value[:10] + "..." if value and len(value) > 10 else value
+                ),
+>>>>>>> origin/main
             }
 
         # Check required files
@@ -121,10 +127,16 @@ class JarvysDebugDashboard:
         api_key = os.getenv("OPENAI_API_KEY")
         if api_key:
             try:
+<<<<<<< HEAD
                 # Initialize client properly
                 import openai
 
                 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+=======
+                from openai import OpenAI
+
+                _client = OpenAI(api_key=api_key)
+>>>>>>> origin/main
                 models = client.models.list()
                 connectivity_status["openai"] = {
                     "status": "connected",
@@ -382,7 +394,13 @@ def main():
 
         else:
             print(f"Unknown command: {command}")
+<<<<<<< HEAD
             print("Usage: python debug_dashboard.py [report|check] [output_file]")
+=======
+            print(
+                "Usage: python debug_dashboard.py [report|check] [output_file]"
+            )
+>>>>>>> origin/main
     else:
         dashboard.interactive_mode()
 

@@ -5,7 +5,12 @@
 
 import json
 import subprocess
+
+<<<<<<< HEAD
 from datetime import datetime
+
+=======
+>>>>>>> origin/main
 from pathlib import Path
 
 
@@ -14,7 +19,11 @@ def test_wiki_generation():
     print("🧪 Test génération documentation Wiki...")
 
     try:
+<<<<<<< HEAD
         result = subprocess.run(
+=======
+        _result = subprocess.run(
+>>>>>>> origin/main
             ["poetry", "run", "python", "scripts/generate_wiki_docs.py"],
             capture_output=True,
             text=True,
@@ -40,7 +49,11 @@ def test_poetry_installation():
 
     try:
         # Tester la commande du workflow
+<<<<<<< HEAD
         result = subprocess.run(
+=======
+        _result = subprocess.run(
+>>>>>>> origin/main
             ["poetry", "install", "--with", "dev", "--no-interaction"],
             capture_output=True,
             text=True,
@@ -110,7 +123,11 @@ def simulate_workflow_run():
     # Étape 6: Validate installation (réel)
     print("🔍 Étape 6: Validation de l'installation...")
     try:
+<<<<<<< HEAD
         result = subprocess.run(
+=======
+        _result = subprocess.run(
+>>>>>>> origin/main
             [
                 "poetry",
                 "run",
@@ -129,7 +146,11 @@ def simulate_workflow_run():
             print(f"❌ Validation échouée: {result.stderr}")
         steps_results.append(validation_success)
     except Exception as e:
+<<<<<<< HEAD
         print(f"❌ Exception: {e}")
+=======
+        print(f"❌ Erreur validation: {e}")
+>>>>>>> origin/main
         steps_results.append(False)
 
     # Étape 7: Generate Wiki Documentation (réel)
@@ -160,6 +181,7 @@ def create_workflow_test_report():
     """Créer un rapport de test du workflow"""
     print("📋 Création du rapport de test...")
 
+<<<<<<< HEAD
     report = {
         "simulation_date": datetime.now().isoformat(),
         "workflow_name": "CI/CD JARVYS_DEV",
@@ -170,6 +192,31 @@ def create_workflow_test_report():
         "recommendations": [
             "Check logs for failed steps",
             "Ensure all dependencies are correctly specified in pyproject.toml",
+=======
+    _report = {
+        "date": "2025-07-11",
+        "workflow_tests": {
+            "wiki_sync": {
+                "status": "fixed",
+                "issues_resolved": [
+                    "poetry.lock synchronization",
+                    "pyproject.toml modernization",
+                    "dependency group configuration",
+                ],
+            },
+            "deploy_dashboard": {
+                "status": "ready",
+                "components": [
+                    "supabase_dashboard_auth_patch_v2.js",
+                    "dashboard_local.py",
+                    "GitHub Actions workflow",
+                ],
+            },
+        },
+        "recommendations": [
+            "Test the wiki-sync workflow with a real commit",
+            "Apply the Supabase authentication patch manually",
+>>>>>>> origin/main
             "Monitor workflow execution in GitHub Actions",
         ],
     }

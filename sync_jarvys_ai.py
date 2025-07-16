@@ -37,14 +37,24 @@ class JarvysAISync:
         """Clone the appIA repository"""
         try:
             cmd = f"gh repo clone {self.target_repo} {self.temp_dir}/appIA"
+<<<<<<< HEAD
             result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+=======
+            _result = subprocess.run(
+                cmd, shell=True, capture_output=True, text=True
+            )
+>>>>>>> origin/main
             if result.returncode != 0:
                 logger.error(f"Failed to clone repo: {result.stderr}")
                 return False
             logger.info("Successfully cloned appIA repository")
             return True
         except Exception as e:
+<<<<<<< HEAD
             logger.error(f"Error cloning repo: {e}")
+=======
+            logger.error(f"Error cloning repository: {e}")
+>>>>>>> origin/main
             return False
 
     def sync_jarvys_ai_code(self):
@@ -384,7 +394,13 @@ echo "📝 Check logs: docker-compose -f docker-compose.windows.yml logs -"
             os.chdir(repo_path)
 
             # Configure git
+<<<<<<< HEAD
             subprocess.run(["git", "config", "user.name", "JARVYS_DEV"], check=True)
+=======
+            subprocess.run(
+                ["git", "config", "user.name", "JARVYS_DEV"], check=True
+            )
+>>>>>>> origin/main
             subprocess.run(
                 ["git", "config", "user.email", "jarvys@appia-dev.ai"],
                 check=True,
@@ -394,7 +410,11 @@ echo "📝 Check logs: docker-compose -f docker-compose.windows.yml logs -"
             subprocess.run(["git", "add", "."], check=True)
 
             # Check if there are changes to commit
+<<<<<<< HEAD
             result = subprocess.run(
+=======
+            _result = subprocess.run(
+>>>>>>> origin/main
                 ["git", "dif", "--staged", "--quiet"], capture_output=True
             )
             if result.returncode == 0:
@@ -402,15 +422,25 @@ echo "📝 Check logs: docker-compose -f docker-compose.windows.yml logs -"
                 return True
 
             # Commit changes
+<<<<<<< HEAD
             commit_message = (
                 f"JARVYS_AI Sync - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
             )
+=======
+            commit_message = f"JARVYS_AI Sync - {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+>>>>>>> origin/main
             subprocess.run(["git", "commit", "-m", commit_message], check=True)
 
             # Push changes
             subprocess.run(["git", "push", "origin", "main"], check=True)
 
+<<<<<<< HEAD
             logger.info("Successfully committed and pushed changes to appIA repository")
+=======
+            logger.info(
+                "Successfully committed and pushed changes to appIA repository"
+            )
+>>>>>>> origin/main
             return True
         except subprocess.CalledProcessError as e:
             logger.error(f"Git operation failed: {e}")
@@ -456,7 +486,13 @@ echo "📝 Check logs: docker-compose -f docker-compose.windows.yml logs -"
                 return False
 
             logger.info("✅ JARVYS_AI sync completed successfully!")
+<<<<<<< HEAD
             logger.info(f"📍 Repository: https://github.com/{self.target_repo}")
+=======
+            logger.info(
+                f"📍 Repository: https://github.com/{self.target_repo}"
+            )
+>>>>>>> origin/main
             return True
 
         except Exception as e:
@@ -472,7 +508,13 @@ def main():
     success = sync.run_sync()
 
     if success:
+<<<<<<< HEAD
         print("\n🎉 JARVYS_AI has been successfully synced to the appIA repository!")
+=======
+        print(
+            "\n🎉 JARVYS_AI has been successfully synced to the appIA repository!"
+        )
+>>>>>>> origin/main
         print("🔗 Repository: https://github.com/yannabadie/appIA")
         print("📚 Check the README.md for deployment instructions")
         print("🐳 Use deploy.sh for quick Windows 11 Docker setup")

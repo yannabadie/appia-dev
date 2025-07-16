@@ -16,7 +16,13 @@ class TestJarvysAIStructure:
         if jarvys_ai_path.exists():
             assert jarvys_ai_path.is_dir(), "JARVYS_AI should be a directory"
         else:
+<<<<<<< HEAD
             pytest.skip("JARVYS_AI directory not found - may not be implemented yet")
+=======
+            pytest.skip(
+                "JARVYS_AI directory not found - may not be implemented yet"
+            )
+>>>>>>> origin/main
 
     def test_jarvys_ai_main_exists(self):
         """Test that JARVYS_AI main module exists."""
@@ -32,7 +38,13 @@ class TestJarvysAIStructure:
             content = main_file.read_text()
             assert len(content.strip()) > 0, "main.py should not be empty"
         else:
+<<<<<<< HEAD
             pytest.skip("JARVYS_AI main.py not found - may not be implemented yet")
+=======
+            pytest.skip(
+                "JARVYS_AI main.py not found - may not be implemented yet"
+            )
+>>>>>>> origin/main
 
     def test_jarvys_ai_requirements_exists(self):
         """Test that JARVYS_AI requirements file exists."""
@@ -46,7 +58,13 @@ class TestJarvysAIStructure:
             ), "requirements-jarvys-ai.txt should not be empty"
 
             # Should contain some basic dependencies
+<<<<<<< HEAD
             lines = [line.strip() for line in content.split("\n") if line.strip()]
+=======
+            lines = [
+                line.strip() for line in content.split("\n") if line.strip()
+            ]
+>>>>>>> origin/main
             assert len(lines) > 0, "Should have at least some dependencies"
         else:
             pytest.skip("requirements-jarvys-ai.txt not found")
@@ -117,9 +135,18 @@ class TestJarvysAILocalFeatures:
             memory_functions = [
                 attr
                 for attr in dir(memory_infinite)
+<<<<<<< HEAD
                 if callable(getattr(memory_infinite, attr)) and not attr.startswith("_")
             ]
             assert len(memory_functions) > 0, "Memory functions should be available"
+=======
+                if callable(getattr(memory_infinite, attr))
+                and not attr.startswith("_")
+            ]
+            assert (
+                len(memory_functions) > 0
+            ), "Memory functions should be available"
+>>>>>>> origin/main
 
         except ImportError:
             pytest.skip("Memory tools not available for local access")
@@ -140,7 +167,12 @@ class TestJarvysAIHybridFeatures:
             github_functions = [
                 attr
                 for attr in dir(github_tools)
+<<<<<<< HEAD
                 if callable(getattr(github_tools, attr)) and not attr.startswith("_")
+=======
+                if callable(getattr(github_tools, attr))
+                and not attr.startswith("_")
+>>>>>>> origin/main
             ]
             assert (
                 len(github_functions) > 0
@@ -174,7 +206,13 @@ class TestJarvysAIHybridFeatures:
 
             # Should be able to make HTTP requests for API communication
             assert hasattr(requests, "get"), "Should have HTTP GET capability"
+<<<<<<< HEAD
             assert hasattr(requests, "post"), "Should have HTTP POST capability"
+=======
+            assert hasattr(
+                requests, "post"
+            ), "Should have HTTP POST capability"
+>>>>>>> origin/main
 
         except ImportError:
             pytest.fail("Requests library not available for API communication")
@@ -302,7 +340,13 @@ class TestJarvysAIDeployment:
         if sync_script.exists():
             content = sync_script.read_text()
             assert len(content.strip()) > 0, "Sync script should not be empty"
+<<<<<<< HEAD
             assert "jarvys" in content.lower(), "Sync script should reference JARVYS"
+=======
+            assert (
+                "jarvys" in content.lower()
+            ), "Sync script should reference JARVYS"
+>>>>>>> origin/main
         else:
             pytest.skip("Sync script not found")
 
@@ -313,7 +357,13 @@ class TestJarvysAIDeployment:
 
         if test_script.exists():
             content = test_script.read_text()
+<<<<<<< HEAD
             assert len(content.strip()) > 0, "Complete test script should not be empty"
+=======
+            assert (
+                len(content.strip()) > 0
+            ), "Complete test script should not be empty"
+>>>>>>> origin/main
             assert "test" in content.lower(), "Should contain test functions"
         else:
             pytest.skip("Complete test script not found")

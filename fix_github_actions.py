@@ -35,7 +35,9 @@ def fix_poetry_lock_issue():
 
         if lock_result.returncode != 0:
             print("🔄 Régénération du fichier poetry.lock...")
-            subprocess.run(["poetry", "lock"], cwd="/workspaces/appia-dev", check=True)
+            subprocess.run(
+                ["poetry", "lock"], cwd="/workspaces/appia-dev", check=True
+            )
             print("✅ Fichier poetry.lock régénéré")
         else:
             print("✅ Fichier poetry.lock synchronisé")
@@ -201,7 +203,9 @@ jobs:
 """
 
     # Écrire le workflow optimisé
-    workflow_file = Path("/workspaces/appia-dev/.github/workflows/wiki-sync.yml")
+    workflow_file = Path(
+        "/workspaces/appia-dev/.github/workflows/wiki-sync.yml"
+    )
     workflow_file.write_text(workflow_content)
     print("✅ Workflow optimisé avec gestion d'erreurs robuste")
 

@@ -75,7 +75,13 @@ class JarvysHealthChecker:
                     "status": "warning",
                     "exists": False,
                 }
+<<<<<<< HEAD
                 health["warnings"].append(f"Missing configuration file: {file_name}")
+=======
+                health["warnings"].append(
+                    f"Missing configuration file: {file_name}"
+                )
+>>>>>>> origin/main
                 if health["status"] == "healthy":
                     health["status"] = "warning"
 
@@ -133,6 +139,7 @@ class JarvysHealthChecker:
         openai_key = os.getenv("OPENAI_API_KEY")
         if openai_key:
             try:
+<<<<<<< HEAD
                 # Initialize client properly
                 import openai
 
@@ -140,6 +147,14 @@ class JarvysHealthChecker:
                 models = client.models.list()
 
                 start_time = time.time()
+=======
+                from openai import OpenAI
+
+                _client = OpenAI(api_key=openai_key)
+
+                start_time = time.time()
+                models = client.models.list()
+>>>>>>> origin/main
                 response_time = time.time() - start_time
 
                 health["checks"]["openai_api"] = {
@@ -454,7 +469,13 @@ class JarvysHealthChecker:
                 overall_warnings.extend(component_health.get("warnings", []))
 
             # Count passed/warning/error checks
+<<<<<<< HEAD
             for check_name, check_result in component_health.get("checks", {}).items():
+=======
+            for check_name, check_result in component_health.get(
+                "checks", {}
+            ).items():
+>>>>>>> origin/main
                 if check_result["status"] == "ok":
                     overall_health["summary"]["passed"] += 1
                 elif check_result["status"] == "warning":

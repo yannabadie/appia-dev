@@ -1,0 +1,101 @@
+# Dockerfile pour JARVYS_AI - Support Windows 11 avec interface vocale
+# Image de base avec support audio/vocal
+FROM python:3.11-slim
+
+# Métadonnées
+LABEL maintainer="JARVYS_DEV"
+LABEL description="JARVYS_AI Digital Twin - Agent d'Intelligence Hybride"
+LABEL version="1.0.0"
+
+# Variables d'environnement
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Installer dépendances système pour support vocal et Windows
+RUN apt-get update && apt-get install -y \
+    # Support audio/vocal
+    alsa-utils \
+    pulseaudio \
+    espeak \
+    espeak-data \
+    libespeak-dev \
+    festival \
+    # Support réseau et cloud
+    curl \
+    wget \
+    git \
+    # Outils de développement
+    build-essential \
+    gcc \
+    # Support Windows interop
+    dos2unix \
+    # Nettoyage
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Créer utilisateur non-root pour sécurité
+RUN useradd -m -s /bin/bash jarvys && \
+    usermod -aG audio jarvys
+
+# Répertoire de travail
+WORKDIR /app
+
+# Copier fichiers de configuration Python
+COPY requirements.txt pyproject.toml ./
+
+# Installer dépendances Python
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Installer dépendances spécifiques pour interface vocale
+RUN pip install --no-cache-dir \
+    SpeechRecognition \
+    pyttsx3 \
+    pyaudio \
+    # Support email avancé
+    exchangelib \
+    google-api-python-client \
+    # Support cloud
+    google-cloud-storage \
+    azure-storage-blob \
+    # Support MCP
+    mcp \
+    # Support Docker
+    docker
+
+# Copier le code source
+COPY jarvys_ai/ ./jarvys_ai/
+COPY *.py ./
+
+# Créer répertoires nécessaires
+RUN mkdir -p /app/data /app/logs /app/cache && \
+    chown -R jarvys:jarvys /app
+
+# Copier scripts de démarrage
+COPY docker/start.sh /app/start.sh
+COPY docker/healthcheck.sh /app/healthcheck.sh
+
+# Rendre les scripts exécutables
+RUN chmod +x /app/start.sh /app/healthcheck.sh
+
+# Configuration audio pour Docker
+RUN echo "pcm.!default pulse" > /etc/asound.conf && \
+    echo "ctl.!default pulse" >> /etc/asound.conf
+
+# Ports exposés
+EXPOSE 8000 8001 8080
+
+# Volumes pour persistence
+VOLUME ["/app/data", "/app/logs"]
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD /app/healthcheck.sh
+
+# Passer à l'utilisateur non-root
+USER jarvys
+
+# Point d'entrée
+ENTRYPOINT ["/app/start.sh"]
+CMD ["--mode", "production"]

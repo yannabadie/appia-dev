@@ -21,7 +21,13 @@ def scan_file_for_patterns(
             content = f.read()
 
         for pattern_name, pattern in patterns.items():
+<<<<<<< HEAD
             matches = re.findall(pattern, content, re.IGNORECASE | re.MULTILINE)
+=======
+            matches = re.findall(
+                pattern, content, re.IGNORECASE | re.MULTILINE
+            )
+>>>>>>> origin/main
             if matches:
                 results[pattern_name].extend(matches)
 
@@ -62,7 +68,13 @@ def validate_repository() -> bool:
         "dist",
         "build",
     }
+<<<<<<< HEAD
     exclude_files = {"validate_security.py"}  # Exclude this validation script itself
+=======
+    exclude_files = {
+        "validate_security.py"
+    }  # Exclude this validation script itself
+>>>>>>> origin/main
     files_to_scan = [
         f
         for f in files_to_scan
@@ -107,7 +119,13 @@ def validate_repository() -> bool:
     else:
         print("✅ No deprecated SUPABASE_ACCESS_TOKEN found")
 
+<<<<<<< HEAD
     print(f"✅ Found {len(files_with_good_error_handling)} files with error handling")
+=======
+    print(
+        f"✅ Found {len(files_with_good_error_handling)} files with error handling"
+    )
+>>>>>>> origin/main
     print(
         f"✅ Found {len(files_with_proper_env_access)} files with proper env var access"
     )

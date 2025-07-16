@@ -177,12 +177,22 @@ class JarvysAITester:
 
         for command in test_commands:
             try:
+<<<<<<< HEAD
                 response = await self.jarvys.process_command(command, "test")
+=======
+                _response = await self.jarvys.process_command(command, "test")
+>>>>>>> origin/main
                 self.test_results[f"command_{command}"] = {
                     "status": "success",
                     "response_length": len(response),
                 }
+<<<<<<< HEAD
                 logger.info(f"✅ Commande '{command}' OK ({len(response)} chars)")
+=======
+                logger.info(
+                    f"✅ Commande '{command}' OK ({len(response)} chars)"
+                )
+>>>>>>> origin/main
 
             except Exception as e:
                 self.test_results[f"command_{command}"] = {
@@ -202,14 +212,26 @@ class JarvysAITester:
             )
 
             # Test status
+<<<<<<< HEAD
             status = self.jarvys.continuous_improvement.get_improvement_status()
+=======
+            status = (
+                self.jarvys.continuous_improvement.get_improvement_status()
+            )
+>>>>>>> origin/main
 
             self.test_results["continuous_improvement_sync"] = {
                 "status": "success",
                 "updates_found": updates_count,
                 "device_id": status["device_id"],
             }
+<<<<<<< HEAD
             logger.info(f"✅ Amélioration continue OK ({updates_count} updates)")
+=======
+            logger.info(
+                f"✅ Amélioration continue OK ({updates_count} updates)"
+            )
+>>>>>>> origin/main
 
         except Exception as e:
             self.test_results["continuous_improvement_sync"] = {
@@ -227,7 +249,13 @@ class JarvysAITester:
             status = await self.jarvys.fallback_engine.get_fallback_status()
 
             # Test fallback manuel
+<<<<<<< HEAD
             test_result = await self.jarvys.fallback_engine.force_fallback_test()
+=======
+            test_result = (
+                await self.jarvys.fallback_engine.force_fallback_test()
+            )
+>>>>>>> origin/main
 
             self.test_results["fallback_engine_test"] = {
                 "status": "success",
@@ -252,10 +280,23 @@ class JarvysAITester:
 
         total_tests = len(self.test_results)
         successful_tests = len(
+<<<<<<< HEAD
             [r for r in self.test_results.values() if r.get("status") == "success"]
         )
         failed_tests = total_tests - successful_tests
         success_rate = (successful_tests / total_tests) * 100 if total_tests > 0 else 0
+=======
+            [
+                r
+                for r in self.test_results.values()
+                if r.get("status") == "success"
+            ]
+        )
+        failed_tests = total_tests - successful_tests
+        success_rate = (
+            (successful_tests / total_tests) * 100 if total_tests > 0 else 0
+        )
+>>>>>>> origin/main
 
         logger.info("📈 RAPPORT DE TESTS JARVYS_AI")
         logger.info(f"📊 Tests totaux: {total_tests}")
@@ -277,7 +318,13 @@ class JarvysAITester:
         if success_rate >= 90:
             logger.info("🎉 JARVYS_AI fonctionne parfaitement!")
         elif success_rate >= 70:
+<<<<<<< HEAD
             logger.info("⚠️ JARVYS_AI fonctionne avec quelques problèmes mineurs")
+=======
+            logger.info(
+                "⚠️ JARVYS_AI fonctionne avec quelques problèmes mineurs"
+            )
+>>>>>>> origin/main
         else:
             logger.info("🚨 JARVYS_AI a des problèmes significatifs")
 
@@ -309,7 +356,13 @@ class JarvysAITester:
             with open("test_results_jarvys_ai.json", "w") as f:
                 json.dump(results, f, indent=2)
 
+<<<<<<< HEAD
             logger.info("💾 Résultats sauvegardés dans test_results_jarvys_ai.json")
+=======
+            logger.info(
+                "💾 Résultats sauvegardés dans test_results_jarvys_ai.json"
+            )
+>>>>>>> origin/main
 
         except Exception as e:
             logger.error(f"❌ Erreur sauvegarde résultats: {e}")

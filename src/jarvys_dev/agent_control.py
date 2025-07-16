@@ -9,8 +9,11 @@ import logging
 import os
 from datetime import datetime
 
+<<<<<<< HEAD
 from dotenv import load_dotenv
 
+=======
+>>>>>>> origin/main
 logger = logging.getLogger(__name__)
 
 
@@ -127,6 +130,7 @@ async def check_and_wait_if_paused():
         await agent_controller.check_pause_status()
 
     return True
+<<<<<<< HEAD
 
 
 def route_to_grok(query):
@@ -139,3 +143,5 @@ def route_to_grok(query):
 
     client = GrokClient(api_key=api_key)
     return client.complete(query, model="grok-4")
+=======
+>>>>>>> origin/main

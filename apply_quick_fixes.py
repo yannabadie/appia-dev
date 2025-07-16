@@ -44,7 +44,9 @@ class JarvysDevQuickFixes:
                 content = content.replace('base="dev"', 'base="main"')
 
             if 'base_branch = "dev"' in content:
-                content = content.replace('base_branch = "dev"', 'base_branch = "main"')
+                content = content.replace(
+                    'base_branch = "dev"', 'base_branch = "main"'
+                )
 
             github_tools.write_text(content)
             print("✅ github_tools.py mis à jour pour main")
@@ -195,7 +197,7 @@ async def check_and_wait_if_paused():
         print("🔧 Fix 4: Ajout embeddings à l'API mémoire")
 
         # Ajouter fonction d'embedding dans dashboard
-        """
+        embedding_function = """
 // Fonction pour calculer les embeddings OpenAI
 async function calculateEmbedding(text: string): Promise<number[]> {
   try {
@@ -416,7 +418,9 @@ def log_exceptions(
 #     pass
 """
 
-        decorator_file = self.workspace / "src/jarvys_dev/utils/exception_logger.py"
+        decorator_file = (
+            self.workspace / "src/jarvys_dev/utils/exception_logger.py"
+        )
         decorator_file.parent.mkdir(exist_ok=True)
         decorator_file.write_text(decorator_module)
         print("✅ Décorateur exception_logger créé")

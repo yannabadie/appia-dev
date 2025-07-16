@@ -127,8 +127,13 @@ class MultiModelRouter:
         task_analysis = self.orchestrator.analyze_task(prompt, task_type)
 
         # Sélection du modèle optimal
+<<<<<<< HEAD
         optimal_model, model_info, confidence = self.orchestrator.select_optimal_model(
             task_analysis
+=======
+        optimal_model, model_info, confidence = (
+            self.orchestrator.select_optimal_model(task_analysis)
+>>>>>>> origin/main
         )
 
         logger.info(
@@ -162,7 +167,13 @@ class MultiModelRouter:
                 logger.warning(
                     f"⚠️ Modèle optimal {optimal_model} indisponible, fallback"
                 )
+<<<<<<< HEAD
                 _result = self._fallback_generation(prompt, task_analysis.task_type)
+=======
+                _result = self._fallback_generation(
+                    prompt, task_analysis.task_type
+                )
+>>>>>>> origin/main
                 success = True
 
             # Enregistrer les performances
@@ -188,7 +199,13 @@ class MultiModelRouter:
             return _result
 
         except Exception as exc:
+<<<<<<< HEAD
             logger.error(f"❌ Erreur avec modèle optimal {optimal_model}: {exc}")
+=======
+            logger.error(
+                f"❌ Erreur avec modèle optimal {optimal_model}: {exc}"
+            )
+>>>>>>> origin/main
 
             # Enregistrer l'échec
             self.orchestrator.record_performance(
@@ -242,14 +259,26 @@ class MultiModelRouter:
                 "order": ["gemini", "anthropic", "openai"],
                 "models": {
                     "gemini": models["gemini"],  # gemini-2.5-pro
+<<<<<<< HEAD
                     "anthropic": models["anthropic"],  # claude-sonnet-4-20250514
+=======
+                    "anthropic": models[
+                        "anthropic"
+                    ],  # claude-sonnet-4-20250514
+>>>>>>> origin/main
                     "openai": models["openai"],  # gpt-4o
                 },
             },
             "reasoning": {
                 "order": ["anthropic", "openai", "gemini"],
                 "models": {
+<<<<<<< HEAD
                     "anthropic": models["anthropic"],  # claude-sonnet-4-20250514
+=======
+                    "anthropic": models[
+                        "anthropic"
+                    ],  # claude-sonnet-4-20250514
+>>>>>>> origin/main
                     "openai": models["openai"],  # gpt-4o
                     "gemini": models["gemini"],  # gemini-2.5-pro
                 },
@@ -257,7 +286,13 @@ class MultiModelRouter:
             "creativity": {
                 "order": ["anthropic", "gemini", "openai"],
                 "models": {
+<<<<<<< HEAD
                     "anthropic": models["anthropic"],  # claude-sonnet-4-20250514
+=======
+                    "anthropic": models[
+                        "anthropic"
+                    ],  # claude-sonnet-4-20250514
+>>>>>>> origin/main
                     "gemini": models["gemini"],  # gemini-2.5-pro
                     "openai": models["openai"],  # gpt-4o
                 },
@@ -266,13 +301,25 @@ class MultiModelRouter:
                 "order": ["openai", "anthropic", "gemini"],
                 "models": {
                     "openai": models["openai"],  # gpt-4o
+<<<<<<< HEAD
                     "anthropic": models["anthropic"],  # claude-sonnet-4-20250514
+=======
+                    "anthropic": models[
+                        "anthropic"
+                    ],  # claude-sonnet-4-20250514
+>>>>>>> origin/main
                     "gemini": models["gemini"],  # gemini-2.5-pro
                 },
             },
             "mathematical": {
                 "order": ["openai"],
+<<<<<<< HEAD
                 "models": {"openai": "o1-preview"},  # Spécialisé pour le raisonnement
+=======
+                "models": {
+                    "openai": "o1-preview"
+                },  # Spécialisé pour le raisonnement
+>>>>>>> origin/main
             },
         }
 
@@ -294,7 +341,13 @@ class MultiModelRouter:
                     return _result
 
                 if provider == "anthropic" and self.anthropic_client:
+<<<<<<< HEAD
                     _result = self._execute_anthropic(model_map[provider], prompt)
+=======
+                    _result = self._execute_anthropic(
+                        model_map[provider], prompt
+                    )
+>>>>>>> origin/main
                     self._record_bench(model_map[provider], start, prompt)
                     return _result
 

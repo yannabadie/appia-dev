@@ -19,8 +19,17 @@ class TestDockerAvailability:
                 text=True,
                 timeout=10,
             )
+<<<<<<< HEAD
             assert result.returncode == 0, f"Docker not available: {result.stderr}"
             assert "Docker version" in result.stdout, "Invalid Docker version output"
+=======
+            assert (
+                result.returncode == 0
+            ), f"Docker not available: {result.stderr}"
+            assert (
+                "Docker version" in result.stdout
+            ), "Invalid Docker version output"
+>>>>>>> origin/main
         except (subprocess.TimeoutExpired, FileNotFoundError):
             pytest.skip("Docker not available in environment")
 
@@ -84,7 +93,13 @@ class TestDockerImages:
             )
 
             if result.returncode != 0:
+<<<<<<< HEAD
                 pytest.skip("Cannot check Docker images - daemon may not be running")
+=======
+                pytest.skip(
+                    "Cannot check Docker images - daemon may not be running"
+                )
+>>>>>>> origin/main
 
             # If image is not locally available, try to pull it (but don't fail if can't)
             if "python:3.12" not in result.stdout:
@@ -97,7 +112,12 @@ class TestDockerImages:
                     )
                     if pullresult.returncode != 0:
                         pytest.skip(
+<<<<<<< HEAD
                             "Cannot pull Python base image - network" "may be limited"
+=======
+                            "Cannot pull Python base image - network"
+                            "may be limited"
+>>>>>>> origin/main
                         )
                 except subprocess.TimeoutExpired:
                     pytest.skip("Docker pull timeout - network may be slow")
@@ -115,7 +135,13 @@ class TestDockerImages:
             if not (project_root / dockerfile).exists():
                 missing_dockerfiles.append(dockerfile)
 
+<<<<<<< HEAD
         assert not missing_dockerfiles, f"Missing Dockerfiles: {missing_dockerfiles}"
+=======
+        assert (
+            not missing_dockerfiles
+        ), f"Missing Dockerfiles: {missing_dockerfiles}"
+>>>>>>> origin/main
 
     def test_dockerfile_syntax(self):
         """Test Dockerfile syntax."""
@@ -181,9 +207,19 @@ class TestDockerCompose:
                 ), "Docker Compose file has no services defined"
 
             except ImportError:
+<<<<<<< HEAD
                 pytest.skip("PyYAML not available for Docker Compose syntax testing")
             except yaml.YAMLError as e:
                 pytest.fail(f"Docker Compose file has invalid YAML syntax: {e}")
+=======
+                pytest.skip(
+                    "PyYAML not available for Docker Compose syntax testing"
+                )
+            except yaml.YAMLError as e:
+                pytest.fail(
+                    f"Docker Compose file has invalid YAML syntax: {e}"
+                )
+>>>>>>> origin/main
 
     def test_docker_compose_validation(self):
         """Test Docker Compose configuration validation."""
@@ -207,7 +243,13 @@ class TestDockerCompose:
                 if "daemon" in result.stderr.lower():
                     pytest.skip("Docker daemon not running")
                 else:
+<<<<<<< HEAD
                     pytest.fail(f"Docker Compose validation failed: {result.stderr}")
+=======
+                    pytest.fail(
+                        f"Docker Compose validation failed: {result.stderr}"
+                    )
+>>>>>>> origin/main
 
         except (subprocess.TimeoutExpired, FileNotFoundError):
             pytest.skip("Docker Compose validation not available")
@@ -267,7 +309,12 @@ class TestContainerEnvironment:
                     pytest.skip("Alpine image not available")
                 else:
                     pytest.fail(
+<<<<<<< HEAD
                         "Container resource limits test failed:" "{result.stderr}"
+=======
+                        "Container resource limits test failed:"
+                        "{result.stderr}"
+>>>>>>> origin/main
                     )
 
             assert "test" in result.stdout, "Container execution failed"
@@ -290,7 +337,13 @@ class TestContainerEnvironment:
                 if "daemon" in result.stderr.lower():
                     pytest.skip("Docker daemon not running")
                 else:
+<<<<<<< HEAD
                     pytest.fail(f"Docker networking test failed: {result.stderr}")
+=======
+                    pytest.fail(
+                        f"Docker networking test failed: {result.stderr}"
+                    )
+>>>>>>> origin/main
 
             # Should have at least bridge network
             assert "bridge" in result.stdout, "Bridge network not available"
@@ -314,12 +367,24 @@ class TestContainerBuild:
 
         # Check for common build optimization patterns
         lines = content.strip().split("\n")
+<<<<<<< HEAD
         has_workdir = any(line.strip().startswith("WORKDIR ") for line in lines)
+=======
+        has_workdir = any(
+            line.strip().startswith("WORKDIR ") for line in lines
+        )
+>>>>>>> origin/main
         has_copy_or_add = any(
             line.strip().startswith(("COPY ", "ADD ")) for line in lines
         )
 
+<<<<<<< HEAD
         assert has_workdir, "Dockerfile should set WORKDIR for better organization"
+=======
+        assert (
+            has_workdir
+        ), "Dockerfile should set WORKDIR for better organization"
+>>>>>>> origin/main
         assert has_copy_or_add, "Dockerfile should copy application files"
 
     def test_dockerignore_exists(self):
@@ -338,7 +403,13 @@ class TestContainerBuild:
                 ".pytest_cache",
             ]
             for ignore in recommended_ignores:
+<<<<<<< HEAD
                 assert ignore in content, f".dockerignore should include {ignore}"
+=======
+                assert (
+                    ignore in content
+                ), f".dockerignore should include {ignore}"
+>>>>>>> origin/main
         else:
             # .dockerignore is recommended but not required
             print(
@@ -383,7 +454,12 @@ class TestProductionReadiness:
         # Check for health check
         if "healthcheck" not in content:
             print(
+<<<<<<< HEAD
                 "Info: Consider adding HEALTHCHECK instruction for" "better monitoring"
+=======
+                "Info: Consider adding HEALTHCHECK instruction for"
+                "better monitoring"
+>>>>>>> origin/main
             )
 
     def test_minimal_image_layers(self):
