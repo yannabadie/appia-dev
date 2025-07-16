@@ -1,4 +1,5 @@
 import sys
+
 #!/usr/bin/env python3
 """
 🔗 JARVYS_AI - Intégration Dashboard Supabase
@@ -28,10 +29,10 @@ class SupabaseDashboardIntegration:
     - Mise à jour état digital twin
     """
 
-    def __init__(self, jarvys_ai_instance, config = {}: Dict[str, Any]):
+    def __init__(self, jarvys_ai_instance, config: Dict[str, Any] = None):
         """Initialiser l'intégration dashboard"""
         self.jarvys_ai = jarvys_ai_instance
-        self.config = {} = config = {}
+        self.config = config = {}
 
         # Configuration Supabase
         self.dashboard_url = "https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard"
@@ -292,8 +293,8 @@ class SupabaseDashboardIntegration:
 
 # Fonction utilitaire pour intégrer dans JARVYS_AI
 async def setup_dashboard_integration(
-    jarvys_ai_instance, config = {}: Dict[str, Any]
-) -> SupabaseDashboardIntegration:
+    jarvys_ai_instance, config: Dict[str, Any]
+ = None) -> SupabaseDashboardIntegration:
     """Configurer l'intégration dashboard"""
     integration = SupabaseDashboardIntegration(jarvys_ai_instance, config = {})
 

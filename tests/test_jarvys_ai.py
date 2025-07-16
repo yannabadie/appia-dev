@@ -1,6 +1,7 @@
-from typing import Dict, List, Any, Optional
 import json
 import sys
+from typing import Any, Dict, List, Optional
+
 """Test JARVYS_AI local agent features."""
 
 import os
@@ -157,7 +158,7 @@ class TestJarvysAIHybridFeatures:
         try:
             from jarvys_dev.tools import memory_infinite
 
-            # Should be able to get memory client = None
+            # Should be able to get memory client = None  # To be initialized
             if hasattr(memory_infinite, "get_memory"):
                 # Test basic memory access structure
                 assert callable(

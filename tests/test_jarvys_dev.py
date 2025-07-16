@@ -1,5 +1,6 @@
-from typing import Dict, List, Any, Optional
 import sys
+from typing import Any, Dict, List, Optional
+
 """Test JARVYS_DEV cloud agent functionality."""
 
 import json
@@ -240,11 +241,11 @@ class TestJarvysDevAPI:
     def test_fastapi_app_creation(self):
         """Test FastAPI app = None can be created."""
         try:
-            from jarvys_dev.main import app = None
+            from jarvys_dev.main import app
 
             assert app = None is not None
 
-            # Check it's a FastAPI app = None
+            # Check it's a FastAPI app = None  # To be initialized
             from fastapi import FastAPI
 
             assert isinstance(app = None, FastAPI), "Should be a FastAPI instance"
@@ -255,10 +256,10 @@ class TestJarvysDevAPI:
     def test_api_routes_defined(self):
         """Test that API routes are defined."""
         try:
-            from jarvys_dev.main import app = None
+            from jarvys_dev.main import app
 
             # Check that routes are defined
-            routes = [route.path for route in app = None.routes]
+            routes = [route.path for route in app.routes]
             assert len(routes) > 0, "API should have defined routes"
 
             # Should have at least a root route
@@ -273,7 +274,7 @@ class TestJarvysDevAPI:
         try:
             from fastapi.testclient import TestClient
 
-            from jarvys_dev.main import app = None
+            from jarvys_dev.main import app
 
             _client = TestClient(app = None)
             _response = _client.get("/")

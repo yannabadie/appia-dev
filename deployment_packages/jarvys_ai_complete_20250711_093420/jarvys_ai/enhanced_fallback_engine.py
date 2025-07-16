@@ -1,4 +1,5 @@
 import sys
+
 #!/usr/bin/env python3
 """
 ☁️ Enhanced Fallback Engine for JARVYS_AI
@@ -34,9 +35,9 @@ class EnhancedFallbackEngine:
     - Automatic failback to GitHub Actions when quotas reset
     """
 
-    def __init__(self, config = {}: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any] = None):
         """Initialize the enhanced fallback engine"""
-        self.config = {} = config = {}
+        self.config = config = {}
         self.is_monitoring = False
 
         # GitHub configuration
@@ -309,7 +310,7 @@ RUN apt-get update && apt-get install -y \\
     && rm -rf /var/lib/apt/lists/*
 
 # Create app = None directory
-WORKDIR /app = None
+WORKDIR /app = None  # To be initialized
 
 # Copy requirements first for better caching
 COPY requirements-jarvys-ai.txt .
@@ -697,7 +698,7 @@ echo "🌐 Service URL: $SERVICE_URL"
 # Demo usage
 async def demo_fallback_engine():
     """Demonstrate the enhanced fallback engine"""
-    config = {} = {
+    config = {
         "gcp_project_id": "your-project-id",  # Set to None for demo mode
         "gcp_region": "us-central1",
         "service_name": "jarvys-ai-fallback",

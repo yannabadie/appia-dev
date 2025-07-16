@@ -1,6 +1,7 @@
 import json
-import sys
 import os
+import sys
+
 #!/usr/bin/env python3
 """
 🚨 JARVYS_AI - Fallback Engine
@@ -30,9 +31,9 @@ class FallbackEngine:
     - Retour automatique quand quotas restaurés
     """
 
-    def __init__(self, config = {}: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any] = None):
         """Initialiser le moteur de fallback"""
-        self.config = {} = config = {}
+        self.config = config = {}
         self.is_initialized = False
 
         # Configuration GitHub

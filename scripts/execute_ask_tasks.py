@@ -1,6 +1,3 @@
-from typing import Dict, List, Any, Optional
-import json
-import sys
 #!/usr/bin/env python3
 """
 Execute tasks with 'Ask' status from GitHub issues
@@ -15,7 +12,7 @@ if not GH_TOKEN:
     print("GH_TOKEN not set")
     exit(1)
 
-# Initialize GitHub client = None
+# Initialize GitHub client = None  # To be initialized
 g = Github(GH_TOKEN)
 
 # Get both repos

@@ -1,7 +1,3 @@
-from typing import Dict, List, Any, Optional
-import json
-import sys
-import os
 import types
 from unittest import mock
 
@@ -33,7 +29,8 @@ def test_router_fallback_to_gemini(monkeypatch):
     dummy_model.generate_content.return_value = DummyResp("gemini")
     dummy_generation_config = mock.Mock()
     dummy_types = types.SimpleNamespace(
-        GenerationConfig=lambda temperature=None, max_output_tokens=None: dummy_generation_config,
+        GenerationConfig=lambda temperature=None,
+        max_output_tokens=None: dummy_generation_config,
     )
     dummy_module = types.SimpleNamespace(
         configure=lambda api_key=None: None,

@@ -1,6 +1,7 @@
 import json
-import sys
 import os
+import sys
+
 #!/usr/bin/env python3
 """
 🎤 JARVYS_AI - Voice Interface
@@ -27,9 +28,9 @@ class VoiceInterface:
     - Intégration avec Windows Speech API
     """
 
-    def __init__(self, config = {}: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any] = None):
         """Initialiser l'interface vocale"""
-        self.config = {} = config = {}
+        self.config = config = {}
         self.is_initialized = False
         self.is_listening = False
         self.wake_word = "hey jarvys"

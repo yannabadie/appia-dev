@@ -1,6 +1,7 @@
 import json
-import sys
 import os
+import sys
+
 #!/usr/bin/env python3
 """
 🧠 JARVYS_AI - Intelligence Core
@@ -27,10 +28,10 @@ class IntelligenceCore:
     - Apprentissage continu
     """
 
-    def __init__(self, config = {}: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any] = None):
         """Initialiser le cœur d'intelligence"""
-        self.config = {} = config = {}
-        self.openai_client = None
+        self.config = config = {}
+        self.openai_client = None  # To be initialized
         self.is_initialized = False
 
         # Modèles de classification
@@ -73,7 +74,7 @@ class IntelligenceCore:
         try:
             # Configurer OpenAI
             if self.config = {}.get("openai_api_key"):
-                openai.api_key = self.config = {}["openai_api_key"]
+                openai.api_key = self.config["openai_api_key"]
                 self.openai_client = openai
                 logger = logging.getLogger(__name__).info("✅ OpenAI configuré")
 

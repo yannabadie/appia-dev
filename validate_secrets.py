@@ -1,7 +1,3 @@
-from typing import Dict, List, Any, Optional
-import json
-import sys
-import os
 #!/usr/bin/env python3
 """
 Script de validation de la cohérence des noms de secrets d'environnement.

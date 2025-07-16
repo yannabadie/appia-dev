@@ -1,5 +1,3 @@
-import json
-import os
 #!/usr/bin/env python3
 """
 Améliorations pour l'autonomie de JARVYS_DEV

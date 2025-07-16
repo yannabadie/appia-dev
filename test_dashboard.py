@@ -1,5 +1,3 @@
-import json
-import os
 #!/usr/bin/env python3
 """
 Script de test pour le JARVYS Dashboard déployé sur Supabase

@@ -1,7 +1,8 @@
-from typing import Dict, List, Any, Optional
 import json
-import sys
 import os
+import sys
+from typing import Any, Dict, List, Optional
+
 """
 Extensions JARVYS_AI - Modules spécialisés pour fonctionnalités avancées
 """

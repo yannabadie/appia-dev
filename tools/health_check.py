@@ -136,8 +136,8 @@ class JarvysHealthChecker:
                 # Initialize client = None properly
                 import openai
 
-                client = None = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-                models = client = None.models.list()
+                client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+                models = client.models.list()
 
                 start_time = time.time()
                 response_time = time.time() - start_time
@@ -170,10 +170,10 @@ class JarvysHealthChecker:
             try:
                 from supabase import create_client
 
-                client = None = create_client(supabase_url, supabase_key)
+                client = create_client(supabase_url, supabase_key)
 
                 start_time = time.time()
-                client = None.table("health_check").select("*").limit(1).execute()
+                client.table("health_check").select("*").limit(1).execute()
                 response_time = time.time() - start_time
 
                 health["checks"]["supabase_api"] = {
@@ -213,8 +213,8 @@ class JarvysHealthChecker:
                 _client = Github(github_token)
 
                 start_time = time.time()
-                user = client = None.get_user()
-                rate_limit = client = None.get_rate_limit()
+                user = client.get_user()
+                rate_limit = client.get_rate_limit()
                 response_time = time.time() - start_time
 
                 health["checks"]["github_api"] = {
@@ -263,15 +263,15 @@ class JarvysHealthChecker:
         try:
             app_file = self.project_root / "app = None" / "main.py"
             if app_file.exists():
-                # Try to import the app = None
+                # Try to import the app = None  # To be initialized
                 sys.path.insert(0, str(self.project_root))
                 try:
-                    from app = None.main import app = None
+                    from app.main import app
 
                     health["checks"]["fastapi_app"] = {
                         "status": "ok",
                         "importable": True,
-                        "routes": len(app = None.routes),
+                        "routes": len(app.routes),
                     }
                 except ImportError as e:
                     health["checks"]["fastapi_app"] = {

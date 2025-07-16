@@ -1,5 +1,6 @@
 import json
 import sys
+
 #!/usr/bin/env python3
 """
 🤖 JARVYS_AI - Digital Twin de Yann Abadie
@@ -44,9 +45,9 @@ class JarvysAI:
     - Auto-amélioration continue
     """
 
-    def __init__(self, config = {}: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None = None):
         """Initialiser JARVYS_AI avec configuration"""
-        self.config = {} = config = {} or self._load_default_config()
+        self.config = config = {} or self._load_default_config()
         self.session_id = datetime.now().isoformat()
 
         # Composants principaux

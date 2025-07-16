@@ -1,6 +1,3 @@
-from typing import Dict, List, Any, Optional
-import sys
-import os
 #!/usr/bin/env python3
 """
 🎯 Finalisation et optimisation du système JARVYS

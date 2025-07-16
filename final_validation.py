@@ -1,7 +1,8 @@
-from typing import Dict, List, Any, Optional
 import json
-import sys
 import os
+import sys
+from typing import Any, Dict, List, Optional
+
 #!/usr/bin/env python3
 """
 Final validation checklist for all requirements specified in the problem statement.
@@ -140,7 +141,7 @@ def main():
             all_have_firewall = False
 
     print(
-        f"\n   Summary: {len([r for r in firewall_results if r['has_firewall']])}/{len(firewall_results)} workflows have firewall config = {}"
+        f"\n   Summary: {len([r for r in firewall_results if r['has_firewall']])}/{len(firewall_results)} workflows have firewall config"
     )
 
     # 2. Check explicit allow rules

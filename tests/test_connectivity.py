@@ -1,5 +1,6 @@
-from typing import Dict, List, Any, Optional
 import sys
+from typing import Any, Dict, List, Optional
+
 """Test connectivity to external services for JARVYS ecosystem."""
 
 import json
@@ -32,10 +33,10 @@ class TestOpenAIConnectivity:
         try:
             from openai import OpenAI
 
-            client = None = OpenAI(api_key=api_key)
+            client = OpenAI(api_key=api_key)
 
             # Test with a minimal request
-            response = client = None.models.list()
+            response = client.models.list()
             assert hasattr(response, "data"), "Invalid OpenAI API response"
             assert len(response.data) > 0, "No models available from OpenAI"
 
@@ -90,12 +91,12 @@ class TestSupabaseConnectivity:
         try:
             from supabase import create_client
 
-            client = None = create_client(url, key)
+            client = create_client(url, key)
 
             # Test basic connectivity with a simple query
             # This will fail if credentials are invalid
             response = (
-                client = None.table("test_connectivity_check").select("*").limit(1).execute()
+                client.table("test_connectivity_check").select("*").limit(1).execute()
             )
             # We don't care if the table exists, just that we can connect
             assert hasattr(response, "data"), "Invalid Supabase response"

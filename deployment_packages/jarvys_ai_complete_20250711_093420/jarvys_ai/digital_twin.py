@@ -1,5 +1,6 @@
-import sys
 import os
+import sys
+
 #!/usr/bin/env python3
 """
 👤 JARVYS_AI - Digital Twin de Yann Abadie
@@ -28,9 +29,9 @@ class DigitalTwin:
     - Synchroniser avec JARVYS_DEV
     """
 
-    def __init__(self, config = {}: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any] = None):
         """Initialiser le jumeau numérique"""
-        self.config = {} = config = {}
+        self.config = config = {}
         self.user_profile = {}
         self.interaction_history = []
         self.preferences = {}

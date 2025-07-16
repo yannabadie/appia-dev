@@ -1,5 +1,6 @@
-from typing import Dict, List, Any, Optional
 import sys
+from typing import Any, Dict, List, Optional
+
 #!/usr/bin/env python3
 """
 📦 JARVYS_AI Deployment Package Creator
@@ -142,7 +143,7 @@ class JarvysDeploymentPackager:
         logger = logging.getLogger(__name__).info("⚙️ Creating configuration files...")
 
         # Main configuration
-        config = {} = {
+        config = {
             "jarvys_ai": {
                 "version": "1.0.0",
                 "build_date": datetime.now().isoformat(),

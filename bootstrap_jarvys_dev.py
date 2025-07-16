@@ -1,4 +1,3 @@
-import json
 #!/usr/bin/env python3
 # --- bootstrap_jarvys_dev.py (idempotent – Projects v2) --------------------
 """
@@ -8,6 +7,7 @@ tool stub. Relançable sans erreur.
 Dépend de : GH_TOKEN, GH_REPO, SUPABASE_URL, SUPABASE_KEY,
             GCP_SA_JSON, OPENAI_API_KEY, GEMINI_API_KEY
 """
+
 import os
 import subprocess
 import sys

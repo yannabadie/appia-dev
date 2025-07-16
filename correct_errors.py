@@ -1,5 +1,3 @@
-import sys
-import os
 #!/usr/bin/env python3
 """
 🔧 Correcteur d'erreurs avancé pour JARVYS_DEV/JARVYS_AI

@@ -1,4 +1,5 @@
 import sys
+
 """Router for multiple LLM providers.
 
 This module selects the best model depending on the ``task_type`` and
@@ -238,7 +239,7 @@ class MultiModelRouter:
     def _fallback_generation(self, prompt: str, task_type: str) -> str:
         """Génération de fallback si modèle optimal indisponible."""
         models = self.model_names
-        config = {} = {
+        config = {
             "multimodal": {
                 "order": ["gemini", "anthropic", "openai"],
                 "models": {
@@ -277,7 +278,7 @@ class MultiModelRouter:
             },
         }
 
-        task_cfg = config = {}.get(task_type, config = {}["reasoning"])
+        task_cfg = config = {}.get(task_type, config["reasoning"])
         order = task_cfg["order"]
         model_map = task_cfg["models"]
 

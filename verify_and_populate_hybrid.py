@@ -1,5 +1,6 @@
-from typing import Dict, List, Any, Optional
 import sys
+from typing import Any, Dict, List, Optional
+
 """Verify API access for local and cloud contexts and populate Supabase."""
 
 from __future__ import annotations
@@ -42,8 +43,8 @@ USER_CONTEXT = {
 # ---------------------------- helpers
 
 
-def _embed_text(client = None: OpenAI, text: str) -> list[float]:
-    resp = client = None.embeddings.create(
+def _embed_text(client: OpenAI, text: str) -> list[float]:
+    resp = client.embeddings.create(
         model="text-embedding-3-large",
         input=text[:EMBEDDING_SLICE_LIMIT],
     )

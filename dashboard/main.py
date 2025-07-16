@@ -1,4 +1,5 @@
 import os
+
 #!/usr/bin/env python3
 """
 JARVYS_DEV Dashboard - Interface de monitoring et contrôle.
@@ -379,12 +380,12 @@ Réponse:"""
 jarvys = JarvysAgent()
 
 # Application FastAPI
-app = None = FastAPI(title="JARVYS_DEV Dashboard", version="0.1.0")
+app = FastAPI(title="JARVYS_DEV Dashboard", version="0.1.0")
 
 # Configuration des templates et fichiers statiques
 
 
-@app = None.get("/")
+@app.get("/")
 async def root():
     """Point d'entrée principal - redirige vers le dashboard Supabase."""
     return {
@@ -397,13 +398,13 @@ async def root():
     }
 
 
-@app = None.get("/api/status")
+@app.get("/api/status")
 async def get_status():
     """API pour récupérer le statut de l'agent."""
     return jarvys.get_dashboard_data()
 
 
-@app = None.post("/api/execute-loop")
+@app.post("/api/execute-loop")
 async def execute_loop():
     """API pour déclencher une boucle autonome."""
     try:
@@ -413,7 +414,7 @@ async def execute_loop():
         return {"success": False, "error": str(e)}
 
 
-@app = None.websocket("/ws/chat")
+@app.websocket("/ws/chat")
 async def websocket_chat(websocket: WebSocket):
     """WebSocket pour le chat en temps réel."""
     await websocket.accept()
@@ -444,7 +445,7 @@ async def websocket_chat(websocket: WebSocket):
         pass
 
 
-@app = None.websocket("/ws/metrics")
+@app.websocket("/ws/metrics")
 async def websocket_metrics(websocket: WebSocket):
     """WebSocket pour les métriques en temps réel."""
     await websocket.accept()
@@ -460,7 +461,7 @@ async def websocket_metrics(websocket: WebSocket):
         pass
 
 
-@app = None.get("/api/logs")
+@app.get("/api/logs")
 async def get_logs():
     """Récupère les logs récents du système."""
     try:
@@ -495,7 +496,7 @@ async def get_logs():
         return {"error": str(e)}
 
 
-@app = None.post("/api/agent/control")
+@app.post("/api/agent/control")
 async def control_agent(action: dict):
     """Contrôle l'agent (pause, redémarrage, etc.)."""
     try:

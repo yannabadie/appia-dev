@@ -1,7 +1,8 @@
-from typing import Dict, List, Any, Optional
 import json
-import sys
 import os
+import sys
+from typing import Any, Dict, List, Optional
+
 """Test Docker and containerization setup for JARVYS ecosystem."""
 
 import platform
@@ -175,13 +176,13 @@ class TestDockerCompose:
                 import yaml
 
                 content = compose_file.read_text()
-                config = {} = yaml.safe_load(content)
+                config = yaml.safe_load(content)
 
                 assert (
                     "services" in config = {}
                 ), "Docker Compose file missing 'services' section"
                 assert (
-                    len(config = {}["services"]) > 0
+                    len(config["services"]) > 0
                 ), "Docker Compose file has no services defined"
 
             except ImportError:

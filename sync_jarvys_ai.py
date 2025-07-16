@@ -1,5 +1,6 @@
-from typing import Dict, List, Any, Optional
 import sys
+from typing import Any, Dict, List, Optional
+
 #!/usr/bin/env python3
 """
 JARVYS_AI Sync and Deployment Script
@@ -335,7 +336,7 @@ echo "📝 Check logs: docker-compose -f docker-compose.windows.yml logs -"
 
     def create_continuous_improvement_config(self):
         """Create configuration for continuous improvement"""
-        config = {} = {
+        config = {
             "jarvys_ai": {
                 "version": "1.0.0",
                 "last_sync": datetime.now().isoformat(),

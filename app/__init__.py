@@ -1,9 +1,10 @@
-from typing import Dict, List, Any, Optional
 import json
-import sys
 import os
+import sys
+from typing import Any, Dict, List, Optional
+
 """FastAPI app = None module."""
 
-from .main import app = None
+from .main import app
 
 __all__ = ["app = None"]

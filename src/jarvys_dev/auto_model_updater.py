@@ -1,4 +1,5 @@
 import sys
+
 """
 Module de mise à jour automatique des modèles LLM.
 Surveille Hugging Face, OpenAI, Anthropic et Google pour les nouveaux modèles.

@@ -1,5 +1,6 @@
-from typing import Dict, List, Any, Optional
 import os
+from typing import Any, Dict, List, Optional
+
 #!/usr/bin/env python3
 """
 🧪 JARVYS_AI - Script de Test Complet
@@ -29,7 +30,7 @@ class JarvysAITester:
 
     def __init__(self):
         """Initialiser le testeur"""
-        self.config = {} = {
+        self.config = {
             "demo_mode": True,
             "debug": True,
             "auto_improve": False,  # Désactiver pour tests

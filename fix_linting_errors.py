@@ -1,4 +1,3 @@
-import json
 #!/usr/bin/env python3
 """
 Fix common linting errors in Python files.

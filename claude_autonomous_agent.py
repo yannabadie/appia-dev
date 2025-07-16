@@ -1,22 +1,25 @@
 import sys
+
 # claude_autonomous_agent.py
 """
 Claude 4 Opus Agent Autonome pour JARVYS
 Intégration complète avec VS Code, GitHub, et Supabase
 """
 
-import os
 import asyncio
 import json
-from typing import Dict, List, Optional, Any
+import logging
+import os
+import subprocess
 from datetime import datetime, timedelta
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
+import aiofiles
 import anthropic
 from github import Github
-from supabase import create_client, Client
-import aiofiles
-import subprocess
-from pathlib import Path
-import logging
+
+from supabase import Client, create_client
 
 # Configuration du logging
 logging.basicConfig(level=logging.INFO)

@@ -1,6 +1,7 @@
 import json
-import sys
 import os
+import sys
+
 #!/usr/bin/env python3
 """
 📁 JARVYS_AI - File Manager
@@ -29,9 +30,9 @@ class FileManager:
     - Partage sécurisé
     """
 
-    def __init__(self, config = {}: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any] = None):
         """Initialiser le gestionnaire de fichiers"""
-        self.config = {} = config = {}
+        self.config = config = {}
         self.is_initialized = False
 
         # Répertoires de travail

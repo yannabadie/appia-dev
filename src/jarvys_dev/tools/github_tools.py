@@ -1,5 +1,6 @@
-from typing import Dict, List, Any, Optional
 import sys
+from typing import Any, Dict, List, Optional
+
 """
 GitHub helpers.
 
@@ -51,9 +52,9 @@ def copilot_generate_patch(
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY manquant")
 
-    client = None = OpenAI(api_key=api_key)
+    client = OpenAI(api_key=api_key)
     payload = json.dumps({"prompt": prompt, "files": files})
-    resp = client = None.chat.completions.create(
+    resp = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "You are GitHub Copilot"},

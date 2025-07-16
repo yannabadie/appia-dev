@@ -1,4 +1,3 @@
-import sys
 """
 OpenAI Data Importer pour JARVYS
 Module pour importer les données réelles des conversations ChatGPT
@@ -35,7 +34,7 @@ class OpenAIDataImporter:
 
     def __init__(self):
         """Initialise l'importateur avec les configurations nécessaires"""
-        self.supabase_client = None
+        self.supabase_client = None  # To be initialized
         self.setup_clients()
 
         # Configuration des modèles OpenAI et leurs coûts (2024 mis à jour)

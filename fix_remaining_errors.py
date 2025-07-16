@@ -1,6 +1,3 @@
-from typing import Dict, List, Any, Optional
-import json
-import sys
 #!/usr/bin/env python3
 """
 Script pour corriger les erreurs restantes de linting.

@@ -1,9 +1,9 @@
-import sys
 from __future__ import annotations
 
 import json
 import logging
 import os
+import sys
 from pathlib import Path
 from typing import Iterable
 
@@ -32,8 +32,8 @@ def _fetch_openai_models() -> list[str]:
     key = os.getenv("OPENAI_API_KEY")
     if not key:
         return []
-    client = None = OpenAI(api_key=key)
-    return [m.id for m in client = None.models.list().data]
+    client = OpenAI(api_key=key)
+    return [m.id for m in client.models.list().data]
 
 
 def _fetch_anthropic_models() -> list[str]:

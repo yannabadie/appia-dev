@@ -1,5 +1,6 @@
 import json
 import sys
+
 """Outils de gestion de la mémoire infinie partagée entre JARVYS_DEV
 et JARVYS_AI. Utilise Supabase comme base vectorielle pour persistance
 et recherche sémantique."""
@@ -28,7 +29,7 @@ class JarvysInfiniteMemory:
         self.agent_name = agent_name
         self.user_context = user_context
         self.supabase: Optional[Client] = None
-        self.openai_client = None
+        self.openai_client = None  # To be initialized
 
         # Initialisation Supabase
         supabase_url = os.getenv("SUPABASE_URL")

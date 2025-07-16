@@ -1,7 +1,3 @@
-from typing import Dict, List, Any, Optional
-import json
-import sys
-import os
 #!/usr/bin/env python3
 """Fix syntax errors in Python files"""
 

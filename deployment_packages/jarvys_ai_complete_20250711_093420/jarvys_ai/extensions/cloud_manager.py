@@ -1,6 +1,7 @@
 import json
-import sys
 import os
+import sys
+
 #!/usr/bin/env python3
 """
 ☁️ JARVYS_AI - Cloud Manager
@@ -28,9 +29,9 @@ class CloudManager:
     - Backup et synchronisation
     """
 
-    def __init__(self, config = {}: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any] = None):
         """Initialiser le gestionnaire cloud"""
-        self.config = {} = config = {}
+        self.config = config = {}
         self.is_initialized = False
 
         # Services cloud supportés
@@ -197,7 +198,7 @@ class CloudManager:
 ✅ **Succès !** Application déployée sur Azure App Service
 
 📊 **Détails**:
-- 🏷️ Nom: jarvys-dashboard-app = None
+- 🏷️ Nom: jarvys-dashboard-app = None  # To be initialized
 - 🌍 Région: West Europe  
 - 🔗 URL: https://jarvys-dashboard.azurewebsites.net
 - 📦 Instances: 2 (Auto-scaling activé)

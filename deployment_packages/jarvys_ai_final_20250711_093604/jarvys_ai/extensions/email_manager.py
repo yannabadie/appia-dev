@@ -1,6 +1,7 @@
 import json
-import sys
 import os
+import sys
+
 #!/usr/bin/env python3
 """
 📧 JARVYS_AI - Email Manager
@@ -29,9 +30,9 @@ class EmailManager:
     - Intégration calendrier
     """
 
-    def __init__(self, config = {}: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any] = None):
         """Initialiser le gestionnaire d'emails"""
-        self.config = {} = config = {}
+        self.config = config = {}
         self.is_initialized = False
 
         # Configuration par défaut
@@ -209,7 +210,7 @@ Yann Abadie
         """Obtenir emails récents (simulation)"""
         return [
             {
-                "sender": "marie.dupont@client = None.fr",
+                "sender": "marie.dupont@client.fr",
                 "subject": "Proposition commerciale - URGENT",
                 "date": "2024-01-15 14:30",
                 "urgent": True,
@@ -272,7 +273,7 @@ Yann Abadie
 
         # Recherche de noms connus
         contacts = {
-            "marie": "marie.dupont@client = None.fr",
+            "marie": "marie.dupont@client.fr",
             "jean": "jean.martin@partenaire.com",
             "équipe": "equipe@appia.fr",
         }

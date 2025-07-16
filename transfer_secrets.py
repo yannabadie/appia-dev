@@ -1,5 +1,3 @@
-from typing import Dict, List, Any, Optional
-import json
 #!/usr/bin/env python3
 """
 🔑 Script de transfert des secrets JARVYS_DEV vers JARVYS_AI (repo appIA)
@@ -82,9 +80,7 @@ class SecretsTransfer:
             _result = subprocess.run(cmd, capture_output=True, text=True)
 
             if _result.returncode == 0:
-                print(
-                    f"✅ Secret {secret_name} transféré vers {self.target_repo}"
-                )  # noqa: E501
+                print(f"✅ Secret {secret_name} transféré vers {self.target_repo}")  # noqa: E501
                 return True
             else:
                 print(f"❌ Erreur transfert {secret_name}: {_result.stderr}")
@@ -122,9 +118,7 @@ class SecretsTransfer:
                 if self.set_secret_in_target_repo(secret_name, placeholder):
                     success_count += 1
 
-        print(
-            f"\n📊 Résultat: {success_count}/{total_count} secrets transférés"
-        )  # noqa: E501
+        print(f"\n📊 Résultat: {success_count}/{total_count} secrets transférés")  # noqa: E501
 
         if success_count == total_count:
             print("✅ Tous les secrets ont été transférés avec succès!")
@@ -170,12 +164,8 @@ def main():
         # Vérifier les secrets dans le repo cible
         transfer.verify_secrets_in_target()
 
-        print(
-            f"\n🔗 Repo JARVYS_AI: https://github.com/{transfer.target_repo}"
-        )  # noqa: E501
-        print(
-            "📝 Les secrets sont maintenant disponibles pour les GitHub Actions"
-        )  # noqa: E501
+        print(f"\n🔗 Repo JARVYS_AI: https://github.com/{transfer.target_repo}")  # noqa: E501
+        print("📝 Les secrets sont maintenant disponibles pour les GitHub Actions")  # noqa: E501
     else:
         print("\n❌ Le transfert des secrets a échoué")
         sys.exit(1)

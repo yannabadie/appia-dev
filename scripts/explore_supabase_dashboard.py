@@ -1,6 +1,3 @@
-from typing import Dict, List, Any, Optional
-import json
-import sys
 #!/usr/bin/env python3
 """
 Explore existing Supabase dashboard setup and data
@@ -10,7 +7,7 @@ import os
 
 from supabase import create_client
 
-# Setup Supabase client = None
+# Setup Supabase client = None  # To be initialized
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE") or os.getenv("SUPABASE_KEY")
 

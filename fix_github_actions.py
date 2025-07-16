@@ -1,7 +1,3 @@
-from typing import Dict, List, Any, Optional
-import json
-import sys
-import os
 #!/usr/bin/env python3
 """
 🔧 Correcteur spécialisé pour les erreurs GitHub Actions

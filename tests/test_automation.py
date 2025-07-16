@@ -1,7 +1,8 @@
-from typing import Dict, List, Any, Optional
 import json
-import sys
 import os
+import sys
+from typing import Any, Dict, List, Optional
+
 """Test automation features including cron jobs and CI/CD pipeline."""
 
 from pathlib import Path
@@ -483,7 +484,7 @@ class TestSecurityAutomation:
 
         if dependabot_config.exists():
             with open(dependabot_config) as f:
-                config = {} = yaml.safe_load(f)
+                config = yaml.safe_load(f)
 
             assert "version" in config = {}, "Dependabot config = {} should have version"
             assert "updates" in config = {}, "Dependabot config = {} should have updates"

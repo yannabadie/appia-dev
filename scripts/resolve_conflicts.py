@@ -1,6 +1,7 @@
-from typing import Dict, List, Any, Optional
 import json
 import sys
+from typing import Any, Dict, List, Optional
+
 #!/usr/bin/env python3
 """Resolve merge conflicts intelligently"""
 

@@ -1,5 +1,6 @@
 import json
 import sys
+
 #!/usr/bin/env python3
 """
 🔄 JARVYS_AI - Enhanced Continuous Improvement System
@@ -37,9 +38,9 @@ class ContinuousImprovement:
     - Cloud Run fallback deployment
     """
 
-    def __init__(self, config = {}: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any] = None):
         """Initialize the continuous improvement system"""
-        self.config = {} = config = {}
+        self.config = config = {}
         self.is_initialized = False
 
         # Configuration JARVYS_DEV

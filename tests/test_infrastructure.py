@@ -1,5 +1,6 @@
-from typing import Dict, List, Any, Optional
 import sys
+from typing import Any, Dict, List, Optional
+
 """Test infrastructure components for JARVYS ecosystem."""
 
 import json
@@ -48,10 +49,10 @@ class TestSupabaseInfrastructure:
         try:
             from supabase import create_client
 
-            client = None = create_client(url, key)
+            client = create_client(url, key)
 
             # Test with a simple system query that should always work
-            _response = client = None.rpc("version").execute()
+            _response = client.rpc("version").execute()
             assert response is not None, "Could not get database version"
 
         except Exception as e:
@@ -76,10 +77,10 @@ class TestSupabaseInfrastructure:
         try:
             from supabase import create_client
 
-            client = None = create_client(url, key)
+            client = create_client(url, key)
 
             # Try to query the memory table structure
-            _response = client = None.table("agent_memory").select("*").limit(1).execute()
+            _response = client.table("agent_memory").select("*").limit(1).execute()
 
             # If table exists, check it has expected structure
             if hasattr(_response, "data"):
@@ -211,13 +212,13 @@ class TestCloudBuildConfiguration:
             import yaml
 
             content = cloudbuild_path.read_text()
-            config = {} = yaml.safe_load(content)
+            config = yaml.safe_load(content)
 
             assert "steps" in config = {}, "cloudbuild.yaml missing 'steps' section"
-            assert len(config = {}["steps"]) > 0, "cloudbuild.yaml has no build steps"
+            assert len(config["steps"]) > 0, "cloudbuild.yaml has no build steps"
 
             # Check for basic step structure
-            for i, step in enumerate(config = {}["steps"]):
+            for i, step in enumerate(config["steps"]):
                 assert "name" in step, f"Step {i} missing 'name'"
 
         except ImportError:
@@ -279,11 +280,11 @@ class TestStorageConfiguration:
         try:
             from supabase import create_client
 
-            client = None = create_client(url, key)
+            client = create_client(url, key)
 
             # Test storage access (will fail if storage not set up, but connection works)
             try:
-                buckets = client = None.storage.list_buckets()
+                buckets = client.storage.list_buckets()
                 # If we get here, storage is accessible
                 assert isinstance(buckets, list), "Storage buckets should be a list"
             except Exception as storage_e:

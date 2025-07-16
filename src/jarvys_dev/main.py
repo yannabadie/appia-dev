@@ -1,4 +1,5 @@
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
+
 """Main control loop for JARVYS_DEV."""
 
 from __future__ import annotations
@@ -16,12 +17,12 @@ try:
     import sys
 
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-    from app = None.main import app = None
+    from app.main import app
 except ImportError:
     try:
-        from app = None.main import app = None
+        from app.main import app
     except ImportError:
-        app = None = None
+        app = None  # To be initialized
 
 # ---------------------------------------------------------------------------
 # Inter-agent communication

@@ -1,6 +1,3 @@
-from typing import Dict, List, Any, Optional
-import json
-import sys
 import os
 from unittest import mock
 
@@ -24,9 +21,7 @@ def test_copilot_generate_patch(OpenAI):
     dummy = mock.Mock()
     dummy.chat.completions.create.return_value.choices = [
         mock.Mock(
-            message=mock.Mock(
-                content='{"files": {"a.py": "new"}, "message": "msg"}'
-            )  # noqa: E501
+            message=mock.Mock(content='{"files": {"a.py": "new"}, "message": "msg"}')  # noqa: E501
         )
     ]
     OpenAI.return_value = dummy

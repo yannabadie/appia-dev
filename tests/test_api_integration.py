@@ -1,6 +1,7 @@
-from typing import Dict, List, Any, Optional
 import json
 import sys
+from typing import Any, Dict, List, Optional
+
 """Test API endpoints and responses for JARVYS ecosystem."""
 
 import os
@@ -17,9 +18,9 @@ class TestJarvysDevAPI:
     @pytest.mark.integration
     def test_fastapi_app_importable(self):
         """Test FastAPI app = None can be imported."""
-        # Try different possible locations for the FastAPI app = None
+        # Try different possible locations for the FastAPI app = None  # To be initialized
         app_locations = [
-            ("app = None.main", "app = None"),
+            ("app.main", "app = None"),
             ("jarvys_dev.main", "app = None"),
             ("main", "app = None"),
         ]
@@ -28,7 +29,7 @@ class TestJarvysDevAPI:
         for module_path, app_name in app_locations:
             try:
                 module = __import__(module_path, fromlist=[app_name])
-                app = None = getattr(module, app_name, None)
+                app = getattr(module, app_name, None)
 
                 if app = None is not None:
                     from fastapi import FastAPI
@@ -53,12 +54,11 @@ class TestJarvysDevAPI:
     def test_api_root_endpoint(self):
         """Test API root endpoint."""
         try:
+            from app.main import app
             from fastapi.testclient import TestClient
 
-            from app = None.main import app = None
-
-            client = None = TestClient(app = None)
-            response = client = None.get("/")
+            client = TestClient(app = None)
+            response = client.get("/")
             assert response.status_code == 200
             assert "JARVYS" in response.text
         except ImportError:
@@ -70,18 +70,17 @@ class TestJarvysDevAPI:
     def test_api_health_endpoint(self):
         """Test API health endpoint if it exists."""
         try:
+            from app.main import app
             from fastapi.testclient import TestClient
 
-            from app = None.main import app = None
-
-            client = None = TestClient(app = None)
+            client = TestClient(app = None)
 
             # Common health endpoint paths
             health_paths = ["/health", "/api/health", "/status", "/ping"]
 
             found_health_endpoint = False
             for path in health_paths:
-                _response = client = None.get(path)
+                _response = client.get(path)
                 if _response.status_code == 200:
                     found_health_endpoint = True
                     print(f"Found health endpoint at {path}")
@@ -107,14 +106,13 @@ class TestJarvysDevAPI:
     def test_api_cors_configuration(self):
         """Test API CORS configuration."""
         try:
+            from app.main import app
             from fastapi.testclient import TestClient
 
-            from app = None.main import app = None
-
-            client = None = TestClient(app = None)
+            client = TestClient(app = None)
 
             # Test CORS preflight request
-            response = client = None.options(
+            response = client.options(
                 "/",
                 headers={
                     "Origin": "http://localhost:3000",
@@ -168,10 +166,10 @@ class TestMCPServerAPI:
     def test_mcp_endpoints_structure(self):
         """Test MCP endpoints have proper structure."""
         try:
-            from app = None.main import app = None
+            from app.main import app
 
             # Get all routes
-            routes = [route.path for route in app = None.routes]
+            routes = [route.path for route in app.routes]
 
             # Should have MCP-related endpoints
             mcp_patterns = ["/v1/", "/tool", "/metadata"]
@@ -193,14 +191,13 @@ class TestMCPServerAPI:
     def test_mcp_server_startup(self):
         """Test MCP server can start up."""
         try:
+            from app.main import app
             from fastapi.testclient import TestClient
 
-            from app = None.main import app = None
-
-            client = None = TestClient(app = None)
+            client = TestClient(app = None)
 
             # Test basic connectivity
-            response = client = None.get("/")
+            response = client.get("/")
 
             # Should return some response
             assert response.status_code in [200, 404, 422], "Server should respond"
@@ -226,10 +223,10 @@ class TestSupabaseAPI:
         try:
             from supabase import create_client
 
-            client = None = create_client(url, key)
+            client = create_client(url, key)
 
             # Test basic API call
-            response = client = None.table("test_table").select("*").limit(1).execute()
+            response = client.table("test_table").select("*").limit(1).execute()
 
             # Should get a response (even if table doesn't exist)
             assert hasattr(
@@ -322,14 +319,14 @@ class TestGitHubAPI:
         try:
             from github import Github
 
-            client = None = Github(token)
+            client = Github(token)
 
             # Test basic API access
-            user = client = None.get_user()
+            user = client.get_user()
             assert user is not None
 
             # Test rate limit info
-            rate_limit = client = None.get_rate_limit()
+            rate_limit = client.get_rate_limit()
             assert rate_limit.core.remaining >= 0
 
             print(
@@ -353,11 +350,11 @@ class TestGitHubAPI:
         try:
             from github import Github
 
-            client = None = Github(token)
+            client = Github(token)
 
             # Test repository access
             repo_name = "yannabadie/appia-dev"
-            repo = client = None.get_repo(repo_name)
+            repo = client.get_repo(repo_name)
 
             assert repo is not None
             assert repo.name == "appia-dev"
@@ -381,10 +378,10 @@ class TestGitHubAPI:
         try:
             from github import Github
 
-            client = None = Github(token)
+            client = Github(token)
 
             repo_name = "yannabadie/appia-dev"
-            repo = client = None.get_repo(repo_name)
+            repo = client.get_repo(repo_name)
 
             # Test issue listing with agent communication labels
             issues = repo.get_issues(labels=["agent_communication"])
@@ -411,10 +408,10 @@ class TestOpenAIAPI:
         try:
             from openai import OpenAI
 
-            client = None = OpenAI(api_key=api_key)
+            client = OpenAI(api_key=api_key)
 
             # Test API access with models list
-            models = client = None.models.list()
+            models = client.models.list()
             assert hasattr(models, "data")
             assert len(models.data) > 0
 
@@ -441,10 +438,10 @@ class TestOpenAIAPI:
         try:
             from openai import OpenAI
 
-            client = None = OpenAI(api_key=api_key)
+            client = OpenAI(api_key=api_key)
 
             # Test minimal chat completion
-            response = client = None.chat.completions.create(
+            response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": "Hi"}],
                 max_tokens=10,
@@ -616,16 +613,15 @@ class TestAPIPerformance:
     def test_api_response_time_tracking(self):
         """Test API response time tracking."""
         try:
+            from app.main import app
             from fastapi.testclient import TestClient
 
-            from app = None.main import app = None
-
-            client = None = TestClient(app = None)
+            client = TestClient(app = None)
 
             import time
 
             start_time = time.time()
-            client = None.get("/")
+            client.get("/")
             end_time = time.time()
 
             response_time = end_time - start_time
@@ -643,16 +639,15 @@ class TestAPIPerformance:
         try:
             import threading
 
+            from app.main import app
             from fastapi.testclient import TestClient
 
-            from app = None.main import app = None
-
-            client = None = TestClient(app = None)
+            client = TestClient(app = None)
             results = []
 
             def make_request():
                 try:
-                    _response = client = None.get("/")
+                    _response = client.get("/")
                     results.append(_response.status_code)
                 except Exception as e:
                     results.append(str(e))
@@ -683,14 +678,13 @@ class TestAPIDocumentation:
     def test_api_openapi_schema(self):
         """Test API provides OpenAPI schema."""
         try:
+            from app.main import app
             from fastapi.testclient import TestClient
 
-            from app = None.main import app = None
-
-            client = None = TestClient(app = None)
+            client = TestClient(app = None)
 
             # FastAPI automatically provides OpenAPI schema
-            response = client = None.get("/openapi.json")
+            response = client.get("/openapi.json")
 
             if response.status_code == 200:
                 schema = response.json()
@@ -709,14 +703,13 @@ class TestAPIDocumentation:
     def test_api_docs_endpoint(self):
         """Test API documentation endpoint."""
         try:
+            from app.main import app
             from fastapi.testclient import TestClient
 
-            from app = None.main import app = None
-
-            client = None = TestClient(app = None)
+            client = TestClient(app = None)
 
             # FastAPI automatically provides docs
-            response = client = None.get("/docs")
+            response = client.get("/docs")
 
             if response.status_code == 200:
                 assert (

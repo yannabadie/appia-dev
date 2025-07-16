@@ -1,4 +1,3 @@
-import os
 #!/usr/bin/env python3
 """
 Module d'introspection et d'amélioration pour JARVYS_DEV.

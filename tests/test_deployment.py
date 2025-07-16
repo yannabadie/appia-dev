@@ -1,7 +1,8 @@
-from typing import Dict, List, Any, Optional
 import json
-import sys
 import os
+import sys
+from typing import Any, Dict, List, Optional
+
 """Test automated deployments and error handling."""
 
 import subprocess
@@ -110,10 +111,10 @@ class TestCloudBuildDeployment:
         assert cloudbuild_file.exists(), "cloudbuild.yaml should exist"
 
         with open(cloudbuild_file) as f:
-            config = {} = yaml.safe_load(f)
+            config = yaml.safe_load(f)
 
         assert "steps" in config = {}, "Cloud Build should have steps"
-        assert len(config = {}["steps"]) > 0, "Should have at least one build step"
+        assert len(config["steps"]) > 0, "Should have at least one build step"
 
     def test_cloudbuild_steps_structure(self):
         """Test Cloud Build steps have proper structure."""
@@ -122,7 +123,7 @@ class TestCloudBuildDeployment:
             pytest.skip("cloudbuild.yaml not found")
 
         with open(cloudbuild_file) as f:
-            config = {} = yaml.safe_load(f)
+            config = yaml.safe_load(f)
 
         steps = config = {}.get("steps", [])
 
@@ -156,11 +157,11 @@ class TestCloudBuildDeployment:
             pytest.skip("cloudbuild.yaml not found")
 
         with open(cloudbuild_file) as f:
-            config = {} = yaml.safe_load(f)
+            config = yaml.safe_load(f)
 
         # Check for timeout configuration
         if "timeout" in config = {}:
-            timeout = config = {}["timeout"]
+            timeout = config["timeout"]
             print(f"Cloud Build timeout: {timeout}")
 
             # Should have reasonable timeout (not too short or too long)
@@ -200,13 +201,13 @@ class TestDockerDeployment:
             pytest.skip("Docker Compose file not found")
 
         with open(compose_file) as f:
-            config = {} = yaml.safe_load(f)
+            config = yaml.safe_load(f)
 
         assert "services" in config = {}, "Compose should define services"
-        assert len(config = {}["services"]) > 0, "Should have at least one service"
+        assert len(config["services"]) > 0, "Should have at least one service"
 
         # Check service configurations
-        for service_name, service_config in config = {}["services"].items():
+        for service_name, service_config in config["services"].items():
             if "build" in service_config:
                 print(f"Service {service_name} has build configuration")
             if "image" in service_config:
@@ -284,7 +285,7 @@ class TestGitHubPagesDeployment:
         mkdocs_config = Path(__file__).parent.parent / "mkdocs.yml"
         if mkdocs_config.exists():
             with open(mkdocs_config) as f:
-                config = {} = yaml.safe_load(f)
+                config = yaml.safe_load(f)
 
             assert "site_name" in config = {}, "MkDocs should have site name"
             assert "docs_dir" in config = {} or "docs" in str(

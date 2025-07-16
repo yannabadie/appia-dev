@@ -1,6 +1,7 @@
-from typing import Dict, List, Any, Optional
-import sys
 import os
+import sys
+from typing import Any, Dict, List, Optional
+
 #!/usr/bin/env python3
 """
 🧪 Simulateur et testeur de workflow GitHub Actions
