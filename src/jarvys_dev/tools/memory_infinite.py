@@ -93,7 +93,9 @@ class JarvysInfiniteMemory:
 
             # Insérer dans Supabase
             _result = (
-                self.supabase.table("jarvys_memory").insert(memory_data).execute()  # noqa: E501
+                self.supabase.table("jarvys_memory")
+                .insert(memory_data)
+                .execute()  # noqa: E501
             )
 
             if _result.data:
@@ -309,7 +311,9 @@ def get_memory(
 
 
 # Fonctions de compatibilité avec l'ancien code
-def memory_search(query: str, user_context: str = "default") -> List[Dict[str, Any]]:  # noqa: E501
+def memory_search(
+    query: str, user_context: str = "default"
+) -> List[Dict[str, Any]]:  # noqa: E501
     """Recherche dans la mémoire (fonction de compatibilité)."""
     memory = get_memory("JARVYS_DEV", user_context)
     return memory.recall(query)
