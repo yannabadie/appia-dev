@@ -353,3 +353,4 @@ Fournissez son contenu via la variable `GCP_SA_JSON`.
 ## Licence
 
 Ce projet est distribué sous licence MIT. Voir le fichier [`LICENSE`](LICENSE).
+
