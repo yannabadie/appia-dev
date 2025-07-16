@@ -26,8 +26,11 @@ echo -e "\n${YELLOW}🔍 Détection des variables d'environnement GitHub...${NC}
 # Fonction pour vérifier une variable
 check_env_var() {
     local var_name=$1
-    if [ ! -z "${!var_name}" ]; then
-        echo -e "${GREEN}✓${NC} $var_name détecté (${#var_name} caractères)"
+    local var_value
+    eval "var_value=\$$var_name"
+    if [ ! -z "$var_value" ]; then
+        local var_length=${#var_value}
+        echo -e "${GREEN}✓${NC} $var_name détecté ($var_length caractères)"
         return 0
     else
         echo -e "${RED}✗${NC} $var_name non trouvé"
@@ -35,26 +38,26 @@ check_env_var() {
     fi
 }
 
-# Vérifier toutes les variables
+# Vérifier toutes les variables (continuer même si certaines manquent)
 echo -e "\n${BLUE}Variables d'API:${NC}"
-check_env_var "CLAUDE_API_KEY"
-check_env_var "OPENAI_API_KEY"
-check_env_var "GEMINI_API_KEY"
-check_env_var "XAI_API_KEY"
+check_env_var "CLAUDE_API_KEY" || echo -e "${YELLOW}⚠️ CLAUDE_API_KEY manquant - utilisera fallback${NC}"
+check_env_var "OPENAI_API_KEY" || echo -e "${YELLOW}⚠️ OPENAI_API_KEY manquant - utilisera fallback${NC}"
+check_env_var "GEMINI_API_KEY" || echo -e "${YELLOW}⚠️ GEMINI_API_KEY manquant - utilisera fallback${NC}"
+check_env_var "XAI_API_KEY" || echo -e "${YELLOW}⚠️ XAI_API_KEY manquant - utilisera test-key${NC}"
 
 echo -e "\n${BLUE}Variables GitHub:${NC}"
-check_env_var "GH_TOKEN" || check_env_var "GITHUB_TOKEN"
-check_env_var "GH_REPO"
+check_env_var "GH_TOKEN" || check_env_var "GITHUB_TOKEN" || echo -e "${RED}⚠️ Aucun token GitHub trouvé${NC}"
+check_env_var "GH_REPO" || echo -e "${YELLOW}⚠️ GH_REPO manquant - utilisera par défaut${NC}"
 
 echo -e "\n${BLUE}Variables Supabase:${NC}"
-check_env_var "SUPABASE_URL"
-check_env_var "SUPABASE_SERVICE_ROLE"
-check_env_var "SUPABASE_KEY"
-check_env_var "SUPABASE_ACCESS_TOKEN"
-check_env_var "SUPABASE_PROJECT_ID"
+check_env_var "SUPABASE_URL" || echo -e "${YELLOW}⚠️ SUPABASE_URL manquant${NC}"
+check_env_var "SUPABASE_SERVICE_ROLE" || echo -e "${YELLOW}⚠️ SUPABASE_SERVICE_ROLE manquant${NC}"
+check_env_var "SUPABASE_KEY" || echo -e "${YELLOW}⚠️ SUPABASE_KEY manquant${NC}"
+check_env_var "SUPABASE_ACCESS_TOKEN" || echo -e "${YELLOW}⚠️ SUPABASE_ACCESS_TOKEN manquant${NC}"
+check_env_var "SUPABASE_PROJECT_ID" || echo -e "${YELLOW}⚠️ SUPABASE_PROJECT_ID manquant${NC}"
 
 echo -e "\n${BLUE}Variables GCP:${NC}"
-check_env_var "GCP_SA_JSON"
+check_env_var "GCP_SA_JSON" || echo -e "${YELLOW}⚠️ GCP_SA_JSON manquant${NC}"
 
 # Créer un fichier .env qui référence les variables d'environnement
 echo -e "\n${YELLOW}📝 Création du fichier .env...${NC}"
@@ -67,7 +70,7 @@ cat > .env << 'EOF'
 CLAUDE_API_KEY=${CLAUDE_API_KEY}
 OPENAI_API_KEY=${OPENAI_API_KEY}
 GEMINI_API_KEY=${GEMINI_API_KEY}
-XAI_API_KEY=${XAI_API_KEY}
+XAI_API_KEY=${XAI_API_KEY:-test-key}
 
 # GitHub - utilise le token du Codespace
 GH_TOKEN=${GH_TOKEN:-${GITHUB_TOKEN}}
