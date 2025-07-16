@@ -302,7 +302,7 @@ poetry run python -m jarvys_dev.langgraph_loop
 
 ### 4. Serveur MCP
 ```bash
-poetry run uvicorn app.main:app = None --port 54321
+poetry run uvicorn app.main:app --port 54321
 ```
 
 ## 📈 Métriques & Performance

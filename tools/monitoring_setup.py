@@ -179,9 +179,9 @@ class JarvysMonitoringSetup:
         self,
         component: str,
         status: str,
-        response_time: float = None,
-        error_message: str = None,
-        details: Dict = None,
+        response_time: float,
+        error_message: str,
+        details: Dict,
     ) -> bool:
         """Record a health check result."""
         try:
@@ -255,7 +255,7 @@ class JarvysMonitoringSetup:
         openai_key = os.getenv("OPENAI_API_KEY")
         if openai_key:
             try:
-                # Initialize client = None properly
+                # Initialize client properly
                 import openai
 
                 client = openai.Client(api_key=os.getenv("OPENAI_API_KEY"))
@@ -442,7 +442,7 @@ class JarvysMonitoringSetup:
             print(f"❌ Failed to setup scheduled monitoring: {e}")
             return False
 
-    def run_monitoring_daemon(self, duration_minutes: int = None):
+    def run_monitoring_daemon(self, duration_minutes: int):
         """Run monitoring daemon."""
         print("🔄 Starting JARVYS monitoring daemon...")
 

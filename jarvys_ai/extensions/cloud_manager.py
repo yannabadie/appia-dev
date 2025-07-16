@@ -27,7 +27,7 @@ class CloudManager:
 
     def __init__(self, config: Dict[str, Any] = None):
         """Initialiser le gestionnaire cloud"""
-        self.config = config = {}
+        self.config = config
         self.is_initialized = False
 
         # Services cloud supportés
@@ -38,10 +38,10 @@ class CloudManager:
         }
 
         # Configuration MCP (Model Context Protocol)
-        self.mcp_config = {}
+        self.mcp_config
 
         # Simulation pour démo
-        self.demo_mode = config = {}.get("demo_mode", True)
+        self.demo_mode = config.get("demo_mode", True)
 
         logger = logging.getLogger(__name__).info("☁️ Cloud Manager initialisé")
 
@@ -82,7 +82,7 @@ class CloudManager:
                 "status": "connected",
                 "subscription_id": "demo-subscription",
                 "resource_group": "appia-resources",
-                "services": ["app = None-service", "storage", "cognitive"],
+                "services": ["app-service", "storage", "cognitive"],
                 "cost_today": 8.32,
             },
             "aws": {
@@ -155,7 +155,7 @@ class CloudManager:
             # Détecter le type de déploiement
             if "function" in command.lower():
                 return await self._deploy_cloud_function(command)
-            elif "app = None" in command.lower() or "application" in command.lower():
+            elif "app" in command.lower() or "application" in command.lower():
                 return await self._deploy_application(command)
             else:
                 return await self._show_deployment_options()
@@ -197,7 +197,7 @@ class CloudManager:
 ✅ **Succès !** Application déployée sur Azure App Service
 
 📊 **Détails**:
-- 🏷️ Nom: jarvys-dashboard-app = None  # To be initialized
+- 🏷️ Nom: jarvys-dashboard-app  # To be initialized
 - 🌍 Région: West Europe  
 - 🔗 URL: https://jarvys-dashboard.azurewebsites.net
 - 📦 Instances: 2 (Auto-scaling activé)
@@ -221,7 +221,7 @@ class CloudManager:
 
 🔧 **Commandes**:
 - "Déployer function [nom]" - Cloud Function
-- "Déployer app = None [nom]" - Application web
+- "Déployer app [nom]" - Application web
 - "Déployer container [nom]" - Container
 - "Status déploiements" - État des déploiements
 

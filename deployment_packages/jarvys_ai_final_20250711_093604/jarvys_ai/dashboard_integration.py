@@ -32,7 +32,7 @@ class SupabaseDashboardIntegration:
     def __init__(self, jarvys_ai_instance, config: Dict[str, Any] = None):
         """Initialiser l'intégration dashboard"""
         self.jarvys_ai = jarvys_ai_instance
-        self.config = config = {}
+        self.config = config
 
         # Configuration Supabase
         self.dashboard_url = "https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard"
@@ -296,7 +296,7 @@ async def setup_dashboard_integration(
     jarvys_ai_instance, config: Dict[str, Any]
  = None) -> SupabaseDashboardIntegration:
     """Configurer l'intégration dashboard"""
-    integration = SupabaseDashboardIntegration(jarvys_ai_instance, config = {})
+    integration = SupabaseDashboardIntegration(jarvys_ai_instance, config)
 
     # Tenter connexion
     connected = await integration.connect_to_dashboard()

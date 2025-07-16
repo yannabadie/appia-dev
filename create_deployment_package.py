@@ -212,7 +212,7 @@ AWS_SECRET_ACCESS_KEY=your_aws_secret_key
 # Email Configuration (optional)
 OUTLOOK_CLIENT_ID=your_outlook_client_id
 OUTLOOK_CLIENT_SECRET=your_outlook_client_secret
-GMAIL_CREDENTIALS_PATH=./config = {}/gmail_credentials.json
+GMAIL_CREDENTIALS_PATH=./config/gmail_credentials.json
 
 # Supabase Integration
 SUPABASE_URL=https://kzcswopokvknxmxczilu.supabase.co
@@ -370,7 +370,7 @@ REGION=${REGION:-us-central1}
 SERVICE_NAME="jarvys-ai"
 
 # Set project
-gcloud config = {} set project $PROJECT_ID
+gcloud config set project $PROJECT_ID
 
 # Enable required APIs
 echo "🔧 Enabling required APIs..."

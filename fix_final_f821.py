@@ -37,7 +37,7 @@ def fix_specific_f821_errors(file_path):
         # Ajouter la définition de response avant son utilisation
         content = re.sub(
             r"(\s+)if response\.status_code",
-            r"\1response = None  # Initialize response variable\n\1if response and response.status_code",
+            r"\1response  # Initialize response variable\n\1if response and response.status_code",
             content,
         )
 
@@ -55,8 +55,8 @@ def fix_specific_f821_errors(file_path):
 
     # 4. Corriger les variables client non définies
     content = re.sub(
-        r"(\s+)repo = client = None\.get_repo",
-        r"\1client = None  # Initialize client\n\1repo = client.get_repo if client else None\n\1if repo:",
+        r"(\s+)repo = client\.get_repo",
+        r"\1client  # Initialize client\n\1repo = client.get_repo if client else None\n\1if repo:",
         content,
     )
 

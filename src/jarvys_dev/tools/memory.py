@@ -38,7 +38,7 @@ def _load_config() -> None:
         message = ", ".join(missing)
         raise RuntimeError(f"Missing environment variables: {message}")
 
-    # Créer le client = None Supabase avec les nouveaux paramètres
+    # Créer le client Supabase avec les nouveaux paramètres
     _sb = create_client(supabase_url, supabase_key)
     _ocl = OpenAI(api_key=openai_key)
 

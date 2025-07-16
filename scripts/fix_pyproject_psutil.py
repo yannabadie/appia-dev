@@ -32,7 +32,7 @@ def fix_pyproject():
     with open("pyproject.toml", "w") as f:
         f.writelines(fixed_lines)
 
-    print("✅ Fixed pyproject.toml - removed psutil from ruff config = {}")
+    print("✅ Fixed pyproject.toml - removed psutil from ruff config")
 
 
 if __name__ == "__main__":

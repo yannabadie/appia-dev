@@ -105,7 +105,7 @@ def fix_unused_variables(file_path):
             if (
                 "result" in line
                 or "response" in line
-                or "client = None" in line
+                or "client" in line
                 or "processor" in line
                 or "expected_functions" in line
                 or "success_criteria" in line
@@ -120,7 +120,7 @@ def fix_unused_variables(file_path):
                 for var in [
                     "result",
                     "response",
-                    "client = None",
+                    "client",
                     "processor",
                     "expected_functions",
                     "success_criteria",
@@ -140,7 +140,7 @@ def fix_unused_variables(file_path):
 
 def main():
     """Fonction principale."""
-    directories = ["src/", "tests/", "app = None/"]
+    directories = ["src/", "tests/", "app/"]
 
     for directory in directories:
         if not os.path.exists(directory):

@@ -76,7 +76,7 @@ def fix_unused_variables():
                         "success_criteria",
                         "expected_functions",
                         "total_time",
-                        "client = None",
+                        "client",
                         "supabase_client",
                         "githubclient",
                         "parsed_data",

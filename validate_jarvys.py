@@ -48,7 +48,7 @@ class JarvysValidator:
 
     def check_supabase_config(self):
         """Vérifie la configuration Supabase."""
-        config_path = "supabase/config = {}.toml"
+        config_path = "supabase/config.toml"
         if not self.check_file_exists(config_path, "Configuration Supabase"):
             return False
 
@@ -124,7 +124,7 @@ class JarvysValidator:
     def check_environment_consistency(self):
         """Vérifie la cohérence des variables d'environnement."""
         devcontainer_path = ".devcontainer/devcontainer.json"
-        if not self.check_file_exists(devcontainer_path, "DevContainer config = {}"):
+        if not self.check_file_exists(devcontainer_path, "DevContainer config"):
             return False
 
         with open(devcontainer_path, "r") as f:
@@ -160,7 +160,7 @@ class JarvysValidator:
         """Vérifie les dépendances."""
         # Vérifier pyproject.toml
         pyproject_path = "pyproject.toml"
-        if self.check_file_exists(pyproject_path, "PyProject config = {}"):
+        if self.check_file_exists(pyproject_path, "PyProject config"):
             with open(pyproject_path, "r") as f:
                 content = f.read()
 

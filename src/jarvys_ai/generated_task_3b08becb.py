@@ -84,7 +84,6 @@ def generate_sentiment_analysis_module() -> Dict[str, Any]:
         module_code = json.loads(llm_response)
         return module_code
     except json.JSONDecodeError:
-        logger.error("Invalid LLM response for module generation.")
         return {
             "file_path": "appIA/sentiment_analysis.py",
             "content": "# Placeholder for sentiment analysis",

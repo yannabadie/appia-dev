@@ -212,19 +212,19 @@ class JarvysPerformanceTester:
         return len(results)  # Number of completed tasks
 
     def test_api_client_creation(self) -> bool:
-        """Test API client = None creation performance."""
+        """Test API client creation performance."""
         try:
-            # Test OpenAI client = None creation
+            # Test OpenAI client creation
             from openai import OpenAI
 
             _client = OpenAI(api_key="test-key")
 
-            # Test Supabase client = None creation
+            # Test Supabase client creation
             from supabase import create_client
 
             _supabase_client = create_client("https://test.supabase.co", "test-key")
 
-            # Test GitHub client = None creation
+            # Test GitHub client creation
             from github import Github
 
             Github("test-token")
@@ -243,7 +243,7 @@ class JarvysPerformanceTester:
             "metadata": {
                 "timestamp": datetime.now().isoformat(),
                 "version": "1.0",
-                "config = {}": {"temperature": 0.7, "max_tokens": 1000},
+                "config": {"temperature": 0.7, "max_tokens": 1000},
             },
         }
 

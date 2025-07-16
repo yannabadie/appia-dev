@@ -14,11 +14,11 @@ def fix_variable_prefixes(file_path):
 
     # Pattern pour trouver des assignations avec _ mais utilisations sans _
     patterns_to_fix = [
-        # _client = ... mais utilisé comme client = None  # To be initialized
+        # _client = ... mais utilisé comme client  # To be initialized
         (r"(\s+)_client = ([^\n]+)", r"\1client = \2"),
         (r"(\s+)_response = ([^\n]+)", r"\1_response = \2"),
         # Ensuite corriger les utilisations
-        (r"(\s+)_response = client = None\.", r"\1response = client."),
+        (r"(\s+)_response = client\.", r"\1response = client."),
         (r"assert response\.", r"assert response."),
         (r"if response\.", r"if response."),
         (r"response\.status_code", r"response.status_code"),
@@ -38,8 +38,8 @@ def fix_variable_prefixes(file_path):
     # Fix spécifique pour les erreurs que nous avons vues
     specific_fixes = [
         # Dans test_api_integration.py
-        ("_response = client.get", "response = client = None.get"),
-        ("_response = client.post", "response = client = None.post"),
+        ("_response = client.get", "response = client.get"),
+        ("_response = client.post", "response = client.post"),
         ("_response = requests.get", "response = requests.get"),
         ("_response = requests.post", "response = requests.post"),
         ("_client = TestClient", "client = TestClient"),

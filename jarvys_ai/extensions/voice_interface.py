@@ -26,21 +26,21 @@ class VoiceInterface:
 
     def __init__(self, config: Dict[str, Any] = None):
         """Initialiser l'interface vocale"""
-        self.config = config = {}
+        self.config = config
         self.is_initialized = False
         self.is_listening = False
         self.wake_word = "hey jarvys"
 
         # Configuration audio
         self.sample_rate = 16000
-        self.language = config = {}.get("language", "fr-FR")
-        self.voice_speed = config = {}.get("voice_speed", 1.0)
+        self.language = config.get("language", "fr-FR")
+        self.voice_speed = config.get("voice_speed", 1.0)
 
         # Callbacks
         self.command_callback: Optional[Callable] = None
 
         # Simulation pour démo
-        self.demo_mode = config = {}.get("demo_mode", True)
+        self.demo_mode = config.get("demo_mode", True)
 
         logger = logging.getLogger(__name__).info("🎤 Voice Interface initialisé")
 

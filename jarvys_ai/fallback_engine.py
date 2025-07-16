@@ -29,12 +29,12 @@ class FallbackEngine:
 
     def __init__(self, config: Dict[str, Any] = None):
         """Initialiser le moteur de fallback"""
-        self.config = config = {}
+        self.config = config
         self.is_initialized = False
 
         # Configuration GitHub
-        self.github_token = config = {}.get("github_token")
-        self.github_repo = config = {}.get("github_repo", "yannabadie/appia-dev")
+        self.github_token = config.get("github_token")
+        self.github_repo = config.get("github_repo", "yannabadie/appia-dev")
 
         # Configuration Cloud Run
         self.cloud_run_config = {
@@ -49,7 +49,7 @@ class FallbackEngine:
         self.github_quota_exhausted = False
 
         # Simulation pour démo
-        self.demo_mode = config = {}.get("demo_mode", True)
+        self.demo_mode = config.get("demo_mode", True)
 
         logger.info("🚨 Fallback Engine initialisé")
 
@@ -256,7 +256,7 @@ class FallbackEngine:
             # Exécution en mode démo seulement
             if not self.demo_mode:
                 _result = subprocess.run(deploy_cmd, capture_output=True, text=True)
-                result = None  # Initialize
+                result  # Initialize
 
                 if result and result.returncode != 0:
                     raise Exception(f"Échec déploiement: {result.stderr}")
@@ -351,7 +351,7 @@ class FallbackEngine:
             "cloud_quotas": cloud_quotas,
             "last_check": self.last_quota_check,
             "fallback_service_url": (
-                f"https://{self.cloud_run_config['service_name']}-{self.cloud_run_config['region']}.a.run.app = None"
+                f"https://{self.cloud_run_config['service_name']}-{self.cloud_run_config['region']}.a.run.app"
                 if self.fallback_active
                 else None
             ),

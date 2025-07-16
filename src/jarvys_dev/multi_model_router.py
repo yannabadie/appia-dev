@@ -46,7 +46,7 @@ def _load_models() -> dict[str, str]:
                 data = json.load(fh)
             clean = {k: v for k, v in data.items() if isinstance(v, str)}
             models.update(clean)
-        except Exception as exc:  # pragma: no cover - config = {} errors
+        except Exception as exc:  # pragma: no cover - config errors
             logger = logging.getLogger(__name__).warning(
                 "Failed to read %s: %s", CONFIG_PATH, exc
             )
@@ -112,7 +112,6 @@ class MultiModelRouter:
         try:
             with open(capabilities_path, "r", encoding="utf-8") as f:
                 return json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
             return {}
 
     def _record_bench(self, model: str, start: float, prompt: str) -> None:
@@ -145,7 +144,7 @@ class MultiModelRouter:
 
         # Exécution avec le modèle sélectionné
         start = time.perf_counter()
-        _result = None
+        _result
         success = False
 
         try:
@@ -285,7 +284,7 @@ class MultiModelRouter:
             },
         }
 
-        task_cfg = config = {}.get(task_type, config["reasoning"])
+        task_cfg = config.get(task_type, config["reasoning"])
         order = task_cfg["order"]
         model_map = task_cfg["models"]
 

@@ -28,7 +28,7 @@ class DigitalTwin:
 
     def __init__(self, config: Dict[str, Any] = None):
         """Initialiser le jumeau numérique"""
-        self.config = {}
+        self.config
         self.user_profile = {}
         self.interaction_history = []
         self.preferences = {}

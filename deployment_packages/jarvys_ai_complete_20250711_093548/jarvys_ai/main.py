@@ -47,21 +47,21 @@ class JarvysAI:
 
     def __init__(self, config: Optional[Dict[str, Any]] = None = None):
         """Initialiser JARVYS_AI avec configuration"""
-        self.config = config = {} or self._load_default_config()
+        self.config = config or self._load_default_config()
         self.session_id = datetime.now().isoformat()
 
         # Composants principaux
-        self.intelligence_core = IntelligenceCore(self.config = {})
-        self.digital_twin = DigitalTwin(self.config = {})
-        self.continuous_improvement = ContinuousImprovement(self.config = {})
-        self.fallback_engine = FallbackEngine(self.config = {})
+        self.intelligence_core = IntelligenceCore(self.config)
+        self.digital_twin = DigitalTwin(self.config)
+        self.continuous_improvement = ContinuousImprovement(self.config)
+        self.fallback_engine = FallbackEngine(self.config)
 
         # Extensions
         self.extensions = {
-            "email": EmailManager(self.config = {}),
-            "voice": VoiceInterface(self.config = {}),
-            "cloud": CloudManager(self.config = {}),
-            "files": FileManager(self.config = {}),
+            "email": EmailManager(self.config),
+            "voice": VoiceInterface(self.config),
+            "cloud": CloudManager(self.config),
+            "files": FileManager(self.config),
         }
 
         # État système
@@ -108,7 +108,7 @@ class JarvysAI:
             self.extensions["voice"].set_command_callback(self.process_command)
 
             # Démarrer amélioration continue
-            if self.config = {}.get("auto_improve"):
+            if self.config.get("auto_improve"):
                 asyncio.create_task(
                     self.continuous_improvement.start_continuous_monitoring()
                 )
@@ -145,7 +145,7 @@ class JarvysAI:
                 await self._process_tasks()
 
                 # Vérifier les amélirations disponibles
-                if self.config = {}.get("auto_improve"):
+                if self.config.get("auto_improve"):
                     await self._check_improvements()
 
                 # Attendre avant la prochaine itération

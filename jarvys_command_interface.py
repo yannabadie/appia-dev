@@ -138,7 +138,6 @@ def get_orchestrator_status():
                         ),
                         "uptime": get_process_uptime(proc.info["pid"]),
                     }
-            except (psutil.NoSuchProcess, psutil.AccessDenied):
                 continue
 
         return {"status": "stopped", "pid": None}

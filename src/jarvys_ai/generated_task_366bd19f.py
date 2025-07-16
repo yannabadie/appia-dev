@@ -153,6 +153,5 @@ if __name__ == "__main__":
         user_input = input("Enter user message: ")  # Or from args/environment
         main(user_input)
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
         # Adaptive handling: Fallback to basic response
         print("An error occurred. Please try again.")

@@ -17,7 +17,7 @@ class DashboardTester:
         self.results = []
 
     def test_endpoint(
-        self, endpoint: str, method: str = "GET", data: Dict = None
+        self, endpoint: str, method: str = "GET", data: Dict
     ) -> Dict[str, Any]:
         """Teste un endpoint spécifique."""
         url = f"{self.base_url}{endpoint}"

@@ -30,7 +30,7 @@ class JarvysSystemOptimizer:
                             "Cost optimization",
                             "Agent control (pause/resume)",
                             "Exception logging",
-                            "Model config = {} externalization",
+                            "Model config externalization",
                         ],
                     },
                     "jarvys_ai": {

@@ -44,7 +44,7 @@ class JarvysAI:
 
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """Initialiser JARVYS_AI avec configuration"""
-        self.config = {} or self._load_default_config()
+        self.config or self._load_default_config()
         self.session_id = datetime.now().isoformat()
 
         # Composants principaux

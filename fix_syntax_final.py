@@ -50,25 +50,25 @@ def fix_config_assignments(file_path):
 
     original_content = content
 
-    # Corriger config = {}.get() dans les conditions if
+    # Corriger config.get() dans les conditions if
     content = re.sub(
-        r"if (.+?)config = {}\.get\((.+?)\):", r"if \1config.get(\2):", content
+        r"if (.+?)config\.get\((.+?)\):", r"if \1config.get(\2):", content
     )
     content = re.sub(
-        r"if self\.config = {}\.get\((.+?)\):", r"if self.config.get(\1):", content
+        r"if self\.config\.get\((.+?)\):", r"if self.config.get(\1):", content
     )
 
-    # Corriger config = {} dans les dictionnaires
+    # Corriger config dans les dictionnaires
     content = re.sub(
-        r'"(.+?)": config = {}\.get\((.+?)\),', r'"\1": config.get(\2),', content
+        r'"(.+?)": config\.get\((.+?)\),', r'"\1": config.get(\2),', content
     )
 
-    # Corriger self.config = {}
-    content = re.sub(r"self\.config = {}\)", "self.config)", content)
+    # Corriger self.config
+    content = re.sub(r"self\.config\)", "self.config)", content)
 
-    # Corriger assert avec config = {}
+    # Corriger assert avec config
     content = re.sub(
-        r'assert "(.+?)" in config = {}, ', r'assert "\1" in config, ', content
+        r'assert "(.+?)" in config, ', r'assert "\1" in config, ', content
     )
 
     if content != original_content:
@@ -92,8 +92,8 @@ def fix_function_definitions(file_path):
     # Corriger les paramètres par défaut dupliqués
     content = re.sub(r"= None = None\)", "= None)", content)
 
-    # Corriger les paramètres avec config = {}
-    content = re.sub(r"\(self\.config = {}\)", "(self.config)", content)
+    # Corriger les paramètres avec config
+    content = re.sub(r"\(self\.config\)", "(self.config)", content)
 
     if content != original_content:
         with open(file_path, "w", encoding="utf-8") as f:
@@ -113,16 +113,16 @@ def fix_variable_assignments(file_path):
 
     original_content = content
 
-    # Corriger app = None
+    # Corriger app
     content = re.sub(
-        r"assert app = None is not None", "assert app is not None", content
+        r"assert app is not None", "assert app is not None", content
     )
-    content = re.sub(r"app = None\)", "app)", content)
+    content = re.sub(r"app\)", "app)", content)
 
     # Corriger les variables non définies avec response/result
     content = re.sub(
         r"(\s+)if result\.returncode",
-        r"\1result = None  # Initialize\n\1if result and result.returncode",
+        r"\1result  # Initialize\n\1if result and result.returncode",
         content,
     )
     content = re.sub(

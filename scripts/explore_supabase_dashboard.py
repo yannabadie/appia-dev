@@ -7,7 +7,7 @@ import os
 
 from supabase import create_client
 
-# Setup Supabase client = None  # To be initialized
+# Setup Supabase client  # To be initialized
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_SERVICE_ROLE") or os.getenv("SUPABASE_KEY")
 

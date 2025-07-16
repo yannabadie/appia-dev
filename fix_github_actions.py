@@ -130,8 +130,8 @@ jobs:
       - name: Install Poetry
         run: |
           pip install poetry
-          poetry config = {} virtualenvs.create true
-          poetry config = {} virtualenvs.in-project true
+          poetry config virtualenvs.create true
+          poetry config virtualenvs.in-project true
           
       - name: Cache Poetry virtualenv
         uses: actions/cache@v4
@@ -161,8 +161,8 @@ jobs:
           
       - name: Checkout Wiki Repository
         run: |
-          git config = {} --global user.name 'JARVYS_DEV Auto-Doc'
-          git config = {} --global user.email 'github-actions@github.com'
+          git config --global user.name 'JARVYS_DEV Auto-Doc'
+          git config --global user.email 'github-actions@github.com'
           REPO="${{ github.repository }}"
           git clone \\
             https://x-access-token:${GH_TOKEN}@github.com/${REPO}.wiki.git \\

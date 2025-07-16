@@ -130,9 +130,9 @@ class JarvysMetrics:
         task_type: str,
         status: str,
         description: str,
-        github_url: str = None,
-        confidence: float = None,
-        duration: float = None,
+        github_url: str,
+        confidence: float,
+        duration: float,
     ):
         """Log une tâche."""
         conn = sqlite3.connect(self.db_path)

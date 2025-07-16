@@ -388,7 +388,7 @@ def log_exceptions(
 
     def externalize_model_config(self):
         """Fix 6: Externaliser la configuration des modèles"""
-        print("🔧 Fix 6: Externalisation config = {} modèles")
+        print("🔧 Fix 6: Externalisation config modèles")
 
         # Créer fichier de configuration des modèles
         model_config = {

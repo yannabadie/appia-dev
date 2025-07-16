@@ -99,7 +99,6 @@ class JarvysLogAnalyzer:
                 if re.search(pattern, first_lines):
                     return True
 
-        except (UnicodeDecodeError, PermissionError, OSError):
             return False
 
         return False

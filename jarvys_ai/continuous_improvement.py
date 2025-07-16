@@ -37,25 +37,25 @@ class ContinuousImprovement:
 
     def __init__(self, config: Dict[str, Any] = None):
         """Initialize the continuous improvement system"""
-        self.config = config = {}
+        self.config = config
         self.is_initialized = False
 
         # Configuration JARVYS_DEV
-        self.jarvys_dev_endpoint = config = {}.get(
+        self.jarvys_dev_endpoint = config.get(
             "jarvys_dev_endpoint", "https://kzcswopokvknxmxczilu.supabase.co"
         )
-        self.sync_token = config = {}.get("sync_token")
+        self.sync_token = config.get("sync_token")
         self.device_id = self._generate_device_id()
 
         # GitHub repository configuration
-        self.github_repo = config = {}.get("github_repo", "yannabadie/appIA")
-        self.branch = config = {}.get("branch", "main")
+        self.github_repo = config.get("github_repo", "yannabadie/appIA")
+        self.branch = config.get("branch", "main")
 
         # Configuration des mises à jour
-        self.auto_update = config = {}.get("auto_update", True)
-        self.backup_before_update = config = {}.get("backup_before_update", True)
+        self.auto_update = config.get("auto_update", True)
+        self.backup_before_update = config.get("backup_before_update", True)
         self.max_rollback_attempts = 3
-        self.sync_interval = config = {}.get("sync_interval_minutes", 60)
+        self.sync_interval = config.get("sync_interval_minutes", 60)
 
         # État du système
         self.last_sync = None
@@ -418,7 +418,7 @@ class ContinuousImprovement:
             # TODO: Envoyer rapport à JARVYS_DEV
             pass
 
-    async def _report_update_failure(self, update: Dict[str, Any], error: str = None):
+    async def _report_update_failure(self, update: Dict[str, Any], error: str):
         """Rapporter l'échec d'une mise à jour à JARVYS_DEV"""
         _report = {
             "device_id": self.device_id,
@@ -640,7 +640,7 @@ class ContinuousImprovement:
                     text=True,
                 )
 
-                result = None  # Initialize
+                result  # Initialize
 
                 if result and result.returncode != 0:
                     logger.warning(f"Git pull failed: {result.stderr}")
@@ -661,7 +661,7 @@ class ContinuousImprovement:
                     text=True,
                 )
 
-                result = None  # Initialize
+                result  # Initialize
 
                 if result and result.returncode != 0:
                     logger.error(f"Git clone failed: {result.stderr}")
@@ -862,8 +862,8 @@ class ContinuousImprovement:
 
             if command_type == "config_update":
                 # Update configuration
-                config_updates = update.get("config = {}", {})
-                self.config = {}.update(config_updates)
+                config_updates = update.get("config", {})
+                self.config.update(config_updates)
                 logger.info(f"⚙️ Updated configuration: {list(config_updates.keys())}")
                 return True
 

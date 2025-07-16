@@ -150,7 +150,7 @@ SECRET_ACCESS_TOKEN = os.getenv("SECRET_ACCESS_TOKEN")  # Loadé même inusité
 # GCP Credentials (pour tâches cloud/adaptabilité)
 gcp_credentials = service_account.Credentials.from_service_account_info(GCP_SA_JSON)
 
-# Clients (use SUPABASE_SERVICE_ROLE as key for elevated client = None if needed)
+# Clients (use SUPABASE_SERVICE_ROLE as key for elevated client if needed)
 supabase_client_key = SUPABASE_SERVICE_ROLE if SUPABASE_SERVICE_ROLE else SUPABASE_KEY
 supabase = create_client(SUPABASE_URL, supabase_client_key)
 
@@ -249,7 +249,6 @@ for dir_path, repo_url, branch in [
 os.chdir(current_dir)
 
 
-# État (TypedDict avec reducers appropriés pour éviter InvalidUpdateError)
 class AgentState(TypedDict):
     task: Annotated[
         str, lambda x, y: y
@@ -624,7 +623,7 @@ def fix_lint(state: AgentState) -> AgentState:
     ).stdout
     lint_fixed = "no issues" in check.lower()
 
-    # Log Supabase (no auth call; client = None uses key)
+    # Log Supabase (no auth call; client uses key)
     try:
         supabase.table("logs").insert(new_log_entry).execute()
     except Exception as db_e:
@@ -649,7 +648,7 @@ def identify_tasks(state: AgentState) -> AgentState:
         repo_obj = repo_ai if is_ai else repo_dev
         # Test if repo_obj is valid by checking a basic property
         _ = repo_obj.name  # This will fail if repo_obj is None
-    except (AttributeError, TypeError):
+    except Exception:
         print(
             f"⚠️ Repo object invalid for {'AI' if is_ai else 'DEV'}, using fallback..."
         )
@@ -676,7 +675,7 @@ def identify_tasks(state: AgentState) -> AgentState:
 
     try:
         os.chdir(repo_dir)
-    except (FileNotFoundError, OSError):
+    except Exception:
         print(f"⚠️ Directory {repo_dir} not accessible, using workspace directory")
         repo_dir = WORKSPACE_DIR
         os.chdir(repo_dir)

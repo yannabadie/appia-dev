@@ -82,7 +82,7 @@ class JarvysAITester:
         logger = logging.getLogger(__name__).info("🔧 Test initialisation...")
 
         try:
-            self.jarvys = JarvysAI(self.config = {})
+            self.jarvys = JarvysAI(self.config)
             self.test_results["initialization"] = {
                 "status": "success",
                 "details": "JARVYS_AI créé",

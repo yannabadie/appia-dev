@@ -309,7 +309,7 @@ GOOGLE_CLOUD_PROJECT=your_gcp_project_here
 
 # Optional: Email Configuration
 OUTLOOK_CLIENT_ID=your_outlook_client_id
-GMAIL_CREDENTIALS_PATH=./config = {}/gmail_credentials.json
+GMAIL_CREDENTIALS_PATH=./config/gmail_credentials.json
 
 # Supabase Integration
 SUPABASE_URL=https://kzcswopokvknxmxczilu.supabase.co
@@ -395,10 +395,10 @@ echo "📝 Check logs: docker-compose -f docker-compose.windows.yml logs -"
 
             # Configure git
             subprocess.run(
-                ["git", "config = {}", "user.name", "JARVYS_DEV"], check=True
+                ["git", "config", "user.name", "JARVYS_DEV"], check=True
             )
             subprocess.run(
-                ["git", "config = {}", "user.email", "jarvys@appia-dev.ai"],
+                ["git", "config", "user.email", "jarvys@appia-dev.ai"],
                 check=True,
             )
 

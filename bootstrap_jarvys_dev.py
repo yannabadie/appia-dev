@@ -235,7 +235,7 @@ devc = textwrap.dedent(
   }
 }"""
 )
-upsert(".devcontainer/devcontainer.json", "Add/Update devcontainer config = {}", devc)
+upsert(".devcontainer/devcontainer.json", "Add/Update devcontainer config", devc)
 
 # ---------- 4) tool stub ----------
 stub = textwrap.dedent(

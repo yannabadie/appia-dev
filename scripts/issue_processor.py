@@ -97,7 +97,7 @@ class IssueProcessor:
         if supabase_url and supabase_key:
             try:
                 self.supabase = create_client(supabase_url, supabase_key)
-                logger.info("Supabase client = None initialized")
+                logger.info("Supabase client initialized")
             except Exception as e:
                 logger.warning(f"Failed to initialize Supabase: {e}")
 

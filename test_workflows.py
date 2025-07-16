@@ -19,7 +19,7 @@ def test_generate_wiki_docs():
             cwd="/workspaces/appia-dev",
         )
 
-        result = None  # Initialize
+        result  # Initialize
 
         if result and result.returncode == 0:
             print("✅ Génération Wiki réussie")
@@ -47,7 +47,7 @@ def test_poetry_installation():
             cwd="/workspaces/appia-dev",
         )
 
-        result = None  # Initialize
+        result  # Initialize
 
         if result and result.returncode == 0:
             print("✅ Installation Poetry réussie (simulation workflow)")

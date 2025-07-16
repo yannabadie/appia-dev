@@ -20,11 +20,11 @@ def fix_syntax_patterns(file_path):
 
     # Corrections spécifiques pour les erreurs introduites
 
-    # 1. Corriger les assignations incorrectes avec 'app = None'
-    content = re.sub(r"@app = None\.", "@app.", content)
-    content = re.sub(r"app = None\.(.*)", r"app.\1", content)
-    content = re.sub(r"client = None\.(.*)", r"client.\1", content)
-    content = re.sub(r"config = {}\[(.*)", r"config[\1", content)
+    # 1. Corriger les assignations incorrectes avec 'app'
+    content = re.sub(r"@app\.", "@app.", content)
+    content = re.sub(r"app\.(.*)", r"app.\1", content)
+    content = re.sub(r"client\.(.*)", r"client.\1", content)
+    content = re.sub(r"config\[(.*)", r"config[\1", content)
 
     # 2. Corriger les imports incorrects
     content = re.sub(r"from (.+) import (.+)", r"from \1 import \2", content)
@@ -35,26 +35,26 @@ def fix_syntax_patterns(file_path):
 
     # 3. Corriger les définitions de fonction avec paramètres incorrects
     content = re.sub(
-        r"def ([a-zA-Z_][a-zA-Z0-9_]*)\(([^)]*), config = {}: ([^)]*)\)",
+        r"def ([a-zA-Z_][a-zA-Z0-9_]*)\(([^)]*), config: ([^)]*)\)",
         r"def \1(\2, config: \3 = None)",
         content,
     )
     content = re.sub(
-        r"def ([a-zA-Z_][a-zA-Z0-9_]*)\(config = {}: ([^)]*)\)",
+        r"def ([a-zA-Z_][a-zA-Z0-9_]*)\(config: ([^)]*)\)",
         r"def \1(config: \2 = None)",
         content,
     )
-    content = re.sub(r"client = None: ([A-Za-z]+)", r"client: \1", content)
+    content = re.sub(r"client: ([A-Za-z]+)", r"client: \1", content)
 
     # 4. Corriger les assignations avec égalité incorrecte
-    content = re.sub(r"if config = {}\[", "if config[", content)
+    content = re.sub(r"if config\[", "if config[", content)
     content = re.sub(r"config = ", "config = ", content)
     content = re.sub(r"client = ", "client = ", content)
     content = re.sub(r"app = ", "app = ", content)
 
     # 5. Corriger les boucles for incorrectes
     content = re.sub(
-        r"for (.+) in config = {}\.items\(\):", r"for \1 in config.items():", content
+        r"for (.+) in config\.items\(\):", r"for \1 in config.items():", content
     )
 
     # 6. Corriger les chaînes de caractères cassées
@@ -79,13 +79,13 @@ def fix_syntax_patterns(file_path):
         flags=re.MULTILINE,
     )
     content = re.sub(
-        r"client = None$",
-        "client = None  # To be initialized",
+        r"client$",
+        "client  # To be initialized",
         content,
         flags=re.MULTILINE,
     )
     content = re.sub(
-        r"app = None$", "app = None  # To be initialized", content, flags=re.MULTILINE
+        r"app$", "app  # To be initialized", content, flags=re.MULTILINE
     )
 
     if content != original_content:

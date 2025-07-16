@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """
-Correction des fonctions LangGraph pour éviter InvalidUpdateError
 """
 
 import re
@@ -153,7 +152,6 @@ def fix_function_returns():
     with open("grok_orchestrator.py", "w", encoding="utf-8") as f:
         f.write(content)
 
-    print("✅ Corrections appliquées pour éviter InvalidUpdateError")
 
 
 if __name__ == "__main__":

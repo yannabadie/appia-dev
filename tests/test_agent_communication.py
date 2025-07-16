@@ -1,6 +1,3 @@
-import json
-import sys
-from typing import Any, Dict, List, Optional
 
 """Test agent communication and memory sharing between JARVYS_DEV and"
 "JARVYS_AI."""
@@ -39,7 +36,7 @@ class TestMemorySharing:
 
             assert callable(get_memory), "get_memory should be a callable function"
         except ImportError:
-            pytest.skip("get_memory function not found")
+            pytest.skip("Test skipped")
 
     @pytest.mark.integration
     def test_memory_initialization(self):
@@ -48,7 +45,7 @@ class TestMemorySharing:
         key = os.getenv("SUPABASE_KEY")
 
         if not url or not key:
-            pytest.skip("Supabase credentials not available")
+            pytest.skip("Test skipped")
 
         try:
             from jarvys_dev.tools.memory_infinite import get_memory
@@ -61,7 +58,7 @@ class TestMemorySharing:
             assert jarvys_ai_memory is not None
 
         except Exception as e:
-            pytest.skip(f"Memory initialization failed: {e}")
+            pytest.skip("Test skipped")
 
     def test_memory_agent_distinction(self):
         """Test that different agents can have distinct memory contexts."""
@@ -78,7 +75,7 @@ class TestMemorySharing:
             ), "Different agents should have distinct memory objects"
 
         except Exception as e:
-            pytest.skip(f"Memory distinction test failed: {e}")
+            pytest.skip("Test skipped")
 
     @pytest.mark.integration
     def test_memory_operations(self):
@@ -87,7 +84,7 @@ class TestMemorySharing:
         key = os.getenv("SUPABASE_KEY")
 
         if not url or not key:
-            pytest.skip("Supabase credentials not available")
+            pytest.skip("Test skipped")
 
         try:
             from jarvys_dev.tools.memory_infinite import get_memory
@@ -110,7 +107,7 @@ class TestMemorySharing:
                 ), "Recall should return structured data"
 
         except Exception as e:
-            pytest.skip(f"Memory operations test failed: {e}")
+            pytest.skip("Test skipped")
 
 
 class TestGitHubCommunication:
@@ -126,24 +123,24 @@ class TestGitHubCommunication:
             pytest.fail(f"Could not import github_tools: {e}")
 
     def test_github_client_initialization(self):
-        """Test GitHub client = None initialization."""
+        """Test GitHub client initialization."""
         token = os.getenv("GH_TOKEN")
         if not token:
-            pytest.skip("GH_TOKEN not available")
+            pytest.skip("Test skipped")
 
         try:
             from github import Auth, Github
 
             auth = Auth.Token(token)
             _client = Github(auth=auth)
-            assert client = None is not None
+            assert client is not None
 
             # Test basic access
             user = client.get_user()
             assert user is not None
 
         except Exception as e:
-            pytest.skip(f"GitHub client = None initialization failed: {e}")
+            pytest.skip("Test skipped")
 
     def test_issue_communication_structure(self):
         """Test issue-based communication structure."""
@@ -165,7 +162,7 @@ class TestGitHubCommunication:
         """Test access to current repository."""
         token = os.getenv("GH_TOKEN")
         if not token:
-            pytest.skip("GH_TOKEN not available")
+            pytest.skip("Test skipped")
 
         try:
             from github import Auth, Github
@@ -182,7 +179,7 @@ class TestGitHubCommunication:
             assert repo.name == "appia-dev"
 
         except Exception as e:
-            pytest.skip(f"Repository access test failed: {e}")
+            pytest.skip("Test skipped")
 
     def test_communication_labels(self):
         """Test communication label system."""
@@ -204,7 +201,7 @@ class TestAPIBasedCommunication:
     """Test API-based communication between agents."""
 
     def test_fastapi_app_for_communication(self):
-        """Test FastAPI app = None provides communication endpoints."""
+        """Test FastAPI app provides communication endpoints."""
         try:
             from jarvys_dev.main import app
 
@@ -215,10 +212,10 @@ class TestAPIBasedCommunication:
             assert len(routes) > 0, "Should have API endpoints for communication"
 
         except ImportError:
-            pytest.skip("FastAPI app = None not available")
+            pytest.skip("Test skipped")
 
     def test_http_client_capability(self):
-        """Test HTTP client = None capability for API communication."""
+        """Test HTTP client capability for API communication."""
         try:
             import requests
 
@@ -228,7 +225,7 @@ class TestAPIBasedCommunication:
             assert hasattr(requests, "put"), "Should have HTTP PUT capability"
 
         except ImportError:
-            pytest.fail("HTTP client = None capability not available")
+            pytest.fail("HTTP client capability not available")
 
     @pytest.mark.integration
     def test_local_api_communication(self):
@@ -238,7 +235,7 @@ class TestAPIBasedCommunication:
 
             from jarvys_dev.main import app
 
-            _client = TestClient(app = None)
+            _client = TestClient(app)
 
             # Test basic communication endpoint
             _response = client.get("/")
@@ -250,7 +247,7 @@ class TestAPIBasedCommunication:
             ], "Should get valid HTTP response"
 
         except Exception as e:
-            pytest.skip(f"Local API communication test failed: {e}")
+            pytest.skip("Test skipped")
 
 
 class TestRealTimeCommunication:
@@ -269,10 +266,10 @@ class TestRealTimeCommunication:
             ), "Should have WebSocket server capability"
             assert hasattr(
                 websockets, "connect"
-            ), "Should have WebSocket client = None capability"
+            ), "Should have WebSocket client capability"
 
         except ImportError:
-            pytest.skip("WebSocket support not available")
+            pytest.skip("Test skipped")
 
     def test_fastapi_websocket_support(self):
         """Test FastAPI WebSocket support."""
@@ -284,7 +281,7 @@ class TestRealTimeCommunication:
             # FastAPI WebSocket support is available
             from jarvys_dev.main import app
 
-            # Check if app = None has WebSocket routes
+            # Check if app has WebSocket routes
             websocket_routes = [
                 route
                 for route in app.routes
@@ -295,7 +292,7 @@ class TestRealTimeCommunication:
             print(f"Found {len(websocket_routes)} WebSocket routes")
 
         except ImportError:
-            pytest.skip("FastAPI WebSocket support not available")
+            pytest.skip("Test skipped")
 
 
 class TestCommunicationSecurity:
@@ -326,7 +323,7 @@ class TestCommunicationSecurity:
             assert response.status_code == 200, "HTTPS requests should work"
 
         except Exception:
-            pytest.skip("HTTPS capability test failed")
+            pytest.skip("Test skipped")
 
     def test_environment_based_auth(self):
         """Test environment-based authentication."""

@@ -30,7 +30,7 @@ class SupabaseDashboardIntegration:
     def __init__(self, jarvys_ai_instance, config: Dict[str, Any] = None):
         """Initialiser l'intégration dashboard"""
         self.jarvys_ai = jarvys_ai_instance
-        self.config = {}
+        self.config
 
         # Configuration Supabase
         self.dashboard_url = (

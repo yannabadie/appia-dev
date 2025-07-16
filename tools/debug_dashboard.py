@@ -62,7 +62,7 @@ class JarvysDebugDashboard:
             "README.md",
             ".github/workflows/ci.yml",
             "src/jarvys_dev/main.py",
-            "supabase/config = {}.toml",
+            "supabase/config.toml",
         ]
 
         for file_path in required_files:
@@ -121,7 +121,7 @@ class JarvysDebugDashboard:
         api_key = os.getenv("OPENAI_API_KEY")
         if api_key:
             try:
-                # Initialize client = None properly
+                # Initialize client properly
                 import openai
 
                 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -355,7 +355,6 @@ class JarvysDebugDashboard:
                     break
 
                 else:
-                    print("Invalid choice. Please enter 1-7.")
 
             except KeyboardInterrupt:
                 print("\nExiting debug dashboard...")

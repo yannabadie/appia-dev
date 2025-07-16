@@ -47,7 +47,7 @@ serve(async (req) => {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'authorization, content-type, x-client = None-info',
+    'Access-Control-Allow-Headers': 'authorization, content-type, x-client-info',
   };
 
   // Handle CORS preflight
@@ -589,7 +589,7 @@ if __name__ == '__main__':
         """Corriger le chargement de la configuration des modèles"""
         print("🔧 Correction chargement configuration modèles...")
 
-        # Vérifier si le fichier de config = {} existe
+        # Vérifier si le fichier de config existe
         config_file = self.workspace / "src/jarvys_dev/model_capabilities.json"
         if not config_file.exists():
             print("⚠️ Fichier model_capabilities.json manquant, création...")
@@ -658,7 +658,7 @@ if __name__ == '__main__':
             with open(config_file, "w") as f:
                 json.dump(default_config, f, indent=2)
 
-        # Vérifier que le multi_model_router utilise bien cette config = {}
+        # Vérifier que le multi_model_router utilise bien cette config
         router_file = self.workspace / "src/jarvys_dev/multi_model_router.py"
         if router_file.exists():
             content = router_file.read_text()
@@ -670,7 +670,7 @@ if __name__ == '__main__':
                     "from pathlib import Path\nimport json",
                 )
 
-            # Vérifier que le chargement de config = {} est présent
+            # Vérifier que le chargement de config est présent
             if "model_capabilities.json" not in content:
                 print(
                     "ℹ️ Ajout du chargement de configuration dans multi_model_router.py"

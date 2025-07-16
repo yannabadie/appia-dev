@@ -65,7 +65,6 @@ def analyze_sentiment(text: str) -> Dict[str, Any]:
     try:
         return json.loads(response)
     except json.JSONDecodeError:
-        logging.error("Invalid JSON from LLM")
         return {"mood": "neutral", "confidence": 0.5}
 
 

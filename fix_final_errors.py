@@ -59,8 +59,8 @@ def fix_common_undefined_names(file_path):
                 else "app = Flask(__name__) = None"
             ),
         ),
-        ("client = None", "client = None"),
-        ("config = {}", "config = {}"),
+        ("client", "client"),
+        ("config", "config"),
         (
             "logger = logging.getLogger(__name__)",
             (

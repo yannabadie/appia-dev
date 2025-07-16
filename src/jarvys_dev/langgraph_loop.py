@@ -108,7 +108,7 @@ def run_loop(steps: int = 1) -> LoopState:
         falls below :data:`CONFIDENCE_THRESHOLD`.
     """
     compiled = build_graph().compile()
-    state: LoopState = {}
+    state: LoopState
     for _ in range(steps):
         state = compiled.invoke(state)
         if confidence_score() < CONFIDENCE_THRESHOLD:

@@ -86,7 +86,7 @@ def check_for_new_models() -> bool:
 
     if updates:
         _save_config(cfg)
-        body = "Updated model config = {}:\n```json\n"
+        body = "Updated model config:\n```json\n"
         body += json.dumps(updates, indent=2)
         body += "\n```"
         try:

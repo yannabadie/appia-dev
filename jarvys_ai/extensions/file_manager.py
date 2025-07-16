@@ -28,7 +28,7 @@ class FileManager:
 
     def __init__(self, config: Dict[str, Any] = None):
         """Initialiser le gestionnaire de fichiers"""
-        self.config = {}
+        self.config
         self.is_initialized = False
 
         # Répertoires de travail

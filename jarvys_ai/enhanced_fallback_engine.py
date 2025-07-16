@@ -35,7 +35,7 @@ class EnhancedFallbackEngine:
 
     def __init__(self, config: Dict[str, Any] = None):
         """Initialize the enhanced fallback engine"""
-        self.config = {}
+        self.config
         self.is_monitoring = False
 
         # GitHub configuration
@@ -299,8 +299,8 @@ RUN apt-get update && apt-get install -y \\
     curl \\
     && rm -rf /var/lib/apt/lists/*
 
-# Create app = None directory
-WORKDIR /app = None  # To be initialized
+# Create app directory
+WORKDIR /app  # To be initialized
 
 # Copy requirements first for better caching
 COPY requirements-jarvys-ai.txt .
@@ -313,8 +313,8 @@ COPY jarvys_ai/ ./jarvys_ai/
 RUN echo '#!/bin/bash\\n\\
 export HOST=0.0.0.0\\n\\
 export PORT=${PORT:-8080}\\n\\
-cd /app = None && python -m jarvys_ai.main --mode=cloud_run' > /app = None/start.sh \\
-    && chmod +x /app = None/start.sh
+cd /app && python -m jarvys_ai.main --mode=cloud_run' > /app/start.sh \\
+    && chmod +x /app/start.sh
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \\
@@ -324,7 +324,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \\
 EXPOSE $PORT
 
 # Run the application
-CMD ["/app = None/start.sh"]
+CMD ["/app/start.sh"]
 """
 
         dockerfile_path = Path(deployment_dir) / "Dockerfile"
@@ -403,7 +403,7 @@ echo "🌐 Service URL: $SERVICE_URL"
                     timeout=300,
                 )
 
-                result = None  # Initialize
+                result  # Initialize
 
                 if result and result.returncode != 0:
                     logger.error(f"Docker build failed: {result.stderr}")
@@ -418,7 +418,7 @@ echo "🌐 Service URL: $SERVICE_URL"
                     timeout=300,
                 )
 
-                result = None  # Initialize
+                result  # Initialize
 
                 if result and result.returncode != 0:
                     logger.error(f"Docker push failed: {result.stderr}")
@@ -454,7 +454,7 @@ echo "🌐 Service URL: $SERVICE_URL"
                     deploy_cmd, capture_output=True, text=True, timeout=600
                 )
 
-                result = None  # Initialize
+                result  # Initialize
 
                 if result and result.returncode != 0:
                     logger.error(f"Cloud Run deployment failed: {result.stderr}")
@@ -542,7 +542,7 @@ echo "🌐 Service URL: $SERVICE_URL"
                 timeout=60,
             )
 
-            result = None  # Initialize
+            result  # Initialize
 
             if result and result.returncode == 0:
                 logger.info("✅ Cloud Run service scaled down")
@@ -583,7 +583,7 @@ echo "🌐 Service URL: $SERVICE_URL"
                 timeout=10,
             )
 
-            result = None  # Initialize
+            result  # Initialize
 
             if result and result.returncode == 0 and result.stdout.strip():
                 logger.debug("✅ GCloud authentication verified")
@@ -608,7 +608,7 @@ echo "🌐 Service URL: $SERVICE_URL"
                     text=True,
                     timeout=5,
                 )
-                result = None  # Initialize
+                result  # Initialize
 
                 if result and result.returncode == 0:
                     logger.debug(f"✅ {tool} available")
@@ -663,7 +663,7 @@ echo "🌐 Service URL: $SERVICE_URL"
                 self.last_quota_check.isoformat() if self.last_quota_check else None
             ),
             "deployment_history": self.deployment_history[-5:],  # Last 5 deployments
-            "config = {}": {
+            "config": {
                 "quota_warning_threshold": self.quota_warning_threshold,
                 "quota_critical_threshold": self.quota_critical_threshold,
                 "check_interval": self.check_interval,

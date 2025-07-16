@@ -75,7 +75,7 @@ class JARVYS_AI:
         publisher.publish(topic_path, improvement.encode("utf-8"))
         return improvement
 
-    def run(self, query: str, feedback: str = None):
+    def run(self, query: str, feedback: str):
         response = self.route_llm(query)
         self.store_memory(query, response)
         if feedback:

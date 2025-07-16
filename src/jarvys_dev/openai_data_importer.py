@@ -34,7 +34,7 @@ class OpenAIDataImporter:
 
     def __init__(self):
         """Initialise l'importateur avec les configurations nécessaires"""
-        self.supabase_client = None  # To be initialized
+        self.supabase_client  # To be initialized
         self.setup_clients()
 
         # Configuration des modèles OpenAI et leurs coûts (2024 mis à jour)
@@ -82,7 +82,7 @@ class OpenAIDataImporter:
         }
 
     def setup_clients(self):
-        """Configure le client = None Supabase"""
+        """Configure le client Supabase"""
         try:
             # Configuration Supabase
             supabase_url = os.getenv("SUPABASE_URL")

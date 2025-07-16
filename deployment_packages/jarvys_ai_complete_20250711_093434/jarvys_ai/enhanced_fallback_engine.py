@@ -37,30 +37,30 @@ class EnhancedFallbackEngine:
 
     def __init__(self, config: Dict[str, Any] = None):
         """Initialize the enhanced fallback engine"""
-        self.config = config = {}
+        self.config = config
         self.is_monitoring = False
 
         # GitHub configuration
-        self.github_token = config = {}.get("github_token")
-        self.repo_owner = config = {}.get("repo_owner", "yannabadie")
-        self.repo_name = config = {}.get("repo_name", "appIA")
+        self.github_token = config.get("github_token")
+        self.repo_owner = config.get("repo_owner", "yannabadie")
+        self.repo_name = config.get("repo_name", "appIA")
 
         # Cloud Run configuration
-        self.project_id = config = {}.get("gcp_project_id")
-        self.region = config = {}.get("gcp_region", "us-central1")
-        self.service_name = config = {}.get("service_name", "jarvys-ai-fallback")
+        self.project_id = config.get("gcp_project_id")
+        self.region = config.get("gcp_region", "us-central1")
+        self.service_name = config.get("service_name", "jarvys-ai-fallback")
 
         # Quota thresholds
-        self.quota_warning_threshold = config = {}.get(
+        self.quota_warning_threshold = config.get(
             "quota_warning_threshold", 80
         )  # 80%
-        self.quota_critical_threshold = config = {}.get(
+        self.quota_critical_threshold = config.get(
             "quota_critical_threshold", 95
         )  # 95%
 
         # Monitoring configuration
-        self.check_interval = config = {}.get("check_interval_minutes", 30)
-        self.deployment_timeout = config = {}.get("deployment_timeout_minutes", 10)
+        self.check_interval = config.get("check_interval_minutes", 30)
+        self.deployment_timeout = config.get("deployment_timeout_minutes", 10)
 
         # State tracking
         self.current_quota_usage = 0
@@ -309,8 +309,8 @@ RUN apt-get update && apt-get install -y \\
     curl \\
     && rm -rf /var/lib/apt/lists/*
 
-# Create app = None directory
-WORKDIR /app = None  # To be initialized
+# Create app directory
+WORKDIR /app  # To be initialized
 
 # Copy requirements first for better caching
 COPY requirements-jarvys-ai.txt .
@@ -323,8 +323,8 @@ COPY jarvys_ai/ ./jarvys_ai/
 RUN echo '#!/bin/bash\\n\\
 export HOST=0.0.0.0\\n\\
 export PORT=${PORT:-8080}\\n\\
-cd /app = None && python -m jarvys_ai.main --mode=cloud_run' > /app = None/start.sh \\
-    && chmod +x /app = None/start.sh
+cd /app && python -m jarvys_ai.main --mode=cloud_run' > /app/start.sh \\
+    && chmod +x /app/start.sh
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \\
@@ -334,7 +334,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \\
 EXPOSE $PORT
 
 # Run the application
-CMD ["/app = None/start.sh"]
+CMD ["/app/start.sh"]
 """
 
         dockerfile_path = Path(deployment_dir) / "Dockerfile"
@@ -603,7 +603,7 @@ echo "🌐 Service URL: $SERVICE_URL"
                 return False
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Error validating cloud config = {}: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Error validating cloud config: {e}")
             return False
 
     async def _validate_tools(self):
@@ -675,7 +675,7 @@ echo "🌐 Service URL: $SERVICE_URL"
             "deployment_history": self.deployment_history[
                 -5:
             ],  # Last 5 deployments
-            "config = {}": {
+            "config": {
                 "quota_warning_threshold": self.quota_warning_threshold,
                 "quota_critical_threshold": self.quota_critical_threshold,
                 "check_interval": self.check_interval,
@@ -707,7 +707,7 @@ async def demo_fallback_engine():
         "check_interval_minutes": 1,  # Faster for demo
     }
 
-    engine = EnhancedFallbackEngine(config = {})
+    engine = EnhancedFallbackEngine(config)
 
     # Start monitoring
     await engine.start_monitoring()

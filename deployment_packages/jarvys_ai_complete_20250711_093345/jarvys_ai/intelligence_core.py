@@ -30,8 +30,8 @@ class IntelligenceCore:
 
     def __init__(self, config: Dict[str, Any] = None):
         """Initialiser le cœur d'intelligence"""
-        self.config = config = {}
-        self.openai_client = None  # To be initialized
+        self.config = config
+        self.openai_client  # To be initialized
         self.is_initialized = False
 
         # Modèles de classification
@@ -73,7 +73,7 @@ class IntelligenceCore:
         """Initialiser les services d'intelligence"""
         try:
             # Configurer OpenAI
-            if self.config = {}.get("openai_api_key"):
+            if self.config.get("openai_api_key"):
                 openai.api_key = self.config["openai_api_key"]
                 self.openai_client = openai
                 logger = logging.getLogger(__name__).info("✅ OpenAI configuré")

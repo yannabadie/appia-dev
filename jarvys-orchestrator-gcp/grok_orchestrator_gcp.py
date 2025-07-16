@@ -77,7 +77,7 @@ class TaskSuggestion(BaseModel):
     description: str
     priority: int = 3  # 1=high, 2=medium, 3=low
     category: str = "general"
-    metadata: Dict = {}
+    metadata: Dict
 
 
 class SystemStatus(BaseModel):
@@ -105,7 +105,7 @@ app.add_middleware(
 )
 
 # Supabase client
-supabase: Client = None
+supabase: Client
 if SUPABASE_URL and SUPABASE_KEY:
     supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
     logger.info("✅ Supabase client initialisé")
@@ -123,7 +123,7 @@ orchestrator_state = {
 }
 
 # GitHub sync manager
-github_sync: GitHubSyncManager = None
+github_sync: GitHubSyncManager
 
 
 # WebSocket connections manager
@@ -174,7 +174,7 @@ def get_uptime():
     return f"{hours}h{minutes}m"
 
 
-async def log_activity(activity: str, details: Dict = None):
+async def log_activity(activity: str, details: Dict):
     """Log une activité avec persistance Supabase"""
     try:
         orchestrator_state["last_activity"] = datetime.now()

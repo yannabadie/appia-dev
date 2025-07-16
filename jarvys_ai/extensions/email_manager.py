@@ -28,7 +28,7 @@ class EmailManager:
 
     def __init__(self, config: Dict[str, Any] = None):
         """Initialiser le gestionnaire d'emails"""
-        self.config = {}
+        self.config
         self.is_initialized = False
 
         # Configuration par défaut

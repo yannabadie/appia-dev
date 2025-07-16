@@ -128,7 +128,7 @@ def fix_test_deployment():
         # Fix config assignment in conditional
         content = re.sub(
             r'if "timeout" in config = \{\}:',
-            'config = {}\n        if "timeout" in config:',
+            'config\n        if "timeout" in config:',
             content,
         )
 
@@ -166,7 +166,7 @@ def fix_test_jarvys_dev():
 
         # Fix invalid assertion syntax
         content = re.sub(
-            r"assert isinstance\(app = None, FastAPI\)",
+            r"assert isinstance\(app, FastAPI\)",
             "assert isinstance(app, FastAPI)",
             content,
         )
