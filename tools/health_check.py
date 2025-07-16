@@ -136,7 +136,7 @@ class JarvysHealthChecker:
                 # Initialize client properly
                 import openai
 
-                client = openai.Client(api_key=os.getenv("OPENAI_API_KEY"))
+                client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
                 models = client.models.list()
 
                 start_time = time.time()
