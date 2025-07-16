@@ -33,13 +33,7 @@ class TestMemorySharing:
         try:
             from jarvys_dev.tools.memory_infinite import get_memory
 
-<<<<<<< HEAD
             assert callable(get_memory), "get_memory should be a callable function"
-=======
-            assert callable(
-                get_memory
-            ), "get_memory should be a callable function"
->>>>>>> origin/main
         except ImportError:
             pytest.skip("get_memory function not found")
 
@@ -214,13 +208,7 @@ class TestAPIBasedCommunication:
             routes = [route.path for route in app.routes]
 
             # Should have some API endpoints
-<<<<<<< HEAD
             assert len(routes) > 0, "Should have API endpoints for communication"
-=======
-            assert (
-                len(routes) > 0
-            ), "Should have API endpoints for communication"
->>>>>>> origin/main
 
         except ImportError:
             pytest.skip("FastAPI app not available")
@@ -232,13 +220,7 @@ class TestAPIBasedCommunication:
 
             # Should be able to make HTTP requests
             assert hasattr(requests, "get"), "Should have HTTP GET capability"
-<<<<<<< HEAD
             assert hasattr(requests, "post"), "Should have HTTP POST capability"
-=======
-            assert hasattr(
-                requests, "post"
-            ), "Should have HTTP POST capability"
->>>>>>> origin/main
             assert hasattr(requests, "put"), "Should have HTTP PUT capability"
 
         except ImportError:
@@ -351,13 +333,7 @@ class TestCommunicationSecurity:
             # Test that environment variables can be accessed
             value = os.getenv(var)
             if value:
-<<<<<<< HEAD
                 assert len(value) > 10, f"{var} should be substantial if present"
-=======
-                assert (
-                    len(value) > 10
-                ), f"{var} should be substantial if present"
->>>>>>> origin/main
 
 
 class TestCommunicationProtocols:
@@ -387,13 +363,7 @@ class TestCommunicationProtocols:
         ]
         for field in required_fields:
             assert field in test_message, f"Message should have {field} field"
-<<<<<<< HEAD
             assert test_message[field] is not None, f"{field} should not be None"
-=======
-            assert (
-                test_message[field] is not None
-            ), f"{field} should not be None"
->>>>>>> origin/main
 
     def test_response_structure(self):
         """Test standard response structure."""
@@ -415,13 +385,7 @@ class TestCommunicationProtocols:
             "timestamp",
         ]
         for field in required_fields:
-<<<<<<< HEAD
             assert field in test_response, f"Response should have {field} field"
-=======
-            assert (
-                field in test_response
-            ), f"Response should have {field} field"
->>>>>>> origin/main
 
     def test_error_handling_structure(self):
         """Test error handling in communication."""
@@ -484,11 +448,5 @@ class TestCommunicationMonitoring:
 
         # Health check structure should be valid
         for component, status in health_status.items():
-<<<<<<< HEAD
             assert isinstance(component, str), "Component name should be string"
-=======
-            assert isinstance(
-                component, str
-            ), "Component name should be string"
->>>>>>> origin/main
             assert isinstance(status, str), "Status should be string"

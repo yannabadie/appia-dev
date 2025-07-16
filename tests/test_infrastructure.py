@@ -77,13 +77,7 @@ class TestSupabaseInfrastructure:
             client = create_client(url, key)
 
             # Try to query the memory table structure
-<<<<<<< HEAD
             _response = client.table("agent_memory").select("*").limit(1).execute()
-=======
-            _response = (
-                client.table("agent_memory").select("*").limit(1).execute()
-            )
->>>>>>> origin/main
 
             # If table exists, check it has expected structure
             if hasattr(_response, "data"):
@@ -103,17 +97,8 @@ class TestSupabaseInfrastructure:
 
     def test_supabase_functions_directory(self):
         """Test that Supabase functions directory exists."""
-<<<<<<< HEAD
         functions_path = Path(__file__).parent.parent / "supabase" / "functions"
         assert functions_path.exists(), "Supabase functions directory not found"
-=======
-        functions_path = (
-            Path(__file__).parent.parent / "supabase" / "functions"
-        )
-        assert (
-            functions_path.exists()
-        ), "Supabase functions directory not found"
->>>>>>> origin/main
 
         # Check if there are any Edge Functions defined
         function_dirs = [d for d in functions_path.iterdir() if d.is_dir()]
@@ -158,17 +143,8 @@ class TestGCPInfrastructure:
                 if field not in sa_data:
                     missing_fields.append(field)
 
-<<<<<<< HEAD
             assert not missing_fields, f"Missing required SA fields: {missing_fields}"
             assert sa_data["type"] == "service_account", "Invalid service account type"
-=======
-            assert (
-                not missing_fields
-            ), f"Missing required SA fields: {missing_fields}"
-            assert (
-                sa_data["type"] == "service_account"
-            ), "Invalid service account type"
->>>>>>> origin/main
 
         except json.JSONDecodeError as e:
             pytest.fail(f"Invalid GCP Service Account JSON: {e}")
@@ -236,13 +212,7 @@ class TestCloudBuildConfiguration:
             config = yaml.safe_load(content)
 
             assert "steps" in config, "cloudbuild.yaml missing 'steps' section"
-<<<<<<< HEAD
             assert len(config["steps"]) > 0, "cloudbuild.yaml has no build steps"
-=======
-            assert (
-                len(config["steps"]) > 0
-            ), "cloudbuild.yaml has no build steps"
->>>>>>> origin/main
 
             # Check for basic step structure
             for i, step in enumerate(config["steps"]):
@@ -281,13 +251,7 @@ class TestDatabaseSchema:
 
     def test_functions_sql_exists(self):
         """Test that functions.sql exists if referenced."""
-<<<<<<< HEAD
         functions_path = Path(__file__).parent.parent / "supabase" / "functions.sql"
-=======
-        functions_path = (
-            Path(__file__).parent.parent / "supabase" / "functions.sql"
-        )
->>>>>>> origin/main
         if functions_path.exists():
             content = functions_path.read_text()
             assert len(content.strip()) > 0, "functions.sql is empty"
@@ -319,13 +283,7 @@ class TestStorageConfiguration:
             try:
                 buckets = client.storage.list_buckets()
                 # If we get here, storage is accessible
-<<<<<<< HEAD
                 assert isinstance(buckets, list), "Storage buckets should be a list"
-=======
-                assert isinstance(
-                    buckets, list
-                ), "Storage buckets should be a list"
->>>>>>> origin/main
             except Exception as storage_e:
                 # Storage might not be configured - that's fine
                 if "unauthorized" in str(storage_e).lower():
@@ -362,13 +320,7 @@ class TestEdgeFunctionsInfrastructure:
 
     def test_edge_functions_structure(self):
         """Test Edge Functions directory structure."""
-<<<<<<< HEAD
         functions_path = Path(__file__).parent.parent / "supabase" / "functions"
-=======
-        functions_path = (
-            Path(__file__).parent.parent / "supabase" / "functions"
-        )
->>>>>>> origin/main
         if not functions_path.exists():
             pytest.skip("Supabase functions directory not found")
 
@@ -383,25 +335,14 @@ class TestEdgeFunctionsInfrastructure:
 
                 # Basic TypeScript/Deno Edge Function structure
                 assert any(
-<<<<<<< HEAD
                     pattern in content for pattern in ["Deno.serve", "new Response"]
-=======
-                    pattern in content
-                    for pattern in ["Deno.serve", "new Response"]
->>>>>>> origin/main
                 ), f"Function {func_dir.name} doesn't contain proper"
                 "Edge Function patterns"
 
     @pytest.mark.integration
     def test_edge_function_deployment_ready(self):
         """Test that Edge Functions are deployment ready."""
-<<<<<<< HEAD
         functions_path = Path(__file__).parent.parent / "supabase" / "functions"
-=======
-        functions_path = (
-            Path(__file__).parent.parent / "supabase" / "functions"
-        )
->>>>>>> origin/main
         if not functions_path.exists():
             pytest.skip("Supabase functions directory not found")
 
@@ -414,29 +355,13 @@ class TestEdgeFunctionsInfrastructure:
 
                 # Check for common Edge Function requirements
                 has_cors = (
-<<<<<<< HEAD
                     "cors" in content.lower() or "Access-Control-Allow" in content
-=======
-                    "cors" in content.lower()
-                    or "Access-Control-Allow" in content
->>>>>>> origin/main
                 )
                 has_error_handling = "try" in content and "catch" in content
 
                 if not has_cors:
-<<<<<<< HEAD
                     print(f"Warning: Function {func_dir.name} may need" "CORS handling")
                 if not has_error_handling:
                     print(
                         f"Warning: Function {func_dir.name} may need" "error handling"
-=======
-                    print(
-                        f"Warning: Function {func_dir.name} may need"
-                        "CORS handling"
-                    )
-                if not has_error_handling:
-                    print(
-                        f"Warning: Function {func_dir.name} may need"
-                        "error handling"
->>>>>>> origin/main
                     )

@@ -90,13 +90,7 @@ class OpenAIDataImporter:
                 "SUPABASE_KEY"
             )
             if supabase_url and supabase_key:
-<<<<<<< HEAD
                 self.supabase_client = create_client(supabase_url, supabase_key)
-=======
-                self.supabase_client = create_client(
-                    supabase_url, supabase_key
-                )
->>>>>>> origin/main
                 print("✅ Client Supabase configuré")
             else:
                 print("⚠️ Variables Supabase non trouvées")
@@ -111,13 +105,7 @@ class OpenAIDataImporter:
 
     def determine_model_from_date(self, timestamp: float) -> str:
         """Détermine le modèle probable basé sur la date"""
-<<<<<<< HEAD
         conversation_date = datetime.fromtimestamp(timestamp).strftime("%Y-%m-%d")
-=======
-        conversation_date = datetime.fromtimestamp(timestamp).strftime(
-            "%Y-%m-%d"
-        )
->>>>>>> origin/main
 
         for date_threshold, model in sorted(
             self.default_model_by_date.items(), reverse=True
@@ -218,23 +206,11 @@ class OpenAIDataImporter:
                                     messages.append(
                                         {
                                             "id": message_id,
-<<<<<<< HEAD
                                             "role": message.get("author", {}).get(
                                                 "role", "unknown"
                                             ),
                                             "content": message.get("content", {}),
                                             "create_time": message.get("create_time"),
-=======
-                                            "role": message.get(
-                                                "author", {}
-                                            ).get("role", "unknown"),
-                                            "content": message.get(
-                                                "content", {}
-                                            ),
-                                            "create_time": message.get(
-                                                "create_time"
-                                            ),
->>>>>>> origin/main
                                             "tokens_estimated": self.estimate_tokens(
                                                 str(message.get("content", ""))
                                             ),
@@ -271,13 +247,7 @@ class OpenAIDataImporter:
             print(f"❌ Erreur import fichier: {e}")
             return []
 
-<<<<<<< HEAD
     def save_conversations_to_supabase(self, conversations: List[ChatGPTConversation]):
-=======
-    def save_conversations_to_supabase(
-        self, conversations: List[ChatGPTConversation]
-    ):
->>>>>>> origin/main
         """Sauvegarde les conversations dans Supabase"""
         if not self.supabase_client:
             print("⚠️ Client Supabase non configuré")
@@ -321,17 +291,8 @@ class OpenAIDataImporter:
                 ):  # Seulement les conversations substantielles
                     memory_content = f"Conversation: {conversation.title}\n"
                     memory_content += f"Modèle: {conversation.model}\n"
-<<<<<<< HEAD
                     memory_content += f"Messages: {len(conversation.messages)}\n"
                     memory_content += f"Tokens: {conversation.total_tokens_estimated}\n"
-=======
-                    memory_content += (
-                        f"Messages: {len(conversation.messages)}\n"
-                    )
-                    memory_content += (
-                        f"Tokens: {conversation.total_tokens_estimated}\n"
-                    )
->>>>>>> origin/main
 
                     # Ajouter un extrait des premiers messages
                     for i, msg in enumerate(conversation.messages[:3]):
@@ -341,13 +302,7 @@ class OpenAIDataImporter:
                                 .replace("'", "")
                                 .replace('"', "")[:200]
                             )
-<<<<<<< HEAD
                             memory_content += f"{msg['role']}: {content_str}...\n"
-=======
-                            memory_content += (
-                                f"{msg['role']}: {content_str}...\n"
-                            )
->>>>>>> origin/main
 
                     memory_data = {
                         "content": memory_content,
@@ -366,13 +321,7 @@ class OpenAIDataImporter:
                         memory_data
                     ).execute()
 
-<<<<<<< HEAD
             print(f"✅ {len(conversations)} conversations sauvegardées dans Supabase")
-=======
-            print(
-                f"✅ {len(conversations)} conversations sauvegardées dans Supabase"
-            )
->>>>>>> origin/main
 
         except Exception as e:
             print(f"❌ Erreur sauvegarde Supabase: {e}")
@@ -410,35 +359,16 @@ class OpenAIDataImporter:
             return {"error": "Client Supabase non configuré"}
 
         try:
-<<<<<<< HEAD
             query = self.supabase.table("openai_imported_data").select("*")
 
             result = query.execute()
-=======
-            query = (
-                self.supabase_client.table("jarvys_metrics")
-                .select("*")
-                .eq("event_type", "conversation_import")
-            )
-
-            if user_email:
-                query = query.eq("user_context", user_email)
-
-            _result = query.execute()
->>>>>>> origin/main
 
             if not result.data:
                 return {"message": "Aucune donnée importée trouvée"}
 
             # Calcul des statistiques
             total_conversations = len(result.data)
-<<<<<<< HEAD
             total_tokens = sum(item["tokens_used"] or 0 for item in result.data)
-=======
-            total_tokens = sum(
-                item["tokens_used"] or 0 for item in result.data
-            )
->>>>>>> origin/main
             total_cost = sum(item["cost_usd"] or 0 for item in result.data)
 
             # Modèles utilisés
@@ -455,13 +385,7 @@ class OpenAIDataImporter:
             cost_by_user = {}
             for item in result.data:
                 user = item["user_context"] or "unknown"
-<<<<<<< HEAD
                 cost_by_user[user] = cost_by_user.get(user, 0) + (item["cost_usd"] or 0)
-=======
-                cost_by_user[user] = cost_by_user.get(user, 0) + (
-                    item["cost_usd"] or 0
-                )
->>>>>>> origin/main
 
             return {
                 "total_conversations": total_conversations,
@@ -479,13 +403,7 @@ class OpenAIDataImporter:
                 ),
                 "models_used": models_used,
                 "users": users,
-<<<<<<< HEAD
                 "cost_by_user": {k: round(v, 4) for k, v in cost_by_user.items()},
-=======
-                "cost_by_user": {
-                    k: round(v, 4) for k, v in cost_by_user.items()
-                },
->>>>>>> origin/main
             }
 
         except Exception as e:
@@ -494,13 +412,7 @@ class OpenAIDataImporter:
 
 def main():
     """Fonction principale pour importer les données ChatGPT"""
-<<<<<<< HEAD
     print("🔄 OpenAI Data Importer pour JARVYS - Import données ChatGPT réelles")
-=======
-    print(
-        "🔄 OpenAI Data Importer pour JARVYS - Import données ChatGPT réelles"
-    )
->>>>>>> origin/main
 
     importer = OpenAIDataImporter()
 
@@ -515,51 +427,23 @@ def main():
     gmail_file = input(
         "\n📎 Chemin vers l'export ChatGPT pour yann.abadie@gmail.com (ou 'skip'): "
     ).strip()
-<<<<<<< HEAD
     if gmail_file and gmail_file.lower() != "skip" and os.path.exists(gmail_file):
-=======
-    if (
-        gmail_file
-        and gmail_file.lower() != "skip"
-        and os.path.exists(gmail_file)
-    ):
->>>>>>> origin/main
         print("🔄 Import en cours pour yann.abadie@gmail.com...")
         conversations_gmail = importer.import_from_chatgpt_export(
             gmail_file, "yann.abadie@gmail.com"
         )
-<<<<<<< HEAD
         print(f"✅ {len(conversations_gmail)} conversations importées pour Gmail")
-=======
-        print(
-            f"✅ {len(conversations_gmail)} conversations importées pour Gmail"
-        )
->>>>>>> origin/main
 
     # Import pour yann.abadie.exakis@gmail.com
     exakis_file = input(
         "\n📎 Chemin vers l'export ChatGPT pour yann.abadie.exakis@gmail.com (ou 'skip'): "
     ).strip()
-<<<<<<< HEAD
     if exakis_file and exakis_file.lower() != "skip" and os.path.exists(exakis_file):
-=======
-    if (
-        exakis_file
-        and exakis_file.lower() != "skip"
-        and os.path.exists(exakis_file)
-    ):
->>>>>>> origin/main
         print("🔄 Import en cours pour yann.abadie.exakis@gmail.com...")
         conversations_exakis = importer.import_from_chatgpt_export(
             exakis_file, "yann.abadie.exakis@gmail.com"
         )
-<<<<<<< HEAD
         print(f"✅ {len(conversations_exakis)} conversations importées pour Exakis")
-=======
-        print(
-            f"✅ {len(conversations_exakis)} conversations importées pour Exakis"
-        )
->>>>>>> origin/main
 
     # Affichage du résumé final
     print("\n" + "=" * 60)

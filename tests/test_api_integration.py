@@ -30,13 +30,7 @@ class TestJarvysDevAPI:
                 if app is not None:
                     from fastapi import FastAPI
 
-<<<<<<< HEAD
                     assert isinstance(app, FastAPI), "Should be a FastAPI instance"
-=======
-                    assert isinstance(
-                        app, FastAPI
-                    ), "Should be a FastAPI instance"
->>>>>>> origin/main
                     app_found = True
                     print(f"Found FastAPI app at {module_path}.{app_name}")
                     break
@@ -60,30 +54,12 @@ class TestJarvysDevAPI:
 
             from app.main import app
 
-<<<<<<< HEAD
             client = TestClient(app)
             response = client.get("/")
             assert response.status_code == 200
             assert "JARVYS" in response.text
         except ImportError:
             pytest.skip("FastAPI or TestClient not available")
-=======
-            _client = TestClient(app)
-            _response = client.get("/")
-
-            # Should return successful response
-            assert response.status_code in [
-                200,
-                404,
-            ], "Should get valid HTTP response"
-
-            if response.status_code == 200:
-                # If endpoint exists, check response format
-                assert response.headers.get(
-                    "content-type"
-                ), "Should have content-type header"
-
->>>>>>> origin/main
         except Exception as e:
             pytest.fail(f"API root endpoint test failed: {e}")
 
@@ -95,11 +71,7 @@ class TestJarvysDevAPI:
 
             from app.main import app
 
-<<<<<<< HEAD
             client = TestClient(app)
-=======
-            _client = TestClient(app)
->>>>>>> origin/main
 
             # Common health endpoint paths
             health_paths = ["/health", "/api/health", "/status", "/ping"]
@@ -107,21 +79,13 @@ class TestJarvysDevAPI:
             found_health_endpoint = False
             for path in health_paths:
                 _response = client.get(path)
-<<<<<<< HEAD
                 if _response.status_code == 200:
-=======
-                if response.status_code == 200:
->>>>>>> origin/main
                     found_health_endpoint = True
                     print(f"Found health endpoint at {path}")
 
                     # Health response should be JSON
                     try:
-<<<<<<< HEAD
                         health_data = _response.json()
-=======
-                        health_data = response.json()
->>>>>>> origin/main
                         assert isinstance(
                             health_data, dict
                         ), "Health response should be JSON object"
@@ -144,17 +108,10 @@ class TestJarvysDevAPI:
 
             from app.main import app
 
-<<<<<<< HEAD
             client = TestClient(app)
 
             # Test CORS preflight request
             response = client.options(
-=======
-            _client = TestClient(app)
-
-            # Test CORS preflight request
-            _response = client.options(
->>>>>>> origin/main
                 "/",
                 headers={
                     "Origin": "http://localhost:3000",
@@ -237,7 +194,6 @@ class TestMCPServerAPI:
 
             from app.main import app
 
-<<<<<<< HEAD
             client = TestClient(app)
 
             # Test basic connectivity
@@ -245,19 +201,6 @@ class TestMCPServerAPI:
 
             # Should return some response
             assert response.status_code in [200, 404, 422], "Server should respond"
-=======
-            _client = TestClient(app)
-
-            # Test basic connectivity
-            _response = client.get("/")
-
-            # Should return some response
-            assert response.status_code in [
-                200,
-                404,
-                422,
-            ], "Server should respond"
->>>>>>> origin/main
 
         except ImportError:
             pytest.skip("MCP server not available")
@@ -283,13 +226,7 @@ class TestSupabaseAPI:
             client = create_client(url, key)
 
             # Test basic API call
-<<<<<<< HEAD
             response = client.table("test_table").select("*").limit(1).execute()
-=======
-            _response = (
-                client.table("test_table").select("*").limit(1).execute()
-            )
->>>>>>> origin/main
 
             # Should get a response (even if table doesn't exist)
             assert hasattr(
@@ -324,11 +261,7 @@ class TestSupabaseAPI:
                 "Content-Type": "application/json",
             }
 
-<<<<<<< HEAD
             response = requests.get(functions_url, headers=headers, timeout=10)
-=======
-            _response = requests.get(functions_url, headers=headers, timeout=10)
->>>>>>> origin/main
 
             # Should get some response (even if no functions deployed)
             assert response.status_code in [
@@ -358,22 +291,12 @@ class TestSupabaseAPI:
 
             headers = {"Authorization": f"Bearer {key}"}
 
-<<<<<<< HEAD
             response = requests.get(dashboard_url, headers=headers, timeout=10)
-=======
-            _response = requests.get(dashboard_url, headers=headers, timeout=10)
->>>>>>> origin/main
 
             # Dashboard may or may not be deployed
             if response.status_code == 200:
                 print("Dashboard API is accessible")
-<<<<<<< HEAD
                 assert response.headers.get("content-type"), "Should have content-type"
-=======
-                assert response.headers.get(
-                    "content-type"
-                ), "Should have content-type"
->>>>>>> origin/main
             elif response.status_code == 404:
                 print("Info: Dashboard not deployed yet")
             else:
@@ -396,11 +319,7 @@ class TestGitHubAPI:
         try:
             from github import Github
 
-<<<<<<< HEAD
             client = Github(token)
-=======
-            _client = Github(token)
->>>>>>> origin/main
 
             # Test basic API access
             user = client.get_user()
@@ -431,11 +350,7 @@ class TestGitHubAPI:
         try:
             from github import Github
 
-<<<<<<< HEAD
             client = Github(token)
-=======
-            _client = Github(token)
->>>>>>> origin/main
 
             # Test repository access
             repo_name = "yannabadie/appia-dev"
@@ -463,11 +378,7 @@ class TestGitHubAPI:
         try:
             from github import Github
 
-<<<<<<< HEAD
             client = Github(token)
-=======
-            _client = Github(token)
->>>>>>> origin/main
 
             repo_name = "yannabadie/appia-dev"
             repo = client.get_repo(repo_name)
@@ -497,11 +408,7 @@ class TestOpenAIAPI:
         try:
             from openai import OpenAI
 
-<<<<<<< HEAD
             client = OpenAI(api_key=api_key)
-=======
-            _client = OpenAI(api_key=api_key)
->>>>>>> origin/main
 
             # Test API access with models list
             models = client.models.list()
@@ -531,17 +438,10 @@ class TestOpenAIAPI:
         try:
             from openai import OpenAI
 
-<<<<<<< HEAD
             client = OpenAI(api_key=api_key)
 
             # Test minimal chat completion
             response = client.chat.completions.create(
-=======
-            _client = OpenAI(api_key=api_key)
-
-            # Test minimal chat completion
-            _response = client.chat.completions.create(
->>>>>>> origin/main
                 model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": "Hi"}],
                 max_tokens=10,
@@ -575,15 +475,10 @@ class TestExternalAPIIntegration:
 
         try:
             # Test with HTTP request to avoid import issues
-<<<<<<< HEAD
             url = (
                 f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
             )
             response = requests.get(url, timeout=10)
-=======
-            url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
-            _response = requests.get(url, timeout=10)
->>>>>>> origin/main
 
             assert (
                 response.status_code == 200
@@ -618,11 +513,7 @@ class TestExternalAPIIntegration:
                 "messages": [{"role": "user", "content": "Hi"}],
             }
 
-<<<<<<< HEAD
             response = requests.post(
-=======
-            _response = requests.post(
->>>>>>> origin/main
                 "https://api.anthropic.com/v1/messages",
                 headers=headers,
                 json=data,
@@ -633,11 +524,7 @@ class TestExternalAPIIntegration:
                 response.status_code == 200
             ), f"Anthropic API returned {response.status_code}"
 
-<<<<<<< HEAD
             result = response.json()
-=======
-            _result = response.json()
->>>>>>> origin/main
             assert "content" in result, "Anthropic API should return content"
 
             print("Anthropic API accessible")
@@ -655,25 +542,14 @@ class TestAPIErrorHandling:
         try:
             from jarvys_dev.multi_model_router import MultiModelRouter
 
-<<<<<<< HEAD
             with patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test123"}, clear=True):
-=======
-            with patch.dict(
-                os.environ, {"OPENAI_API_KEY": "sk-test123"}, clear=True
-            ):
->>>>>>> origin/main
                 router = MultiModelRouter()
 
                 # Mock rate limit response
                 with patch("openai.OpenAI") as mock_openai:
                     mock_client = Mock()
-<<<<<<< HEAD
                     mock_client.chat.completions.create.side_effect = Exception(
                         "Rate limit exceeded"
-=======
-                    mock_client.chat.completions.create.side_effect = (
-                        Exception("Rate limit exceeded")
->>>>>>> origin/main
                     )
                     mock_openai.return_value = mock_client
 
@@ -694,13 +570,7 @@ class TestAPIErrorHandling:
             from jarvys_dev.multi_model_router import MultiModelRouter
 
             # Test with invalid API key
-<<<<<<< HEAD
             with patch.dict(os.environ, {"OPENAI_API_KEY": "invalid-key"}, clear=True):
-=======
-            with patch.dict(
-                os.environ, {"OPENAI_API_KEY": "invalid-key"}, clear=True
-            ):
->>>>>>> origin/main
                 router = MultiModelRouter()
 
                 # Should handle auth errors gracefully
@@ -725,14 +595,8 @@ class TestAPIErrorHandling:
 
                 # Should handle network errors gracefully
                 try:
-<<<<<<< HEAD
                     # Use _ to indicate intentionally unused variable
                     _ = requests.get("https://api.openai.com/v1/models", timeout=1)
-=======
-                    _ = requests.get(
-                        "https://api.openai.com/v1/models", timeout=1
-                    )
->>>>>>> origin/main
                 except requests.exceptions.ConnectionError:
                     # Expected - connection error should be caught
                     pass
@@ -753,11 +617,7 @@ class TestAPIPerformance:
 
             from app.main import app
 
-<<<<<<< HEAD
             client = TestClient(app)
-=======
-            _client = TestClient(app)
->>>>>>> origin/main
 
             import time
 
@@ -768,13 +628,7 @@ class TestAPIPerformance:
             response_time = end_time - start_time
 
             # Should respond quickly (less than 5 seconds for local API)
-<<<<<<< HEAD
             assert response_time < 5.0, f"API response too slow: {response_time}s"
-=======
-            assert (
-                response_time < 5.0
-            ), f"API response too slow: {response_time}s"
->>>>>>> origin/main
 
             print(f"API response time: {response_time:.3f}s")
 
@@ -790,21 +644,13 @@ class TestAPIPerformance:
 
             from app.main import app
 
-<<<<<<< HEAD
             client = TestClient(app)
-=======
-            _client = TestClient(app)
->>>>>>> origin/main
             results = []
 
             def make_request():
                 try:
                     _response = client.get("/")
-<<<<<<< HEAD
                     results.append(_response.status_code)
-=======
-                    results.append(response.status_code)
->>>>>>> origin/main
                 except Exception as e:
                     results.append(str(e))
 
@@ -838,17 +684,10 @@ class TestAPIDocumentation:
 
             from app.main import app
 
-<<<<<<< HEAD
             client = TestClient(app)
 
             # FastAPI automatically provides OpenAPI schema
             response = client.get("/openapi.json")
-=======
-            _client = TestClient(app)
-
-            # FastAPI automatically provides OpenAPI schema
-            _response = client.get("/openapi.json")
->>>>>>> origin/main
 
             if response.status_code == 200:
                 schema = response.json()
@@ -871,17 +710,10 @@ class TestAPIDocumentation:
 
             from app.main import app
 
-<<<<<<< HEAD
             client = TestClient(app)
 
             # FastAPI automatically provides docs
             response = client.get("/docs")
-=======
-            _client = TestClient(app)
-
-            # FastAPI automatically provides docs
-            _response = client.get("/docs")
->>>>>>> origin/main
 
             if response.status_code == 200:
                 assert (

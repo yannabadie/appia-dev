@@ -35,13 +35,7 @@ class PerformanceTest:
         for _i in range(iterations):
             try:
                 start_time = time.perf_counter()
-<<<<<<< HEAD
                 start_memory = psutil.Process().memory_info().rss / 1024 / 1024  # MB
-=======
-                start_memory = (
-                    psutil.Process().memory_info().rss / 1024 / 1024
-                )  # MB
->>>>>>> origin/main
 
                 # Run test with timeout
                 with ThreadPoolExecutor() as executor:
@@ -49,13 +43,7 @@ class PerformanceTest:
                     _result = future.result(timeout=self.timeout)
 
                 end_time = time.perf_counter()
-<<<<<<< HEAD
                 end_memory = psutil.Process().memory_info().rss / 1024 / 1024  # MB
-=======
-                end_memory = (
-                    psutil.Process().memory_info().rss / 1024 / 1024
-                )  # MB
->>>>>>> origin/main
 
                 measurement = {
                     "iteration": i + 1,
@@ -63,13 +51,7 @@ class PerformanceTest:
                     "memory_delta": end_memory - start_memory,
                     "result": (
                         result
-<<<<<<< HEAD
                         if isinstance(result, (int, float, str, bool, type(None)))
-=======
-                        if isinstance(
-                            result, (int, float, str, bool, type(None))
-                        )
->>>>>>> origin/main
                         else str(result)
                     ),
                 }
@@ -87,13 +69,7 @@ class PerformanceTest:
         # Calculate statistics
         if results["measurements"]:
             durations = [m["duration"] for m in results["measurements"]]
-<<<<<<< HEAD
             memory_deltas = [m["memory_delta"] for m in results["measurements"]]
-=======
-            memory_deltas = [
-                m["memory_delta"] for m in results["measurements"]
-            ]
->>>>>>> origin/main
 
             results["statistics"] = {
                 "duration": {
@@ -102,13 +78,7 @@ class PerformanceTest:
                     "min": min(durations),
                     "max": max(durations),
                     "std_dev": (
-<<<<<<< HEAD
                         statistics.stdev(durations) if len(durations) > 1 else 0
-=======
-                        statistics.stdev(durations)
-                        if len(durations) > 1
-                        else 0
->>>>>>> origin/main
                     ),
                 },
                 "memory": {
@@ -137,15 +107,8 @@ class JarvysPerformanceTester:
             "cpu_count": psutil.cpu_count(),
             "memory_total_mb": psutil.virtual_memory().total / 1024 / 1024,
             "disk_usage": {
-<<<<<<< HEAD
                 "total_gb": psutil.disk_usage(self.project_root).total / (1024**3),
                 "free_gb": psutil.disk_usage(self.project_root).free / (1024**3),
-=======
-                "total_gb": psutil.disk_usage(self.project_root).total
-                / (1024**3),
-                "free_gb": psutil.disk_usage(self.project_root).free
-                / (1024**3),
->>>>>>> origin/main
             },
         }
 
@@ -170,14 +133,7 @@ class JarvysPerformanceTester:
         config_files = [
             self.project_root / "pyproject.toml",
             self.project_root / "src" / "jarvys_dev" / "model_config.json",
-<<<<<<< HEAD
             self.project_root / "src" / "jarvys_dev" / "model_capabilities.json",
-=======
-            self.project_root
-            / "src"
-            / "jarvys_dev"
-            / "model_capabilities.json",
->>>>>>> origin/main
         ]
 
         for config_file in config_files:
@@ -266,13 +222,7 @@ class JarvysPerformanceTester:
             # Test Supabase client creation
             from supabase import create_client
 
-<<<<<<< HEAD
             _supabase_client = create_client("https://test.supabase.co", "test-key")
-=======
-            _supabase_client = create_client(
-                "https://test.supabase.co", "test-key"
-            )
->>>>>>> origin/main
 
             # Test GitHub client creation
             from github import Github
@@ -288,12 +238,7 @@ class JarvysPerformanceTester:
         # Create test data
         test_data = {
             "messages": [
-<<<<<<< HEAD
                 {"role": "user", "content": f"Test message {i}"} for _i in range(100)
-=======
-                {"role": "user", "content": f"Test message {i}"}
-                for _i in range(100)
->>>>>>> origin/main
             ],
             "metadata": {
                 "timestamp": datetime.now().isoformat(),
@@ -315,7 +260,6 @@ class JarvysPerformanceTester:
     def run_all_performance_tests(self, iterations: int = 3) -> Dict[str, Any]:
         """Run all performance tests."""
         tests = [
-<<<<<<< HEAD
             PerformanceTest("import_performance", self.test_import_performance),
             PerformanceTest("config_loading", self.test_config_loading_performance),
             PerformanceTest("file_system_ops", self.test_file_system_performance),
@@ -323,25 +267,6 @@ class JarvysPerformanceTester:
             PerformanceTest("concurrent_ops", self.test_concurrent_operations),
             PerformanceTest("api_client_creation", self.test_api_client_creation),
             PerformanceTest("json_processing", self.test_json_processing_performance),
-=======
-            PerformanceTest(
-                "import_performance", self.test_import_performance
-            ),
-            PerformanceTest(
-                "config_loading", self.test_config_loading_performance
-            ),
-            PerformanceTest(
-                "file_system_ops", self.test_file_system_performance
-            ),
-            PerformanceTest("memory_patterns", self.test_memory_usage_pattern),
-            PerformanceTest("concurrent_ops", self.test_concurrent_operations),
-            PerformanceTest(
-                "api_client_creation", self.test_api_client_creation
-            ),
-            PerformanceTest(
-                "json_processing", self.test_json_processing_performance
-            ),
->>>>>>> origin/main
         ]
 
         results = {
@@ -388,13 +313,7 @@ class JarvysPerformanceTester:
         }
 
         for load_level in load_levels:
-<<<<<<< HEAD
             print(f"Benchmarking {component_name} at load level {load_level}...")
-=======
-            print(
-                f"Benchmarking {component_name} at load level {load_level}..."
-            )
->>>>>>> origin/main
 
             start_time = time.perf_counter()
             start_memory = psutil.Process().memory_info().rss / 1024 / 1024
@@ -421,13 +340,7 @@ class JarvysPerformanceTester:
 
         return benchmark_results
 
-<<<<<<< HEAD
     def generate_performance_report(self, output_file: Optional[str] = None) -> str:
-=======
-    def generate_performance_report(
-        self, output_file: Optional[str] = None
-    ) -> str:
->>>>>>> origin/main
         """Generate comprehensive performance report."""
         results = self.run_all_performance_tests()
 
@@ -435,13 +348,7 @@ class JarvysPerformanceTester:
             output_path = Path(output_file)
         else:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-<<<<<<< HEAD
             output_path = self.project_root / f"performance_report_{timestamp}.json"
-=======
-            output_path = (
-                self.project_root / f"performance_report_{timestamp}.json"
-            )
->>>>>>> origin/main
 
         with open(output_path, "w") as f:
             json.dump(results, f, indent=2, default=str)
@@ -476,26 +383,13 @@ class JarvysPerformanceTester:
 
         print("⏱️  Performance Results:")
         for test_name, test_result in results["test_results"].items():
-<<<<<<< HEAD
             if test_result["status"] == "success" and "statistics" in test_result:
-=======
-            if (
-                test_result["status"] == "success"
-                and "statistics" in test_result
-            ):
->>>>>>> origin/main
                 stats = test_result["statistics"]
                 duration_stats = stats.get("duration", {})
                 mean_time = duration_stats.get("mean", 0)
 
                 status_icon = (
-<<<<<<< HEAD
                     "✅" if mean_time < 1.0 else "⚠️" if mean_time < 5.0 else "❌"
-=======
-                    "✅"
-                    if mean_time < 1.0
-                    else "⚠️" if mean_time < 5.0 else "❌"
->>>>>>> origin/main
                 )
                 print(
                     f"  {status_icon} {test_name.replace('_', ' ').title()}: {mean_time:.3f}s avg"
@@ -518,12 +412,7 @@ class JarvysPerformanceTester:
             name
             for name, result in results["test_results"].items()
             if result["status"] == "success"
-<<<<<<< HEAD
             and result.get("statistics", {}).get("duration", {}).get("mean", 0) > 1.0
-=======
-            and result.get("statistics", {}).get("duration", {}).get("mean", 0)
-            > 1.0
->>>>>>> origin/main
         ]
 
         if slow_tests:

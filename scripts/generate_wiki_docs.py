@@ -72,13 +72,7 @@ class WikiGenerator:
                 content = f.read()
 
             # Extraire les fonctions publiques
-<<<<<<< HEAD
             functions = re.findall(r"^def ([^_]\w*)\(.*?\):", content, re.MULTILINE)
-=======
-            functions = re.findall(
-                r"^def ([^_]\w*)\(.*?\):", content, re.MULTILINE
-            )
->>>>>>> origin/main
 
             tools[tool_file.stem] = {
                 "file": str(tool_file.relative_to(self.repo_root)),
@@ -210,7 +204,6 @@ class WikiGenerator:
     def generate_home_page(self) -> str:
         """Génère la page d'accueil du Wiki."""
         capabilities = self.analyze_code_capabilities()
-<<<<<<< HEAD
         self._analyze_workflows()
 
         # Préparer les données pour éviter les f-string complexes
@@ -220,23 +213,6 @@ class WikiGenerator:
         capabilities["core_loop"]["confidence_threshold"]
         self._format_list(capabilities["models"]["supported_providers"])
         json.dumps(capabilities["models"]["current_models"], indent=2)
-=======
-        workflows = self._analyze_workflows()
-
-        # Préparer les données pour éviter les f-string complexes
-        current_date = self._get_current_date()
-        loop_type = capabilities["core_loop"]["type"]
-        loop_impl = capabilities["core_loop"]["implementation"]
-        confidence_threshold = capabilities["core_loop"][
-            "confidence_threshold"
-        ]
-        providers = self._format_list(
-            capabilities["models"]["supported_providers"]
-        )
-        models_json = json.dumps(
-            capabilities["models"]["current_models"], indent=2
-        )
->>>>>>> origin/main
 
         content = """# 🤖 JARVYS_DEV - Agent DevOps Autonome
 
@@ -351,11 +327,7 @@ JARVYS_DEV communique avec **JARVYS_AI** via :
 
     def generate_api_reference(self) -> str:
         """Génère la référence API complète."""
-<<<<<<< HEAD
         self.analyze_code_capabilities()
-=======
-        capabilities = self.analyze_code_capabilities()
->>>>>>> origin/main
 
         content = """# 📚 Référence API JARVYS_DEV
 
@@ -472,13 +444,7 @@ Les secrets sont automatiquement masqués dans les logs grâce au `_SecretFilter
             formatted.append(f"- **Fichier**: `{info['file']}`")
             formatted.append(f"- **Description**: {info['description']}")
             if info["functions"]:
-<<<<<<< HEAD
                 formatted.append(f"- **Fonctions**: {', '.join(info['functions'])}")
-=======
-                formatted.append(
-                    f"- **Fonctions**: {', '.join(info['functions'])}"
-                )
->>>>>>> origin/main
             formatted.append("")
         return "\n".join(formatted)
 
@@ -499,13 +465,7 @@ Les secrets sont automatiquement masqués dans les logs grâce au `_SecretFilter
         """Formate la liste des workflows."""
         formatted = []
         for name, info in workflows.items():
-<<<<<<< HEAD
             triggers = ", ".join(info["triggers"]) if info["triggers"] else "manual"
-=======
-            triggers = (
-                ", ".join(info["triggers"]) if info["triggers"] else "manual"
-            )
->>>>>>> origin/main
             formatted.append(f"- **{name}**: {triggers}")
         return "\n".join(formatted)
 
@@ -517,13 +477,7 @@ Les secrets sont automatiquement masqués dans les logs grâce au `_SecretFilter
                 formatted.append("### Serveur MCP")
                 formatted.append(f"- **Port**: {info['port']}")
                 formatted.append(f"- **Type**: {info['type']}")
-<<<<<<< HEAD
                 formatted.append("- **Endpoints**: " + ", ".join(info["endpoints"]))
-=======
-                formatted.append(
-                    "- **Endpoints**: " + ", ".join(info["endpoints"])
-                )
->>>>>>> origin/main
             elif isinstance(info, dict) and "features" in info:
                 formatted.append(f"### {name.title()}")
                 formatted.append(

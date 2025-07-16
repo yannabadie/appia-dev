@@ -44,13 +44,7 @@ class TestEnvironmentSetup:
                 missing_vars.append(var)
 
         if missing_vars:
-<<<<<<< HEAD
             pytest.skip(f"Missing environment variables: {', '.join(missing_vars)}")
-=======
-            pytest.skip(
-                f"Missing environment variables: {', '.join(missing_vars)}"
-            )
->>>>>>> origin/main
 
     def test_optional_environment_variables(self):
         """Test optional environment variables for full functionality."""
@@ -98,13 +92,7 @@ class TestEnvironmentSetup:
             except ImportError as e:
                 import_errors.append((dep, str(e)))
 
-<<<<<<< HEAD
         assert not import_errors, f"Failed to import dependencies: {import_errors}"
-=======
-        assert (
-            not import_errors
-        ), f"Failed to import dependencies: {import_errors}"
->>>>>>> origin/main
 
     def test_jarvys_dev_module_structure(self):
         """Test that JARVYS dev module has correct structure."""
@@ -127,13 +115,7 @@ class TestEnvironmentSetup:
 
     def test_tools_module_structure(self):
         """Test that tools module has correct structure."""
-<<<<<<< HEAD
         tools_path = Path(__file__).parent.parent / "src" / "jarvys_dev" / "tools"
-=======
-        tools_path = (
-            Path(__file__).parent.parent / "src" / "jarvys_dev" / "tools"
-        )
->>>>>>> origin/main
         assert tools_path.exists(), f"Tools module not found at {tools_path}"
 
         expected_files = ["memory.py", "memory_infinite.py", "github_tools.py"]
@@ -159,13 +141,7 @@ class TestEnvironmentSetup:
             if not (project_root / config).exists():
                 missing_configs.append(config)
 
-<<<<<<< HEAD
         assert not missing_configs, f"Missing configuration files: {missing_configs}"
-=======
-        assert (
-            not missing_configs
-        ), f"Missing configuration files: {missing_configs}"
->>>>>>> origin/main
 
     def test_poetry_environment(self):
         """Test that poetry environment is properly set up."""
@@ -176,13 +152,7 @@ class TestEnvironmentSetup:
                 text=True,
                 timeout=10,
             )
-<<<<<<< HEAD
             assert result.returncode == 0, f"Poetry not available: {result.stderr}"
-=======
-            assert (
-                result.returncode == 0
-            ), f"Poetry not available: {result.stderr}"
->>>>>>> origin/main
         except (subprocess.TimeoutExpired, FileNotFoundError):
             pytest.skip("Poetry not available in environment")
 
@@ -195,13 +165,7 @@ class TestEnvironmentSetup:
                 text=True,
                 timeout=10,
             )
-<<<<<<< HEAD
             assert result.returncode == 0, f"Git not available: {result.stderr}"
-=======
-            assert (
-                result.returncode == 0
-            ), f"Git not available: {result.stderr}"
->>>>>>> origin/main
         except (subprocess.TimeoutExpired, FileNotFoundError):
             pytest.skip("Git not available in environment")
 
@@ -243,13 +207,7 @@ class TestGitHubWorkflowStructure:
             if not (workflows_path / workflow).exists():
                 missing_workflows.append(workflow)
 
-<<<<<<< HEAD
         assert not missing_workflows, f"Missing core workflows: {missing_workflows}"
-=======
-        assert (
-            not missing_workflows
-        ), f"Missing core workflows: {missing_workflows}"
->>>>>>> origin/main
 
 
 class TestSupabaseStructure:

@@ -29,13 +29,7 @@ class TestSupabaseDeployment:
         assert schema_file.exists(), "Schema SQL file should exist"
 
         content = schema_file.read_text()
-<<<<<<< HEAD
         assert "CREATE" in content.upper(), "Schema should contain CREATE statements"
-=======
-        assert (
-            "CREATE" in content.upper()
-        ), "Schema should contain CREATE statements"
->>>>>>> origin/main
 
         # Check for dangerous operations
         dangerous_ops = ["DROP DATABASE", "TRUNCATE"]
@@ -44,13 +38,7 @@ class TestSupabaseDeployment:
 
     def test_supabase_functions_deployment(self):
         """Test Supabase Edge Functions deployment readiness."""
-<<<<<<< HEAD
         functions_path = Path(__file__).parent.parent / "supabase" / "functions"
-=======
-        functions_path = (
-            Path(__file__).parent.parent / "supabase" / "functions"
-        )
->>>>>>> origin/main
         if not functions_path.exists():
             pytest.skip("Supabase functions directory not found")
 
@@ -64,12 +52,7 @@ class TestSupabaseDeployment:
 
                 # Should have Deno serve pattern for Edge Functions
                 assert any(
-<<<<<<< HEAD
                     pattern in content for pattern in ["Deno.serve", "new Response"]
-=======
-                    pattern in content
-                    for pattern in ["Deno.serve", "new Response"]
->>>>>>> origin/main
                 ), f"Function {func_dir.name} should be a valid Edge Function"
 
     def test_supabase_deployment_script(self):
@@ -95,7 +78,6 @@ class TestSupabaseDeployment:
         """Test Supabase CLI is available for deployment."""
         try:
             _result = subprocess.run(
-<<<<<<< HEAD
                 ["bash", "-c", "source ~/.nvm/nvm.sh && supabase -v"],
                 capture_output=True,
                 text=True,
@@ -109,19 +91,6 @@ class TestSupabaseDeployment:
             else:
                 # If Supabase CLI is not installed, not a test failure
                 print(f"Supabase CLI not installed: {_result.stderr}")
-=======
-                ["supabase", "--version"],
-                capture_output=True,
-                text=True,
-                timeout=10,
-            )
-
-            if result.returncode == 0:
-                assert (
-                    "supabase" in result.stdout.lower()
-                ), "Should return Supabase version"
-            else:
->>>>>>> origin/main
                 pytest.skip("Supabase CLI not available")
 
         except (subprocess.TimeoutExpired, FileNotFoundError):
@@ -171,13 +140,7 @@ class TestCloudBuildDeployment:
 
         # Should use substitution variables
         substitution_patterns = ["$PROJECT_ID", "$REPO_NAME", "$BRANCH_NAME"]
-<<<<<<< HEAD
         found_substitutions = [s for s in substitution_patterns if s in content]
-=======
-        found_substitutions = [
-            s for s in substitution_patterns if s in content
-        ]
->>>>>>> origin/main
 
         if found_substitutions:
             print(f"Found Cloud Build substitutions: {found_substitutions}")
@@ -198,13 +161,7 @@ class TestCloudBuildDeployment:
 
             # Should have reasonable timeout (not too short or too long)
             if "h" in timeout:
-<<<<<<< HEAD
                 hours = int(timeout.replace("h", "").replace("m", "").replace("s", ""))
-=======
-                hours = int(
-                    timeout.replace("h", "").replace("m", "").replace("s", "")
-                )
->>>>>>> origin/main
                 assert hours <= 2, "Build timeout should not exceed 2 hours"
 
 
@@ -234,13 +191,7 @@ class TestDockerDeployment:
 
     def test_docker_compose_deployment(self):
         """Test Docker Compose deployment configuration."""
-<<<<<<< HEAD
         compose_file = Path(__file__).parent.parent / "docker-compose.windows.yml"
-=======
-        compose_file = (
-            Path(__file__).parent.parent / "docker-compose.windows.yml"
-        )
->>>>>>> origin/main
         if not compose_file.exists():
             pytest.skip("Docker Compose file not found")
 
@@ -255,13 +206,7 @@ class TestDockerDeployment:
             if "build" in service_config:
                 print(f"Service {service_name} has build configuration")
             if "image" in service_config:
-<<<<<<< HEAD
                 print(f"Service {service_name} uses image: {service_config['image']}")
-=======
-                print(
-                    f"Service {service_name} uses image: {service_config['image']}"
-                )
->>>>>>> origin/main
 
     def test_dockerignore_exists(self):
         """Test .dockerignore exists for efficient builds."""
@@ -302,13 +247,7 @@ class TestDockerDeployment:
         if from_count > 1:
             print(f"Multi-stage build detected with {from_count} stages")
         else:
-<<<<<<< HEAD
             print("Info: Single-stage build - consider multi-stage for optimization")
-=======
-            print(
-                "Info: Single-stage build - consider multi-stage for optimization"
-            )
->>>>>>> origin/main
 
 
 class TestGitHubPagesDeployment:
@@ -369,21 +308,10 @@ class TestDeploymentErrorHandling:
                 content = f.read()
 
             found_rollback = [
-<<<<<<< HEAD
                 pattern for pattern in rollback_patterns if pattern in content.lower()
             ]
             if found_rollback:
                 print(f"Rollback capability in {workflow_file.name}: {found_rollback}")
-=======
-                pattern
-                for pattern in rollback_patterns
-                if pattern in content.lower()
-            ]
-            if found_rollback:
-                print(
-                    f"Rollback capability in {workflow_file.name}: {found_rollback}"
-                )
->>>>>>> origin/main
 
     def test_deployment_health_checks(self):
         """Test deployment includes health checks."""
@@ -398,7 +326,6 @@ class TestDeploymentErrorHandling:
                 content = f.read()
 
             if any(
-<<<<<<< HEAD
                 keyword in workflow_file.name.lower() for keyword in ["deploy", "build"]
             ):
                 found_health = [
@@ -406,20 +333,6 @@ class TestDeploymentErrorHandling:
                 ]
                 if found_health:
                     print(f"Health checks in {workflow_file.name}: {found_health}")
-=======
-                keyword in workflow_file.name.lower()
-                for keyword in ["deploy", "build"]
-            ):
-                found_health = [
-                    pattern
-                    for pattern in health_patterns
-                    if pattern in content.lower()
-                ]
-                if found_health:
-                    print(
-                        f"Health checks in {workflow_file.name}: {found_health}"
-                    )
->>>>>>> origin/main
                 else:
                     print(f"Info: {workflow_file.name} may lack health checks")
 
@@ -436,12 +349,7 @@ class TestDeploymentErrorHandling:
                 content = f.read()
 
             if any(
-<<<<<<< HEAD
                 keyword in workflow_file.name.lower() for keyword in ["deploy", "build"]
-=======
-                keyword in workflow_file.name.lower()
-                for keyword in ["deploy", "build"]
->>>>>>> origin/main
             ):
                 found_notifications = [
                     pattern
@@ -557,12 +465,7 @@ class TestDeploymentMonitoring:
                 content = f.read()
 
             if any(
-<<<<<<< HEAD
                 keyword in workflow_file.name.lower() for keyword in ["deploy", "build"]
-=======
-                keyword in workflow_file.name.lower()
-                for keyword in ["deploy", "build"]
->>>>>>> origin/main
             ):
                 # Should have logging statements
                 logging_patterns = ["echo", "log", "print"]
@@ -588,13 +491,7 @@ class TestDeploymentMonitoring:
         )
 
         if metrics_files:
-<<<<<<< HEAD
             print(f"Deployment metrics collection: {[f.name for f in metrics_files]}")
-=======
-            print(
-                f"Deployment metrics collection: {[f.name for f in metrics_files]}"
-            )
->>>>>>> origin/main
         else:
             print("Info: Deployment metrics collection not found")
 
@@ -645,13 +542,7 @@ class TestDeploymentPerformance:
             # Look for caching mechanisms
             cache_patterns = ["cache", "restore", "save"]
             found_caching = [
-<<<<<<< HEAD
                 pattern for pattern in cache_patterns if pattern in content.lower()
-=======
-                pattern
-                for pattern in cache_patterns
-                if pattern in content.lower()
->>>>>>> origin/main
             ]
 
             if found_caching:
@@ -696,10 +587,7 @@ class TestDeploymentPerformance:
             # Check for resource optimization
             jobs = workflow_config.get("jobs", {})
             for job_name, job_config in jobs.items():
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/main
                 # Check for timeout settings (prevents resource waste)
                 if "timeout-minutes" in job_config:
                     timeout = job_config["timeout-minutes"]

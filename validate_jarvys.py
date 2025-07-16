@@ -124,13 +124,7 @@ class JarvysValidator:
     def check_environment_consistency(self):
         """Vérifie la cohérence des variables d'environnement."""
         devcontainer_path = ".devcontainer/devcontainer.json"
-<<<<<<< HEAD
         if not self.check_file_exists(devcontainer_path, "DevContainer config"):
-=======
-        if not self.check_file_exists(
-            devcontainer_path, "DevContainer config"
-        ):
->>>>>>> origin/main
             return False
 
         with open(devcontainer_path, "r") as f:
@@ -244,13 +238,7 @@ class JarvysValidator:
             print(f"{icon} {check['name']}: {check['message']}")
 
         # Résumé
-<<<<<<< HEAD
         print(f"\n📈 Résumé: {len(passed)}/{len(self.checks)} vérifications réussies")
-=======
-        print(
-            f"\n📈 Résumé: {len(passed)}/{len(self.checks)} vérifications réussies"
-        )
->>>>>>> origin/main
 
         if critical_failed:
             print(f"\n❌ {len(critical_failed)} erreur(s) critique(s):")

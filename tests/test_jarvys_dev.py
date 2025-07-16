@@ -34,13 +34,7 @@ class TestJarvysDevCore:
         try:
             from jarvys_dev import langgraph_loop
 
-<<<<<<< HEAD
             assert hasattr(langgraph_loop, "JarvysLoop"), "Should have JarvysLoop class"
-=======
-            assert hasattr(
-                langgraph_loop, "JarvysLoop"
-            ), "Should have JarvysLoop class"
->>>>>>> origin/main
         except ImportError as e:
             pytest.fail(f"Could not import langgraph_loop: {e}")
 
@@ -61,13 +55,7 @@ class TestMultiModelRouter:
 
     def test_router_with_openai_key(self):
         """Test router initialization with OpenAI key."""
-<<<<<<< HEAD
         with patch.dict(os.environ, {"OPENAI_API_KEY": "sk-test123"}, clear=True):
-=======
-        with patch.dict(
-            os.environ, {"OPENAI_API_KEY": "sk-test123"}, clear=True
-        ):
->>>>>>> origin/main
             try:
                 from jarvys_dev.multi_model_router import MultiModelRouter
 
@@ -84,13 +72,7 @@ class TestMultiModelRouter:
             router = MultiModelRouter()
 
             # Check model configuration is loaded
-<<<<<<< HEAD
             assert hasattr(router, "model_names"), "Router should have model_names"
-=======
-            assert hasattr(
-                router, "model_names"
-            ), "Router should have model_names"
->>>>>>> origin/main
             assert hasattr(
                 router, "model_capabilities"
             ), "Router should have model_capabilities"
@@ -125,13 +107,8 @@ class TestIntelligentOrchestrator:
     def test_orchestrator_importable(self):
         """Test that intelligent orchestrator can be imported."""
         try:
-<<<<<<< HEAD
             from jarvys_dev.intelligent_orchestrator import \
                 IntelligentOrchestrator
-=======
-            from jarvys_dev.intelligent_orchestrator import \
-                IntelligentOrchestrator
->>>>>>> origin/main
 
             assert IntelligentOrchestrator is not None
         except ImportError as e:
@@ -140,13 +117,8 @@ class TestIntelligentOrchestrator:
     def test_orchestrator_initialization(self):
         """Test orchestrator can be initialized."""
         try:
-<<<<<<< HEAD
             from jarvys_dev.intelligent_orchestrator import \
                 IntelligentOrchestrator
-=======
-            from jarvys_dev.intelligent_orchestrator import \
-                IntelligentOrchestrator
->>>>>>> origin/main
 
             orchestrator = IntelligentOrchestrator()
             assert orchestrator is not None
@@ -156,13 +128,8 @@ class TestIntelligentOrchestrator:
     def test_task_analysis_method(self):
         """Test task analysis method exists."""
         try:
-<<<<<<< HEAD
             from jarvys_dev.intelligent_orchestrator import \
                 IntelligentOrchestrator
-=======
-            from jarvys_dev.intelligent_orchestrator import \
-                IntelligentOrchestrator
->>>>>>> origin/main
 
             orchestrator = IntelligentOrchestrator()
             assert hasattr(
@@ -198,12 +165,7 @@ class TestAgentControl:
             available_functions = [
                 attr
                 for attr in dir(agent_control)
-<<<<<<< HEAD
                 if callable(getattr(agent_control, attr)) and not attr.startswith("_")
-=======
-                if callable(getattr(agent_control, attr))
-                and not attr.startswith("_")
->>>>>>> origin/main
             ]
 
             # At least some control functions should be available
@@ -312,17 +274,10 @@ class TestJarvysDevAPI:
             from jarvys_dev.main import app
 
             _client = TestClient(app)
-<<<<<<< HEAD
             _response = _client.get("/")
 
             # Should return successful response
             assert _response.status_code == 200
-=======
-            _response = client.get("/")
-
-            # Should return successful response
-            assert response.status_code == 200
->>>>>>> origin/main
 
         except Exception as e:
             pytest.fail(f"API health endpoint test failed: {e}")
@@ -448,13 +403,7 @@ class TestJarvysDevIntegration:
 
             # Should have memory-related functions
             memory_attrs = [
-<<<<<<< HEAD
                 attr for attr in dir(memory_infinite) if not attr.startswith("_")
-=======
-                attr
-                for attr in dir(memory_infinite)
-                if not attr.startswith("_")
->>>>>>> origin/main
             ]
             assert len(memory_attrs) > 0, "Memory tools should have functions"
 
@@ -469,13 +418,7 @@ class TestJarvysDevIntegration:
             assert memory is not None
 
             # Should have memory-related functions for Supabase
-<<<<<<< HEAD
             memory_attrs = [attr for attr in dir(memory) if not attr.startswith("_")]
-=======
-            memory_attrs = [
-                attr for attr in dir(memory) if not attr.startswith("_")
-            ]
->>>>>>> origin/main
             assert len(memory_attrs) > 0, "Memory module should have functions"
 
         except ImportError as e:

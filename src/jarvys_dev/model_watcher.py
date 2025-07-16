@@ -31,11 +31,7 @@ def _fetch_openai_models() -> list[str]:
     key = os.getenv("OPENAI_API_KEY")
     if not key:
         return []
-<<<<<<< HEAD
     client = OpenAI(api_key=key)
-=======
-    _client = OpenAI(api_key=key)
->>>>>>> origin/main
     return [m.id for m in client.models.list().data]
 
 

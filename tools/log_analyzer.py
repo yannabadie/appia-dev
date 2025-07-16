@@ -81,13 +81,7 @@ class JarvysLogAnalyzer:
 
         # Check file content for log patterns
         try:
-<<<<<<< HEAD
             if file_path.stat().st_size > 50 * 1024 * 1024:  # Skip files > 50MB
-=======
-            if (
-                file_path.stat().st_size > 50 * 1024 * 1024
-            ):  # Skip files > 50MB
->>>>>>> origin/main
                 return False
 
             with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
@@ -120,12 +114,7 @@ class JarvysLogAnalyzer:
                     log_file.stat().st_mtime
                 ).isoformat(),
                 "age_hours": (
-<<<<<<< HEAD
                     datetime.now() - datetime.fromtimestamp(log_file.stat().st_mtime)
-=======
-                    datetime.now()
-                    - datetime.fromtimestamp(log_file.stat().st_mtime)
->>>>>>> origin/main
                 ).total_seconds()
                 / 3600,
             },
@@ -156,13 +145,7 @@ class JarvysLogAnalyzer:
                 file_opener = open
                 mode = "r"
 
-<<<<<<< HEAD
             with file_opener(log_file, mode, encoding="utf-8", errors="ignore") as f:
-=======
-            with file_opener(
-                log_file, mode, encoding="utf-8", errors="ignore"
-            ) as f:
->>>>>>> origin/main
                 lines = []
                 for line_num, line in enumerate(f, 1):
                     if line_num > 10000:  # Limit to avoid memory issues
@@ -189,25 +172,13 @@ class JarvysLogAnalyzer:
 
         # Count log levels
         if any(
-<<<<<<< HEAD
             pattern in line_lower for pattern in ["error", "err", "failed", "exception"]
-=======
-            pattern in line_lower
-            for pattern in ["error", "err", "failed", "exception"]
->>>>>>> origin/main
         ):
             analysis["content_analysis"]["error_count"] += 1
             if len(analysis["patterns"]["errors"]) < 10:
                 analysis["patterns"]["errors"].append(line[:200])
 
-<<<<<<< HEAD
         if any(pattern in line_lower for pattern in ["warning", "warn", "deprecated"]):
-=======
-        if any(
-            pattern in line_lower
-            for pattern in ["warning", "warn", "deprecated"]
-        ):
->>>>>>> origin/main
             analysis["content_analysis"]["warning_count"] += 1
             if len(analysis["patterns"]["warnings"]) < 10:
                 analysis["patterns"]["warnings"].append(line[:200])
@@ -215,34 +186,17 @@ class JarvysLogAnalyzer:
         if any(pattern in line_lower for pattern in ["info", "information"]):
             analysis["content_analysis"]["info_count"] += 1
 
-<<<<<<< HEAD
         if any(pattern in line_lower for pattern in ["debug", "trace", "verbose"]):
             analysis["content_analysis"]["debug_count"] += 1
 
         # Look for exceptions
         if any(pattern in line for pattern in ["Exception", "Error:", "Traceback"]):
-=======
-        if any(
-            pattern in line_lower for pattern in ["debug", "trace", "verbose"]
-        ):
-            analysis["content_analysis"]["debug_count"] += 1
-
-        # Look for exceptions
-        if any(
-            pattern in line for pattern in ["Exception", "Error:", "Traceback"]
-        ):
->>>>>>> origin/main
             if len(analysis["patterns"]["exceptions"]) < 10:
                 analysis["patterns"]["exceptions"].append(line[:200])
 
         # Look for API calls
         if any(
-<<<<<<< HEAD
             pattern in line_lower for pattern in ["http", "api", "request", "response"]
-=======
-            pattern in line_lower
-            for pattern in ["http", "api", "request", "response"]
->>>>>>> origin/main
         ):
             if len(analysis["patterns"]["api_calls"]) < 10:
                 analysis["patterns"]["api_calls"].append(line[:200])
@@ -352,15 +306,9 @@ class JarvysLogAnalyzer:
             file_info = file_analysis["file_info"]
             content_analysis = file_analysis["content_analysis"]
 
-<<<<<<< HEAD
             overall_analysis["summary"]["total_size_mb"] += file_info["size_bytes"] / (
                 1024 * 1024
             )
-=======
-            overall_analysis["summary"]["total_size_mb"] += file_info[
-                "size_bytes"
-            ] / (1024 * 1024)
->>>>>>> origin/main
             overall_analysis["summary"]["total_errors"] += content_analysis[
                 "error_count"
             ]
@@ -399,15 +347,9 @@ class JarvysLogAnalyzer:
                 ] += 1
 
             # Aggregate keywords
-<<<<<<< HEAD
             overall_analysis["aggregated_patterns"]["frequent_keywords"].update(
                 file_analysis["keywords"]
             )
-=======
-            overall_analysis["aggregated_patterns"][
-                "frequent_keywords"
-            ].update(file_analysis["keywords"])
->>>>>>> origin/main
 
         # Round total size
         overall_analysis["summary"]["total_size_mb"] = round(
@@ -416,7 +358,6 @@ class JarvysLogAnalyzer:
 
         # Convert Counters to regular dicts for JSON serialization
         overall_analysis["aggregated_patterns"]["common_errors"] = dict(
-<<<<<<< HEAD
             overall_analysis["aggregated_patterns"]["common_errors"].most_common(10)
         )
         overall_analysis["aggregated_patterns"]["common_warnings"] = dict(
@@ -424,21 +365,6 @@ class JarvysLogAnalyzer:
         )
         overall_analysis["aggregated_patterns"]["frequent_keywords"] = dict(
             overall_analysis["aggregated_patterns"]["frequent_keywords"].most_common(20)
-=======
-            overall_analysis["aggregated_patterns"][
-                "common_errors"
-            ].most_common(10)
-        )
-        overall_analysis["aggregated_patterns"]["common_warnings"] = dict(
-            overall_analysis["aggregated_patterns"][
-                "common_warnings"
-            ].most_common(10)
-        )
-        overall_analysis["aggregated_patterns"]["frequent_keywords"] = dict(
-            overall_analysis["aggregated_patterns"][
-                "frequent_keywords"
-            ].most_common(20)
->>>>>>> origin/main
         )
 
         return overall_analysis
@@ -535,13 +461,7 @@ class JarvysLogAnalyzer:
         # Show file breakdown
         if analysis["files"]:
             print("📁 Log Files:")
-<<<<<<< HEAD
             for file_path, file_analysis in list(analysis["files"].items())[:10]:
-=======
-            for file_path, file_analysis in list(analysis["files"].items())[
-                :10
-            ]:
->>>>>>> origin/main
                 errors = file_analysis["content_analysis"]["error_count"]
                 warnings = file_analysis["content_analysis"]["warning_count"]
                 size_kb = file_analysis["file_info"]["size_bytes"] / 1024

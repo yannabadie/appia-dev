@@ -367,9 +367,7 @@ serve(async (req) => {
                 print(
                     "⚠️ L'authentification nécessite encore la mise à jour de la Edge Function"
                 )
-                print(
-                    "📝 Le patch doit être appliqué manuellement dans Supabase"
-                )
+                print("📝 Le patch doit être appliqué manuellement dans Supabase")
             else:
                 print(f"🔍 Status metrics: {response_metrics.status_code}")
 

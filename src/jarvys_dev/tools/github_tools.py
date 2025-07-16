@@ -49,11 +49,7 @@ def copilot_generate_patch(
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY manquant")
 
-<<<<<<< HEAD
     client = OpenAI(api_key=api_key)
-=======
-    _client = OpenAI(api_key=api_key)
->>>>>>> origin/main
     payload = json.dumps({"prompt": prompt, "files": files})
     resp = client.chat.completions.create(
         model="gpt-3.5-turbo",
