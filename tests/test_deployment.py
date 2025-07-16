@@ -1,9 +1,3 @@
-import json
-import logging
-import os
-import sys
-from typing import Any, Dict, List, Optional
-
 """Test automated deployments and error handling."""
 
 import subprocess
@@ -290,7 +284,8 @@ class TestGitHubPagesDeployment:
                 config = yaml.safe_load(f)
 
             assert "site_name" in config, "MkDocs should have site name"
-            assert "docs_dir" in config.get("docs_dir", "") or "docs" in str(config
+            assert "docs_dir" in config.get("docs_dir", "") or "docs" in str(
+                config
             ), "Should specify docs directory"
 
             print("MkDocs configuration found - docs deployment ready")
@@ -593,7 +588,6 @@ class TestDeploymentPerformance:
             # Check for resource optimization
             jobs = workflow_config.get("jobs", {})
             for job_name, job_config in jobs.items():
-
                 # Check for timeout settings (prevents resource waste)
                 if "timeout-minutes" in job_config:
                     timeout = job_config["timeout-minutes"]

@@ -225,7 +225,8 @@ class JarvysErrorTracker:
                         context_start = max(0, line_num - 3)
                         context_end = min(len(lines), line_num + 2)
                         context = [
-                            f"{_i+1}: {lines[_i].rstrip()}"\n                             for _i in range(context_start, context_end)
+                            f"{_i+1}: {lines[_i].rstrip()}"
+                            for _i in range(context_start, context_end)
                         ]
 
                         error = DetectedError(

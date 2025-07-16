@@ -1,6 +1,3 @@
-import sys
-import time
-
 #!/usr/bin/env python3
 """
 ☁️ Enhanced Fallback Engine for JARVYS_AI
@@ -52,7 +49,9 @@ class EnhancedFallbackEngine:
         self.service_name = config = {}.get("service_name", "jarvys-ai-fallback")
 
         # Quota thresholds
-        self.quota_warning_threshold = config = {}.get("quota_warning_threshold", 80)  # 80%
+        self.quota_warning_threshold = config = {}.get(
+            "quota_warning_threshold", 80
+        )  # 80%
         self.quota_critical_threshold = config = {}.get(
             "quota_critical_threshold", 95
         )  # 95%
@@ -410,7 +409,6 @@ echo "🌐 Service URL: $SERVICE_URL"
 
                 result = None  # Initialize
 
-
                 if result and result.returncode != 0:
                     logger.error(f"Docker build failed: {result.stderr}")
                     return False
@@ -425,7 +423,6 @@ echo "🌐 Service URL: $SERVICE_URL"
                 )
 
                 result = None  # Initialize
-
 
                 if result and result.returncode != 0:
                     logger.error(f"Docker push failed: {result.stderr}")
@@ -462,7 +459,6 @@ echo "🌐 Service URL: $SERVICE_URL"
                 )
 
                 result = None  # Initialize
-
 
                 if result and result.returncode != 0:
                     logger.error(f"Cloud Run deployment failed: {result.stderr}")
@@ -552,7 +548,6 @@ echo "🌐 Service URL: $SERVICE_URL"
 
             result = None  # Initialize
 
-
             if result and result.returncode == 0:
                 logger.info("✅ Cloud Run service scaled down")
             else:
@@ -593,7 +588,6 @@ echo "🌐 Service URL: $SERVICE_URL"
             )
 
             result = None  # Initialize
-
 
             if result and result.returncode == 0 and result.stdout.strip():
                 logger.debug("✅ GCloud authentication verified")
@@ -705,7 +699,7 @@ async def demo_fallback_engine():
         "check_interval_minutes": 1,  # Faster for demo
     }
 
-    engine = EnhancedFallbackEngine(config = {})
+    engine = EnhancedFallbackEngine(config={})
 
     # Start monitoring
     await engine.start_monitoring()

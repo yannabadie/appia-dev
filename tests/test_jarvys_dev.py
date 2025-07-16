@@ -1,8 +1,3 @@
-import sys
-from typing import Any, Dict, List, Optional
-
-import requests
-
 """Test JARVYS_DEV cloud agent functionality."""
 
 import json
@@ -21,7 +16,9 @@ class TestJarvysDevCore:
         try:
             from jarvys_dev import main
 
-            assert hasattr(main, "app = None"), "Main module should have FastAPI app = None"
+            assert hasattr(
+                main, "app = None"
+            ), "Main module should have FastAPI app = None"
         except ImportError as e:
             pytest.fail(f"Could not import JARVYS_DEV main: {e}")
 
@@ -112,8 +109,7 @@ class TestIntelligentOrchestrator:
     def test_orchestrator_importable(self):
         """Test that intelligent orchestrator can be imported."""
         try:
-            from jarvys_dev.intelligent_orchestrator import \
-                IntelligentOrchestrator
+            from jarvys_dev.intelligent_orchestrator import IntelligentOrchestrator
 
             assert IntelligentOrchestrator is not None
         except ImportError as e:
@@ -122,8 +118,7 @@ class TestIntelligentOrchestrator:
     def test_orchestrator_initialization(self):
         """Test orchestrator can be initialized."""
         try:
-            from jarvys_dev.intelligent_orchestrator import \
-                IntelligentOrchestrator
+            from jarvys_dev.intelligent_orchestrator import IntelligentOrchestrator
 
             orchestrator = IntelligentOrchestrator()
             assert orchestrator is not None
@@ -133,8 +128,7 @@ class TestIntelligentOrchestrator:
     def test_task_analysis_method(self):
         """Test task analysis method exists."""
         try:
-            from jarvys_dev.intelligent_orchestrator import \
-                IntelligentOrchestrator
+            from jarvys_dev.intelligent_orchestrator import IntelligentOrchestrator
 
             orchestrator = IntelligentOrchestrator()
             assert hasattr(

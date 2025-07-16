@@ -39,7 +39,9 @@ class JarvysDeploymentPackager:
             package_path = self.output_path / package_name
             package_path.mkdir(exist_ok=True)
 
-            logging.getLogger(__name__).info(f"📦 Creating deployment package: {package_name}")
+            logging.getLogger(__name__).info(
+                f"📦 Creating deployment package: {package_name}"
+            )
 
             # Copy JARVYS_AI core files
             self._copy_jarvys_ai_core(package_path)
@@ -62,11 +64,15 @@ class JarvysDeploymentPackager:
             # Create ZIP archive
             zip_path = self._create_zip_archive(package_path, package_name)
 
-            logging.getLogger(__name__).info(f"✅ Deployment package created: {zip_path}")
+            logging.getLogger(__name__).info(
+                f"✅ Deployment package created: {zip_path}"
+            )
             return zip_path
 
         except Exception as e:
-            logging.getLogger(__name__).error(f"❌ Error creating deployment package: {e}")
+            logging.getLogger(__name__).error(
+                f"❌ Error creating deployment package: {e}"
+            )
             return None
 
     def _copy_jarvys_ai_core(self, package_path: Path):
@@ -589,7 +595,9 @@ For support and updates: https://github.com/yannabadie/appIA
 
         # Calculate size
         size_mb = zip_path.stat().st_size / (1024 * 1024)
-        logging.getLogger(__name__).info(f"✅ ZIP archive created: {zip_path.name} ({size_mb:.1f} MB)")
+        logging.getLogger(__name__).info(
+            f"✅ ZIP archive created: {zip_path.name} ({size_mb:.1f} MB)"
+        )
 
         return zip_path
 

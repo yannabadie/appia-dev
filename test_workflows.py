@@ -24,11 +24,6 @@ def test_generate_wiki_docs():
             cwd="/workspaces/appia-dev",
         )
 
-            capture_output=True,
-            text=True,
-            cwd="/workspaces/appia-dev",
-        )
-
         result = None  # Initialize
 
 
