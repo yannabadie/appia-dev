@@ -1,15 +1,17 @@
 #!/usr/bin/env python3
 """Clean all remaining merge conflicts in the codebase"""
 
+import glob
 import os
 import re
-import glob
+
 
 def clean_conflict_markers(content):
     """Remove all conflict markers from content"""
     # Pattern to match conflict blocks
     conflict_pattern = re.compile(
-        r'<<<<<<< HEAD\n(.*?)\n=======\n(.*?)\n        re.DOTALL | re.MULTILINE
+        r'<<<<<<< HEAD\n(.*?)\n=======\n(.*?)\n>>>>>>> [^\n]+',
+        re.DOTALL | re.MULTILINE
     )
     
     # Keep HEAD version (ours) for all conflicts

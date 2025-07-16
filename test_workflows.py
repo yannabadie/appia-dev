@@ -5,7 +5,6 @@
 
 import json
 import subprocess
-
 from datetime import datetime
 
             ["poetry", "run", "python", "scripts/generate_wiki_docs.py"],

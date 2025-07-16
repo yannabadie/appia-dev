@@ -78,7 +78,6 @@ ignore = [
     "RUF002",
     "E501",
 ]
-psutil = ">=5.9.0"
 
 [build-system]
 requires = ["poetry-core"]
