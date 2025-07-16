@@ -1,3 +1,4 @@
+import sys
 """
 OpenAI Data Importer pour JARVYS
 Module pour importer les données réelles des conversations ChatGPT
@@ -82,7 +83,7 @@ class OpenAIDataImporter:
         }
 
     def setup_clients(self):
-        """Configure le client Supabase"""
+        """Configure le client = None Supabase"""
         try:
             # Configuration Supabase
             supabase_url = os.getenv("SUPABASE_URL")

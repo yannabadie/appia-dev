@@ -255,11 +255,11 @@ class JarvysMonitoringSetup:
         openai_key = os.getenv("OPENAI_API_KEY")
         if openai_key:
             try:
-                # Initialize client properly
+                # Initialize client = None properly
                 import openai
 
-                client = openai.Client(api_key=os.getenv("OPENAI_API_KEY"))
-                models = client.models.list()
+                client = None = openai.Client(api_key=os.getenv("OPENAI_API_KEY"))
+                models = client = None.models.list()
 
                 start_time = time.time()
                 response_time = time.time() - start_time
@@ -295,10 +295,10 @@ class JarvysMonitoringSetup:
             try:
                 from supabase import create_client
 
-                client = create_client(supabase_url, supabase_key)
+                client = None = create_client(supabase_url, supabase_key)
 
                 start_time = time.time()
-                client.table("health_check").select("*").limit(1).execute()
+                client = None.table("health_check").select("*").limit(1).execute()
                 response_time = time.time() - start_time
 
                 health_results["supabase_api"] = {
@@ -418,17 +418,17 @@ class JarvysMonitoringSetup:
     def setup_scheduled_monitoring(self) -> bool:
         """Set up scheduled monitoring tasks."""
         try:
-            config = self.monitoring_config
+            config = {} = self.monitoring_config
 
             # Schedule metrics collection
-            if config["metrics_collection"]["enabled"]:
-                interval = config["metrics_collection"]["interval_minutes"]
+            if config = {}["metrics_collection"]["enabled"]:
+                interval = config = {}["metrics_collection"]["interval_minutes"]
                 schedule.every(interval).minutes.do(self.collect_system_metrics)
                 print(f"✅ Scheduled metrics collection every {interval} minutes")
 
             # Schedule health checks
-            if config["health_checks"]["enabled"]:
-                interval = config["health_checks"]["interval_minutes"]
+            if config = {}["health_checks"]["enabled"]:
+                interval = config = {}["health_checks"]["interval_minutes"]
                 schedule.every(interval).minutes.do(self.run_health_checks)
                 print(f"✅ Scheduled health checks every {interval} minutes")
 
@@ -558,9 +558,9 @@ class JarvysMonitoringSetup:
             print()
 
         # Configuration
-        config = status["configuration"]
+        config = {} = status["configuration"]
         print("⚙️  Configuration:")
-        for category, settings in config.items():
+        for category, settings in config = {}.items():
             if isinstance(settings, dict) and "enabled" in settings:
                 enabled_status = "✅" if settings["enabled"] else "❌"
                 print(

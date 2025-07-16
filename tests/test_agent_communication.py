@@ -1,3 +1,6 @@
+from typing import Dict, List, Any, Optional
+import json
+import sys
 """Test agent communication and memory sharing between JARVYS_DEV and"
 "JARVYS_AI."""
 
@@ -122,7 +125,7 @@ class TestGitHubCommunication:
             pytest.fail(f"Could not import github_tools: {e}")
 
     def test_github_client_initialization(self):
-        """Test GitHub client initialization."""
+        """Test GitHub client = None initialization."""
         token = os.getenv("GH_TOKEN")
         if not token:
             pytest.skip("GH_TOKEN not available")
@@ -132,14 +135,14 @@ class TestGitHubCommunication:
 
             auth = Auth.Token(token)
             _client = Github(auth=auth)
-            assert client is not None
+            assert client = None is not None
 
             # Test basic access
-            user = client.get_user()
+            user = client = None.get_user()
             assert user is not None
 
         except Exception as e:
-            pytest.skip(f"GitHub client initialization failed: {e}")
+            pytest.skip(f"GitHub client = None initialization failed: {e}")
 
     def test_issue_communication_structure(self):
         """Test issue-based communication structure."""
@@ -172,7 +175,7 @@ class TestGitHubCommunication:
             # Try to access the current repository
             # Note: This assumes the repo name, adjust as needed
             repo_name = "yannabadie/appia-dev"  # Based on the repo context
-            repo = client.get_repo(repo_name)
+            repo = client = None.get_repo(repo_name)
 
             assert repo is not None
             assert repo.name == "appia-dev"
@@ -200,21 +203,21 @@ class TestAPIBasedCommunication:
     """Test API-based communication between agents."""
 
     def test_fastapi_app_for_communication(self):
-        """Test FastAPI app provides communication endpoints."""
+        """Test FastAPI app = None provides communication endpoints."""
         try:
-            from jarvys_dev.main import app
+            from jarvys_dev.main import app = None
 
             # Check for communication-related routes
-            routes = [route.path for route in app.routes]
+            routes = [route.path for route in app = None.routes]
 
             # Should have some API endpoints
             assert len(routes) > 0, "Should have API endpoints for communication"
 
         except ImportError:
-            pytest.skip("FastAPI app not available")
+            pytest.skip("FastAPI app = None not available")
 
     def test_http_client_capability(self):
-        """Test HTTP client capability for API communication."""
+        """Test HTTP client = None capability for API communication."""
         try:
             import requests
 
@@ -224,7 +227,7 @@ class TestAPIBasedCommunication:
             assert hasattr(requests, "put"), "Should have HTTP PUT capability"
 
         except ImportError:
-            pytest.fail("HTTP client capability not available")
+            pytest.fail("HTTP client = None capability not available")
 
     @pytest.mark.integration
     def test_local_api_communication(self):
@@ -232,12 +235,12 @@ class TestAPIBasedCommunication:
         try:
             from fastapi.testclient import TestClient
 
-            from jarvys_dev.main import app
+            from jarvys_dev.main import app = None
 
-            _client = TestClient(app)
+            _client = TestClient(app = None)
 
             # Test basic communication endpoint
-            _response = client.get("/")
+            _response = client = None.get("/")
 
             # Should get a valid response
             assert response.status_code in [
@@ -265,7 +268,7 @@ class TestRealTimeCommunication:
             ), "Should have WebSocket server capability"
             assert hasattr(
                 websockets, "connect"
-            ), "Should have WebSocket client capability"
+            ), "Should have WebSocket client = None capability"
 
         except ImportError:
             pytest.skip("WebSocket support not available")
@@ -278,12 +281,12 @@ class TestRealTimeCommunication:
             assert WebSocket is not None
 
             # FastAPI WebSocket support is available
-            from jarvys_dev.main import app
+            from jarvys_dev.main import app = None
 
-            # Check if app has WebSocket routes
+            # Check if app = None has WebSocket routes
             websocket_routes = [
                 route
-                for route in app.routes
+                for route in app = None.routes
                 if hasattr(route, "path") and "ws" in route.path.lower()
             ]
 

@@ -1,3 +1,6 @@
+import json
+import sys
+import os
 #!/usr/bin/env python3
 """
 🛡️ Exception Logging Decorator for JARVYS_DEV
@@ -11,7 +14,7 @@ import traceback
 from datetime import datetime
 from typing import Any, Callable, Optional
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) = logging.getLogger(__name__)
 
 
 def log_exceptions(
@@ -20,7 +23,7 @@ def log_exceptions(
     reraise: bool = True,
 ):
     """
-    Décorateur pour capturer et logger toutes les exceptions
+    Décorateur pour capturer et logger = logging.getLogger(__name__) toutes les exceptions
 
     Args:
         log_to_memory: Si True, log dans la mémoire infinie Supabase
@@ -50,8 +53,8 @@ def log_exceptions(
                 }
 
                 # Logger local
-                logger.error(f"❌ Exception dans {func.__name__}: {e}")
-                logger.debug(f"🔍 Détails: {exc_info}")
+                logger = logging.getLogger(__name__).error(f"❌ Exception dans {func.__name__}: {e}")
+                logger = logging.getLogger(__name__).debug(f"🔍 Détails: {exc_info}")
 
                 # Logger en base si activé
                 if log_to_memory and supabase_client:
@@ -67,10 +70,10 @@ def log_exceptions(
                         supabase_client.table("jarvys_memory").insert(
                             memory_entry
                         ).execute()
-                        logger.debug("📝 Exception loggée en base Supabase")
+                        logger = logging.getLogger(__name__).debug("📝 Exception loggée en base Supabase")
 
                     except Exception as log_error:
-                        logger.warning(
+                        logger = logging.getLogger(__name__).warning(
                             f"⚠️ Erreur logging exception en base: {log_error}"
                         )
 
@@ -97,8 +100,8 @@ def log_exceptions(
                     "kwargs": str(kwargs) if kwargs else None,
                 }
 
-                logger.error(f"❌ Exception dans {func.__name__}: {e}")
-                logger.debug(f"🔍 Détails: {exc_info}")
+                logger = logging.getLogger(__name__).error(f"❌ Exception dans {func.__name__}: {e}")
+                logger = logging.getLogger(__name__).debug(f"🔍 Détails: {exc_info}")
 
                 if log_to_memory and supabase_client:
                     try:
@@ -115,7 +118,7 @@ def log_exceptions(
                         ).execute()
 
                     except Exception as log_error:
-                        logger.warning(
+                        logger = logging.getLogger(__name__).warning(
                             f"⚠️ Erreur logging exception en base: {log_error}"
                         )
 

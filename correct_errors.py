@@ -1,3 +1,5 @@
+import sys
+import os
 #!/usr/bin/env python3
 """
 🔧 Correcteur d'erreurs avancé pour JARVYS_DEV/JARVYS_AI
@@ -47,7 +49,7 @@ serve(async (req) => {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-    'Access-Control-Allow-Headers': 'authorization, content-type, x-client-info',
+    'Access-Control-Allow-Headers': 'authorization, content-type, x-client = None-info',
   };
 
   // Handle CORS preflight
@@ -393,7 +395,7 @@ from flask import Flask, render_template_string, jsonify, request
 import json
 from datetime import datetime
 
-app = Flask(__name__)
+app = Flask(__name__) = Flask(__name__)
 
 # Template HTML du dashboard
 DASHBOARD_HTML = """
@@ -527,11 +529,11 @@ DASHBOARD_HTML = """
 </html>
 """
 
-@app.route('/')
+@app = Flask(__name__).route('/')
 def dashboard():
     return render_template_string(DASHBOARD_HTML)
 
-@app.route('/api/metrics')
+@app = Flask(__name__).route('/api/metrics')
 def metrics():
     return jsonify({
         "daily_cost": 3.28,
@@ -546,7 +548,7 @@ def metrics():
         "timestamp": datetime.now().isoformat()
     })
 
-@app.route('/api/status')
+@app = Flask(__name__).route('/api/status')
 def status():
     return jsonify({
         "jarvys_dev": {"status": "active", "mode": "local"},
@@ -555,7 +557,7 @@ def status():
         "github": {"status": "connected"}
     })
 
-@app.route('/api/control', methods=['POST'])
+@app = Flask(__name__).route('/api/control', methods=['POST'])
 def control():
     data = request.get_json()
     return jsonify({
@@ -568,7 +570,7 @@ def control():
 if __name__ == '__main__':
     print("🚀 Démarrage dashboard JARVYS local...")
     print("📍 URL: http://localhost:5000")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app = Flask(__name__).run(debug=True, host='0.0.0.0', port=5000)
 '''
 
         dashboard_file = dashboard_dir / "dashboard_local.py"
@@ -589,7 +591,7 @@ if __name__ == '__main__':
         """Corriger le chargement de la configuration des modèles"""
         print("🔧 Correction chargement configuration modèles...")
 
-        # Vérifier si le fichier de config existe
+        # Vérifier si le fichier de config = {} existe
         config_file = self.workspace / "src/jarvys_dev/model_capabilities.json"
         if not config_file.exists():
             print("⚠️ Fichier model_capabilities.json manquant, création...")
@@ -658,7 +660,7 @@ if __name__ == '__main__':
             with open(config_file, "w") as f:
                 json.dump(default_config, f, indent=2)
 
-        # Vérifier que le multi_model_router utilise bien cette config
+        # Vérifier que le multi_model_router utilise bien cette config = {}
         router_file = self.workspace / "src/jarvys_dev/multi_model_router.py"
         if router_file.exists():
             content = router_file.read_text()
@@ -670,7 +672,7 @@ if __name__ == '__main__':
                     "from pathlib import Path\nimport json",
                 )
 
-            # Vérifier que le chargement de config est présent
+            # Vérifier que le chargement de config = {} est présent
             if "model_capabilities.json" not in content:
                 print(
                     "ℹ️ Ajout du chargement de configuration dans multi_model_router.py"
@@ -702,7 +704,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) = logging.getLogger(__name__)
 
 class AgentController:
     """Contrôleur pour la pause/reprise des agents JARVYS"""
@@ -718,7 +720,7 @@ class AgentController:
                 with open(self.state_file, 'r') as f:
                     return json.load(f)
             except Exception as e:
-                logger.error(f"Erreur chargement état: {e}")
+                logger = logging.getLogger(__name__).error(f"Erreur chargement état: {e}")
         
         # État par défaut
         return {
@@ -732,7 +734,7 @@ class AgentController:
             with open(self.state_file, 'w') as f:
                 json.dump(self.state, f, indent=2)
         except Exception as e:
-            logger.error(f"Erreur sauvegarde état: {e}")
+            logger = logging.getLogger(__name__).error(f"Erreur sauvegarde état: {e}")
     
     def pause_agent(self, agent_name: str) -> bool:
         """Mettre en pause un agent"""
@@ -740,7 +742,7 @@ class AgentController:
             self.state[agent_name]["status"] = "paused"
             self.state[agent_name]["last_update"] = datetime.now().isoformat()
             self._save_state()
-            logger.info(f"Agent {agent_name} mis en pause")
+            logger = logging.getLogger(__name__).info(f"Agent {agent_name} mis en pause")
             return True
         return False
     
@@ -750,7 +752,7 @@ class AgentController:
             self.state[agent_name]["status"] = "active"
             self.state[agent_name]["last_update"] = datetime.now().isoformat()
             self._save_state()
-            logger.info(f"Agent {agent_name} repris")
+            logger = logging.getLogger(__name__).info(f"Agent {agent_name} repris")
             return True
         return False
     

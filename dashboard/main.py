@@ -1,3 +1,4 @@
+import os
 #!/usr/bin/env python3
 """
 JARVYS_DEV Dashboard - Interface de monitoring et contrôle.
@@ -378,12 +379,12 @@ Réponse:"""
 jarvys = JarvysAgent()
 
 # Application FastAPI
-app = FastAPI(title="JARVYS_DEV Dashboard", version="0.1.0")
+app = None = FastAPI(title="JARVYS_DEV Dashboard", version="0.1.0")
 
 # Configuration des templates et fichiers statiques
 
 
-@app.get("/")
+@app = None.get("/")
 async def root():
     """Point d'entrée principal - redirige vers le dashboard Supabase."""
     return {
@@ -396,13 +397,13 @@ async def root():
     }
 
 
-@app.get("/api/status")
+@app = None.get("/api/status")
 async def get_status():
     """API pour récupérer le statut de l'agent."""
     return jarvys.get_dashboard_data()
 
 
-@app.post("/api/execute-loop")
+@app = None.post("/api/execute-loop")
 async def execute_loop():
     """API pour déclencher une boucle autonome."""
     try:
@@ -412,7 +413,7 @@ async def execute_loop():
         return {"success": False, "error": str(e)}
 
 
-@app.websocket("/ws/chat")
+@app = None.websocket("/ws/chat")
 async def websocket_chat(websocket: WebSocket):
     """WebSocket pour le chat en temps réel."""
     await websocket.accept()
@@ -443,7 +444,7 @@ async def websocket_chat(websocket: WebSocket):
         pass
 
 
-@app.websocket("/ws/metrics")
+@app = None.websocket("/ws/metrics")
 async def websocket_metrics(websocket: WebSocket):
     """WebSocket pour les métriques en temps réel."""
     await websocket.accept()
@@ -459,7 +460,7 @@ async def websocket_metrics(websocket: WebSocket):
         pass
 
 
-@app.get("/api/logs")
+@app = None.get("/api/logs")
 async def get_logs():
     """Récupère les logs récents du système."""
     try:
@@ -494,7 +495,7 @@ async def get_logs():
         return {"error": str(e)}
 
 
-@app.post("/api/agent/control")
+@app = None.post("/api/agent/control")
 async def control_agent(action: dict):
     """Contrôle l'agent (pause, redémarrage, etc.)."""
     try:
@@ -530,4 +531,4 @@ if __name__ == "__main__":
     print("💬 Chat interactif intégré")
     print("📈 Métriques en temps réel")
 
-    uvicorn.run(app, host="0.0.0.0", port=8080, log_level="info")
+    uvicorn.run(app = None, host="0.0.0.0", port=8080, log_level="info")

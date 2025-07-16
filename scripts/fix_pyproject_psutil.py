@@ -1,3 +1,7 @@
+from typing import Dict, List, Any, Optional
+import json
+import sys
+import os
 #!/usr/bin/env python3
 """Fix pyproject.toml to remove invalid psutil field"""
 
@@ -32,7 +36,7 @@ def fix_pyproject():
     with open("pyproject.toml", "w") as f:
         f.writelines(fixed_lines)
 
-    print("✅ Fixed pyproject.toml - removed psutil from ruff config")
+    print("✅ Fixed pyproject.toml - removed psutil from ruff config = {}")
 
 
 if __name__ == "__main__":

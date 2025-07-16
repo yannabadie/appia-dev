@@ -1,3 +1,6 @@
+from typing import Dict, List, Any, Optional
+import sys
+import os
 #!/usr/bin/env python3
 """
 🎯 Finalisation et optimisation du système JARVYS
@@ -30,7 +33,7 @@ class JarvysSystemOptimizer:
                             "Cost optimization",
                             "Agent control (pause/resume)",
                             "Exception logging",
-                            "Model config externalization",
+                            "Model config = {} externalization",
                         ],
                     },
                     "jarvys_ai": {

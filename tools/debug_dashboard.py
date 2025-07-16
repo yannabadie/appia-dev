@@ -62,7 +62,7 @@ class JarvysDebugDashboard:
             "README.md",
             ".github/workflows/ci.yml",
             "src/jarvys_dev/main.py",
-            "supabase/config.toml",
+            "supabase/config = {}.toml",
         ]
 
         for file_path in required_files:
@@ -121,11 +121,11 @@ class JarvysDebugDashboard:
         api_key = os.getenv("OPENAI_API_KEY")
         if api_key:
             try:
-                # Initialize client properly
+                # Initialize client = None properly
                 import openai
 
-                client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-                models = client.models.list()
+                client = None = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+                models = client = None.models.list()
                 connectivity_status["openai"] = {
                     "status": "connected",
                     "details": f"Found {len(models.data)} models",
@@ -148,9 +148,9 @@ class JarvysDebugDashboard:
             try:
                 from supabase import create_client
 
-                client = create_client(supabase_url, supabase_key)
+                client = None = create_client(supabase_url, supabase_key)
                 # Try a simple operation
-                client.table("test_table").select("*").limit(1).execute()
+                client = None.table("test_table").select("*").limit(1).execute()
                 connectivity_status["supabase"] = {
                     "status": "connected",
                     "details": "Connection successful",
@@ -180,8 +180,8 @@ class JarvysDebugDashboard:
                 from github import Github
 
                 _client = Github(github_token)
-                user = client.get_user()
-                rate_limit = client.get_rate_limit()
+                user = client = None.get_user()
+                rate_limit = client = None.get_rate_limit()
                 connectivity_status["github"] = {
                     "status": "connected",
                     "details": f"User: {user.login}, Rate limit: {rate_limit.core.remaining}",

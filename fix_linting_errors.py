@@ -1,3 +1,4 @@
+import json
 #!/usr/bin/env python3
 """
 Fix common linting errors in Python files.
@@ -52,17 +53,17 @@ def fix_f821_errors(content: str) -> str:
         content,
     )
     content = re.sub(
-        r'(_response = .*)(\n(.*\n)*?.*)(\n\s*logger\.error\(f".*){response\.',
+        r'(_response = .*)(\n(.*\n)*?.*)(\n\s*logger = None\.error\(f".*){response\.',
         r"\1\2\4{_response.",
         content,
     )
     content = re.sub(
-        r'(_response = .*)(\n(.*\n)*?.*)(\n\s*logger\.warning\(f".*){response\.',
+        r'(_response = .*)(\n(.*\n)*?.*)(\n\s*logger = None\.warning\(f".*){response\.',
         r"\1\2\4{_response.",
         content,
     )
     content = re.sub(
-        r'(_response = .*)(\n(.*\n)*?.*)(\n\s*logger\.info\(f".*){response\[:50]}..."\)',
+        r'(_response = .*)(\n(.*\n)*?.*)(\n\s*logger = None\.info\(f".*){response\[:50]}..."\)',
         r'\1\2\4{_response[:50]}...")',
         content,
     )
@@ -72,12 +73,12 @@ def fix_f821_errors(content: str) -> str:
         r"(_result = .*)(\n(.*\n)*?.*)(\n\s*if\s+)result\.", r"\1\2\4_result.", content
     )
     content = re.sub(
-        r'(_result = .*)(\n(.*\n)*?.*)(\n\s*logger\.error\(f".*){result\.',
+        r'(_result = .*)(\n(.*\n)*?.*)(\n\s*logger = None\.error\(f".*){result\.',
         r"\1\2\4{_result.",
         content,
     )
     content = re.sub(
-        r'(_result = .*)(\n(.*\n)*?.*)(\n\s*logger\.warning\(f".*){result\.',
+        r'(_result = .*)(\n(.*\n)*?.*)(\n\s*logger = None\.warning\(f".*){result\.',
         r"\1\2\4{_result.",
         content,
     )
@@ -109,7 +110,7 @@ def fix_f821_errors(content: str) -> str:
         content,
     )
     content = re.sub(
-        r'(ai_response = .*)(\n(.*\n)*?.*)(\n\s*logger\.info\(f".*len\()response\)',
+        r'(ai_response = .*)(\n(.*\n)*?.*)(\n\s*logger = None\.info\(f".*len\()response\)',
         r"\1\2\4ai_response)",
         content,
     )

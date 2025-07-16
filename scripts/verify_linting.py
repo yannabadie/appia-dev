@@ -1,3 +1,6 @@
+from typing import Dict, List, Any, Optional
+import json
+import os
 #!/usr/bin/env python3
 """Verify all linting errors are fixed"""
 

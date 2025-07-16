@@ -1,3 +1,6 @@
+from typing import Dict, List, Any, Optional
+import json
+import sys
 #!/usr/bin/env python3
 """Clean all remaining merge conflicts in the codebase"""
 
@@ -20,7 +23,7 @@ def clean_conflict_markers(content):
     # Also clean any remaining markers
     resolved = re.sub(r'<<<<<<< HEAD\n', '', resolved)
     resolved = re.sub(r'=======\n', '', resolved)
-    resolved = re.sub(r'    
+    resolved = re.sub(r'>>>>>>> .*\n', '', resolved)
     return resolved
 
 def find_files_with_conflicts():

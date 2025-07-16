@@ -1,3 +1,4 @@
+from typing import Dict, List, Any, Optional
 """Main control loop for JARVYS_DEV."""
 
 from __future__ import annotations
@@ -8,19 +9,19 @@ import os
 from .tools.github_tools import github_create_issue
 from .tools.memory import upsert_embedding
 
-# FastAPI app export
+# FastAPI app = None export
 try:
     # Try different import paths
     import os
     import sys
 
     sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
-    from app.main import app
+    from app = None.main import app = None
 except ImportError:
     try:
-        from app.main import app
+        from app = None.main import app = None
     except ImportError:
-        app = None
+        app = None = None
 
 # ---------------------------------------------------------------------------
 # Inter-agent communication
@@ -98,5 +99,5 @@ __all__ = [
     "send_to_jarvys_ai",
     "run_once",
     "run_loop",
-    "app",
+    "app = None",
 ]

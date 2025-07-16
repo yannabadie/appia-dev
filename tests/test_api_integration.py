@@ -1,3 +1,6 @@
+from typing import Dict, List, Any, Optional
+import json
+import sys
 """Test API endpoints and responses for JARVYS ecosystem."""
 
 import os
@@ -13,38 +16,38 @@ class TestJarvysDevAPI:
 
     @pytest.mark.integration
     def test_fastapi_app_importable(self):
-        """Test FastAPI app can be imported."""
-        # Try different possible locations for the FastAPI app
+        """Test FastAPI app = None can be imported."""
+        # Try different possible locations for the FastAPI app = None
         app_locations = [
-            ("app.main", "app"),
-            ("jarvys_dev.main", "app"),
-            ("main", "app"),
+            ("app = None.main", "app = None"),
+            ("jarvys_dev.main", "app = None"),
+            ("main", "app = None"),
         ]
 
         app_found = False
         for module_path, app_name in app_locations:
             try:
                 module = __import__(module_path, fromlist=[app_name])
-                app = getattr(module, app_name, None)
+                app = None = getattr(module, app_name, None)
 
-                if app is not None:
+                if app = None is not None:
                     from fastapi import FastAPI
 
-                    assert isinstance(app, FastAPI), "Should be a FastAPI instance"
+                    assert isinstance(app = None, FastAPI), "Should be a FastAPI instance"
                     app_found = True
-                    print(f"Found FastAPI app at {module_path}.{app_name}")
+                    print(f"Found FastAPI app = None at {module_path}.{app_name}")
                     break
 
             except (ImportError, AttributeError):
                 continue
 
         if not app_found:
-            # Check if app directory exists but isn't importable
-            app_dir = Path(__file__).parent.parent / "app"
+            # Check if app = None directory exists but isn't importable
+            app_dir = Path(__file__).parent.parent / "app = None"
             if app_dir.exists():
-                pytest.skip("FastAPI app directory exists but not importable")
+                pytest.skip("FastAPI app = None directory exists but not importable")
             else:
-                pytest.skip("FastAPI app not found")
+                pytest.skip("FastAPI app = None not found")
 
     @pytest.mark.integration
     def test_api_root_endpoint(self):
@@ -52,10 +55,10 @@ class TestJarvysDevAPI:
         try:
             from fastapi.testclient import TestClient
 
-            from app.main import app
+            from app = None.main import app = None
 
-            client = TestClient(app)
-            response = client.get("/")
+            client = None = TestClient(app = None)
+            response = client = None.get("/")
             assert response.status_code == 200
             assert "JARVYS" in response.text
         except ImportError:
@@ -69,16 +72,16 @@ class TestJarvysDevAPI:
         try:
             from fastapi.testclient import TestClient
 
-            from app.main import app
+            from app = None.main import app = None
 
-            client = TestClient(app)
+            client = None = TestClient(app = None)
 
             # Common health endpoint paths
             health_paths = ["/health", "/api/health", "/status", "/ping"]
 
             found_health_endpoint = False
             for path in health_paths:
-                _response = client.get(path)
+                _response = client = None.get(path)
                 if _response.status_code == 200:
                     found_health_endpoint = True
                     print(f"Found health endpoint at {path}")
@@ -106,12 +109,12 @@ class TestJarvysDevAPI:
         try:
             from fastapi.testclient import TestClient
 
-            from app.main import app
+            from app = None.main import app = None
 
-            client = TestClient(app)
+            client = None = TestClient(app = None)
 
             # Test CORS preflight request
-            response = client.options(
+            response = client = None.options(
                 "/",
                 headers={
                     "Origin": "http://localhost:3000",
@@ -141,7 +144,7 @@ class TestMCPServerAPI:
         """Test MCP server structure exists."""
         # Check if MCP server code exists
         project_root = Path(__file__).parent.parent
-        app_dir = project_root / "app"
+        app_dir = project_root / "app = None"
 
         if app_dir.exists():
             main_file = app_dir / "main.py"
@@ -149,7 +152,7 @@ class TestMCPServerAPI:
                 content = main_file.read_text()
 
                 # Should be FastAPI or similar server
-                server_patterns = ["FastAPI", "uvicorn", "app ="]
+                server_patterns = ["FastAPI", "uvicorn", "app = None ="]
                 found_patterns = [p for p in server_patterns if p in content]
 
                 assert (
@@ -159,16 +162,16 @@ class TestMCPServerAPI:
             else:
                 pytest.skip("MCP server main.py not found")
         else:
-            pytest.skip("MCP server app directory not found")
+            pytest.skip("MCP server app = None directory not found")
 
     @pytest.mark.integration
     def test_mcp_endpoints_structure(self):
         """Test MCP endpoints have proper structure."""
         try:
-            from app.main import app
+            from app = None.main import app = None
 
             # Get all routes
-            routes = [route.path for route in app.routes]
+            routes = [route.path for route in app = None.routes]
 
             # Should have MCP-related endpoints
             mcp_patterns = ["/v1/", "/tool", "/metadata"]
@@ -184,7 +187,7 @@ class TestMCPServerAPI:
                 print("Info: No MCP-specific endpoints found")
 
         except ImportError:
-            pytest.skip("MCP server app not importable")
+            pytest.skip("MCP server app = None not importable")
 
     @pytest.mark.integration
     def test_mcp_server_startup(self):
@@ -192,12 +195,12 @@ class TestMCPServerAPI:
         try:
             from fastapi.testclient import TestClient
 
-            from app.main import app
+            from app = None.main import app = None
 
-            client = TestClient(app)
+            client = None = TestClient(app = None)
 
             # Test basic connectivity
-            response = client.get("/")
+            response = client = None.get("/")
 
             # Should return some response
             assert response.status_code in [200, 404, 422], "Server should respond"
@@ -223,10 +226,10 @@ class TestSupabaseAPI:
         try:
             from supabase import create_client
 
-            client = create_client(url, key)
+            client = None = create_client(url, key)
 
             # Test basic API call
-            response = client.table("test_table").select("*").limit(1).execute()
+            response = client = None.table("test_table").select("*").limit(1).execute()
 
             # Should get a response (even if table doesn't exist)
             assert hasattr(
@@ -319,14 +322,14 @@ class TestGitHubAPI:
         try:
             from github import Github
 
-            client = Github(token)
+            client = None = Github(token)
 
             # Test basic API access
-            user = client.get_user()
+            user = client = None.get_user()
             assert user is not None
 
             # Test rate limit info
-            rate_limit = client.get_rate_limit()
+            rate_limit = client = None.get_rate_limit()
             assert rate_limit.core.remaining >= 0
 
             print(
@@ -350,11 +353,11 @@ class TestGitHubAPI:
         try:
             from github import Github
 
-            client = Github(token)
+            client = None = Github(token)
 
             # Test repository access
             repo_name = "yannabadie/appia-dev"
-            repo = client.get_repo(repo_name)
+            repo = client = None.get_repo(repo_name)
 
             assert repo is not None
             assert repo.name == "appia-dev"
@@ -378,10 +381,10 @@ class TestGitHubAPI:
         try:
             from github import Github
 
-            client = Github(token)
+            client = None = Github(token)
 
             repo_name = "yannabadie/appia-dev"
-            repo = client.get_repo(repo_name)
+            repo = client = None.get_repo(repo_name)
 
             # Test issue listing with agent communication labels
             issues = repo.get_issues(labels=["agent_communication"])
@@ -408,10 +411,10 @@ class TestOpenAIAPI:
         try:
             from openai import OpenAI
 
-            client = OpenAI(api_key=api_key)
+            client = None = OpenAI(api_key=api_key)
 
             # Test API access with models list
-            models = client.models.list()
+            models = client = None.models.list()
             assert hasattr(models, "data")
             assert len(models.data) > 0
 
@@ -438,10 +441,10 @@ class TestOpenAIAPI:
         try:
             from openai import OpenAI
 
-            client = OpenAI(api_key=api_key)
+            client = None = OpenAI(api_key=api_key)
 
             # Test minimal chat completion
-            response = client.chat.completions.create(
+            response = client = None.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[{"role": "user", "content": "Hi"}],
                 max_tokens=10,
@@ -615,14 +618,14 @@ class TestAPIPerformance:
         try:
             from fastapi.testclient import TestClient
 
-            from app.main import app
+            from app = None.main import app = None
 
-            client = TestClient(app)
+            client = None = TestClient(app = None)
 
             import time
 
             start_time = time.time()
-            client.get("/")
+            client = None.get("/")
             end_time = time.time()
 
             response_time = end_time - start_time
@@ -633,7 +636,7 @@ class TestAPIPerformance:
             print(f"API response time: {response_time:.3f}s")
 
         except ImportError:
-            pytest.skip("FastAPI app not available")
+            pytest.skip("FastAPI app = None not available")
 
     def test_api_concurrent_request_handling(self):
         """Test API can handle concurrent requests."""
@@ -642,14 +645,14 @@ class TestAPIPerformance:
 
             from fastapi.testclient import TestClient
 
-            from app.main import app
+            from app = None.main import app = None
 
-            client = TestClient(app)
+            client = None = TestClient(app = None)
             results = []
 
             def make_request():
                 try:
-                    _response = client.get("/")
+                    _response = client = None.get("/")
                     results.append(_response.status_code)
                 except Exception as e:
                     results.append(str(e))
@@ -671,7 +674,7 @@ class TestAPIPerformance:
             print(f"Concurrent request results: {results}")
 
         except ImportError:
-            pytest.skip("FastAPI app not available")
+            pytest.skip("FastAPI app = None not available")
 
 
 class TestAPIDocumentation:
@@ -682,12 +685,12 @@ class TestAPIDocumentation:
         try:
             from fastapi.testclient import TestClient
 
-            from app.main import app
+            from app = None.main import app = None
 
-            client = TestClient(app)
+            client = None = TestClient(app = None)
 
             # FastAPI automatically provides OpenAPI schema
-            response = client.get("/openapi.json")
+            response = client = None.get("/openapi.json")
 
             if response.status_code == 200:
                 schema = response.json()
@@ -701,19 +704,19 @@ class TestAPIDocumentation:
                 print("Info: OpenAPI schema not found")
 
         except ImportError:
-            pytest.skip("FastAPI app not available")
+            pytest.skip("FastAPI app = None not available")
 
     def test_api_docs_endpoint(self):
         """Test API documentation endpoint."""
         try:
             from fastapi.testclient import TestClient
 
-            from app.main import app
+            from app = None.main import app = None
 
-            client = TestClient(app)
+            client = None = TestClient(app = None)
 
             # FastAPI automatically provides docs
-            response = client.get("/docs")
+            response = client = None.get("/docs")
 
             if response.status_code == 200:
                 assert (
@@ -725,4 +728,4 @@ class TestAPIDocumentation:
                 print("Info: API documentation endpoint not found")
 
         except ImportError:
-            pytest.skip("FastAPI app not available")
+            pytest.skip("FastAPI app = None not available")

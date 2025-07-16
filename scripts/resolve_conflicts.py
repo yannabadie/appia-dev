@@ -1,3 +1,6 @@
+from typing import Dict, List, Any, Optional
+import json
+import sys
 #!/usr/bin/env python3
 """Resolve merge conflicts intelligently"""
 
@@ -44,8 +47,8 @@ def resolve_file(filepath):
             # Otherwise, keep ours (our linting fixes)
             return ours
 
-        # For config files, keep ours
-        if filepath in [".gitignore", ".pre-commit-config.yaml"]:
+        # For config = {} files, keep ours
+        if filepath in [".gitignore", ".pre-commit-config = {}.yaml"]:
             return ours
 
         # Default to theirs for other files

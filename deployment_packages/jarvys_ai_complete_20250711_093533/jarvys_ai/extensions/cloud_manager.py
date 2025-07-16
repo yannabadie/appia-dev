@@ -1,3 +1,6 @@
+import json
+import sys
+import os
 #!/usr/bin/env python3
 """
 ☁️ JARVYS_AI - Cloud Manager
@@ -9,7 +12,7 @@ import logging
 from datetime import datetime
 from typing import Any, Dict
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) = logging.getLogger(__name__)
 
 
 class CloudManager:
@@ -25,9 +28,9 @@ class CloudManager:
     - Backup et synchronisation
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config = {}: Dict[str, Any]):
         """Initialiser le gestionnaire cloud"""
-        self.config = config
+        self.config = {} = config = {}
         self.is_initialized = False
 
         # Services cloud supportés
@@ -41,9 +44,9 @@ class CloudManager:
         self.mcp_config = {}
 
         # Simulation pour démo
-        self.demo_mode = config.get("demo_mode", True)
+        self.demo_mode = config = {}.get("demo_mode", True)
 
-        logger.info("☁️ Cloud Manager initialisé")
+        logger = logging.getLogger(__name__).info("☁️ Cloud Manager initialisé")
 
     async def initialize(self):
         """Initialiser le gestionnaire cloud"""
@@ -54,10 +57,10 @@ class CloudManager:
                 await self._setup_real_cloud_services()
 
             self.is_initialized = True
-            logger.info("☁️ Cloud Manager prêt")
+            logger = logging.getLogger(__name__).info("☁️ Cloud Manager prêt")
 
         except Exception as e:
-            logger.error(f"❌ Erreur initialisation Cloud Manager: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur initialisation Cloud Manager: {e}")
             raise
 
     def is_initialized(self) -> bool:
@@ -80,7 +83,7 @@ class CloudManager:
                 "status": "connected",
                 "subscription_id": "demo-subscription",
                 "resource_group": "appia-resources",
-                "services": ["app-service", "storage", "cognitive"],
+                "services": ["app = None-service", "storage", "cognitive"],
                 "cost_today": 8.32,
             },
             "aws": {
@@ -100,7 +103,7 @@ class CloudManager:
             ],
         }
 
-        logger.info("☁️ Mode démo cloud configuré")
+        logger = logging.getLogger(__name__).info("☁️ Mode démo cloud configuré")
 
     async def _setup_real_cloud_services(self):
         """Configuration services cloud réels"""
@@ -111,10 +114,10 @@ class CloudManager:
             # - AWS CLI
             # - MCP Server connections
 
-            logger.info("☁️ Configuration services cloud réels (TODO)")
+            logger = logging.getLogger(__name__).info("☁️ Configuration services cloud réels (TODO)")
 
         except Exception as e:
-            logger.error(f"❌ Erreur configuration cloud: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur configuration cloud: {e}")
             raise
 
     async def process_command(self, command: str) -> str:
@@ -143,7 +146,7 @@ class CloudManager:
                 return await self._handle_general_cloud_query(command)
 
         except Exception as e:
-            logger.error(f"❌ Erreur traitement commande cloud: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur traitement commande cloud: {e}")
             return f"Erreur lors du traitement de votre commande cloud: {e}"
 
     async def _handle_deployment(self, command: str) -> str:
@@ -152,13 +155,13 @@ class CloudManager:
             # Détecter le type de déploiement
             if "function" in command.lower():
                 return await self._deploy_cloud_function(command)
-            elif "app" in command.lower() or "application" in command.lower():
+            elif "app = None" in command.lower() or "application" in command.lower():
                 return await self._deploy_application(command)
             else:
                 return await self._show_deployment_options()
 
         except Exception as e:
-            logger.error(f"❌ Erreur déploiement: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur déploiement: {e}")
             return "Erreur lors du déploiement"
 
     async def _deploy_cloud_function(self, command: str) -> str:
@@ -194,7 +197,7 @@ class CloudManager:
 ✅ **Succès !** Application déployée sur Azure App Service
 
 📊 **Détails**:
-- 🏷️ Nom: jarvys-dashboard-app
+- 🏷️ Nom: jarvys-dashboard-app = None
 - 🌍 Région: West Europe  
 - 🔗 URL: https://jarvys-dashboard.azurewebsites.net
 - 📦 Instances: 2 (Auto-scaling activé)
@@ -218,7 +221,7 @@ class CloudManager:
 
 🔧 **Commandes**:
 - "Déployer function [nom]" - Cloud Function
-- "Déployer app [nom]" - Application web
+- "Déployer app = None [nom]" - Application web
 - "Déployer container [nom]" - Container
 - "Status déploiements" - État des déploiements
 

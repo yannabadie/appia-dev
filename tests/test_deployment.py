@@ -1,3 +1,7 @@
+from typing import Dict, List, Any, Optional
+import json
+import sys
+import os
 """Test automated deployments and error handling."""
 
 import subprocess
@@ -15,10 +19,10 @@ class TestSupabaseDeployment:
         supabase_path = Path(__file__).parent.parent / "supabase"
         assert supabase_path.exists(), "Supabase directory should exist"
 
-        config_file = supabase_path / "config.toml"
-        assert config_file.exists(), "Supabase config.toml should exist"
+        config_file = supabase_path / "config = {}.toml"
+        assert config_file.exists(), "Supabase config = {}.toml should exist"
 
-        # Validate config structure
+        # Validate config = {} structure
         content = config_file.read_text()
         assert len(content.strip()) > 0, "Config should not be empty"
         assert "[" in content, "Config should have sections"
@@ -106,10 +110,10 @@ class TestCloudBuildDeployment:
         assert cloudbuild_file.exists(), "cloudbuild.yaml should exist"
 
         with open(cloudbuild_file) as f:
-            config = yaml.safe_load(f)
+            config = {} = yaml.safe_load(f)
 
-        assert "steps" in config, "Cloud Build should have steps"
-        assert len(config["steps"]) > 0, "Should have at least one build step"
+        assert "steps" in config = {}, "Cloud Build should have steps"
+        assert len(config = {}["steps"]) > 0, "Should have at least one build step"
 
     def test_cloudbuild_steps_structure(self):
         """Test Cloud Build steps have proper structure."""
@@ -118,9 +122,9 @@ class TestCloudBuildDeployment:
             pytest.skip("cloudbuild.yaml not found")
 
         with open(cloudbuild_file) as f:
-            config = yaml.safe_load(f)
+            config = {} = yaml.safe_load(f)
 
-        steps = config.get("steps", [])
+        steps = config = {}.get("steps", [])
 
         for i, step in enumerate(steps):
             assert "name" in step, f"Step {i} should have 'name'"
@@ -152,11 +156,11 @@ class TestCloudBuildDeployment:
             pytest.skip("cloudbuild.yaml not found")
 
         with open(cloudbuild_file) as f:
-            config = yaml.safe_load(f)
+            config = {} = yaml.safe_load(f)
 
         # Check for timeout configuration
-        if "timeout" in config:
-            timeout = config["timeout"]
+        if "timeout" in config = {}:
+            timeout = config = {}["timeout"]
             print(f"Cloud Build timeout: {timeout}")
 
             # Should have reasonable timeout (not too short or too long)
@@ -196,13 +200,13 @@ class TestDockerDeployment:
             pytest.skip("Docker Compose file not found")
 
         with open(compose_file) as f:
-            config = yaml.safe_load(f)
+            config = {} = yaml.safe_load(f)
 
-        assert "services" in config, "Compose should define services"
-        assert len(config["services"]) > 0, "Should have at least one service"
+        assert "services" in config = {}, "Compose should define services"
+        assert len(config = {}["services"]) > 0, "Should have at least one service"
 
         # Check service configurations
-        for service_name, service_config in config["services"].items():
+        for service_name, service_config in config = {}["services"].items():
             if "build" in service_config:
                 print(f"Service {service_name} has build configuration")
             if "image" in service_config:
@@ -280,11 +284,11 @@ class TestGitHubPagesDeployment:
         mkdocs_config = Path(__file__).parent.parent / "mkdocs.yml"
         if mkdocs_config.exists():
             with open(mkdocs_config) as f:
-                config = yaml.safe_load(f)
+                config = {} = yaml.safe_load(f)
 
-            assert "site_name" in config, "MkDocs should have site name"
-            assert "docs_dir" in config or "docs" in str(
-                config
+            assert "site_name" in config = {}, "MkDocs should have site name"
+            assert "docs_dir" in config = {} or "docs" in str(
+                config = {}
             ), "Should specify docs directory"
 
             print("MkDocs configuration found - docs deployment ready")

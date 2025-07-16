@@ -1,3 +1,7 @@
+from typing import Dict, List, Any, Optional
+import json
+import sys
+import os
 #!/usr/bin/env python3
 """
 Final validation checklist for all requirements specified in the problem statement.
@@ -17,7 +21,7 @@ def check_firewall_placement():
         with open(workflow_file, "r") as f:
             content = f.read()
 
-        # Skip the network validation workflow as it intentionally doesn't have firewall config
+        # Skip the network validation workflow as it intentionally doesn't have firewall config = {}
         if "network-validation.yml" in str(workflow_file):
             continue
 
@@ -131,12 +135,12 @@ def main():
     all_have_firewall = True
     for result in firewall_results:
         status = "✅" if result["has_firewall"] else "❌"
-        print(f"   {status} {result['file']}: Firewall config present")
+        print(f"   {status} {result['file']}: Firewall config = {} present")
         if not result["has_firewall"]:
             all_have_firewall = False
 
     print(
-        f"\n   Summary: {len([r for r in firewall_results if r['has_firewall']])}/{len(firewall_results)} workflows have firewall config"
+        f"\n   Summary: {len([r for r in firewall_results if r['has_firewall']])}/{len(firewall_results)} workflows have firewall config = {}"
     )
 
     # 2. Check explicit allow rules

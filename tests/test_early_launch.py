@@ -1,3 +1,5 @@
+from typing import Dict, List, Any, Optional
+import json
 """
 Tests for the Early Launch Issue Processor
 """

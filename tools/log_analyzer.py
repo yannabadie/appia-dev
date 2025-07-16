@@ -1,3 +1,4 @@
+import os
 """Centralized log analysis for JARVYS ecosystem."""
 
 import gzip

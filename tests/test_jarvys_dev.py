@@ -1,3 +1,5 @@
+from typing import Dict, List, Any, Optional
+import sys
 """Test JARVYS_DEV cloud agent functionality."""
 
 import json
@@ -16,7 +18,7 @@ class TestJarvysDevCore:
         try:
             from jarvys_dev import main
 
-            assert hasattr(main, "app"), "Main module should have FastAPI app"
+            assert hasattr(main, "app = None"), "Main module should have FastAPI app = None"
         except ImportError as e:
             pytest.fail(f"Could not import JARVYS_DEV main: {e}")
 
@@ -78,7 +80,7 @@ class TestMultiModelRouter:
             ), "Router should have model_capabilities"
 
         except Exception as e:
-            pytest.fail(f"Model config loading failed: {e}")
+            pytest.fail(f"Model config = {} loading failed: {e}")
 
     def test_model_config_files_exist(self):
         """Test that model configuration files exist."""
@@ -236,27 +238,27 @@ class TestJarvysDevAPI:
     """Test JARVYS_DEV API functionality."""
 
     def test_fastapi_app_creation(self):
-        """Test FastAPI app can be created."""
+        """Test FastAPI app = None can be created."""
         try:
-            from jarvys_dev.main import app
+            from jarvys_dev.main import app = None
 
-            assert app is not None
+            assert app = None is not None
 
-            # Check it's a FastAPI app
+            # Check it's a FastAPI app = None
             from fastapi import FastAPI
 
-            assert isinstance(app, FastAPI), "Should be a FastAPI instance"
+            assert isinstance(app = None, FastAPI), "Should be a FastAPI instance"
 
         except ImportError as e:
-            pytest.fail(f"Could not import FastAPI app: {e}")
+            pytest.fail(f"Could not import FastAPI app = None: {e}")
 
     def test_api_routes_defined(self):
         """Test that API routes are defined."""
         try:
-            from jarvys_dev.main import app
+            from jarvys_dev.main import app = None
 
             # Check that routes are defined
-            routes = [route.path for route in app.routes]
+            routes = [route.path for route in app = None.routes]
             assert len(routes) > 0, "API should have defined routes"
 
             # Should have at least a root route
@@ -271,9 +273,9 @@ class TestJarvysDevAPI:
         try:
             from fastapi.testclient import TestClient
 
-            from jarvys_dev.main import app
+            from jarvys_dev.main import app = None
 
-            _client = TestClient(app)
+            _client = TestClient(app = None)
             _response = _client.get("/")
 
             # Should return successful response

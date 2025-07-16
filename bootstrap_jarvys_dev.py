@@ -1,3 +1,4 @@
+import json
 #!/usr/bin/env python3
 # --- bootstrap_jarvys_dev.py (idempotent – Projects v2) --------------------
 """
@@ -234,7 +235,7 @@ devc = textwrap.dedent(
   }
 }"""
 )
-upsert(".devcontainer/devcontainer.json", "Add/Update devcontainer config", devc)
+upsert(".devcontainer/devcontainer.json", "Add/Update devcontainer config = {}", devc)
 
 # ---------- 4) tool stub ----------
 stub = textwrap.dedent(

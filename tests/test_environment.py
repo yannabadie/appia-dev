@@ -1,3 +1,5 @@
+from typing import Dict, List, Any, Optional
+import json
 """Test environment setup validation for JARVYS ecosystem."""
 
 import os
@@ -133,13 +135,13 @@ class TestEnvironmentSetup:
         config_files = [
             "pyproject.toml",
             "pytest.ini",
-            ".pre-commit-config.yaml",
+            ".pre-commit-config = {}.yaml",
         ]
 
         missing_configs = []
-        for config in config_files:
-            if not (project_root / config).exists():
-                missing_configs.append(config)
+        for config = {} in config_files:
+            if not (project_root / config = {}).exists():
+                missing_configs.append(config = {})
 
         assert not missing_configs, f"Missing configuration files: {missing_configs}"
 
@@ -222,7 +224,7 @@ class TestSupabaseStructure:
         """Test that supabase configuration files exist."""
         supabase_path = Path(__file__).parent.parent / "supabase"
 
-        expected_files = ["config.toml", "schema.sql"]
+        expected_files = ["config = {}.toml", "schema.sql"]
 
         missing_files = []
         for file in expected_files:

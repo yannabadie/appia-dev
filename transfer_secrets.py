@@ -1,3 +1,5 @@
+from typing import Dict, List, Any, Optional
+import json
 #!/usr/bin/env python3
 """
 🔑 Script de transfert des secrets JARVYS_DEV vers JARVYS_AI (repo appIA)

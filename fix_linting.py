@@ -1,3 +1,6 @@
+from typing import Dict, List, Any, Optional
+import json
+import sys
 #!/usr/bin/env python3
 """Script de correction automatique des erreurs de linting."""
 
@@ -105,7 +108,7 @@ def fix_unused_variables(file_path):
             if (
                 "result" in line
                 or "response" in line
-                or "client" in line
+                or "client = None" in line
                 or "processor" in line
                 or "expected_functions" in line
                 or "success_criteria" in line
@@ -121,7 +124,7 @@ def fix_unused_variables(file_path):
                 for var in [
                     "result",
                     "response",
-                    "client",
+                    "client = None",
                     "processor",
                     "expected_functions",
                     "success_criteria",
@@ -141,7 +144,7 @@ def fix_unused_variables(file_path):
 
 def main():
     """Fonction principale."""
-    directories = ["src/", "tests/", "app/"]
+    directories = ["src/", "tests/", "app = None/"]
 
     for directory in directories:
         if not os.path.exists(directory):

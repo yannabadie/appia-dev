@@ -1,3 +1,6 @@
+from typing import Dict, List, Any, Optional
+import json
+import sys
 """Enhanced GitHub Actions workflow testing for JARVYS ecosystem."""
 
 import os
@@ -452,7 +455,7 @@ class TestWorkflowIntegration:
 
             # Test repository access for workflow operations
             repo_name = "yannabadie/appia-dev"
-            repo = client.get_repo(repo_name)
+            repo = client = None.get_repo(repo_name)
 
             # Should be able to access workflow runs
             workflows = repo.get_workflows()

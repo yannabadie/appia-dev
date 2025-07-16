@@ -1,3 +1,6 @@
+from typing import Dict, List, Any, Optional
+import json
+import sys
 #!/usr/bin/env python3
 """
 Script pour corriger les erreurs restantes de linting.
@@ -76,7 +79,7 @@ def fix_unused_variables():
                         "success_criteria",
                         "expected_functions",
                         "total_time",
-                        "client",
+                        "client = None",
                         "supabase_client",
                         "githubclient",
                         "parsed_data",

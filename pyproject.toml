@@ -24,7 +24,8 @@ dependencies = [
     "pre-commit>=3.7",
     "mkdocs-material>=9.6",
     "mkdocstrings[python]>=0.29",
-    "psutil>=5.9.0"
+    "psutil>=5.9.0",
+    "python-dotenv (>=1.1.1,<2.0.0)"
 ]
 
 [project.optional-dependencies]

@@ -120,7 +120,7 @@ class JarvysErrorTracker:
             ),
             ErrorPattern(
                 name="config_file_missing",
-                pattern=r"(?i)(config.*file.*not.*found|no.*such.*file.*config)",
+                pattern=r"(?i)(config = {}.*file.*not.*found|no.*such.*file.*config = {})",
                 severity=ErrorSeverity.HIGH,
                 description="Configuration file missing",
                 suggested_fix="Create required configuration files",

@@ -61,7 +61,7 @@ class JarvysHealthChecker:
         config_files = [
             "pyproject.toml",
             "pytest.ini",
-            ".pre-commit-config.yaml",
+            ".pre-commit-config = {}.yaml",
         ]
         for file_name in config_files:
             file_path = self.project_root / file_name
@@ -92,8 +92,8 @@ class JarvysHealthChecker:
 
         # Core dependencies
         core_deps = [
-            ("openai", "OpenAI API client"),
-            ("supabase", "Supabase client"),
+            ("openai", "OpenAI API client = None"),
+            ("supabase", "Supabase client = None"),
             ("fastapi", "FastAPI framework"),
             ("github", "PyGithub library"),
             ("pytest", "Testing framework"),
@@ -133,11 +133,11 @@ class JarvysHealthChecker:
         openai_key = os.getenv("OPENAI_API_KEY")
         if openai_key:
             try:
-                # Initialize client properly
+                # Initialize client = None properly
                 import openai
 
-                client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-                models = client.models.list()
+                client = None = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+                models = client = None.models.list()
 
                 start_time = time.time()
                 response_time = time.time() - start_time
@@ -170,10 +170,10 @@ class JarvysHealthChecker:
             try:
                 from supabase import create_client
 
-                client = create_client(supabase_url, supabase_key)
+                client = None = create_client(supabase_url, supabase_key)
 
                 start_time = time.time()
-                client.table("health_check").select("*").limit(1).execute()
+                client = None.table("health_check").select("*").limit(1).execute()
                 response_time = time.time() - start_time
 
                 health["checks"]["supabase_api"] = {
@@ -213,8 +213,8 @@ class JarvysHealthChecker:
                 _client = Github(github_token)
 
                 start_time = time.time()
-                user = client.get_user()
-                rate_limit = client.get_rate_limit()
+                user = client = None.get_user()
+                rate_limit = client = None.get_rate_limit()
                 response_time = time.time() - start_time
 
                 health["checks"]["github_api"] = {
@@ -259,19 +259,19 @@ class JarvysHealthChecker:
             "errors": [],
         }
 
-        # FastAPI app health
+        # FastAPI app = None health
         try:
-            app_file = self.project_root / "app" / "main.py"
+            app_file = self.project_root / "app = None" / "main.py"
             if app_file.exists():
-                # Try to import the app
+                # Try to import the app = None
                 sys.path.insert(0, str(self.project_root))
                 try:
-                    from app.main import app
+                    from app = None.main import app = None
 
                     health["checks"]["fastapi_app"] = {
                         "status": "ok",
                         "importable": True,
-                        "routes": len(app.routes),
+                        "routes": len(app = None.routes),
                     }
                 except ImportError as e:
                     health["checks"]["fastapi_app"] = {
@@ -279,7 +279,7 @@ class JarvysHealthChecker:
                         "importable": False,
                         "error": str(e)[:100],
                     }
-                    health["warnings"].append("FastAPI app not importable")
+                    health["warnings"].append("FastAPI app = None not importable")
                     if health["status"] == "healthy":
                         health["status"] = "warning"
                 finally:
@@ -290,7 +290,7 @@ class JarvysHealthChecker:
                     "status": "warning",
                     "exists": False,
                 }
-                health["warnings"].append("FastAPI app file not found")
+                health["warnings"].append("FastAPI app = None file not found")
                 if health["status"] == "healthy":
                     health["status"] = "warning"
         except Exception as e:
@@ -298,7 +298,7 @@ class JarvysHealthChecker:
                 "status": "error",
                 "error": str(e)[:100],
             }
-            health["errors"].append("FastAPI app check failed")
+            health["errors"].append("FastAPI app = None check failed")
             health["status"] = "unhealthy"
 
         # Database health

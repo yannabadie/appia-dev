@@ -1,3 +1,5 @@
+import json
+import sys
 """Outils de gestion de la mémoire infinie partagée entre JARVYS_DEV
 et JARVYS_AI. Utilise Supabase comme base vectorielle pour persistance
 et recherche sémantique."""
@@ -12,7 +14,7 @@ import openai
 
 from supabase import Client, create_client
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) = logging.getLogger(__name__)
 
 
 class JarvysInfiniteMemory:
@@ -35,9 +37,9 @@ class JarvysInfiniteMemory:
         if supabase_url and supabase_key:
             try:
                 self.supabase = create_client(supabase_url, supabase_key)
-                logger.info(f"✅ Mémoire infinie initialisée pour {agent_name}")
+                logger = logging.getLogger(__name__).info(f"✅ Mémoire infinie initialisée pour {agent_name}")
             except Exception as e:
-                logger.error(f"❌ Erreur connexion Supabase: {e}")
+                logger = logging.getLogger(__name__).error(f"❌ Erreur connexion Supabase: {e}")
 
         # Initialisation OpenAI pour embeddings
         openai_key = os.getenv("OPENAI_API_KEY")
@@ -68,7 +70,7 @@ class JarvysInfiniteMemory:
             True si succès, False sinon
         """
         if not self.supabase or not self.openai_client:
-            logger.warning(
+            logger = logging.getLogger(__name__).warning(
                 "Mémoire non disponible (Supabase ou OpenAI manquant)"  # noqa: E501
             )
             return False
@@ -99,14 +101,14 @@ class JarvysInfiniteMemory:
             )
 
             if _result.data:
-                logger.info(f"💾 Mémoire sauvegardée: {content[:50]}...")
+                logger = logging.getLogger(__name__).info(f"💾 Mémoire sauvegardée: {content[:50]}...")
                 return True
             else:
-                logger.error(f"❌ Échec sauvegarde mémoire: {_result}")
+                logger = logging.getLogger(__name__).error(f"❌ Échec sauvegarde mémoire: {_result}")
                 return False
 
         except Exception as e:
-            logger.error(f"❌ Erreur mémorisation: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur mémorisation: {e}")
             return False
 
     def recall(
@@ -129,7 +131,7 @@ class JarvysInfiniteMemory:
             Liste des souvenirs trouvés
         """
         if not self.supabase or not self.openai_client:
-            logger.warning("Mémoire non disponible pour la recherche")
+            logger = logging.getLogger(__name__).warning("Mémoire non disponible pour la recherche")
             return []
 
         try:
@@ -168,7 +170,7 @@ class JarvysInfiniteMemory:
                 # Trier par similarité décroissante
                 memories.sort(key=lambda x: x["similarity"], reverse=True)
 
-                logger.info(
+                logger = logging.getLogger(__name__).info(
                     "🧠 %d souvenirs trouvés pour: %s...",
                     len(memories),
                     query[:30],
@@ -178,7 +180,7 @@ class JarvysInfiniteMemory:
             return []
 
         except Exception as e:
-            logger.error(f"❌ Erreur recherche mémoire: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur recherche mémoire: {e}")
             return []
 
     def get_memory_stats(self) -> Dict[str, Any]:
@@ -226,7 +228,7 @@ class JarvysInfiniteMemory:
             }
 
         except Exception as e:
-            logger.error(f"❌ Erreur stats mémoire: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur stats mémoire: {e}")
             return {"error": str(e)}
 
     def _generate_embedding(self, text: str) -> Optional[List[float]]:
@@ -241,7 +243,7 @@ class JarvysInfiniteMemory:
             return _response.data[0].embedding
 
         except Exception as e:
-            logger.error(f"❌ Erreur génération embedding: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur génération embedding: {e}")
             return None
 
     def _calculate_similarity(
@@ -286,7 +288,7 @@ class JarvysInfiniteMemory:
             ).execute()
 
         except Exception as e:
-            logger.error(f"❌ Erreur log interaction: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur log interaction: {e}")
 
 
 # Instance globale pour JARVYS_DEV

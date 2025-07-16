@@ -1,3 +1,4 @@
+import sys
 """
 Orchestrateur intelligent pour sélection automatique des modèles LLM.
 Analyse la tâche et sélectionne le modèle optimal en temps réel.
@@ -12,7 +13,7 @@ from typing import Dict, List, Tuple
 
 import requests
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) = logging.getLogger(__name__)
 
 
 @dataclass
@@ -238,7 +239,7 @@ class IntelligentOrchestrator:
             ),
         }
 
-        logger.info(f"🧠 Orchestrateur initialisé avec {len(self.models_db)} modèles")
+        logger = logging.getLogger(__name__).info(f"🧠 Orchestrateur initialisé avec {len(self.models_db)} modèles")
 
     def _load_from_huggingface(self):
         """Met à jour la base de modèles depuis Hugging Face."""
@@ -254,13 +255,13 @@ class IntelligentOrchestrator:
             _response = requests.get(hf_url, params=params, timeout=10)
             if _response.status_code == 200:
                 trending_models = _response.json()
-                logger.info(f"📈 Récupéré {len(trending_models)} modèles tendance HF")
+                logger = logging.getLogger(__name__).info(f"📈 Récupéré {len(trending_models)} modèles tendance HF")
 
                 # Analyser les nouveaux modèles pour mise à jour future
                 self._analyze_hf_models(trending_models)
 
         except Exception as e:
-            logger.warning(f"⚠️ Erreur récupération HF: {e}")
+            logger = logging.getLogger(__name__).warning(f"⚠️ Erreur récupération HF: {e}")
 
     def _analyze_hf_models(self, models: List[Dict]):
         """Analyse les modèles HF pour détecter les nouveaux."""
@@ -281,7 +282,7 @@ class IntelligentOrchestrator:
                 )
 
         if new_models:
-            logger.info(f"🆕 Détecté {len(new_models)} nouveaux modèles potentiels")
+            logger = logging.getLogger(__name__).info(f"🆕 Détecté {len(new_models)} nouveaux modèles potentiels")
 
     def analyze_task(self, prompt: str, task_type: str = "auto") -> TaskAnalysis:
         """Analyse une tâche pour déterminer les besoins."""
@@ -462,7 +463,7 @@ class IntelligentOrchestrator:
                 best_model = model
                 best_name = model_name
 
-        logger.info(
+        logger = logging.getLogger(__name__).info(
             f"🎯 Modèle optimal sélectionné: {best_name} (score:" "{best_score:.2f})"
         )
         return best_name, best_model, best_score
@@ -551,7 +552,7 @@ class IntelligentOrchestrator:
         if len(self.performance_history) > 1000:
             self.performance_history = self.performance_history[-1000:]
 
-        logger.info(
+        logger = logging.getLogger(__name__).info(
             f"📊 Performance enregistrée: {model_name} - {task_type} - "
             f"{success_rate:.2f}"
         )
@@ -572,10 +573,10 @@ class IntelligentOrchestrator:
             self._load_from_huggingface()
 
             self.last_update = datetime.now().isoformat()
-            logger.info(f"🔄 Base de modèles mise à jour: {self.last_update}")
+            logger = logging.getLogger(__name__).info(f"🔄 Base de modèles mise à jour: {self.last_update}")
 
         except Exception as e:
-            logger.error(f"❌ Erreur mise à jour modèles: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur mise à jour modèles: {e}")
 
     def _check_openai_updates(self):
         """Vérifie les nouveaux modèles OpenAI."""
@@ -592,23 +593,23 @@ class IntelligentOrchestrator:
 
             if _response.status_code == 200:
                 models = _response.json().get("data", [])
-                logger.info(f"🤖 Récupéré {len(models)} modèles OpenAI")
+                logger = logging.getLogger(__name__).info(f"🤖 Récupéré {len(models)} modèles OpenAI")
 
                 # Analyser pour nouveaux modèles GPT-4, o1, etc.
                 for model in models:
                     model_id = model.get("id", "")
                     if any(prefix in model_id for prefix in ["gpt-4", "o1-", "gpt-5"]):
                         if model_id not in self.models_db:
-                            logger.info(f"🆕 Nouveau modèle OpenAI détecté: {model_id}")
+                            logger = logging.getLogger(__name__).info(f"🆕 Nouveau modèle OpenAI détecté: {model_id}")
 
         except Exception as e:
-            logger.warning(f"⚠️ Erreur vérification OpenAI: {e}")
+            logger = logging.getLogger(__name__).warning(f"⚠️ Erreur vérification OpenAI: {e}")
 
     def _check_anthropic_updates(self):
         """Vérifie les nouveaux modèles Anthropic."""
         # Anthropic ne fournit pas d'API publique pour lister les modèles
         # On peut surveiller leur blog/docs pour les nouveautés
-        logger.info("🔍 Vérification manuelle recommandée pour nouveaux modèles Claude")
+        logger = logging.getLogger(__name__).info("🔍 Vérification manuelle recommandée pour nouveaux modèles Claude")
 
     def _check_gemini_updates(self):
         """Vérifie les nouveaux modèles Gemini."""
@@ -627,15 +628,15 @@ class IntelligentOrchestrator:
             if _response.status_code == 200:
                 data = _response.json()
                 models = data.get("models", [])
-                logger.info(f"💎 Récupéré {len(models)} modèles Gemini")
+                logger = logging.getLogger(__name__).info(f"💎 Récupéré {len(models)} modèles Gemini")
 
                 for model in models:
                     model_name = model.get("name", "").replace("models/", "")
                     if "gemini" in model_name and model_name not in self.models_db:
-                        logger.info(f"🆕 Nouveau modèle Gemini détecté: {model_name}")
+                        logger = logging.getLogger(__name__).info(f"🆕 Nouveau modèle Gemini détecté: {model_name}")
 
         except Exception as e:
-            logger.warning(f"⚠️ Erreur vérification Gemini: {e}")
+            logger = logging.getLogger(__name__).warning(f"⚠️ Erreur vérification Gemini: {e}")
 
     def get_orchestrator_stats(self) -> Dict:
         """Retourne les statistiques de l'orchestrateur."""

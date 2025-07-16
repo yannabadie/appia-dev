@@ -1,3 +1,6 @@
+import json
+import sys
+import os
 #!/usr/bin/env python3
 """
 🚨 JARVYS_AI - Fallback Engine
@@ -12,7 +15,7 @@ from typing import Any, Dict
 
 import requests
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) = logging.getLogger(__name__)
 
 
 class FallbackEngine:
@@ -27,19 +30,19 @@ class FallbackEngine:
     - Retour automatique quand quotas restaurés
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config = {}: Dict[str, Any]):
         """Initialiser le moteur de fallback"""
-        self.config = config
+        self.config = {} = config = {}
         self.is_initialized = False
 
         # Configuration GitHub
-        self.github_token = config.get("github_token")
-        self.github_repo = config.get("github_repo", "yannabadie/appia-dev")
+        self.github_token = config = {}.get("github_token")
+        self.github_repo = config = {}.get("github_repo", "yannabadie/appia-dev")
 
         # Configuration Cloud Run
         self.cloud_run_config = {
-            "project_id": config.get("gcp_project_id", "appia-demo-project"),
-            "region": config.get("gcp_region", "europe-west1"),
+            "project_id": config = {}.get("gcp_project_id", "appia-demo-project"),
+            "region": config = {}.get("gcp_region", "europe-west1"),
             "service_name": "jarvys-fallback-service",
         }
 
@@ -49,9 +52,9 @@ class FallbackEngine:
         self.github_quota_exhausted = False
 
         # Simulation pour démo
-        self.demo_mode = config.get("demo_mode", True)
+        self.demo_mode = config = {}.get("demo_mode", True)
 
-        logger.info("🚨 Fallback Engine initialisé")
+        logger = logging.getLogger(__name__).info("🚨 Fallback Engine initialisé")
 
     async def initialize(self):
         """Initialiser le moteur de fallback"""
@@ -65,10 +68,10 @@ class FallbackEngine:
             await self._check_github_quotas()
 
             self.is_initialized = True
-            logger.info("🚨 Fallback Engine prêt")
+            logger = logging.getLogger(__name__).info("🚨 Fallback Engine prêt")
 
         except Exception as e:
-            logger.error(f"❌ Erreur initialisation Fallback Engine: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur initialisation Fallback Engine: {e}")
             raise
 
     def is_initialized(self) -> bool:
@@ -91,7 +94,7 @@ class FallbackEngine:
             },
         }
 
-        logger.info("🚨 Mode démo fallback configuré")
+        logger = logging.getLogger(__name__).info("🚨 Mode démo fallback configuré")
 
     async def _setup_real_fallback(self):
         """Configuration fallback réel"""
@@ -100,10 +103,10 @@ class FallbackEngine:
             # TODO: Configurer Cloud Run service
             # TODO: Déployer code de fallback sur Cloud Run
 
-            logger.info("🚨 Configuration fallback réelle (TODO)")
+            logger = logging.getLogger(__name__).info("🚨 Configuration fallback réelle (TODO)")
 
         except Exception as e:
-            logger.error(f"❌ Erreur configuration fallback: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur configuration fallback: {e}")
             raise
 
     async def monitor_quotas(self):
@@ -120,7 +123,7 @@ class FallbackEngine:
                 await asyncio.sleep(300)  # 5 minutes
 
             except Exception as e:
-                logger.error(f"❌ Erreur monitoring quotas: {e}")
+                logger = logging.getLogger(__name__).error(f"❌ Erreur monitoring quotas: {e}")
                 await asyncio.sleep(60)  # 1 minute en cas d'erreur
 
     async def _check_github_quotas(self) -> Dict[str, Any]:
@@ -132,7 +135,7 @@ class FallbackEngine:
                 # Simuler épuisement des quotas
                 if quotas["remaining_minutes"] < 100:
                     self.github_quota_exhausted = True
-                    logger.warning("⚠️ Quotas GitHub Actions bientôt épuisés")
+                    logger = logging.getLogger(__name__).warning("⚠️ Quotas GitHub Actions bientôt épuisés")
 
                 return quotas
 
@@ -149,11 +152,11 @@ class FallbackEngine:
                 if response.status_code == 200:
                     return response.json()
                 else:
-                    logger.error(f"❌ Erreur API GitHub: {response.status_code}")
+                    logger = logging.getLogger(__name__).error(f"❌ Erreur API GitHub: {response.status_code}")
                     return {}
 
         except Exception as e:
-            logger.error(f"❌ Erreur vérification quotas GitHub: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur vérification quotas GitHub: {e}")
             return {}
 
     async def _check_cloud_run_quotas(self) -> Dict[str, Any]:
@@ -166,7 +169,7 @@ class FallbackEngine:
                 return {}
 
         except Exception as e:
-            logger.error(f"❌ Erreur vérification quotas Cloud Run: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur vérification quotas Cloud Run: {e}")
             return {}
 
     async def _evaluate_fallback_need(self):
@@ -188,12 +191,12 @@ class FallbackEngine:
                 await self._deactivate_fallback()
 
         except Exception as e:
-            logger.error(f"❌ Erreur évaluation fallback: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur évaluation fallback: {e}")
 
     async def _activate_fallback(self):
         """Activer le mode fallback"""
         try:
-            logger.warning(
+            logger = logging.getLogger(__name__).warning(
                 "🚨 Activation du mode fallback - basculement vers Cloud Run"
             )
 
@@ -208,12 +211,12 @@ class FallbackEngine:
             await self._notify_fallback_activation()
 
         except Exception as e:
-            logger.error(f"❌ Erreur activation fallback: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur activation fallback: {e}")
 
     async def _demo_activate_fallback(self):
         """Activation fallback en mode démo"""
         await asyncio.sleep(2)  # Simulation délai déploiement
-        logger.info("🚨 [DÉMO] Fallback activé - Cloud Run opérationnel")
+        logger = logging.getLogger(__name__).info("🚨 [DÉMO] Fallback activé - Cloud Run opérationnel")
 
     async def _real_activate_fallback(self):
         """Activation fallback réelle"""
@@ -227,10 +230,10 @@ class FallbackEngine:
             # 3. Mettre à jour la configuration DNS/routing
             await self._update_routing_config()
 
-            logger.info("🚨 Fallback réel activé")
+            logger = logging.getLogger(__name__).info("🚨 Fallback réel activé")
 
         except Exception as e:
-            logger.error(f"❌ Erreur activation fallback réelle: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur activation fallback réelle: {e}")
             raise
 
     async def _deploy_fallback_service(self):
@@ -259,26 +262,26 @@ class FallbackEngine:
                 if result.returncode != 0:
                     raise Exception(f"Échec déploiement: {result.stderr}")
 
-            logger.info("☁️ Service Cloud Run déployé")
+            logger = logging.getLogger(__name__).info("☁️ Service Cloud Run déployé")
 
         except Exception as e:
-            logger.error(f"❌ Erreur déploiement Cloud Run: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur déploiement Cloud Run: {e}")
             raise
 
     async def _redirect_traffic_to_fallback(self):
         """Rediriger le trafic vers le service de fallback"""
         # TODO: Implémenter redirection trafic
-        logger.info("🔄 Trafic redirigé vers Cloud Run")
+        logger = logging.getLogger(__name__).info("🔄 Trafic redirigé vers Cloud Run")
 
     async def _update_routing_config(self):
         """Mettre à jour la configuration de routage"""
         # TODO: Mettre à jour DNS/Load Balancer
-        logger.info("🌐 Configuration routage mise à jour")
+        logger = logging.getLogger(__name__).info("🌐 Configuration routage mise à jour")
 
     async def _deactivate_fallback(self):
         """Désactiver le mode fallback"""
         try:
-            logger.info("✅ Désactivation du mode fallback - retour à GitHub Actions")
+            logger = logging.getLogger(__name__).info("✅ Désactivation du mode fallback - retour à GitHub Actions")
 
             if self.demo_mode:
                 await self._demo_deactivate_fallback()
@@ -291,12 +294,12 @@ class FallbackEngine:
             await self._notify_fallback_deactivation()
 
         except Exception as e:
-            logger.error(f"❌ Erreur désactivation fallback: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur désactivation fallback: {e}")
 
     async def _demo_deactivate_fallback(self):
         """Désactivation fallback en mode démo"""
         await asyncio.sleep(1)  # Simulation délai
-        logger.info("✅ [DÉMO] Fallback désactivé - retour à GitHub Actions")
+        logger = logging.getLogger(__name__).info("✅ [DÉMO] Fallback désactivé - retour à GitHub Actions")
 
     async def _real_deactivate_fallback(self):
         """Désactivation fallback réelle"""
@@ -307,10 +310,10 @@ class FallbackEngine:
             # 2. Optionnellement arrêter service Cloud Run pour économiser
             await self._scale_down_fallback_service()
 
-            logger.info("✅ Fallback réel désactivé")
+            logger = logging.getLogger(__name__).info("✅ Fallback réel désactivé")
 
         except Exception as e:
-            logger.error(f"❌ Erreur désactivation fallback réelle: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur désactivation fallback réelle: {e}")
             raise
 
     async def _notify_fallback_activation(self):
@@ -323,7 +326,7 @@ class FallbackEngine:
         }
 
         # TODO: Envoyer notification (email, Slack, etc.)
-        logger.warning(f"🚨 Notification fallback: {notification}")
+        logger = logging.getLogger(__name__).warning(f"🚨 Notification fallback: {notification}")
 
     async def _notify_fallback_deactivation(self):
         """Notifier la désactivation du fallback"""
@@ -335,7 +338,7 @@ class FallbackEngine:
         }
 
         # TODO: Envoyer notification
-        logger.info(f"✅ Notification retour normal: {notification}")
+        logger = logging.getLogger(__name__).info(f"✅ Notification retour normal: {notification}")
 
     async def get_fallback_status(self) -> Dict[str, Any]:
         """Obtenir l'état du système de fallback"""
@@ -349,7 +352,7 @@ class FallbackEngine:
             "cloud_quotas": cloud_quotas,
             "last_check": self.last_quota_check,
             "fallback_service_url": (
-                f"https://{self.cloud_run_config['service_name']}-{self.cloud_run_config['region']}.a.run.app"
+                f"https://{self.cloud_run_config['service_name']}-{self.cloud_run_config['region']}.a.run.app = None"
                 if self.fallback_active
                 else None
             ),
@@ -357,7 +360,7 @@ class FallbackEngine:
 
     async def force_fallback_test(self):
         """Tester le fallback manuellement"""
-        logger.info("🧪 Test manuel du fallback")
+        logger = logging.getLogger(__name__).info("🧪 Test manuel du fallback")
 
         # Sauvegarder état actuel
         original_state = self.fallback_active
@@ -380,7 +383,7 @@ class FallbackEngine:
             }
 
         except Exception as e:
-            logger.error(f"❌ Échec test fallback: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Échec test fallback: {e}")
 
             # Restaurer état original
             self.fallback_active = original_state

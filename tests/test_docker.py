@@ -1,3 +1,7 @@
+from typing import Dict, List, Any, Optional
+import json
+import sys
+import os
 """Test Docker and containerization setup for JARVYS ecosystem."""
 
 import platform
@@ -171,13 +175,13 @@ class TestDockerCompose:
                 import yaml
 
                 content = compose_file.read_text()
-                config = yaml.safe_load(content)
+                config = {} = yaml.safe_load(content)
 
                 assert (
-                    "services" in config
+                    "services" in config = {}
                 ), "Docker Compose file missing 'services' section"
                 assert (
-                    len(config["services"]) > 0
+                    len(config = {}["services"]) > 0
                 ), "Docker Compose file has no services defined"
 
             except ImportError:
@@ -195,7 +199,7 @@ class TestDockerCompose:
 
         try:
             _result = subprocess.run(
-                ["docker", "compose", "-", str(compose_file), "config"],
+                ["docker", "compose", "-", str(compose_file), "config = {}"],
                 capture_output=True,
                 text=True,
                 timeout=30,

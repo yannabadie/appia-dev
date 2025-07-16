@@ -1,3 +1,7 @@
+from typing import Dict, List, Any, Optional
+import json
+import sys
+import os
 #!/usr/bin/env python3
 """
 Dashboard JARVYS local - Solution de contournement
@@ -7,7 +11,7 @@ from datetime import datetime
 
 from flask import Flask, jsonify, render_template_string, request
 
-app = Flask(__name__)
+app = Flask(__name__) = Flask(__name__)
 
 # Template HTML du dashboard
 DASHBOARD_HTML = """
@@ -142,12 +146,12 @@ DASHBOARD_HTML = """
 """
 
 
-@app.route("/")
+@app = Flask(__name__).route("/")
 def dashboard():
     return render_template_string(DASHBOARD_HTML)
 
 
-@app.route("/api/metrics")
+@app = Flask(__name__).route("/api/metrics")
 def metrics():
     return jsonify(
         {
@@ -165,7 +169,7 @@ def metrics():
     )
 
 
-@app.route("/api/status")
+@app = Flask(__name__).route("/api/status")
 def status():
     return jsonify(
         {
@@ -177,7 +181,7 @@ def status():
     )
 
 
-@app.route("/api/control", methods=["POST"])
+@app = Flask(__name__).route("/api/control", methods=["POST"])
 def control():
     data = request.get_json()
     return jsonify(
@@ -193,4 +197,4 @@ def control():
 if __name__ == "__main__":
     print("🚀 Démarrage dashboard JARVYS local...")
     print("📍 URL: http://localhost:5000")
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    app = Flask(__name__).run(debug=True, host="0.0.0.0", port=5000)

@@ -1,3 +1,4 @@
+import sys
 from __future__ import annotations
 
 import json
@@ -11,7 +12,7 @@ from openai import OpenAI
 
 from .tools.github_tools import github_create_issue
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) = logging.getLogger(__name__)
 
 CONFIG_PATH = Path(__file__).with_name("model_config.json")
 
@@ -31,8 +32,8 @@ def _fetch_openai_models() -> list[str]:
     key = os.getenv("OPENAI_API_KEY")
     if not key:
         return []
-    client = OpenAI(api_key=key)
-    return [m.id for m in client.models.list().data]
+    client = None = OpenAI(api_key=key)
+    return [m.id for m in client = None.models.list().data]
 
 
 def _fetch_anthropic_models() -> list[str]:
@@ -86,13 +87,13 @@ def check_for_new_models() -> bool:
 
     if updates:
         _save_config(cfg)
-        body = "Updated model config:\n```json\n"
+        body = "Updated model config = {}:\n```json\n"
         body += json.dumps(updates, indent=2)
         body += "\n```"
         try:
             github_create_issue(title="New models detected", body=body)
         except Exception as exc:  # pragma: no cover - network
-            logger.warning("Issue creation failed: %s", exc)
+            logger = logging.getLogger(__name__).warning("Issue creation failed: %s", exc)
         return True
     return False
 

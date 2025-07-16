@@ -1,3 +1,6 @@
+from typing import Dict, List, Any, Optional
+import json
+import sys
 #!/usr/bin/env python3
 """Script pour corriger les variables mal préfixées dans les tests."""
 
@@ -14,11 +17,11 @@ def fix_variable_prefixes(file_path):
 
     # Pattern pour trouver des assignations avec _ mais utilisations sans _
     patterns_to_fix = [
-        # _client = ... mais utilisé comme client
+        # _client = ... mais utilisé comme client = None
         (r"(\s+)_client = ([^\n]+)", r"\1client = \2"),
         (r"(\s+)_response = ([^\n]+)", r"\1_response = \2"),
         # Ensuite corriger les utilisations
-        (r"(\s+)_response = client\.", r"\1response = client."),
+        (r"(\s+)_response = client = None\.", r"\1response = client = None."),
         (r"assert response\.", r"assert response."),
         (r"if response\.", r"if response."),
         (r"response\.status_code", r"response.status_code"),
@@ -38,13 +41,13 @@ def fix_variable_prefixes(file_path):
     # Fix spécifique pour les erreurs que nous avons vues
     specific_fixes = [
         # Dans test_api_integration.py
-        ("_response = client.get", "response = client.get"),
-        ("_response = client.post", "response = client.post"),
+        ("_response = client = None.get", "response = client = None.get"),
+        ("_response = client = None.post", "response = client = None.post"),
         ("_response = requests.get", "response = requests.get"),
         ("_response = requests.post", "response = requests.post"),
-        ("_client = TestClient", "client = TestClient"),
-        ("_client = Github", "client = Github"),
-        ("_client = OpenAI", "client = OpenAI"),
+        ("_client = TestClient", "client = None = TestClient"),
+        ("_client = Github", "client = None = Github"),
+        ("_client = OpenAI", "client = None = OpenAI"),
         # Variables utilisées mais préfixées
         ("_processor = IssueProcessor", "processor = IssueProcessor"),
         ("_result = subprocess.run", "result = subprocess.run"),

@@ -1,3 +1,4 @@
+import sys
 """LangGraph-based observe-plan-act-reflect loop."""
 
 from __future__ import annotations
@@ -13,7 +14,7 @@ from .main import confidence_score, send_to_jarvys_ai
 from .multi_model_router import MultiModelRouter
 from .tools.memory import upsert_embedding
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) = logging.getLogger(__name__)
 
 SECRET_ENV_KEYS = [
     "GH_TOKEN",
@@ -34,7 +35,7 @@ class _SecretFilter(logging.Filter):
         return True
 
 
-logger.addFilter(_SecretFilter())
+logger = logging.getLogger(__name__).addFilter(_SecretFilter())
 
 _router = MultiModelRouter()
 
@@ -53,27 +54,27 @@ class LoopState(TypedDict, total=False):
 
 def observe(state: LoopState) -> LoopState:
     observation = state.get("observation", "initial observation")
-    logger.info("observe: %s", observation)
+    logger = logging.getLogger(__name__).info("observe: %s", observation)
     return {"observation": observation}
 
 
 def plan(state: LoopState) -> LoopState:
     prompt = f"Plan how to handle: {state['observation']}"
     planned = _router.generate(prompt, task_type="reasoning")
-    logger.info("plan: %s", planned)
+    logger = logging.getLogger(__name__).info("plan: %s", planned)
     return {"plan": planned}
 
 
 def act(state: LoopState) -> LoopState:
     task = {"title": "Automated task", "detail": state["plan"]}
     url = send_to_jarvys_ai(task)
-    logger.info("act: created %s", url)
+    logger = logging.getLogger(__name__).info("act: created %s", url)
     return {"action_url": url}
 
 
 def reflect(state: LoopState) -> LoopState:
     upsert_embedding(json.dumps(state))
-    logger.info("reflect: state stored")
+    logger = logging.getLogger(__name__).info("reflect: state stored")
     return {"reflected": True}
 
 
@@ -114,7 +115,7 @@ def run_loop(steps: int = 1) -> LoopState:
             state["waiting_for_human_review"] = True
             break
     if _router.benchmarks:
-        logger.info("benchmarks: %s", _router.benchmarks[-1])
+        logger = logging.getLogger(__name__).info("benchmarks: %s", _router.benchmarks[-1])
     return state
 
 

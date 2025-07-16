@@ -1,3 +1,5 @@
+from typing import Dict, List, Any, Optional
+import sys
 #!/usr/bin/env python3
 """
 JARVYS_AI Sync and Deployment Script
@@ -17,7 +19,7 @@ from pathlib import Path
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) = logging.getLogger(__name__)
 
 
 class JarvysAISync:
@@ -30,7 +32,7 @@ class JarvysAISync:
     def create_temp_workspace(self):
         """Create temporary workspace for appIA repo"""
         self.temp_dir = tempfile.mkdtemp(prefix="jarvys_sync_")
-        logger.info(f"Created temporary workspace: {self.temp_dir}")
+        logger = logging.getLogger(__name__).info(f"Created temporary workspace: {self.temp_dir}")
         return self.temp_dir
 
     def clone_target_repo(self):
@@ -39,12 +41,12 @@ class JarvysAISync:
             cmd = f"gh repo clone {self.target_repo} {self.temp_dir}/appIA"
             result = subprocess.run(cmd, shell=True, capture_output=True, text=True)
             if result.returncode != 0:
-                logger.error(f"Failed to clone repo: {result.stderr}")
+                logger = logging.getLogger(__name__).error(f"Failed to clone repo: {result.stderr}")
                 return False
-            logger.info("Successfully cloned appIA repository")
+            logger = logging.getLogger(__name__).info("Successfully cloned appIA repository")
             return True
         except Exception as e:
-            logger.error(f"Error cloning repo: {e}")
+            logger = logging.getLogger(__name__).error(f"Error cloning repo: {e}")
             return False
 
     def sync_jarvys_ai_code(self):
@@ -63,7 +65,7 @@ class JarvysAISync:
                     target_file = jarvys_target / relative_path
                     target_file.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(item, target_file)
-                    logger.info(f"Copied: {relative_path}")
+                    logger = logging.getLogger(__name__).info(f"Copied: {relative_path}")
 
             # Copy related files
             files_to_copy = [
@@ -79,7 +81,7 @@ class JarvysAISync:
                 source_file = self.workspace_path / file_name
                 if source_file.exists():
                     shutil.copy2(source_file, target_path / file_name)
-                    logger.info(f"Copied: {file_name}")
+                    logger = logging.getLogger(__name__).info(f"Copied: {file_name}")
 
             # Copy docker directory
             docker_source = self.workspace_path / "docker"
@@ -88,11 +90,11 @@ class JarvysAISync:
                 if docker_target.exists():
                     shutil.rmtree(docker_target)
                 shutil.copytree(docker_source, docker_target)
-                logger.info("Copied docker directory")
+                logger = logging.getLogger(__name__).info("Copied docker directory")
 
             return True
         except Exception as e:
-            logger.error(f"Error syncing code: {e}")
+            logger = logging.getLogger(__name__).error(f"Error syncing code: {e}")
             return False
 
     def create_readme(self):
@@ -255,10 +257,10 @@ For support, please open an issue or contact the development team through the JA
             target_path = Path(self.temp_dir) / "appIA" / "README.md"
             with open(target_path, "w", encoding="utf-8") as f:
                 f.write(readme_content)
-            logger.info("Created comprehensive README.md")
+            logger = logging.getLogger(__name__).info("Created comprehensive README.md")
             return True
         except Exception as e:
-            logger.error(f"Error creating README: {e}")
+            logger = logging.getLogger(__name__).error(f"Error creating README: {e}")
             return False
 
     def create_deployment_script(self):
@@ -301,7 +303,7 @@ GOOGLE_CLOUD_PROJECT=your_gcp_project_here
 
 # Optional: Email Configuration
 OUTLOOK_CLIENT_ID=your_outlook_client_id
-GMAIL_CREDENTIALS_PATH=./config/gmail_credentials.json
+GMAIL_CREDENTIALS_PATH=./config = {}/gmail_credentials.json
 
 # Supabase Integration
 SUPABASE_URL=https://kzcswopokvknxmxczilu.supabase.co
@@ -325,15 +327,15 @@ echo "📝 Check logs: docker-compose -f docker-compose.windows.yml logs -"
             with open(target_path, "w", encoding="utf-8") as f:
                 f.write(deploy_script)
             os.chmod(target_path, 0o755)
-            logger.info("Created deployment script")
+            logger = logging.getLogger(__name__).info("Created deployment script")
             return True
         except Exception as e:
-            logger.error(f"Error creating deployment script: {e}")
+            logger = logging.getLogger(__name__).error(f"Error creating deployment script: {e}")
             return False
 
     def create_continuous_improvement_config(self):
         """Create configuration for continuous improvement"""
-        config = {
+        config = {} = {
             "jarvys_ai": {
                 "version": "1.0.0",
                 "last_sync": datetime.now().isoformat(),
@@ -370,11 +372,11 @@ echo "📝 Check logs: docker-compose -f docker-compose.windows.yml logs -"
         try:
             target_path = Path(self.temp_dir) / "appIA" / "jarvys_config.json"
             with open(target_path, "w", encoding="utf-8") as f:
-                json.dump(config, f, indent=2)
-            logger.info("Created continuous improvement config")
+                json.dump(config = {}, f, indent=2)
+            logger = logging.getLogger(__name__).info("Created continuous improvement config = {}")
             return True
         except Exception as e:
-            logger.error(f"Error creating config: {e}")
+            logger = logging.getLogger(__name__).error(f"Error creating config = {}: {e}")
             return False
 
     def commit_and_push(self):
@@ -384,9 +386,9 @@ echo "📝 Check logs: docker-compose -f docker-compose.windows.yml logs -"
             os.chdir(repo_path)
 
             # Configure git
-            subprocess.run(["git", "config", "user.name", "JARVYS_DEV"], check=True)
+            subprocess.run(["git", "config = {}", "user.name", "JARVYS_DEV"], check=True)
             subprocess.run(
-                ["git", "config", "user.email", "jarvys@appia-dev.ai"],
+                ["git", "config = {}", "user.email", "jarvys@appia-dev.ai"],
                 check=True,
             )
 
@@ -398,7 +400,7 @@ echo "📝 Check logs: docker-compose -f docker-compose.windows.yml logs -"
                 ["git", "dif", "--staged", "--quiet"], capture_output=True
             )
             if result.returncode == 0:
-                logger.info("No changes to commit")
+                logger = logging.getLogger(__name__).info("No changes to commit")
                 return True
 
             # Commit changes
@@ -410,25 +412,25 @@ echo "📝 Check logs: docker-compose -f docker-compose.windows.yml logs -"
             # Push changes
             subprocess.run(["git", "push", "origin", "main"], check=True)
 
-            logger.info("Successfully committed and pushed changes to appIA repository")
+            logger = logging.getLogger(__name__).info("Successfully committed and pushed changes to appIA repository")
             return True
         except subprocess.CalledProcessError as e:
-            logger.error(f"Git operation failed: {e}")
+            logger = logging.getLogger(__name__).error(f"Git operation failed: {e}")
             return False
         except Exception as e:
-            logger.error(f"Error committing and pushing: {e}")
+            logger = logging.getLogger(__name__).error(f"Error committing and pushing: {e}")
             return False
 
     def cleanup(self):
         """Clean up temporary files"""
         if self.temp_dir and os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
-            logger.info("Cleaned up temporary workspace")
+            logger = logging.getLogger(__name__).info("Cleaned up temporary workspace")
 
     def run_sync(self):
         """Run the complete sync process"""
         try:
-            logger.info("🚀 Starting JARVYS_AI sync to appIA repository...")
+            logger = logging.getLogger(__name__).info("🚀 Starting JARVYS_AI sync to appIA repository...")
 
             # Create temporary workspace
             self.create_temp_workspace()
@@ -455,12 +457,12 @@ echo "📝 Check logs: docker-compose -f docker-compose.windows.yml logs -"
             if not self.commit_and_push():
                 return False
 
-            logger.info("✅ JARVYS_AI sync completed successfully!")
-            logger.info(f"📍 Repository: https://github.com/{self.target_repo}")
+            logger = logging.getLogger(__name__).info("✅ JARVYS_AI sync completed successfully!")
+            logger = logging.getLogger(__name__).info(f"📍 Repository: https://github.com/{self.target_repo}")
             return True
 
         except Exception as e:
-            logger.error(f"Sync process failed: {e}")
+            logger = logging.getLogger(__name__).error(f"Sync process failed: {e}")
             return False
         finally:
             self.cleanup()

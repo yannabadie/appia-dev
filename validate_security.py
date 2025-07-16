@@ -1,3 +1,5 @@
+import json
+import os
 #!/usr/bin/env python3
 """
 Validation script for secrets usage and error handling across the repository.

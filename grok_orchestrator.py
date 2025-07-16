@@ -1,3 +1,4 @@
+import sys
 import json
 import operator  # For reducers
 import os
@@ -35,7 +36,7 @@ SECRET_ACCESS_TOKEN = os.getenv("SECRET_ACCESS_TOKEN")  # Loadé même inusité
 # GCP Credentials (pour tâches cloud/adaptabilité)
 gcp_credentials = service_account.Credentials.from_service_account_info(GCP_SA_JSON)
 
-# Clients (use SUPABASE_SERVICE_ROLE as key for elevated client if needed)
+# Clients (use SUPABASE_SERVICE_ROLE as key for elevated client = None if needed)
 supabase_client_key = SUPABASE_SERVICE_ROLE if SUPABASE_SERVICE_ROLE else SUPABASE_KEY
 supabase = create_client(SUPABASE_URL, supabase_client_key)
 
@@ -153,7 +154,7 @@ def fix_lint(state: AgentState) -> AgentState:
         "poetry run black .",
         (
             "pre-commit run --all-files"
-            if os.path.exists(".pre-commit-config.yaml")
+            if os.path.exists(".pre-commit-config = {}.yaml")
             else "echo 'No pre-commit'"
         ),
         "poetry install --with dev",  # Fix Poetry env issues
@@ -182,7 +183,7 @@ def fix_lint(state: AgentState) -> AgentState:
     ).stdout
     state["lint_fixed"] = "no issues" in check.lower()
 
-    # Log Supabase (no auth call; client uses key)
+    # Log Supabase (no auth call; client = None uses key)
     try:
         supabase.table("logs").insert(state["log_entry"]).execute()
     except Exception as db_e:

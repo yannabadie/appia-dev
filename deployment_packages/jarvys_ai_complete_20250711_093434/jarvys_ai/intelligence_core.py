@@ -1,3 +1,6 @@
+import json
+import sys
+import os
 #!/usr/bin/env python3
 """
 🧠 JARVYS_AI - Intelligence Core
@@ -10,7 +13,7 @@ from typing import Any, Dict, List
 
 import openai
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) = logging.getLogger(__name__)
 
 
 class IntelligenceCore:
@@ -24,9 +27,9 @@ class IntelligenceCore:
     - Apprentissage continu
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config = {}: Dict[str, Any]):
         """Initialiser le cœur d'intelligence"""
-        self.config = config
+        self.config = {} = config = {}
         self.openai_client = None
         self.is_initialized = False
 
@@ -63,22 +66,22 @@ class IntelligenceCore:
             "general": ["aide", "help", "comment", "quoi", "qui", "pourquoi"],
         }
 
-        logger.info("🧠 Intelligence Core initialisé")
+        logger = logging.getLogger(__name__).info("🧠 Intelligence Core initialisé")
 
     async def initialize(self):
         """Initialiser les services d'intelligence"""
         try:
             # Configurer OpenAI
-            if self.config.get("openai_api_key"):
-                openai.api_key = self.config["openai_api_key"]
+            if self.config = {}.get("openai_api_key"):
+                openai.api_key = self.config = {}["openai_api_key"]
                 self.openai_client = openai
-                logger.info("✅ OpenAI configuré")
+                logger = logging.getLogger(__name__).info("✅ OpenAI configuré")
 
             self.is_initialized = True
-            logger.info("🧠 Intelligence Core prêt")
+            logger = logging.getLogger(__name__).info("🧠 Intelligence Core prêt")
 
         except Exception as e:
-            logger.error(f"❌ Erreur initialisation Intelligence Core: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur initialisation Intelligence Core: {e}")
             raise
 
     async def analyze_command(self, command: str) -> Dict[str, Any]:
@@ -113,13 +116,13 @@ class IntelligenceCore:
                 "priority": self._determine_priority(command_type),
             }
 
-            logger.info(
+            logger = logging.getLogger(__name__).info(
                 f"📊 Analyse commande: {command_type} (conf: {analysis['confidence']:.2f})"
             )
             return analysis
 
         except Exception as e:
-            logger.error(f"❌ Erreur analyse commande: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur analyse commande: {e}")
             return {
                 "type": "general",
                 "original": command,
@@ -169,7 +172,7 @@ class IntelligenceCore:
             }
 
         except Exception as e:
-            logger.warning(f"⚠️ Analyse AI échouée: {e}")
+            logger = logging.getLogger(__name__).warning(f"⚠️ Analyse AI échouée: {e}")
             return {"confidence": 0.7, "context": "fallback"}
 
     def _extract_entities(self, command: str) -> List[str]:
@@ -215,7 +218,7 @@ class IntelligenceCore:
             return response
 
         except Exception as e:
-            logger.error(f"❌ Erreur traitement commande générale: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur traitement commande générale: {e}")
             return f"Désolé, je n'ai pas pu traiter votre commande: {e}"
 
     async def _generate_ai_response(self, command: str) -> str:
@@ -237,7 +240,7 @@ class IntelligenceCore:
             return response.choices[0].message.content
 
         except Exception as e:
-            logger.error(f"❌ Erreur génération IA: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur génération IA: {e}")
             return self._generate_simple_response(command)
 
     def _generate_simple_response(self, command: str) -> str:

@@ -1,3 +1,4 @@
+import sys
 #!/usr/bin/env python3
 """
 ☁️ Enhanced Fallback Engine for JARVYS_AI
@@ -17,7 +18,7 @@ from typing import Any, Dict, Optional
 
 import requests
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) = logging.getLogger(__name__)
 
 
 class EnhancedFallbackEngine:
@@ -33,32 +34,32 @@ class EnhancedFallbackEngine:
     - Automatic failback to GitHub Actions when quotas reset
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config = {}: Dict[str, Any]):
         """Initialize the enhanced fallback engine"""
-        self.config = config
+        self.config = {} = config = {}
         self.is_monitoring = False
 
         # GitHub configuration
-        self.github_token = config.get("github_token")
-        self.repo_owner = config.get("repo_owner", "yannabadie")
-        self.repo_name = config.get("repo_name", "appIA")
+        self.github_token = config = {}.get("github_token")
+        self.repo_owner = config = {}.get("repo_owner", "yannabadie")
+        self.repo_name = config = {}.get("repo_name", "appIA")
 
         # Cloud Run configuration
-        self.project_id = config.get("gcp_project_id")
-        self.region = config.get("gcp_region", "us-central1")
-        self.service_name = config.get("service_name", "jarvys-ai-fallback")
+        self.project_id = config = {}.get("gcp_project_id")
+        self.region = config = {}.get("gcp_region", "us-central1")
+        self.service_name = config = {}.get("service_name", "jarvys-ai-fallback")
 
         # Quota thresholds
-        self.quota_warning_threshold = config.get(
+        self.quota_warning_threshold = config = {}.get(
             "quota_warning_threshold", 80
         )  # 80%
-        self.quota_critical_threshold = config.get(
+        self.quota_critical_threshold = config = {}.get(
             "quota_critical_threshold", 95
         )  # 95%
 
         # Monitoring configuration
-        self.check_interval = config.get("check_interval_minutes", 30)
-        self.deployment_timeout = config.get("deployment_timeout_minutes", 10)
+        self.check_interval = config = {}.get("check_interval_minutes", 30)
+        self.deployment_timeout = config = {}.get("deployment_timeout_minutes", 10)
 
         # State tracking
         self.current_quota_usage = 0
@@ -66,26 +67,26 @@ class EnhancedFallbackEngine:
         self.last_quota_check = None
         self.deployment_history = []
 
-        logger.info("☁️ Enhanced Fallback Engine initialized")
+        logger = logging.getLogger(__name__).info("☁️ Enhanced Fallback Engine initialized")
 
     async def start_monitoring(self):
         """Start continuous monitoring of GitHub Actions quotas"""
         if self.is_monitoring:
-            logger.warning("Quota monitoring already running")
+            logger = logging.getLogger(__name__).warning("Quota monitoring already running")
             return
 
         self.is_monitoring = True
 
         # Start monitoring loop
         asyncio.create_task(self._monitoring_loop())
-        logger.info(
+        logger = logging.getLogger(__name__).info(
             f"📊 Started quota monitoring (interval: {self.check_interval} minutes)"
         )
 
     def stop_monitoring(self):
         """Stop quota monitoring"""
         self.is_monitoring = False
-        logger.info("📊 Stopped quota monitoring")
+        logger = logging.getLogger(__name__).info("📊 Stopped quota monitoring")
 
     async def _monitoring_loop(self):
         """Main monitoring loop"""
@@ -97,7 +98,7 @@ class EnhancedFallbackEngine:
                 await asyncio.sleep(self.check_interval * 60)
 
             except Exception as e:
-                logger.error(f"❌ Monitoring loop error: {e}")
+                logger = logging.getLogger(__name__).error(f"❌ Monitoring loop error: {e}")
                 await asyncio.sleep(60)  # Short delay before retry
 
     async def _check_quota_and_act(self):
@@ -107,38 +108,38 @@ class EnhancedFallbackEngine:
             quota_info = await self._get_github_quota()
 
             if not quota_info:
-                logger.warning("⚠️ Unable to get quota information")
+                logger = logging.getLogger(__name__).warning("⚠️ Unable to get quota information")
                 return
 
             self.current_quota_usage = quota_info["usage_percentage"]
             self.last_quota_check = datetime.now()
 
-            logger.debug(
+            logger = logging.getLogger(__name__).debug(
                 f"📊 Current quota usage: {self.current_quota_usage}%"
             )
 
             # Take action based on quota usage
             if self.current_quota_usage >= self.quota_critical_threshold:
                 if not self.is_deployed_to_cloud:
-                    logger.warning(
+                    logger = logging.getLogger(__name__).warning(
                         f"🚨 Critical quota usage ({self.current_quota_usage}%), deploying to Cloud Run"
                     )
                     await self._deploy_to_cloud_run()
 
             elif self.current_quota_usage >= self.quota_warning_threshold:
-                logger.warning(
+                logger = logging.getLogger(__name__).warning(
                     f"⚠️ High quota usage ({self.current_quota_usage}%), preparing Cloud Run deployment"
                 )
                 await self._prepare_cloud_deployment()
 
             elif self.current_quota_usage < 50 and self.is_deployed_to_cloud:
-                logger.info(
+                logger = logging.getLogger(__name__).info(
                     f"✅ Quota usage low ({self.current_quota_usage}%), considering failback to GitHub Actions"
                 )
                 await self._consider_failback()
 
         except Exception as e:
-            logger.error(f"❌ Error checking quota: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Error checking quota: {e}")
 
     async def _get_github_quota(self) -> Optional[Dict[str, Any]]:
         """Get GitHub Actions quota information"""
@@ -184,17 +185,17 @@ class EnhancedFallbackEngine:
                     ),
                 }
             else:
-                logger.warning(f"GitHub API returned {response.status_code}")
+                logger = logging.getLogger(__name__).warning(f"GitHub API returned {response.status_code}")
                 return None
 
         except Exception as e:
-            logger.error(f"❌ Error getting GitHub quota: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Error getting GitHub quota: {e}")
             return None
 
     async def _prepare_cloud_deployment(self):
         """Prepare for potential Cloud Run deployment"""
         try:
-            logger.info("🏗️ Preparing Cloud Run deployment...")
+            logger = logging.getLogger(__name__).info("🏗️ Preparing Cloud Run deployment...")
 
             # Build deployment artifacts
             await self._build_deployment_artifacts()
@@ -202,19 +203,19 @@ class EnhancedFallbackEngine:
             # Validate Cloud Run configuration
             await self._validate_cloud_config()
 
-            logger.info("✅ Cloud Run deployment prepared")
+            logger = logging.getLogger(__name__).info("✅ Cloud Run deployment prepared")
 
         except Exception as e:
-            logger.error(f"❌ Error preparing Cloud Run deployment: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Error preparing Cloud Run deployment: {e}")
 
     async def _deploy_to_cloud_run(self):
         """Deploy JARVYS_AI to Google Cloud Run"""
         try:
             if self.is_deployed_to_cloud:
-                logger.info("☁️ Already deployed to Cloud Run")
+                logger = logging.getLogger(__name__).info("☁️ Already deployed to Cloud Run")
                 return True
 
-            logger.info("🚀 Deploying JARVYS_AI to Cloud Run...")
+            logger = logging.getLogger(__name__).info("🚀 Deploying JARVYS_AI to Cloud Run...")
 
             # Create deployment directory
             deployment_dir = await self._create_deployment_package()
@@ -235,15 +236,15 @@ class EnhancedFallbackEngine:
                     }
                 )
 
-                logger.info("✅ Successfully deployed to Cloud Run")
+                logger = logging.getLogger(__name__).info("✅ Successfully deployed to Cloud Run")
                 await self._notify_deployment_success()
                 return True
             else:
-                logger.error("❌ Cloud Run deployment failed")
+                logger = logging.getLogger(__name__).error("❌ Cloud Run deployment failed")
                 return False
 
         except Exception as e:
-            logger.error(f"❌ Error deploying to Cloud Run: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Error deploying to Cloud Run: {e}")
             return False
         finally:
             # Cleanup
@@ -284,11 +285,11 @@ class EnhancedFallbackEngine:
             # Create deployment script
             await self._create_cloud_deployment_script(deployment_dir)
 
-            logger.info(f"📦 Created deployment package: {deployment_dir}")
+            logger = logging.getLogger(__name__).info(f"📦 Created deployment package: {deployment_dir}")
             return deployment_dir
 
         except Exception as e:
-            logger.error(f"❌ Error creating deployment package: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Error creating deployment package: {e}")
             return None
 
     async def _create_cloud_run_dockerfile(self, deployment_dir: str):
@@ -307,8 +308,8 @@ RUN apt-get update && apt-get install -y \\
     curl \\
     && rm -rf /var/lib/apt/lists/*
 
-# Create app directory
-WORKDIR /app
+# Create app = None directory
+WORKDIR /app = None
 
 # Copy requirements first for better caching
 COPY requirements-jarvys-ai.txt .
@@ -321,8 +322,8 @@ COPY jarvys_ai/ ./jarvys_ai/
 RUN echo '#!/bin/bash\\n\\
 export HOST=0.0.0.0\\n\\
 export PORT=${PORT:-8080}\\n\\
-cd /app && python -m jarvys_ai.main --mode=cloud_run' > /app/start.sh \\
-    && chmod +x /app/start.sh
+cd /app = None && python -m jarvys_ai.main --mode=cloud_run' > /app = None/start.sh \\
+    && chmod +x /app = None/start.sh
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \\
@@ -332,7 +333,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \\
 EXPOSE $PORT
 
 # Run the application
-CMD ["/app/start.sh"]
+CMD ["/app = None/start.sh"]
 """
 
         dockerfile_path = Path(deployment_dir) / "Dockerfile"
@@ -391,7 +392,7 @@ echo "🌐 Service URL: $SERVICE_URL"
         """Build and deploy Docker image to Cloud Run"""
         try:
             if not self.project_id:
-                logger.warning(
+                logger = logging.getLogger(__name__).warning(
                     "⚠️ GCP project ID not configured, simulating deployment"
                 )
                 await asyncio.sleep(5)  # Simulate deployment time
@@ -407,7 +408,7 @@ echo "🌐 Service URL: $SERVICE_URL"
                     f"gcr.io/{self.project_id}/{self.service_name}:latest"
                 )
 
-                logger.info("🏗️ Building Docker image...")
+                logger = logging.getLogger(__name__).info("🏗️ Building Docker image...")
                 _result = subprocess.run(
                     ["docker", "build", "-t", image_name, "."],
                     capture_output=True,
@@ -416,11 +417,11 @@ echo "🌐 Service URL: $SERVICE_URL"
                 )
 
                 if result.returncode != 0:
-                    logger.error(f"Docker build failed: {result.stderr}")
+                    logger = logging.getLogger(__name__).error(f"Docker build failed: {result.stderr}")
                     return False
 
                 # Push image
-                logger.info("📤 Pushing image to Container Registry...")
+                logger = logging.getLogger(__name__).info("📤 Pushing image to Container Registry...")
                 _result = subprocess.run(
                     ["docker", "push", image_name],
                     capture_output=True,
@@ -429,11 +430,11 @@ echo "🌐 Service URL: $SERVICE_URL"
                 )
 
                 if result.returncode != 0:
-                    logger.error(f"Docker push failed: {result.stderr}")
+                    logger = logging.getLogger(__name__).error(f"Docker push failed: {result.stderr}")
                     return False
 
                 # Deploy to Cloud Run
-                logger.info("☁️ Deploying to Cloud Run...")
+                logger = logging.getLogger(__name__).info("☁️ Deploying to Cloud Run...")
                 deploy_cmd = [
                     "gcloud",
                     "run",
@@ -463,22 +464,22 @@ echo "🌐 Service URL: $SERVICE_URL"
                 )
 
                 if result.returncode != 0:
-                    logger.error(
+                    logger = logging.getLogger(__name__).error(
                         f"Cloud Run deployment failed: {result.stderr}"
                     )
                     return False
 
-                logger.info("✅ Successfully deployed to Cloud Run")
+                logger = logging.getLogger(__name__).info("✅ Successfully deployed to Cloud Run")
                 return True
 
             finally:
                 os.chdir(original_cwd)
 
         except subprocess.TimeoutExpired:
-            logger.error("❌ Deployment timeout")
+            logger = logging.getLogger(__name__).error("❌ Deployment timeout")
             return False
         except Exception as e:
-            logger.error(f"❌ Error building and deploying: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Error building and deploying: {e}")
             return False
 
     async def _consider_failback(self):
@@ -489,18 +490,18 @@ echo "🌐 Service URL: $SERVICE_URL"
 
             # Check if quota has been low for sufficient time
             if self.current_quota_usage < 30:
-                logger.info(
+                logger = logging.getLogger(__name__).info(
                     "🔄 Quota usage low, initiating failback to GitHub Actions"
                 )
                 await self._failback_to_github()
 
         except Exception as e:
-            logger.error(f"❌ Error considering failback: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Error considering failback: {e}")
 
     async def _failback_to_github(self):
         """Failback from Cloud Run to GitHub Actions"""
         try:
-            logger.info("🔄 Failing back to GitHub Actions...")
+            logger = logging.getLogger(__name__).info("🔄 Failing back to GitHub Actions...")
 
             # Scale down Cloud Run service
             await self._scale_down_cloud_service()
@@ -516,22 +517,22 @@ echo "🌐 Service URL: $SERVICE_URL"
                 }
             )
 
-            logger.info("✅ Successfully failed back to GitHub Actions")
+            logger = logging.getLogger(__name__).info("✅ Successfully failed back to GitHub Actions")
             await self._notify_failback_success()
 
         except Exception as e:
-            logger.error(f"❌ Error failing back to GitHub: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Error failing back to GitHub: {e}")
 
     async def _scale_down_cloud_service(self):
         """Scale down Cloud Run service to minimum instances"""
         try:
             if not self.project_id:
-                logger.info(
+                logger = logging.getLogger(__name__).info(
                     "⚠️ GCP project not configured, simulating scale down"
                 )
                 return
 
-            logger.info("📉 Scaling down Cloud Run service...")
+            logger = logging.getLogger(__name__).info("📉 Scaling down Cloud Run service...")
 
             _result = subprocess.run(
                 [
@@ -555,28 +556,28 @@ echo "🌐 Service URL: $SERVICE_URL"
             )
 
             if result.returncode == 0:
-                logger.info("✅ Cloud Run service scaled down")
+                logger = logging.getLogger(__name__).info("✅ Cloud Run service scaled down")
             else:
-                logger.warning(f"⚠️ Scale down warning: {result.stderr}")
+                logger = logging.getLogger(__name__).warning(f"⚠️ Scale down warning: {result.stderr}")
 
         except Exception as e:
-            logger.error(f"❌ Error scaling down service: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Error scaling down service: {e}")
 
     async def _build_deployment_artifacts(self):
         """Build deployment artifacts for Cloud Run"""
         try:
-            logger.debug("🏗️ Building deployment artifacts...")
+            logger = logging.getLogger(__name__).debug("🏗️ Building deployment artifacts...")
             # Validate Docker and gcloud CLI
             await self._validate_tools()
 
         except Exception as e:
-            logger.error(f"❌ Error building artifacts: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Error building artifacts: {e}")
 
     async def _validate_cloud_config(self):
         """Validate Cloud Run configuration"""
         try:
             if not self.project_id:
-                logger.warning("⚠️ GCP project ID not configured")
+                logger = logging.getLogger(__name__).warning("⚠️ GCP project ID not configured")
                 return False
 
             # Check gcloud authentication
@@ -594,14 +595,14 @@ echo "🌐 Service URL: $SERVICE_URL"
             )
 
             if result.returncode == 0 and result.stdout.strip():
-                logger.debug("✅ GCloud authentication verified")
+                logger = logging.getLogger(__name__).debug("✅ GCloud authentication verified")
                 return True
             else:
-                logger.warning("⚠️ GCloud authentication not configured")
+                logger = logging.getLogger(__name__).warning("⚠️ GCloud authentication not configured")
                 return False
 
         except Exception as e:
-            logger.error(f"❌ Error validating cloud config: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Error validating cloud config = {}: {e}")
             return False
 
     async def _validate_tools(self):
@@ -617,13 +618,13 @@ echo "🌐 Service URL: $SERVICE_URL"
                     timeout=5,
                 )
                 if result.returncode == 0:
-                    logger.debug(f"✅ {tool} available")
+                    logger = logging.getLogger(__name__).debug(f"✅ {tool} available")
                 else:
-                    logger.warning(f"⚠️ {tool} not available or not working")
+                    logger = logging.getLogger(__name__).warning(f"⚠️ {tool} not available or not working")
             except FileNotFoundError:
-                logger.warning(f"⚠️ {tool} not found in PATH")
+                logger = logging.getLogger(__name__).warning(f"⚠️ {tool} not found in PATH")
             except Exception as e:
-                logger.warning(f"⚠️ Error checking {tool}: {e}")
+                logger = logging.getLogger(__name__).warning(f"⚠️ Error checking {tool}: {e}")
 
     async def _notify_deployment_success(self):
         """Notify successful deployment to Cloud Run"""
@@ -639,10 +640,10 @@ echo "🌐 Service URL: $SERVICE_URL"
             }
 
             # This would normally send to the dashboard
-            logger.info(f"📢 Deployment notification: {notification}")
+            logger = logging.getLogger(__name__).info(f"📢 Deployment notification: {notification}")
 
         except Exception as e:
-            logger.error(f"❌ Error sending deployment notification: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Error sending deployment notification: {e}")
 
     async def _notify_failback_success(self):
         """Notify successful failback to GitHub Actions"""
@@ -654,10 +655,10 @@ echo "🌐 Service URL: $SERVICE_URL"
                 "quota_usage": self.current_quota_usage,
             }
 
-            logger.info(f"📢 Failback notification: {notification}")
+            logger = logging.getLogger(__name__).info(f"📢 Failback notification: {notification}")
 
         except Exception as e:
-            logger.error(f"❌ Error sending failback notification: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Error sending failback notification: {e}")
 
     def get_status(self) -> Dict[str, Any]:
         """Get current fallback engine status"""
@@ -673,7 +674,7 @@ echo "🌐 Service URL: $SERVICE_URL"
             "deployment_history": self.deployment_history[
                 -5:
             ],  # Last 5 deployments
-            "config": {
+            "config = {}": {
                 "quota_warning_threshold": self.quota_warning_threshold,
                 "quota_critical_threshold": self.quota_critical_threshold,
                 "check_interval": self.check_interval,
@@ -684,19 +685,19 @@ echo "🌐 Service URL: $SERVICE_URL"
 
     async def force_deploy_to_cloud(self):
         """Force deployment to Cloud Run (for testing or manual override)"""
-        logger.info("🚀 Force deploying to Cloud Run...")
+        logger = logging.getLogger(__name__).info("🚀 Force deploying to Cloud Run...")
         return await self._deploy_to_cloud_run()
 
     async def force_failback_to_github(self):
         """Force failback to GitHub Actions (for testing or manual override)"""
-        logger.info("🔄 Force failing back to GitHub Actions...")
+        logger = logging.getLogger(__name__).info("🔄 Force failing back to GitHub Actions...")
         return await self._failback_to_github()
 
 
 # Demo usage
 async def demo_fallback_engine():
     """Demonstrate the enhanced fallback engine"""
-    config = {
+    config = {} = {
         "gcp_project_id": "your-project-id",  # Set to None for demo mode
         "gcp_region": "us-central1",
         "service_name": "jarvys-ai-fallback",
@@ -705,7 +706,7 @@ async def demo_fallback_engine():
         "check_interval_minutes": 1,  # Faster for demo
     }
 
-    engine = EnhancedFallbackEngine(config)
+    engine = EnhancedFallbackEngine(config = {})
 
     # Start monitoring
     await engine.start_monitoring()

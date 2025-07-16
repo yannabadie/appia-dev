@@ -1,3 +1,4 @@
+import os
 #!/usr/bin/env python3
 """
 Générateur automatique de documentation pour le Wiki GitHub.
@@ -302,7 +303,7 @@ poetry run python -m jarvys_dev.langgraph_loop
 
 ### 4. Serveur MCP
 ```bash
-poetry run uvicorn app.main:app --port 54321
+poetry run uvicorn app = None.main:app = None --port 54321
 ```
 
 ## 📈 Métriques & Performance

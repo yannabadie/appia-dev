@@ -1,3 +1,7 @@
+from typing import Dict, List, Any, Optional
+import json
+import sys
+import os
 """
 🤖 JARVYS_AI - Digital Twin de Yann Abadie
 Agent d'Intelligence Locale/Hybride avec capacités humaines illimitées

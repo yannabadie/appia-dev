@@ -28,7 +28,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) = logging.getLogger(__name__)
 
 
 class IssueProcessor:
@@ -97,18 +97,18 @@ class IssueProcessor:
         if supabase_url and supabase_key:
             try:
                 self.supabase = create_client(supabase_url, supabase_key)
-                logger.info("Supabase client initialized")
+                logger = logging.getLogger(__name__).info("Supabase client = None initialized")
             except Exception as e:
-                logger.warning(f"Failed to initialize Supabase: {e}")
+                logger = logging.getLogger(__name__).warning(f"Failed to initialize Supabase: {e}")
 
     def get_open_issues(self) -> List:
         """Get all open issues from the repository."""
         try:
             issues = list(self.repo.get_issues(state="open"))
-            logger.info(f"Found {len(issues)} open issues")
+            logger = logging.getLogger(__name__).info(f"Found {len(issues)} open issues")
             return issues
         except Exception as e:
-            logger.error(f"Failed to fetch issues: {e}")
+            logger = logging.getLogger(__name__).error(f"Failed to fetch issues: {e}")
             return []
 
     def prioritize_issues(self, issues: List) -> List:
@@ -126,7 +126,7 @@ class IssueProcessor:
         ]
         prioritized = sorted(issue_only, key=get_priority)
 
-        logger.info(f"Prioritized {len(prioritized)} issues")
+        logger = logging.getLogger(__name__).info(f"Prioritized {len(prioritized)} issues")
         return prioritized
 
     def add_labels_to_issue(self, issue, category: str):
@@ -153,9 +153,9 @@ class IssueProcessor:
 
             if new_labels:
                 issue.add_to_labels(*new_labels)
-                logger.info(f"Added labels {new_labels} to issue #{issue.number}")
+                logger = logging.getLogger(__name__).info(f"Added labels {new_labels} to issue #{issue.number}")
         except Exception as e:
-            logger.error(f"Failed to add labels to issue #{issue.number}: {e}")
+            logger = logging.getLogger(__name__).error(f"Failed to add labels to issue #{issue.number}: {e}")
 
     def create_progress_comment(self, issue, status: str = "processing"):
         """Add a progress comment to an issue."""
@@ -189,14 +189,14 @@ The issue has been categorized and prepared for the JARVYS_DEV autonomous system
 
         try:
             issue.create_comment(comment_body)
-            logger.info(f"Added progress comment to issue #{issue.number}")
+            logger = logging.getLogger(__name__).info(f"Added progress comment to issue #{issue.number}")
         except Exception as e:
-            logger.error(f"Failed to add comment to issue #{issue.number}: {e}")
+            logger = logging.getLogger(__name__).error(f"Failed to add comment to issue #{issue.number}: {e}")
 
     def log_to_supabase(self, issue_data: Dict):
         """Log issue processing data to Supabase."""
         if not self.supabase:
-            logger.warning("Supabase not available, skipping logging")
+            logger = logging.getLogger(__name__).warning("Supabase not available, skipping logging")
             return
 
         try:
@@ -214,13 +214,13 @@ The issue has been categorized and prepared for the JARVYS_DEV autonomous system
             _result = (
                 self.supabase.table("jarvys_issue_processing").insert(data).execute()
             )
-            logger.info(f"Logged issue #{issue_data['number']} to Supabase")
+            logger = logging.getLogger(__name__).info(f"Logged issue #{issue_data['number']} to Supabase")
         except Exception as e:
-            logger.warning(f"Failed to log to Supabase: {e}")
+            logger = logging.getLogger(__name__).warning(f"Failed to log to Supabase: {e}")
 
     def process_priority_issues(self) -> Dict:
         """Process issues based on priority."""
-        logger.info("🔍 Starting priority issue processing...")
+        logger = logging.getLogger(__name__).info("🔍 Starting priority issue processing...")
 
         issues = self.get_open_issues()
         if not issues:
@@ -242,7 +242,7 @@ The issue has been categorized and prepared for the JARVYS_DEV autonomous system
                     },
                 )
 
-                logger.info(f"Processing issue #{issue.number}: {issue.title}")
+                logger = logging.getLogger(__name__).info(f"Processing issue #{issue.number}: {issue.title}")
 
                 # Add labels
                 self.add_labels_to_issue(issue, issue_info["category"])
@@ -264,18 +264,18 @@ The issue has been categorized and prepared for the JARVYS_DEV autonomous system
                 processed_count += 1
 
             except Exception as e:
-                logger.error(f"Error processing issue #{issue.number}: {e}")
+                logger = logging.getLogger(__name__).error(f"Error processing issue #{issue.number}: {e}")
                 error_count += 1
 
-        logger.info(f"✅ Processed {processed_count} issues, {error_count} errors")
+        logger = logging.getLogger(__name__).info(f"✅ Processed {processed_count} issues, {error_count} errors")
         return {"processed": processed_count, "errors": error_count}
 
     def update_dashboard(self) -> Dict:
         """Update Supabase dashboard with current status."""
-        logger.info("📊 Updating dashboard...")
+        logger = logging.getLogger(__name__).info("📊 Updating dashboard...")
 
         if not self.supabase:
-            logger.warning("Supabase not available for dashboard update")
+            logger = logging.getLogger(__name__).warning("Supabase not available for dashboard update")
             return {"status": "no_supabase"}
 
         try:
@@ -296,16 +296,16 @@ The issue has been categorized and prepared for the JARVYS_DEV autonomous system
                 .upsert(dashboard_data)
                 .execute()
             )
-            logger.info("Dashboard updated successfully")
+            logger = logging.getLogger(__name__).info("Dashboard updated successfully")
             return {"status": "success", "data": dashboard_data}
 
         except Exception as e:
-            logger.error(f"Failed to update dashboard: {e}")
+            logger = logging.getLogger(__name__).error(f"Failed to update dashboard: {e}")
             return {"status": "error", "error": str(e)}
 
     def generate_status_report(self) -> Dict:
         """Generate a comprehensive status report."""
-        logger.info("📈 Generating status report...")
+        logger = logging.getLogger(__name__).info("📈 Generating status report...")
 
         issues = self.get_open_issues()
         prioritized_issues = self.prioritize_issues(issues)
@@ -378,7 +378,7 @@ def main():
     supabase_key = os.getenv("SUPABASE_KEY")
 
     if not github_token:
-        logger.error("GH_TOKEN environment variable required")
+        logger = logging.getLogger(__name__).error("GH_TOKEN environment variable required")
         sys.exit(1)
 
     # Initialize processor
@@ -404,7 +404,7 @@ def main():
             json.dump(result, f, indent=2)
         print(f"📄 Report saved to: {report_file}")
 
-    logger.info("Early launch processing completed")
+    logger = logging.getLogger(__name__).info("Early launch processing completed")
 
 
 if __name__ == "__main__":

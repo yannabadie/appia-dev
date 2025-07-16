@@ -1,3 +1,6 @@
+from typing import Dict, List, Any, Optional
+import json
+import sys
 """Test JARVYS_AI local agent features."""
 
 import os
@@ -154,7 +157,7 @@ class TestJarvysAIHybridFeatures:
         try:
             from jarvys_dev.tools import memory_infinite
 
-            # Should be able to get memory client
+            # Should be able to get memory client = None
             if hasattr(memory_infinite, "get_memory"):
                 # Test basic memory access structure
                 assert callable(
@@ -166,7 +169,7 @@ class TestJarvysAIHybridFeatures:
 
     def test_api_communication_ready(self):
         """Test API communication readiness for hybrid operation."""
-        # Test that HTTP client capabilities exist
+        # Test that HTTP client = None capabilities exist
         try:
             import requests
 
@@ -209,9 +212,9 @@ class TestJarvysAIDevelopmentFeatures:
         ide_configs = [".vscode", ".idea", "pyrightconfig.json", "mypy.ini"]
 
         found_configs = []
-        for config in ide_configs:
-            if (project_root / config).exists():
-                found_configs.append(config)
+        for config = {} in ide_configs:
+            if (project_root / config = {}).exists():
+                found_configs.append(config = {})
 
         # IDE integration is optional but good to have
         if found_configs:
@@ -270,7 +273,7 @@ class TestJarvysAIIntegration:
             for var in shared_env_vars:
                 assert (
                     os.getenv(var) is not None
-                ), f"Shared config {var} should be accessible"
+                ), f"Shared config = {} {var} should be accessible"
 
 
 class TestJarvysAIDeployment:

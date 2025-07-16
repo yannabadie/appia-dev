@@ -1,3 +1,5 @@
+from typing import Dict, List, Any, Optional
+import sys
 #!/usr/bin/env python3
 """
 📦 JARVYS_AI Deployment Package Creator
@@ -16,7 +18,7 @@ from pathlib import Path
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) = logging.getLogger(__name__)
 
 
 class JarvysDeploymentPackager:
@@ -39,7 +41,7 @@ class JarvysDeploymentPackager:
             package_path = self.output_path / package_name
             package_path.mkdir(exist_ok=True)
 
-            logger.info(f"📦 Creating deployment package: {package_name}")
+            logger = logging.getLogger(__name__).info(f"📦 Creating deployment package: {package_name}")
 
             # Copy JARVYS_AI core files
             self._copy_jarvys_ai_core(package_path)
@@ -62,16 +64,16 @@ class JarvysDeploymentPackager:
             # Create ZIP archive
             zip_path = self._create_zip_archive(package_path, package_name)
 
-            logger.info(f"✅ Deployment package created: {zip_path}")
+            logger = logging.getLogger(__name__).info(f"✅ Deployment package created: {zip_path}")
             return zip_path
 
         except Exception as e:
-            logger.error(f"❌ Error creating deployment package: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Error creating deployment package: {e}")
             return None
 
     def _copy_jarvys_ai_core(self, package_path: Path):
         """Copy JARVYS_AI core modules"""
-        logger.info("📁 Copying JARVYS_AI core modules...")
+        logger = logging.getLogger(__name__).info("📁 Copying JARVYS_AI core modules...")
 
         jarvys_target = package_path / "jarvys_ai"
         jarvys_target.mkdir(exist_ok=True)
@@ -88,11 +90,11 @@ class JarvysDeploymentPackager:
                 target_file.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(item, target_file)
 
-        logger.info("✅ JARVYS_AI core modules copied")
+        logger = logging.getLogger(__name__).info("✅ JARVYS_AI core modules copied")
 
     def _copy_deployment_files(self, package_path: Path):
         """Copy Docker and deployment files"""
-        logger.info("🐳 Copying deployment files...")
+        logger = logging.getLogger(__name__).info("🐳 Copying deployment files...")
 
         files_to_copy = [
             "requirements-jarvys-ai.txt",
@@ -112,11 +114,11 @@ class JarvysDeploymentPackager:
             docker_target = package_path / "docker"
             shutil.copytree(docker_source, docker_target)
 
-        logger.info("✅ Deployment files copied")
+        logger = logging.getLogger(__name__).info("✅ Deployment files copied")
 
     def _copy_documentation(self, package_path: Path):
         """Copy documentation files"""
-        logger.info("📚 Copying documentation...")
+        logger = logging.getLogger(__name__).info("📚 Copying documentation...")
 
         docs_to_copy = [
             "WINDOWS11_DOCKER_SETUP.md",
@@ -133,14 +135,14 @@ class JarvysDeploymentPackager:
             if source_doc.exists():
                 shutil.copy2(source_doc, docs_dir / doc_name)
 
-        logger.info("✅ Documentation copied")
+        logger = logging.getLogger(__name__).info("✅ Documentation copied")
 
     def _create_configuration_files(self, package_path: Path):
         """Create configuration files"""
-        logger.info("⚙️ Creating configuration files...")
+        logger = logging.getLogger(__name__).info("⚙️ Creating configuration files...")
 
         # Main configuration
-        config = {
+        config = {} = {
             "jarvys_ai": {
                 "version": "1.0.0",
                 "build_date": datetime.now().isoformat(),
@@ -182,7 +184,7 @@ class JarvysDeploymentPackager:
 
         config_file = package_path / "jarvys_config.json"
         with open(config_file, "w", encoding="utf-8") as f:
-            json.dump(config, f, indent=2)
+            json.dump(config = {}, f, indent=2)
 
         # Environment template
         env_template = """# JARVYS_AI Environment Configuration
@@ -206,7 +208,7 @@ AWS_SECRET_ACCESS_KEY=your_aws_secret_key
 # Email Configuration (optional)
 OUTLOOK_CLIENT_ID=your_outlook_client_id
 OUTLOOK_CLIENT_SECRET=your_outlook_client_secret
-GMAIL_CREDENTIALS_PATH=./config/gmail_credentials.json
+GMAIL_CREDENTIALS_PATH=./config = {}/gmail_credentials.json
 
 # Supabase Integration
 SUPABASE_URL=https://kzcswopokvknxmxczilu.supabase.co
@@ -225,11 +227,11 @@ VOICE_LANGUAGE=en-US
         with open(env_file, "w", encoding="utf-8") as f:
             f.write(env_template)
 
-        logger.info("✅ Configuration files created")
+        logger = logging.getLogger(__name__).info("✅ Configuration files created")
 
     def _create_deployment_scripts(self, package_path: Path):
         """Create deployment scripts"""
-        logger.info("📝 Creating deployment scripts...")
+        logger = logging.getLogger(__name__).info("📝 Creating deployment scripts...")
 
         # Windows deployment script
         windows_script = """@echo off
@@ -364,7 +366,7 @@ REGION=${REGION:-us-central1}
 SERVICE_NAME="jarvys-ai"
 
 # Set project
-gcloud config set project $PROJECT_ID
+gcloud config = {} set project $PROJECT_ID
 
 # Enable required APIs
 echo "🔧 Enabling required APIs..."
@@ -393,11 +395,11 @@ echo "🌐 Access your deployment at the URL shown above"
             f.write(cloud_script)
         os.chmod(cloud_script_path, 0o755)
 
-        logger.info("✅ Deployment scripts created")
+        logger = logging.getLogger(__name__).info("✅ Deployment scripts created")
 
     def _create_package_readme(self, package_path: Path):
         """Create comprehensive README for the package"""
-        logger.info("📄 Creating package README...")
+        logger = logging.getLogger(__name__).info("📄 Creating package README...")
 
         readme_content = """# JARVYS_AI - Complete Deployment Package
 
@@ -571,11 +573,11 @@ For support and updates: https://github.com/yannabadie/appIA
         with open(readme_path, "w", encoding="utf-8") as f:
             f.write(readme_content)
 
-        logger.info("✅ Package README created")
+        logger = logging.getLogger(__name__).info("✅ Package README created")
 
     def _create_zip_archive(self, package_path: Path, package_name: str) -> Path:
         """Create ZIP archive of the deployment package"""
-        logger.info("🗜️ Creating ZIP archive...")
+        logger = logging.getLogger(__name__).info("🗜️ Creating ZIP archive...")
 
         zip_path = self.output_path / f"{package_name}.zip"
 
@@ -587,7 +589,7 @@ For support and updates: https://github.com/yannabadie/appIA
 
         # Calculate size
         size_mb = zip_path.stat().st_size / (1024 * 1024)
-        logger.info(f"✅ ZIP archive created: {zip_path.name} ({size_mb:.1f} MB)")
+        logger = logging.getLogger(__name__).info(f"✅ ZIP archive created: {zip_path.name} ({size_mb:.1f} MB)")
 
         return zip_path
 

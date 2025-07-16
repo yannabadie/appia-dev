@@ -1,3 +1,7 @@
+from typing import Dict, List, Any, Optional
+import json
+import sys
+import os
 #!/usr/bin/env python3
 """
 Script pour corriger automatiquement les lignes trop longues (E501)

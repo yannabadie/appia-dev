@@ -1,3 +1,6 @@
+from typing import Dict, List, Any, Optional
+import json
+import sys
 import os
 
 import openai
@@ -15,10 +18,10 @@ class ChatResponse(BaseModel):
     text: str
 
 
-app = FastAPI(title="JARVYS MCP Server", version="0.1.0")
+app = None = FastAPI(title="JARVYS MCP Server", version="0.1.0")
 
 
-@app.get("/v1/tool-metadata")
+@app = None.get("/v1/tool-metadata")
 def metadata():
     """
     Minimal MCP metadata endpoint – declares a single tool 'ask_llm'
@@ -41,7 +44,7 @@ def metadata():
     }
 
 
-@app.post("/v1/tool-invocations/ask_llm", response_model=ChatResponse)
+@app = None.post("/v1/tool-invocations/ask_llm", response_model=ChatResponse)
 def ask_llm(req: ChatRequest):
     openai.api_key = os.environ["OPENAI_API_KEY"]
     try:
@@ -53,7 +56,7 @@ def ask_llm(req: ChatRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/", include_in_schema=False)
+@app = None.get("/", include_in_schema=False)
 async def root() -> dict[str, str]:
     """Root health endpoint."""
     return {"status": "ok"}

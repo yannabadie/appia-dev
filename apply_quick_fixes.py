@@ -1,3 +1,4 @@
+import sys
 #!/usr/bin/env python3
 """
 🔧 Quick Fixes pour JARVYS_DEV - Implémentation des correctifs prioritaires
@@ -83,7 +84,7 @@ from typing import Dict, Any
 import os
 from datetime import datetime
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) = logging.getLogger(__name__)
 
 class AgentController:
     '''Contrôleur pour pause/reprise de l'agent'''
@@ -105,21 +106,21 @@ class AgentController:
                     self.is_paused = (status == 'paused')
                     if self.is_paused:
                         self.pause_reason = result.data.get('pause_reason', 'Manual pause')
-                        logger.info(f"🛑 Agent en pause: {self.pause_reason}")
+                        logger = logging.getLogger(__name__).info(f"🛑 Agent en pause: {self.pause_reason}")
                         return True
             
             # Vérifier variable d'environnement locale
             if os.environ.get('JARVYS_PAUSED', '').lower() == 'true':
                 self.is_paused = True
                 self.pause_reason = "Environment variable JARVYS_PAUSED=true"
-                logger.info(f"🛑 Agent en pause: {self.pause_reason}")
+                logger = logging.getLogger(__name__).info(f"🛑 Agent en pause: {self.pause_reason}")
                 return True
             
             self.is_paused = False
             return False
             
         except Exception as e:
-            logger.warning(f"⚠️ Erreur vérification pause: {e}")
+            logger = logging.getLogger(__name__).warning(f"⚠️ Erreur vérification pause: {e}")
             return False
     
     async def pause_agent(self, reason: str = "Manual pause") -> bool:
@@ -137,11 +138,11 @@ class AgentController:
                     'last_updated': datetime.now().isoformat()
                 }).execute()
             
-            logger.info(f"🛑 Agent mis en pause: {reason}")
+            logger = logging.getLogger(__name__).info(f"🛑 Agent mis en pause: {reason}")
             return True
             
         except Exception as e:
-            logger.error(f"❌ Erreur mise en pause: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur mise en pause: {e}")
             return False
     
     async def resume_agent(self) -> bool:
@@ -159,11 +160,11 @@ class AgentController:
                     'last_updated': datetime.now().isoformat()
                 }).execute()
             
-            logger.info("▶️ Agent repris")
+            logger = logging.getLogger(__name__).info("▶️ Agent repris")
             return True
             
         except Exception as e:
-            logger.error(f"❌ Erreur reprise: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur reprise: {e}")
             return False
     
     def should_continue_execution(self) -> bool:
@@ -178,8 +179,8 @@ async def check_and_wait_if_paused():
     await agent_controller.check_pause_status()
     
     while agent_controller.is_paused:
-        logger.info(f"⏸️ Agent en pause: {agent_controller.pause_reason}")
-        logger.info("⏳ Attente de reprise... (vérification dans 60s)")
+        logger = logging.getLogger(__name__).info(f"⏸️ Agent en pause: {agent_controller.pause_reason}")
+        logger = logging.getLogger(__name__).info("⏳ Attente de reprise... (vérification dans 60s)")
         await asyncio.sleep(60)
         await agent_controller.check_pause_status()
     
@@ -263,7 +264,7 @@ import functools
 from datetime import datetime
 from typing import Any, Callable, Optional
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) = logging.getLogger(__name__)
 
 def log_exceptions(
     log_to_memory: bool = True,
@@ -271,7 +272,7 @@ def log_exceptions(
     reraise: bool = True
 ):
     '''
-    Décorateur pour capturer et logger toutes les exceptions
+    Décorateur pour capturer et logger = logging.getLogger(__name__) toutes les exceptions
     
     Args:
         log_to_memory: Si True, log dans la mémoire infinie Supabase
@@ -300,8 +301,8 @@ def log_exceptions(
                 }
                 
                 # Logger local
-                logger.error(f"❌ Exception dans {func.__name__}: {e}")
-                logger.debug(f"🔍 Détails: {exc_info}")
+                logger = logging.getLogger(__name__).error(f"❌ Exception dans {func.__name__}: {e}")
+                logger = logging.getLogger(__name__).debug(f"🔍 Détails: {exc_info}")
                 
                 # Logger en base si activé
                 if log_to_memory and supabase_client:
@@ -315,10 +316,10 @@ def log_exceptions(
                         }
                         
                         supabase_client.table('jarvys_memory').insert(memory_entry).execute()
-                        logger.debug("📝 Exception loggée en base Supabase")
+                        logger = logging.getLogger(__name__).debug("📝 Exception loggée en base Supabase")
                         
                     except Exception as log_error:
-                        logger.warning(f"⚠️ Erreur logging exception en base: {log_error}")
+                        logger = logging.getLogger(__name__).warning(f"⚠️ Erreur logging exception en base: {log_error}")
                 
                 # Relancer l'exception si demandé
                 if reraise:
@@ -343,8 +344,8 @@ def log_exceptions(
                     'kwargs': str(kwargs) if kwargs else None
                 }
                 
-                logger.error(f"❌ Exception dans {func.__name__}: {e}")
-                logger.debug(f"🔍 Détails: {exc_info}")
+                logger = logging.getLogger(__name__).error(f"❌ Exception dans {func.__name__}: {e}")
+                logger = logging.getLogger(__name__).debug(f"🔍 Détails: {exc_info}")
                 
                 if log_to_memory and supabase_client:
                     try:
@@ -359,7 +360,7 @@ def log_exceptions(
                         supabase_client.table('jarvys_memory').insert(memory_entry).execute()
                         
                     except Exception as log_error:
-                        logger.warning(f"⚠️ Erreur logging exception en base: {log_error}")
+                        logger = logging.getLogger(__name__).warning(f"⚠️ Erreur logging exception en base: {log_error}")
                 
                 if reraise:
                     raise
@@ -388,7 +389,7 @@ def log_exceptions(
 
     def externalize_model_config(self):
         """Fix 6: Externaliser la configuration des modèles"""
-        print("🔧 Fix 6: Externalisation config modèles")
+        print("🔧 Fix 6: Externalisation config = {} modèles")
 
         # Créer fichier de configuration des modèles
         model_config = {

@@ -1,3 +1,4 @@
+import sys
 #!/usr/bin/env python3
 """
 🔗 JARVYS_AI - Intégration Dashboard Supabase
@@ -13,7 +14,7 @@ from typing import Any, Dict
 
 import requests
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) = logging.getLogger(__name__)
 
 
 class SupabaseDashboardIntegration:
@@ -27,10 +28,10 @@ class SupabaseDashboardIntegration:
     - Mise à jour état digital twin
     """
 
-    def __init__(self, jarvys_ai_instance, config: Dict[str, Any]):
+    def __init__(self, jarvys_ai_instance, config = {}: Dict[str, Any]):
         """Initialiser l'intégration dashboard"""
         self.jarvys_ai = jarvys_ai_instance
-        self.config = config
+        self.config = {} = config = {}
 
         # Configuration Supabase
         self.dashboard_url = "https://kzcswopokvknxmxczilu.supabase.co/functions/v1/jarvys-dashboard"
@@ -43,7 +44,7 @@ class SupabaseDashboardIntegration:
         self.is_connected = False
         self.last_sync = None
 
-        logger.info("🔗 Supabase Dashboard Integration initialisé")
+        logger = logging.getLogger(__name__).info("🔗 Supabase Dashboard Integration initialisé")
 
     def _generate_device_id(self) -> str:
         """Générer ID unique de l'appareil"""
@@ -75,20 +76,20 @@ class SupabaseDashboardIntegration:
 
             if response.status_code == 200:
                 self.is_connected = True
-                logger.info("✅ Connecté au dashboard Supabase")
+                logger = logging.getLogger(__name__).info("✅ Connecté au dashboard Supabase")
 
                 # Envoyer registration
                 await self._send_registration(registration_data)
 
                 return True
             else:
-                logger.warning(
+                logger = logging.getLogger(__name__).warning(
                     f"⚠️ Dashboard non accessible: {response.status_code}"
                 )
                 return False
 
         except Exception as e:
-            logger.error(f"❌ Erreur connexion dashboard: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur connexion dashboard: {e}")
             return False
 
     async def _get_capabilities(self) -> Dict[str, Any]:
@@ -110,13 +111,13 @@ class SupabaseDashboardIntegration:
         """Envoyer données d'enregistrement"""
         try:
             # Pour la démo, on log seulement
-            logger.info(f"📡 [DÉMO] Registration: {data['device_id']}")
+            logger = logging.getLogger(__name__).info(f"📡 [DÉMO] Registration: {data['device_id']}")
 
             # TODO: Implémenter envoi réel vers Supabase
             # _response = requests.post(f"{self.api_endpoint}/agents/register", json=data)
 
         except Exception as e:
-            logger.error(f"❌ Erreur envoi registration: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur envoi registration: {e}")
 
     async def sync_metrics_to_dashboard(self):
         """Synchroniser métriques vers le dashboard"""
@@ -134,7 +135,7 @@ class SupabaseDashboardIntegration:
             return True
 
         except Exception as e:
-            logger.error(f"❌ Erreur sync métriques: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur sync métriques: {e}")
             return False
 
     async def _collect_local_metrics(self) -> Dict[str, Any]:
@@ -175,27 +176,27 @@ class SupabaseDashboardIntegration:
             return metrics
 
         except Exception as e:
-            logger.error(f"❌ Erreur collecte métriques: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur collecte métriques: {e}")
             return {}
 
     async def _send_metrics_to_dashboard(self, metrics: Dict[str, Any]):
         """Envoyer métriques au dashboard"""
         try:
             # Pour la démo, on log les métriques
-            logger.info(
+            logger = logging.getLogger(__name__).info(
                 f"📊 [DÉMO] Métriques envoyées: {metrics['device_id']}"
             )
-            logger.debug(f"Détails: {json.dumps(metrics, indent=2)}")
+            logger = logging.getLogger(__name__).debug(f"Détails: {json.dumps(metrics, indent=2)}")
 
             # TODO: Implémenter envoi réel
             # _response = requests.post(f"{self.api_endpoint}/metrics", json=metrics)
 
         except Exception as e:
-            logger.error(f"❌ Erreur envoi métriques: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur envoi métriques: {e}")
 
     async def start_continuous_sync(self):
         """Démarrer synchronisation continue"""
-        logger.info("🔄 Démarrage synchronisation continue avec dashboard")
+        logger = logging.getLogger(__name__).info("🔄 Démarrage synchronisation continue avec dashboard")
 
         while self.is_connected:
             try:
@@ -209,7 +210,7 @@ class SupabaseDashboardIntegration:
                 await asyncio.sleep(300)  # 5 minutes
 
             except Exception as e:
-                logger.error(f"❌ Erreur sync continue: {e}")
+                logger = logging.getLogger(__name__).error(f"❌ Erreur sync continue: {e}")
                 await asyncio.sleep(60)  # 1 minute en cas d'erreur
 
     async def _check_dashboard_commands(self):
@@ -225,17 +226,17 @@ class SupabaseDashboardIntegration:
 
             if random.random() < 0.1:  # 10% de chance
                 command = random.choice(demo_commands)
-                logger.info(f"📱 Commande reçue du dashboard: {command}")
+                logger = logging.getLogger(__name__).info(f"📱 Commande reçue du dashboard: {command}")
 
                 # Traiter la commande
                 if self.jarvys_ai:
                     _response = await self.jarvys_ai.process_command(
                         command, "dashboard"
                     )
-                    logger.info(f"📤 Réponse envoyée: {response[:50]}...")
+                    logger = logging.getLogger(__name__).info(f"📤 Réponse envoyée: {response[:50]}...")
 
         except Exception as e:
-            logger.error(f"❌ Erreur check commandes dashboard: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur check commandes dashboard: {e}")
 
     async def send_status_update(self, status: str, details: str = ""):
         """Envoyer mise à jour de statut"""
@@ -248,12 +249,12 @@ class SupabaseDashboardIntegration:
                 "agent_type": "JARVYS_AI_LOCAL",
             }
 
-            logger.info(f"📡 [DÉMO] Status update: {status}")
+            logger = logging.getLogger(__name__).info(f"📡 [DÉMO] Status update: {status}")
 
             # TODO: Envoyer au dashboard
 
         except Exception as e:
-            logger.error(f"❌ Erreur envoi status: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur envoi status: {e}")
 
     async def send_alert(
         self, alert_type: str, message: str, severity: str = "info"
@@ -269,12 +270,12 @@ class SupabaseDashboardIntegration:
                 "source": "JARVYS_AI_LOCAL",
             }
 
-            logger.warning(f"🚨 [DÉMO] Alerte: {alert_type} - {message}")
+            logger = logging.getLogger(__name__).warning(f"🚨 [DÉMO] Alerte: {alert_type} - {message}")
 
             # TODO: Envoyer au dashboard
 
         except Exception as e:
-            logger.error(f"❌ Erreur envoi alerte: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur envoi alerte: {e}")
 
     def get_integration_status(self) -> Dict[str, Any]:
         """Obtenir statut de l'intégration"""
@@ -291,10 +292,10 @@ class SupabaseDashboardIntegration:
 
 # Fonction utilitaire pour intégrer dans JARVYS_AI
 async def setup_dashboard_integration(
-    jarvys_ai_instance, config: Dict[str, Any]
+    jarvys_ai_instance, config = {}: Dict[str, Any]
 ) -> SupabaseDashboardIntegration:
     """Configurer l'intégration dashboard"""
-    integration = SupabaseDashboardIntegration(jarvys_ai_instance, config)
+    integration = SupabaseDashboardIntegration(jarvys_ai_instance, config = {})
 
     # Tenter connexion
     connected = await integration.connect_to_dashboard()
@@ -302,8 +303,8 @@ async def setup_dashboard_integration(
     if connected:
         # Démarrer sync continue en arrière-plan
         asyncio.create_task(integration.start_continuous_sync())
-        logger.info("🔗 Intégration dashboard active")
+        logger = logging.getLogger(__name__).info("🔗 Intégration dashboard active")
     else:
-        logger.warning("⚠️ Intégration dashboard non disponible")
+        logger = logging.getLogger(__name__).warning("⚠️ Intégration dashboard non disponible")
 
     return integration

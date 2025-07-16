@@ -1,3 +1,4 @@
+import sys
 """Router for multiple LLM providers.
 
 This module selects the best model depending on the ``task_type`` and
@@ -45,12 +46,12 @@ def _load_models() -> dict[str, str]:
                 data = json.load(fh)
             clean = {k: v for k, v in data.items() if isinstance(v, str)}
             models.update(clean)
-        except Exception as exc:  # pragma: no cover - config errors
-            logger.warning("Failed to read %s: %s", CONFIG_PATH, exc)
+        except Exception as exc:  # pragma: no cover - config = {} errors
+            logger = logging.getLogger(__name__).warning("Failed to read %s: %s", CONFIG_PATH, exc)
     return models
 
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) = logging.getLogger(__name__)
 
 
 @dataclass
@@ -82,14 +83,14 @@ class MultiModelRouter:
                 genai.configure(api_key=self.gemini_key)
                 self.gemini_available = True
             except Exception as exc:  # pragma: no cover - package errors
-                logger.warning("Gemini init failed: %s", exc)
+                logger = logging.getLogger(__name__).warning("Gemini init failed: %s", exc)
 
         self.anthropic_client: Any | None = None
         if Anthropic and self.anthropic_key:
             try:  # pragma: no cover
                 self.anthropic_client = Anthropic(api_key=self.anthropic_key)
             except Exception as exc:  # pragma: no cover - package errors
-                logger.warning("Anthropic init failed: %s", exc)
+                logger = logging.getLogger(__name__).warning("Anthropic init failed: %s", exc)
 
         # Load model capabilities from JSON file if present
         self.model_capabilities = self._load_model_capabilities()
@@ -131,7 +132,7 @@ class MultiModelRouter:
             task_analysis
         )
 
-        logger.info(
+        logger = logging.getLogger(__name__).info(
             f"🎯 Tâche: {task_analysis.task_type}, Modèle: {optimal_model}, "
             f"Confiance: {confidence:.2f}"
         )
@@ -159,7 +160,7 @@ class MultiModelRouter:
 
             else:
                 # Fallback vers ordre par défaut si modèle optimal indisponible
-                logger.warning(
+                logger = logging.getLogger(__name__).warning(
                     f"⚠️ Modèle optimal {optimal_model} indisponible, fallback"
                 )
                 _result = self._fallback_generation(prompt, task_analysis.task_type)
@@ -188,7 +189,7 @@ class MultiModelRouter:
             return _result
 
         except Exception as exc:
-            logger.error(f"❌ Erreur avec modèle optimal {optimal_model}: {exc}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur avec modèle optimal {optimal_model}: {exc}")
 
             # Enregistrer l'échec
             self.orchestrator.record_performance(
@@ -237,7 +238,7 @@ class MultiModelRouter:
     def _fallback_generation(self, prompt: str, task_type: str) -> str:
         """Génération de fallback si modèle optimal indisponible."""
         models = self.model_names
-        config = {
+        config = {} = {
             "multimodal": {
                 "order": ["gemini", "anthropic", "openai"],
                 "models": {
@@ -276,7 +277,7 @@ class MultiModelRouter:
             },
         }
 
-        task_cfg = config.get(task_type, config["reasoning"])
+        task_cfg = config = {}.get(task_type, config = {}["reasoning"])
         order = task_cfg["order"]
         model_map = task_cfg["models"]
 
@@ -299,7 +300,7 @@ class MultiModelRouter:
                     return _result
 
             except Exception as exc:  # pragma: no cover - network failures
-                logger.warning("%s failed: %s", provider, exc)
+                logger = logging.getLogger(__name__).warning("%s failed: %s", provider, exc)
 
         raise RuntimeError("No available model for generation")
 
