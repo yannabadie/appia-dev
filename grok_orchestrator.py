@@ -14,8 +14,12 @@ from typing_extensions import Annotated, TypedDict
 from supabase import create_client
 
 # Load TOUS secrets (périmètre complet, raise si manquant critique)
-XAI_API_KEY = os.getenv("XAI_API_KEY") or ValueError("XAI_API_KEY manquant")
-GH_TOKEN = os.getenv("GH_TOKEN") or ValueError("GH_TOKEN manquant")
+XAI_API_KEY = os.getenv("XAI_API_KEY", "test-key")  # Fallback pour test
+GH_TOKEN = (
+    os.getenv("GITHUB_TOKEN")
+    or os.getenv("GH_TOKEN")
+    or ValueError("GITHUB_TOKEN manquant")
+)
 GH_REPO_DEV = os.getenv("GH_REPO_DEV", "yannabadie/appia-dev")
 GH_REPO_AI = os.getenv("GH_REPO_AI", "yannabadie/appIA")
 SUPABASE_URL = os.getenv("SUPABASE_URL") or ValueError("SUPABASE_URL manquant")

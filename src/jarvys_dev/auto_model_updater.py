@@ -1,5 +1,3 @@
-import sys
-
 """
 Module de mise à jour automatique des modèles LLM.
 Surveille Hugging Face, OpenAI, Anthropic et Google pour les nouveaux modèles.
@@ -16,7 +14,7 @@ import requests
 
 from .tools.memory_infinite import get_memory
 
-logger = logging.getLogger(__name__) = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -50,12 +48,12 @@ class AutoModelUpdater:
             "google_ai": "https://generativelanguage.googleapis.com/v1beta/models",
         }
 
-        logger = logging.getLogger(__name__).info("🔄 Auto-updater des modèles initialisé")
+        logger.info("🔄 Auto-updater des modèles initialisé")
 
     def check_for_updates(self) -> List[ModelUpdate]:
         """Vérifie tous les providers pour de nouveaux modèles."""
 
-        logger = logging.getLogger(__name__).info("🔍 Vérification des mises à jour de modèles...")
+        logger.info("🔍 Vérification des mises à jour de modèles...")
         updates = []
 
         # Vérifier chaque provider
@@ -98,13 +96,13 @@ class AutoModelUpdater:
                     },
                 )
 
-            logger = logging.getLogger(__name__).info(
+            logger.info(
                 f"✅ Vérification terminée: {len(updates)} mises à jour" "trouvées"
             )
             return updates
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur vérification mises à jour: {e}")
+            logger.error(f"❌ Erreur vérification mises à jour: {e}")
             return []
 
     def _check_huggingface_updates(self) -> List[ModelUpdate]:
@@ -164,18 +162,18 @@ class AutoModelUpdater:
                                     updates.append(update)
 
                     except Exception as e:
-                        logger = logging.getLogger(__name__).debug(
+                        logger.debug(
                             "Erreur analyse modèle HF "
                             f"{model.get('id', 'unknown')}: {e}"
                         )
                         continue
 
-                logger = logging.getLogger(__name__).info(
+                logger.info(
                     f"🤗 Hugging Face: {len(updates)} nouveaux modèles détectés"
                 )
 
         except Exception as e:
-            logger = logging.getLogger(__name__).warning(f"⚠️ Erreur vérification HF: {e}")
+            logger.warning(f"⚠️ Erreur vérification HF: {e}")
 
         return updates
 
@@ -232,12 +230,12 @@ class AutoModelUpdater:
                         updates.append(update)
 
                 if new_models:
-                    logger = logging.getLogger(__name__).info(
+                    logger.info(
                         f"🤖 OpenAI: {len(new_models)} nouveaux" "modèles: {new_models}"
                     )
 
         except Exception as e:
-            logger = logging.getLogger(__name__).warning(f"⚠️ Erreur vérification OpenAI: {e}")
+            logger.warning(f"⚠️ Erreur vérification OpenAI: {e}")
 
         return updates
 
@@ -284,12 +282,12 @@ class AutoModelUpdater:
                         updates.append(update)
 
                 if new_models:
-                    logger = logging.getLogger(__name__).info(
+                    logger.info(
                         f"💎 Gemini: {len(new_models)} nouveaux" "modèles: {new_models}"
                     )
 
         except Exception as e:
-            logger = logging.getLogger(__name__).warning(f"⚠️ Erreur vérification Gemini: {e}")
+            logger.warning(f"⚠️ Erreur vérification Gemini: {e}")
 
         return updates
 
@@ -394,7 +392,7 @@ class AutoModelUpdater:
                 )
                 updates.append(update)
 
-        logger = logging.getLogger(__name__).info(f"🏛️ Anthropic: {len(updates)} nouveaux modèles Claude détectés")
+        logger.info(f"🏛️ Anthropic: {len(updates)} nouveaux modèles Claude détectés")
         return updates
 
     def _is_interesting_llm(self, model_id: str, model_data: Dict) -> bool:
@@ -698,12 +696,12 @@ class AutoModelUpdater:
                     },
                 )
 
-                logger = logging.getLogger(__name__).info(
+                logger.info(
                     f"✅ Configuration mise à jour: {results['updated_models']}"
                 )
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur application mises à jour: {e}")
+            logger.error(f"❌ Erreur application mises à jour: {e}")
             results["failed_updates"].append(f"config_update: {e}")
 
         return results

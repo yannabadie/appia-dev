@@ -194,12 +194,15 @@ class PreCommitErrorFixer:
                 cwd=self.workspace,
             )
 
-            if result.returncode == 0:
+            result = None  # Initialize
+
+            if result and result.returncode == 0:
                 print("✅ Pre-commit validation réussie!")
                 return True
             else:
                 print("⚠️ Pre-commit encore des erreurs:")
-                print(result.stdout[-500:])  # Dernières 500 chars
+                if result:
+                    print(result.stdout[-500:])  # Dernières 500 chars
                 return False
 
         except Exception as e:

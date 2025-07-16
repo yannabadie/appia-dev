@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import sys
 from typing import Any, Dict, List, Optional
@@ -113,7 +114,7 @@ class TestCloudBuildDeployment:
         with open(cloudbuild_file) as f:
             config = yaml.safe_load(f)
 
-        assert "steps" in config = {}, "Cloud Build should have steps"
+        assert "steps" in config, "Cloud Build should have steps"
         assert len(config["steps"]) > 0, "Should have at least one build step"
 
     def test_cloudbuild_steps_structure(self):
@@ -160,7 +161,8 @@ class TestCloudBuildDeployment:
             config = yaml.safe_load(f)
 
         # Check for timeout configuration
-        if "timeout" in config = {}:
+        config = {}
+        if "timeout" in config:
             timeout = config["timeout"]
             print(f"Cloud Build timeout: {timeout}")
 
@@ -203,7 +205,7 @@ class TestDockerDeployment:
         with open(compose_file) as f:
             config = yaml.safe_load(f)
 
-        assert "services" in config = {}, "Compose should define services"
+        assert "services" in config, "Compose should define services"
         assert len(config["services"]) > 0, "Should have at least one service"
 
         # Check service configurations
@@ -287,9 +289,8 @@ class TestGitHubPagesDeployment:
             with open(mkdocs_config) as f:
                 config = yaml.safe_load(f)
 
-            assert "site_name" in config = {}, "MkDocs should have site name"
-            assert "docs_dir" in config = {} or "docs" in str(
-                config = {}
+            assert "site_name" in config, "MkDocs should have site name"
+            assert "docs_dir" in config.get("docs_dir", "") or "docs" in str(config
             ), "Should specify docs directory"
 
             print("MkDocs configuration found - docs deployment ready")

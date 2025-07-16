@@ -1,6 +1,3 @@
-import os
-import sys
-
 #!/usr/bin/env python3
 """
 👤 JARVYS_AI - Digital Twin de Yann Abadie
@@ -14,7 +11,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict
 
-logger = logging.getLogger(__name__) = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class DigitalTwin:
@@ -43,7 +40,7 @@ class DigitalTwin:
         self.profile_file = self.data_dir / "user_profile.json"
         self.history_file = self.data_dir / "interaction_history.json"
 
-        logger = logging.getLogger(__name__).info("👤 Digital Twin initialisé")
+        logger.info("👤 Digital Twin initialisé")
 
     async def initialize(self):
         """Initialiser le jumeau numérique"""
@@ -62,10 +59,10 @@ class DigitalTwin:
                 await self._create_default_profile()
 
             self.is_initialized = True
-            logger = logging.getLogger(__name__).info("👤 Digital Twin prêt")
+            logger.info("👤 Digital Twin prêt")
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur initialisation Digital Twin: {e}")
+            logger.error(f"❌ Erreur initialisation Digital Twin: {e}")
             raise
 
     async def _load_user_profile(self):
@@ -76,12 +73,12 @@ class DigitalTwin:
                     data = json.load(f)
                     self.user_profile = data.get("profile", {})
                     self.preferences = data.get("preferences", {})
-                    logger = logging.getLogger(__name__).info("✅ Profil utilisateur chargé")
+                    logger.info("✅ Profil utilisateur chargé")
             else:
-                logger = logging.getLogger(__name__).info("📝 Nouveau profil utilisateur")
+                logger.info("📝 Nouveau profil utilisateur")
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur chargement profil: {e}")
+            logger.error(f"❌ Erreur chargement profil: {e}")
 
     async def _load_interaction_history(self):
         """Charger l'historique des interactions"""
@@ -89,15 +86,15 @@ class DigitalTwin:
             if self.history_file.exists():
                 with open(self.history_file, "r", encoding="utf-8") as f:
                     self.interaction_history = json.load(f)
-                    logger = logging.getLogger(__name__).info(
+                    logger.info(
                         f"📚 {len(self.interaction_history)} interactions chargées"
                     )
             else:
                 self.interaction_history = []
-                logger = logging.getLogger(__name__).info("📝 Nouvel historique d'interactions")
+                logger.info("📝 Nouvel historique d'interactions")
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur chargement historique: {e}")
+            logger.error(f"❌ Erreur chargement historique: {e}")
             self.interaction_history = []
 
     async def _create_default_profile(self):
@@ -125,7 +122,7 @@ class DigitalTwin:
         }
 
         await self.save_profile()
-        logger = logging.getLogger(__name__).info("👤 Profil par défaut créé pour Yann Abadie")
+        logger.info("👤 Profil par défaut créé pour Yann Abadie")
 
     async def update_interaction(self, command: str, response: str, interface: str):
         """Enregistrer une nouvelle interaction"""
@@ -152,10 +149,10 @@ class DigitalTwin:
             # Sauvegarder
             await self.save_history()
 
-            logger = logging.getLogger(__name__).info(f"📝 Interaction enregistrée: {interface}")
+            logger.info(f"📝 Interaction enregistrée: {interface}")
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur enregistrement interaction: {e}")
+            logger.error(f"❌ Erreur enregistrement interaction: {e}")
 
     def _analyze_sentiment(self, text: str) -> str:
         """Analyser le sentiment d'un texte (simple)"""
@@ -224,10 +221,10 @@ class DigitalTwin:
             elif sentiment == "positive":
                 self.preferences["communication_style"] = "friendly"
 
-            logger = logging.getLogger(__name__).debug(f"🧠 Apprentissage: {category} ({sentiment})")
+            logger.debug(f"🧠 Apprentissage: {category} ({sentiment})")
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur apprentissage: {e}")
+            logger.error(f"❌ Erreur apprentissage: {e}")
 
     async def save_profile(self):
         """Sauvegarder le profil utilisateur"""
@@ -241,10 +238,10 @@ class DigitalTwin:
             with open(self.profile_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
 
-            logger = logging.getLogger(__name__).debug("💾 Profil sauvegardé")
+            logger.debug("💾 Profil sauvegardé")
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur sauvegarde profil: {e}")
+            logger.error(f"❌ Erreur sauvegarde profil: {e}")
 
     async def save_history(self):
         """Sauvegarder l'historique des interactions"""
@@ -252,16 +249,16 @@ class DigitalTwin:
             with open(self.history_file, "w", encoding="utf-8") as f:
                 json.dump(self.interaction_history, f, indent=2, ensure_ascii=False)
 
-            logger = logging.getLogger(__name__).debug("💾 Historique sauvegardé")
+            logger.debug("💾 Historique sauvegardé")
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur sauvegarde historique: {e}")
+            logger.error(f"❌ Erreur sauvegarde historique: {e}")
 
     async def save_state(self):
         """Sauvegarder l'état complet"""
         await self.save_profile()
         await self.save_history()
-        logger = logging.getLogger(__name__).info("💾 État complet sauvegardé")
+        logger.info("💾 État complet sauvegardé")
 
     def get_user_context(self) -> Dict[str, Any]:
         """Obtenir le contexte utilisateur actuel"""

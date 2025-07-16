@@ -186,7 +186,7 @@ ISSUES: List[tuple[str, str]] = [
     ),
 ]
 
-open_titles = {i.title for _i in repo.get_issues(state="open")}
+open_titles = {_i.title for _i in repo.get_issues(state="open")}
 for title, body in ISSUES:
     if title in open_titles:
         print(f"⚠️  Issue « {title} » déjà ouverte — saut")

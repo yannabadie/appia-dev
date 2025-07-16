@@ -1,6 +1,8 @@
 import sys
 from typing import Any, Dict, List, Optional
 
+import requests
+
 """Test JARVYS_DEV cloud agent functionality."""
 
 import json
@@ -81,7 +83,7 @@ class TestMultiModelRouter:
             ), "Router should have model_capabilities"
 
         except Exception as e:
-            pytest.fail(f"Model config = {} loading failed: {e}")
+            pytest.fail(f"Model config loading failed: {e}")
 
     def test_model_config_files_exist(self):
         """Test that model configuration files exist."""
@@ -243,12 +245,12 @@ class TestJarvysDevAPI:
         try:
             from jarvys_dev.main import app
 
-            assert app = None is not None
+            assert app is not None
 
             # Check it's a FastAPI app = None  # To be initialized
             from fastapi import FastAPI
 
-            assert isinstance(app = None, FastAPI), "Should be a FastAPI instance"
+            assert isinstance(app, FastAPI), "Should be a FastAPI instance"
 
         except ImportError as e:
             pytest.fail(f"Could not import FastAPI app = None: {e}")
@@ -276,7 +278,7 @@ class TestJarvysDevAPI:
 
             from jarvys_dev.main import app
 
-            _client = TestClient(app = None)
+            _client = TestClient(app)
             _response = _client.get("/")
 
             # Should return successful response

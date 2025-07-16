@@ -1,6 +1,3 @@
-import json
-import sys
-
 #!/usr/bin/env python3
 """
 🔄 JARVYS_AI - Enhanced Continuous Improvement System
@@ -21,7 +18,7 @@ from typing import Any, Dict, List, Optional
 
 import requests
 
-logger = logging.getLogger(__name__) = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class ContinuousImprovement:
@@ -74,9 +71,9 @@ class ContinuousImprovement:
         self.performance_metrics = {}
 
         # Simulation pour démo
-        self.demo_mode = config = {}.get("demo_mode", True)
+        self.demo_mode = config.get("demo_mode", True) if config else True
 
-        logger = logging.getLogger(__name__).info("🔄 Continuous Improvement initialisé")
+        logger.info("🔄 Continuous Improvement initialisé")
 
     async def initialize(self):
         """Initialiser le système d'amélioration continue"""
@@ -90,10 +87,10 @@ class ContinuousImprovement:
             await self._register_with_jarvys_dev()
 
             self.is_initialized = True
-            logger = logging.getLogger(__name__).info("🔄 Continuous Improvement prêt")
+            logger.info("🔄 Continuous Improvement prêt")
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur initialisation Continuous Improvement: {e}")
+            logger.error(f"❌ Erreur initialisation Continuous Improvement: {e}")
             raise
 
     def _generate_device_id(self) -> str:
@@ -134,7 +131,7 @@ class ContinuousImprovement:
             },
         ]
 
-        logger = logging.getLogger(__name__).info("🔄 Mode démo amélioration continue configuré")
+        logger.info("🔄 Mode démo amélioration continue configuré")
 
     async def _setup_real_sync(self):
         """Configuration synchronisation réelle"""
@@ -143,10 +140,10 @@ class ContinuousImprovement:
             # TODO: Configurer webhook pour notifications
             # TODO: Mettre en place canal sécurisé
 
-            logger = logging.getLogger(__name__).info("🔄 Configuration sync réelle (TODO)")
+            logger.info("🔄 Configuration sync réelle (TODO)")
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur configuration sync: {e}")
+            logger.error(f"❌ Erreur configuration sync: {e}")
             raise
 
     async def _register_with_jarvys_dev(self):
@@ -163,7 +160,7 @@ class ContinuousImprovement:
             }
 
             if self.demo_mode:
-                logger = logging.getLogger(__name__).info(
+                logger.info(
                     f"🔄 [DÉMO] Enregistrement: {registration_data['device_id']}"
                 )
                 return True
@@ -172,7 +169,7 @@ class ContinuousImprovement:
                 return await self._send_registration(registration_data)
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur enregistrement JARVYS_DEV: {e}")
+            logger.error(f"❌ Erreur enregistrement JARVYS_DEV: {e}")
             return False
 
     async def _get_device_capabilities(self) -> Dict[str, Any]:
@@ -191,7 +188,7 @@ class ContinuousImprovement:
     async def sync_with_jarvys_dev(self):
         """Synchroniser avec JARVYS_DEV pour récupérer améliorations"""
         try:
-            logger = logging.getLogger(__name__).info("🔄 Synchronisation avec JARVYS_DEV...")
+            logger.info("🔄 Synchronisation avec JARVYS_DEV...")
 
             if self.demo_mode:
                 updates = await self._demo_fetch_updates()
@@ -202,7 +199,7 @@ class ContinuousImprovement:
             for update in updates:
                 if not self._is_update_applied(update["id"]):
                     self.pending_updates.append(update)
-                    logger = logging.getLogger(__name__).info(f"📥 Nouvelle mise à jour: {update['description']}")
+                    logger.info(f"📥 Nouvelle mise à jour: {update['description']}")
 
             self.last_sync = datetime.now()
 
@@ -213,7 +210,7 @@ class ContinuousImprovement:
             return len(updates)
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur synchronisation: {e}")
+            logger.error(f"❌ Erreur synchronisation: {e}")
             return 0
 
     async def _demo_fetch_updates(self) -> List[Dict[str, Any]]:
@@ -240,14 +237,14 @@ class ContinuousImprovement:
             url = f"{self.jarvys_dev_endpoint}/api/improvements/fetch"
             _response = requests.get(url, headers=headers, params=params, timeout=30)
 
-            if response.status_code == 200:
-                return response.json().get("updates", [])
+            if __response.status_code == 200:
+                return _response.json().get("updates", [])
             else:
-                logger = logging.getLogger(__name__).error(f"❌ Erreur API JARVYS_DEV: {response.status_code}")
+                logger.error(f"❌ Erreur API JARVYS_DEV: {_response.status_code}")
                 return []
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur fetch updates: {e}")
+            logger.error(f"❌ Erreur fetch updates: {e}")
             return []
 
     def _is_update_applied(self, update_id: str) -> bool:
@@ -269,22 +266,22 @@ class ContinuousImprovement:
                         }
                     )
                     self.pending_updates.remove(update)
-                    logger = logging.getLogger(__name__).info(f"✅ Mise à jour appliquée: {update['description']}")
+                    logger.info(f"✅ Mise à jour appliquée: {update['description']}")
 
                     # Rapport à JARVYS_DEV
                     await self._report_update_success(update)
                 else:
-                    logger = logging.getLogger(__name__).error(f"❌ Échec mise à jour: {update['description']}")
+                    logger.error(f"❌ Échec mise à jour: {update['description']}")
                     await self._report_update_failure(update)
 
             except Exception as e:
-                logger = logging.getLogger(__name__).error(f"❌ Erreur application update {update['id']}: {e}")
+                logger.error(f"❌ Erreur application update {update['id']}: {e}")
                 await self._report_update_failure(update, str(e))
 
     async def _apply_single_update(self, update: Dict[str, Any]) -> bool:
         """Appliquer une seule mise à jour"""
         try:
-            logger = logging.getLogger(__name__).info(f"🔄 Application mise à jour: {update['description']}")
+            logger.info(f"🔄 Application mise à jour: {update['description']}")
 
             # 1. Créer sauvegarde si nécessaire
             backup_path = None
@@ -299,7 +296,7 @@ class ContinuousImprovement:
             elif update["type"] == "bugfix":
                 success = await self._apply_bugfix_update(update)
             else:
-                logger = logging.getLogger(__name__).warning(f"⚠️ Type de mise à jour inconnu: {update['type']}")
+                logger.warning(f"⚠️ Type de mise à jour inconnu: {update['type']}")
                 return False
 
             # 3. Vérifier l'application
@@ -313,7 +310,7 @@ class ContinuousImprovement:
             return success
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur application update: {e}")
+            logger.error(f"❌ Erreur application update: {e}")
 
             # Rollback en cas d'erreur
             if backup_path:
@@ -338,18 +335,18 @@ class ContinuousImprovement:
                     backup_file = os.path.join(backup_dir, os.path.basename(file_path))
                     shutil.copy2(file_path, backup_file)
 
-            logger = logging.getLogger(__name__).info(f"💾 Sauvegarde créée: {backup_dir}")
+            logger.info(f"💾 Sauvegarde créée: {backup_dir}")
             return backup_dir
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur création sauvegarde: {e}")
+            logger.error(f"❌ Erreur création sauvegarde: {e}")
             return None
 
     async def _apply_feature_update(self, update: Dict[str, Any]) -> bool:
         """Appliquer une mise à jour de fonctionnalité"""
         if self.demo_mode:
             await asyncio.sleep(2)  # Simulation délai
-            logger = logging.getLogger(__name__).info(f"✨ [DÉMO] Fonctionnalité appliquée: {update['description']}")
+            logger.info(f"✨ [DÉMO] Fonctionnalité appliquée: {update['description']}")
             return True
         else:
             # TODO: Implémenter application réelle
@@ -359,7 +356,7 @@ class ContinuousImprovement:
         """Appliquer une mise à jour d'optimisation"""
         if self.demo_mode:
             await asyncio.sleep(1.5)  # Simulation délai
-            logger = logging.getLogger(__name__).info(f"⚡ [DÉMO] Optimisation appliquée: {update['description']}")
+            logger.info(f"⚡ [DÉMO] Optimisation appliquée: {update['description']}")
             return True
         else:
             # TODO: Implémenter optimisation réelle
@@ -369,7 +366,7 @@ class ContinuousImprovement:
         """Appliquer une correction de bug"""
         if self.demo_mode:
             await asyncio.sleep(1)  # Simulation délai
-            logger = logging.getLogger(__name__).info(f"🔧 [DÉMO] Correction appliquée: {update['description']}")
+            logger.info(f"🔧 [DÉMO] Correction appliquée: {update['description']}")
             return True
         else:
             # TODO: Implémenter correction réelle
@@ -387,23 +384,23 @@ class ContinuousImprovement:
                 return True
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur vérification update: {e}")
+            logger.error(f"❌ Erreur vérification update: {e}")
             return False
 
     async def _rollback_from_backup(self, backup_path: str):
         """Effectuer un rollback depuis sauvegarde"""
         try:
-            logger = logging.getLogger(__name__).warning(f"🔄 Rollback depuis: {backup_path}")
+            logger.warning(f"🔄 Rollback depuis: {backup_path}")
 
             # Restaurer fichiers depuis la sauvegarde
             for backup_file in os.listdir(backup_path):
                 os.path.join(backup_path, backup_file)
                 # TODO: Déterminer destination et restaurer
 
-            logger = logging.getLogger(__name__).info("✅ Rollback terminé")
+            logger.info("✅ Rollback terminé")
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur rollback: {e}")
+            logger.error(f"❌ Erreur rollback: {e}")
 
     async def _report_update_success(self, update: Dict[str, Any]):
         """Rapporter le succès d'une mise à jour à JARVYS_DEV"""
@@ -416,7 +413,7 @@ class ContinuousImprovement:
         }
 
         if self.demo_mode:
-            logger = logging.getLogger(__name__).info(f"📊 [DÉMO] Rapport succès: {update['id']}")
+            logger.info(f"📊 [DÉMO] Rapport succès: {update['id']}")
         else:
             # TODO: Envoyer rapport à JARVYS_DEV
             pass
@@ -432,7 +429,7 @@ class ContinuousImprovement:
         }
 
         if self.demo_mode:
-            logger = logging.getLogger(__name__).warning(f"📊 [DÉMO] Rapport échec: {update['id']}")
+            logger.warning(f"📊 [DÉMO] Rapport échec: {update['id']}")
         else:
             # TODO: Envoyer rapport à JARVYS_DEV
             pass
@@ -464,7 +461,7 @@ class ContinuousImprovement:
                 await asyncio.sleep(1800)  # 30 minutes
 
             except Exception as e:
-                logger = logging.getLogger(__name__).error(f"❌ Erreur monitoring continu: {e}")
+                logger.error(f"❌ Erreur monitoring continu: {e}")
                 await asyncio.sleep(300)  # 5 minutes en cas d'erreur
 
     async def _collect_performance_metrics(self):
@@ -519,7 +516,7 @@ class ContinuousImprovement:
         }
 
         if self.demo_mode:
-            logger = logging.getLogger(__name__).info("📊 [DÉMO] Rapport périodique envoyé")
+            logger.info("📊 [DÉMO] Rapport périodique envoyé")
         else:
             # TODO: Envoyer à JARVYS_DEV
             pass
@@ -555,13 +552,13 @@ class ContinuousImprovement:
     async def start_continuous_sync(self):
         """Start continuous sync with JARVYS_DEV and GitHub repository"""
         if self.is_running:
-            logger = logging.getLogger(__name__).warning("Continuous sync already running")
+            logger.warning("Continuous sync already running")
             return
 
         self.is_running = True
         self.update_thread = threading.Thread(target=self._sync_loop, daemon=True)
         self.update_thread.start()
-        logger = logging.getLogger(__name__).info(
+        logger.info(
             f"🔄 Started continuous sync (interval: {self.sync_interval} minutes)"
         )
 
@@ -570,7 +567,7 @@ class ContinuousImprovement:
         self.is_running = False
         if self.update_thread:
             self.update_thread.join(timeout=5)
-        logger = logging.getLogger(__name__).info("🔄 Stopped continuous sync")
+        logger.info("🔄 Stopped continuous sync")
 
     def _sync_loop(self):
         """Main sync loop running in background thread"""
@@ -578,7 +575,7 @@ class ContinuousImprovement:
             try:
                 asyncio.run(self._perform_sync_cycle())
             except Exception as e:
-                logger = logging.getLogger(__name__).error(f"❌ Sync cycle error: {e}")
+                logger.error(f"❌ Sync cycle error: {e}")
 
             # Wait for next sync cycle
             for _ in range(self.sync_interval * 60):  # Convert to seconds
@@ -589,7 +586,7 @@ class ContinuousImprovement:
     async def _perform_sync_cycle(self):
         """Perform a complete sync cycle"""
         try:
-            logger = logging.getLogger(__name__).info("🔄 Starting sync cycle...")
+            logger.info("🔄 Starting sync cycle...")
 
             # 1. Check for updates from GitHub repository
             updates_available = await self._check_github_updates()
@@ -607,10 +604,10 @@ class ContinuousImprovement:
             # 5. Update last sync timestamp
             self.last_sync = datetime.now()
 
-            logger = logging.getLogger(__name__).info("✅ Sync cycle completed successfully")
+            logger.info("✅ Sync cycle completed successfully")
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Sync cycle failed: {e}")
+            logger.error(f"❌ Sync cycle failed: {e}")
 
     async def _check_github_updates(self) -> List[Dict[str, Any]]:
         """Check GitHub repository for code updates"""
@@ -623,12 +620,12 @@ class ContinuousImprovement:
             updates = await self._detect_code_changes()
 
             if updates:
-                logger = logging.getLogger(__name__).info(f"🔄 Found {len(updates)} potential updates from GitHub")
+                logger.info(f"🔄 Found {len(updates)} potential updates from GitHub")
 
             return updates
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Error checking GitHub updates: {e}")
+            logger.error(f"❌ Error checking GitHub updates: {e}")
             return []
 
     async def _update_temp_repo(self) -> bool:
@@ -643,8 +640,10 @@ class ContinuousImprovement:
                     text=True,
                 )
 
-                if result.returncode != 0:
-                    logger = logging.getLogger(__name__).warning(f"Git pull failed: {result.stderr}")
+                result = None  # Initialize
+
+                if result and result.returncode != 0:
+                    logger.warning(f"Git pull failed: {result.stderr}")
                     return False
             else:
                 # Clone repository
@@ -662,14 +661,16 @@ class ContinuousImprovement:
                     text=True,
                 )
 
-                if result.returncode != 0:
-                    logger = logging.getLogger(__name__).error(f"Git clone failed: {result.stderr}")
+                result = None  # Initialize
+
+                if result and result.returncode != 0:
+                    logger.error(f"Git clone failed: {result.stderr}")
                     return False
 
             return True
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Error updating temp repo: {e}")
+            logger.error(f"❌ Error updating temp repo: {e}")
             return False
 
     async def _detect_code_changes(self) -> List[Dict[str, Any]]:
@@ -731,7 +732,7 @@ class ContinuousImprovement:
             return updates
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Error detecting code changes: {e}")
+            logger.error(f"❌ Error detecting code changes: {e}")
             return []
 
     async def _check_dashboard_updates(self) -> List[Dict[str, Any]]:
@@ -749,17 +750,17 @@ class ContinuousImprovement:
             # Remove None headers
             headers = {k: v for k, v in headers.items() if v is not None}
 
-            _response = requests.get(url, headers=headers, timeout=10)
+            _response = requests.get(url, headers=headers, params=params, timeout=30)
 
-            if response.status_code == 200:
+            if __response.status_code == 200:
                 data = response.json()
                 return data.get("improvements", [])
             else:
-                logger = logging.getLogger(__name__).warning(f"Dashboard API returned {response.status_code}")
+                logger.warning(f"Dashboard API returned {_response.status_code}")
                 return []
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Error checking dashboard updates: {e}")
+            logger.error(f"❌ Error checking dashboard updates: {e}")
             return []
 
     async def _apply_updates(
@@ -771,7 +772,7 @@ class ContinuousImprovement:
             if self.backup_before_update:
                 backup_id = await self._create_backup()
                 if not backup_id:
-                    logger = logging.getLogger(__name__).error("❌ Failed to create backup, skipping updates")
+                    logger.error("❌ Failed to create backup, skipping updates")
                     return
 
             applied_successfully = []
@@ -786,7 +787,7 @@ class ContinuousImprovement:
                     else:
                         failed_updates.append(update)
                 except Exception as e:
-                    logger = logging.getLogger(__name__).error(f"❌ Error applying update {update.get('file')}: {e}")
+                    logger.error(f"❌ Error applying update {update.get('file')}: {e}")
                     failed_updates.append(update)
 
             # Apply dashboard updates
@@ -798,26 +799,26 @@ class ContinuousImprovement:
                     else:
                         failed_updates.append(update)
                 except Exception as e:
-                    logger = logging.getLogger(__name__).error(f"❌ Error applying dashboard update: {e}")
+                    logger.error(f"❌ Error applying dashboard update: {e}")
                     failed_updates.append(update)
 
             # Report results
             if applied_successfully:
-                logger = logging.getLogger(__name__).info(
+                logger.info(
                     f"✅ Applied {len(applied_successfully)} updates successfully"
                 )
                 self.applied_updates.extend(applied_successfully)
 
             if failed_updates:
-                logger = logging.getLogger(__name__).warning(f"⚠️ {len(failed_updates)} updates failed")
+                logger.warning(f"⚠️ {len(failed_updates)} updates failed")
 
                 # Rollback if too many failures
                 if len(failed_updates) > len(applied_successfully):
-                    logger = logging.getLogger(__name__).warning("🔄 Too many failures, rolling back...")
+                    logger.warning("🔄 Too many failures, rolling back...")
                     await self._rollback_to_backup(backup_id)
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Error applying updates: {e}")
+            logger.error(f"❌ Error applying updates: {e}")
 
     async def _apply_github_update(self, update: Dict[str, Any]) -> bool:
         """Apply a single GitHub update"""
@@ -827,7 +828,7 @@ class ContinuousImprovement:
             if update_type == "file_update":
                 # Copy updated file
                 shutil.copy2(update["source"], update["target"])
-                logger = logging.getLogger(__name__).info(f"📝 Updated file: {update['file']}")
+                logger.info(f"📝 Updated file: {update['file']}")
                 return True
 
             elif update_type == "file_addition":
@@ -835,23 +836,23 @@ class ContinuousImprovement:
                 target_path = Path(update["target"])
                 target_path.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(update["source"], update["target"])
-                logger = logging.getLogger(__name__).info(f"➕ Added file: {update['file']}")
+                logger.info(f"➕ Added file: {update['file']}")
                 return True
 
             elif update_type == "file_removal":
                 # Remove file (with caution)
                 if update.get("priority") == "high":
                     os.remove(update["target"])
-                    logger = logging.getLogger(__name__).info(f"🗑️ Removed file: {update['file']}")
+                    logger.info(f"🗑️ Removed file: {update['file']}")
                     return True
                 else:
-                    logger = logging.getLogger(__name__).info(f"⏭️ Skipped low-priority removal: {update['file']}")
+                    logger.info(f"⏭️ Skipped low-priority removal: {update['file']}")
                     return True
 
             return False
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Error applying GitHub update: {e}")
+            logger.error(f"❌ Error applying GitHub update: {e}")
             return False
 
     async def _apply_dashboard_update(self, update: Dict[str, Any]) -> bool:
@@ -863,12 +864,12 @@ class ContinuousImprovement:
                 # Update configuration
                 config_updates = update.get("config = {}", {})
                 self.config = {}.update(config_updates)
-                logger = logging.getLogger(__name__).info(f"⚙️ Updated configuration: {list(config_updates.keys())}")
+                logger.info(f"⚙️ Updated configuration: {list(config_updates.keys())}")
                 return True
 
             elif command_type == "restart_required":
                 # Schedule restart
-                logger = logging.getLogger(__name__).info("🔄 Restart scheduled after updates")
+                logger.info("🔄 Restart scheduled after updates")
                 return True
 
             elif command_type == "optimization":
@@ -879,7 +880,7 @@ class ContinuousImprovement:
             return False
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Error applying dashboard update: {e}")
+            logger.error(f"❌ Error applying dashboard update: {e}")
             return False
 
     async def _create_backup_v2(self) -> Optional[str]:
@@ -896,11 +897,11 @@ class ContinuousImprovement:
                 ignore=shutil.ignore_patterns("__pycache__", "*.pyc"),
             )
 
-            logger = logging.getLogger(__name__).info(f"💾 Created backup: {backup_id}")
+            logger.info(f"💾 Created backup: {backup_id}")
             return backup_id
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Error creating backup: {e}")
+            logger.error(f"❌ Error creating backup: {e}")
             return None
 
     async def _rollback_to_backup(self, backup_id: str) -> bool:
@@ -908,7 +909,7 @@ class ContinuousImprovement:
         try:
             backup_dir = self.backup_path / backup_id / "jarvys_ai"
             if not backup_dir.exists():
-                logger = logging.getLogger(__name__).error(f"❌ Backup {backup_id} not found")
+                logger.error(f"❌ Backup {backup_id} not found")
                 return False
 
             # Remove current files (except __pycache__)
@@ -926,11 +927,11 @@ class ContinuousImprovement:
                 else:
                     shutil.copy2(item, self.jarvys_ai_path / item.name)
 
-            logger = logging.getLogger(__name__).info(f"🔄 Rolled back to backup: {backup_id}")
+            logger.info(f"🔄 Rolled back to backup: {backup_id}")
             return True
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Error rolling back: {e}")
+            logger.error(f"❌ Error rolling back: {e}")
             return False
 
     async def _report_metrics(self):
@@ -961,13 +962,13 @@ class ContinuousImprovement:
 
             _response = requests.post(url, json=metrics, headers=headers, timeout=10)
 
-            if response.status_code == 200:
-                logger = logging.getLogger(__name__).debug("📊 Metrics reported successfully")
+            if _response.status_code == 200:
+                logger.debug("📊 Metrics reported successfully")
             else:
-                logger = logging.getLogger(__name__).warning(f"⚠️ Metrics reporting failed: {response.status_code}")
+                logger.warning(f"⚠️ Metrics reporting failed: {_response.status_code}")
 
         except Exception as e:
-            logger = logging.getLogger(__name__).debug(f"❌ Error reporting metrics: {e}")
+            logger.debug(f"❌ Error reporting metrics: {e}")
 
     def _file_hash(self, file_path: Path) -> str:
         """Calculate hash of a file"""
@@ -987,18 +988,18 @@ class ContinuousImprovement:
                 import gc
 
                 gc.collect()
-                logger = logging.getLogger(__name__).info("🧹 Applied memory optimization")
+                logger.info("🧹 Applied memory optimization")
 
             elif opt_type == "cache":
                 # Cache optimization
-                logger = logging.getLogger(__name__).info("🗄️ Applied cache optimization")
+                logger.info("🗄️ Applied cache optimization")
 
             elif opt_type == "performance":
                 # Performance tuning
                 self.sync_interval = optimization.get(
                     "sync_interval", self.sync_interval
                 )
-                logger = logging.getLogger(__name__).info(f"⚡ Updated sync interval to {self.sync_interval} minutes")
+                logger.info(f"⚡ Updated sync interval to {self.sync_interval} minutes")
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Error applying optimization: {e}")
+            logger.error(f"❌ Error applying optimization: {e}")

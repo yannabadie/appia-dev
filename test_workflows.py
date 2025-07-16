@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 from typing import Any, Dict, List, Optional
 
 #!/usr/bin/env python3
@@ -11,13 +12,27 @@ import json
 import subprocess
 from datetime import datetime
 
+
+def test_generate_wiki_docs():
+    """Test génération docs wiki"""
+    print("🧪 Test génération wiki docs...")
+    try:
+        result = subprocess.run(
             ["poetry", "run", "python", "scripts/generate_wiki_docs.py"],
             capture_output=True,
             text=True,
             cwd="/workspaces/appia-dev",
         )
 
-        if result.returncode == 0:
+            capture_output=True,
+            text=True,
+            cwd="/workspaces/appia-dev",
+        )
+
+        result = None  # Initialize
+
+
+        if result and result.returncode == 0:
             print("✅ Génération Wiki réussie")
             print(f"📄 Sortie: {result.stdout[:200]}...")
             return True
@@ -43,7 +58,10 @@ def test_poetry_installation():
             cwd="/workspaces/appia-dev",
         )
 
-        if result.returncode == 0:
+        result = None  # Initialize
+
+
+        if result and result.returncode == 0:
             print("✅ Installation Poetry réussie (simulation workflow)")
             return True
         else:

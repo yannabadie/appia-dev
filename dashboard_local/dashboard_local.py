@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import time
 from typing import Any, Dict, List, Optional
 
 #!/usr/bin/env python3
@@ -12,7 +13,7 @@ from datetime import datetime
 
 from flask import Flask, jsonify, render_template_string, request
 
-app = Flask(__name__) = Flask(__name__)
+app = Flask(__name__)
 
 # Template HTML du dashboard
 DASHBOARD_HTML = """
@@ -147,12 +148,12 @@ DASHBOARD_HTML = """
 """
 
 
-@app = Flask(__name__).route("/")
+@app.route("/")
 def dashboard():
     return render_template_string(DASHBOARD_HTML)
 
 
-@app = Flask(__name__).route("/api/metrics")
+@app.route("/api/metrics")
 def metrics():
     return jsonify(
         {
@@ -170,7 +171,7 @@ def metrics():
     )
 
 
-@app = Flask(__name__).route("/api/status")
+@app.route("/api/status")
 def status():
     return jsonify(
         {
@@ -182,7 +183,7 @@ def status():
     )
 
 
-@app = Flask(__name__).route("/api/control", methods=["POST"])
+@app.route("/api/control", methods=["POST"])
 def control():
     data = request.get_json()
     return jsonify(

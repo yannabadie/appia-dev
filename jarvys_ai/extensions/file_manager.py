@@ -1,7 +1,3 @@
-import json
-import os
-import sys
-
 #!/usr/bin/env python3
 """
 📁 JARVYS_AI - File Manager
@@ -13,7 +9,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-logger = logging.getLogger(__name__) = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class FileManager:
@@ -57,7 +53,7 @@ class FileManager:
         # Simulation pour démo
         self.demo_mode = config = {}.get("demo_mode", True)
 
-        logger = logging.getLogger(__name__).info("📁 File Manager initialisé")
+        logger.info("📁 File Manager initialisé")
 
     async def initialize(self):
         """Initialiser le gestionnaire de fichiers"""
@@ -74,10 +70,10 @@ class FileManager:
             await self._build_file_index()
 
             self.is_initialized = True
-            logger = logging.getLogger(__name__).info("📁 File Manager prêt")
+            logger.info("📁 File Manager prêt")
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur initialisation File Manager: {e}")
+            logger.error(f"❌ Erreur initialisation File Manager: {e}")
             raise
 
     def is_initialized(self) -> bool:
@@ -89,7 +85,7 @@ class FileManager:
         for name, path in self.working_dirs.items():
             if not path.exists():
                 path.mkdir(parents=True, exist_ok=True)
-                logger = logging.getLogger(__name__).info(f"📁 Répertoire créé: {name} -> {path}")
+                logger.info(f"📁 Répertoire créé: {name} -> {path}")
 
     async def _setup_demo_mode(self):
         """Configuration mode démo"""
@@ -116,7 +112,7 @@ class FileManager:
         # Créer fichiers de démonstration
         await self._create_demo_files()
 
-        logger = logging.getLogger(__name__).info("📁 Mode démo fichiers configuré")
+        logger.info("📁 Mode démo fichiers configuré")
 
     async def _create_demo_files(self):
         """Créer fichiers de démonstration"""
@@ -152,10 +148,10 @@ class FileManager:
             # - Google Drive API
             # - Dropbox API
 
-            logger = logging.getLogger(__name__).info("📁 Configuration services cloud réels (TODO)")
+            logger.info("📁 Configuration services cloud réels (TODO)")
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur configuration cloud: {e}")
+            logger.error(f"❌ Erreur configuration cloud: {e}")
             raise
 
     async def _build_file_index(self):
@@ -177,10 +173,10 @@ class FileManager:
                             }
                             file_count += 1
 
-            logger = logging.getLogger(__name__).info(f"📁 Index construit: {file_count} fichiers indexés")
+            logger.info(f"📁 Index construit: {file_count} fichiers indexés")
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur construction index: {e}")
+            logger.error(f"❌ Erreur construction index: {e}")
 
     async def process_command(self, command: str) -> str:
         """Traiter une commande fichier"""
@@ -208,7 +204,7 @@ class FileManager:
                 return await self._handle_general_file_query(command)
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur traitement commande fichier: {e}")
+            logger.error(f"❌ Erreur traitement commande fichier: {e}")
             return f"Erreur lors du traitement de votre commande fichier: {e}"
 
     async def _handle_file_search(self, command: str) -> str:
@@ -243,7 +239,7 @@ class FileManager:
             return response
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur recherche fichiers: {e}")
+            logger.error(f"❌ Erreur recherche fichiers: {e}")
             return "Erreur lors de la recherche de fichiers."
 
     def _extract_search_term(self, command: str) -> Optional[str]:

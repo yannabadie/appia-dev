@@ -1,6 +1,3 @@
-import json
-import sys
-
 """Outils de gestion de la mémoire infinie partagée entre JARVYS_DEV
 et JARVYS_AI. Utilise Supabase comme base vectorielle pour persistance
 et recherche sémantique."""
@@ -15,7 +12,7 @@ import openai
 
 from supabase import Client, create_client
 
-logger = logging.getLogger(__name__) = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class JarvysInfiniteMemory:
@@ -38,9 +35,9 @@ class JarvysInfiniteMemory:
         if supabase_url and supabase_key:
             try:
                 self.supabase = create_client(supabase_url, supabase_key)
-                logger = logging.getLogger(__name__).info(f"✅ Mémoire infinie initialisée pour {agent_name}")
+                logger.info(f"✅ Mémoire infinie initialisée pour {agent_name}")
             except Exception as e:
-                logger = logging.getLogger(__name__).error(f"❌ Erreur connexion Supabase: {e}")
+                logger.error(f"❌ Erreur connexion Supabase: {e}")
 
         # Initialisation OpenAI pour embeddings
         openai_key = os.getenv("OPENAI_API_KEY")
@@ -71,7 +68,7 @@ class JarvysInfiniteMemory:
             True si succès, False sinon
         """
         if not self.supabase or not self.openai_client:
-            logger = logging.getLogger(__name__).warning(
+            logger.warning(
                 "Mémoire non disponible (Supabase ou OpenAI manquant)"  # noqa: E501
             )
             return False
@@ -96,20 +93,18 @@ class JarvysInfiniteMemory:
 
             # Insérer dans Supabase
             _result = (
-                self.supabase.table("jarvys_memory")
-                .insert(memory_data)
-                .execute()  # noqa: E501
+                self.supabase.table("jarvys_memory").insert(memory_data).execute()  # noqa: E501
             )
 
             if _result.data:
-                logger = logging.getLogger(__name__).info(f"💾 Mémoire sauvegardée: {content[:50]}...")
+                logger.info(f"💾 Mémoire sauvegardée: {content[:50]}...")
                 return True
             else:
-                logger = logging.getLogger(__name__).error(f"❌ Échec sauvegarde mémoire: {_result}")
+                logger.error(f"❌ Échec sauvegarde mémoire: {_result}")
                 return False
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur mémorisation: {e}")
+            logger.error(f"❌ Erreur mémorisation: {e}")
             return False
 
     def recall(
@@ -132,7 +127,7 @@ class JarvysInfiniteMemory:
             Liste des souvenirs trouvés
         """
         if not self.supabase or not self.openai_client:
-            logger = logging.getLogger(__name__).warning("Mémoire non disponible pour la recherche")
+            logger.warning("Mémoire non disponible pour la recherche")
             return []
 
         try:
@@ -171,7 +166,7 @@ class JarvysInfiniteMemory:
                 # Trier par similarité décroissante
                 memories.sort(key=lambda x: x["similarity"], reverse=True)
 
-                logger = logging.getLogger(__name__).info(
+                logger.info(
                     "🧠 %d souvenirs trouvés pour: %s...",
                     len(memories),
                     query[:30],
@@ -181,7 +176,7 @@ class JarvysInfiniteMemory:
             return []
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur recherche mémoire: {e}")
+            logger.error(f"❌ Erreur recherche mémoire: {e}")
             return []
 
     def get_memory_stats(self) -> Dict[str, Any]:
@@ -229,7 +224,7 @@ class JarvysInfiniteMemory:
             }
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur stats mémoire: {e}")
+            logger.error(f"❌ Erreur stats mémoire: {e}")
             return {"error": str(e)}
 
     def _generate_embedding(self, text: str) -> Optional[List[float]]:
@@ -244,7 +239,7 @@ class JarvysInfiniteMemory:
             return _response.data[0].embedding
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur génération embedding: {e}")
+            logger.error(f"❌ Erreur génération embedding: {e}")
             return None
 
     def _calculate_similarity(
@@ -289,7 +284,7 @@ class JarvysInfiniteMemory:
             ).execute()
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur log interaction: {e}")
+            logger.error(f"❌ Erreur log interaction: {e}")
 
 
 # Instance globale pour JARVYS_DEV
@@ -314,9 +309,7 @@ def get_memory(
 
 
 # Fonctions de compatibilité avec l'ancien code
-def memory_search(
-    query: str, user_context: str = "default"
-) -> List[Dict[str, Any]]:  # noqa: E501
+def memory_search(query: str, user_context: str = "default") -> List[Dict[str, Any]]:  # noqa: E501
     """Recherche dans la mémoire (fonction de compatibilité)."""
     memory = get_memory("JARVYS_DEV", user_context)
     return memory.recall(query)

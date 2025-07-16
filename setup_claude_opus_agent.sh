@@ -1,553 +1,241 @@
 #!/bin/bash
-# setup_claude_codespaces.sh
-# Script d'installation adapté pour GitHub Codespaces
+# setup_claude_opus_agent.sh - Version avec variables d'environnement GitHub
+# Utilise UNIQUEMENT les secrets déjà configurés dans GitHub
 
 set -e
 
-echo "🚀 Installation de Claude 4 Opus Agent pour JARVYS (Codespaces)"
-echo "=========================================================="
+echo "🚀 Configuration de Claude 4 Opus Agent pour JARVYS"
+echo "================================================="
 
-# Couleurs pour l'output
-RED='\033[0;31m'
+# Couleurs
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+RED='\033[0;31m'
+NC='\033[0m'
 
-# Variables
-WORKSPACE_DIR="/workspaces/appia-dev"
-AGENT_DIR="$WORKSPACE_DIR/claude_agent"
-PYTHON_CMD="python3"
+# Vérifier qu'on est dans le bon répertoire
+if [ ! -f "grok_orchestrator.py" ]; then
+    echo -e "${RED}⚠️  Assurez-vous d'être dans /workspaces/appia-dev${NC}"
+    exit 1
+fi
 
-# Vérifier qu'on est bien dans Codespaces
-check_environment() {
-    echo -e "\n${YELLOW}📋 Vérification de l'environnement...${NC}"
-    
-    if [ ! -d "/workspaces" ]; then
-        echo -e "${RED}❌ Ce script doit être exécuté dans GitHub Codespaces${NC}"
-        exit 1
-    fi
-    
-    # Vérifier Python
-    if ! command -v $PYTHON_CMD &> /dev/null; then
-        echo -e "${RED}❌ Python 3 non trouvé${NC}"
-        exit 1
-    fi
-    
-    # Afficher la version Python
-    echo -e "${BLUE}Python version: $($PYTHON_CMD --version)${NC}"
-    
-    # Vérifier Poetry (si utilisé dans le projet)
-    if command -v poetry &> /dev/null; then
-        echo -e "${BLUE}Poetry trouvé: $(poetry --version)${NC}"
-        USE_POETRY=true
+# Afficher les variables d'environnement détectées
+echo -e "\n${YELLOW}🔍 Détection des variables d'environnement GitHub...${NC}"
+
+# Fonction pour vérifier une variable
+check_env_var() {
+    local var_name=$1
+    if [ ! -z "${!var_name}" ]; then
+        echo -e "${GREEN}✓${NC} $var_name détecté (${#var_name} caractères)"
+        return 0
     else
-        USE_POETRY=false
+        echo -e "${RED}✗${NC} $var_name non trouvé"
+        return 1
     fi
-    
-    echo -e "${GREEN}✅ Environnement Codespaces vérifié${NC}"
 }
 
-# Créer la structure dans le projet existant
-create_structure() {
-    echo -e "\n${YELLOW}📁 Création de la structure dans le projet...${NC}"
-    
-    cd $WORKSPACE_DIR
-    
-    # Créer les dossiers nécessaires
-    mkdir -p claude_agent/{core,tools,workflows,configs}
-    mkdir -p .github/workflows
-    mkdir -p tests/claude_agent
-    
-    echo -e "${GREEN}✅ Structure créée dans $WORKSPACE_DIR${NC}"
-}
+# Vérifier toutes les variables
+echo -e "\n${BLUE}Variables d'API:${NC}"
+check_env_var "CLAUDE_API_KEY"
+check_env_var "OPENAI_API_KEY"
+check_env_var "GEMINI_API_KEY"
+check_env_var "XAI_API_KEY"
 
-# Installer/Mettre à jour les dépendances
-install_dependencies() {
-    echo -e "\n${YELLOW}🐍 Installation des dépendances...${NC}"
-    
-    cd $WORKSPACE_DIR
-    
-    if [ "$USE_POETRY" = true ]; then
-        echo -e "${BLUE}Utilisation de Poetry...${NC}"
-        
-        # Ajouter les dépendances avec Poetry
-        poetry add anthropic pygithub supabase aiofiles websockets python-dotenv
-        poetry add --group dev pylint black mypy bandit safety pytest pytest-asyncio
-        
-    else
-        echo -e "${BLUE}Utilisation de pip...${NC}"
-        
-        # S'assurer qu'on utilise le venv existant
-        if [ -d ".venv" ]; then
-            source .venv/bin/activate
-        else
-            $PYTHON_CMD -m venv .venv
-            source .venv/bin/activate
-        fi
-        
-        # Mettre à jour pip
-        pip install --upgrade pip
-        
-        # Créer requirements pour Claude
-        cat >> requirements.txt << EOF
+echo -e "\n${BLUE}Variables GitHub:${NC}"
+check_env_var "GH_TOKEN" || check_env_var "GITHUB_TOKEN"
+check_env_var "GH_REPO"
 
-# Claude Agent Dependencies
-anthropic>=0.18.0
-pygithub>=2.0.0
-supabase>=2.0.0
-aiofiles>=23.0.0
-websockets>=12.0.0
-python-dotenv>=1.0.0
+echo -e "\n${BLUE}Variables Supabase:${NC}"
+check_env_var "SUPABASE_URL"
+check_env_var "SUPABASE_SERVICE_ROLE"
+check_env_var "SUPABASE_KEY"
+check_env_var "SUPABASE_ACCESS_TOKEN"
+check_env_var "SUPABASE_PROJECT_ID"
 
-# Dev dependencies
-pylint>=3.0.0
-black>=23.0.0
-mypy>=1.0.0
-bandit>=1.7.0
-safety>=3.0.0
-pytest>=8.0.0
-pytest-asyncio>=0.23.0
+echo -e "\n${BLUE}Variables GCP:${NC}"
+check_env_var "GCP_SA_JSON"
+
+# Créer un fichier .env qui référence les variables d'environnement
+echo -e "\n${YELLOW}📝 Création du fichier .env...${NC}"
+
+cat > .env << 'EOF'
+# Ce fichier utilise les variables d'environnement GitHub/Codespaces
+# Aucun secret n'est hardcodé ici
+
+# API Keys - depuis les secrets GitHub
+CLAUDE_API_KEY=${CLAUDE_API_KEY}
+OPENAI_API_KEY=${OPENAI_API_KEY}
+GEMINI_API_KEY=${GEMINI_API_KEY}
+XAI_API_KEY=${XAI_API_KEY}
+
+# GitHub - utilise le token du Codespace
+GH_TOKEN=${GH_TOKEN:-${GITHUB_TOKEN}}
+GH_REPO=${GH_REPO:-yannabadie/appia-dev}
+GH_REPO_DEV=${GH_REPO_DEV:-yannabadie/appia-dev}
+GH_REPO_AI=${GH_REPO_AI:-yannabadie/appIA}
+
+# Supabase - depuis les secrets GitHub
+SUPABASE_URL=${SUPABASE_URL}
+SUPABASE_SERVICE_ROLE=${SUPABASE_SERVICE_ROLE}
+SUPABASE_KEY=${SUPABASE_KEY}
+SUPABASE_ACCESS_TOKEN=${SUPABASE_ACCESS_TOKEN}
+SUPABASE_PROJECT_ID=${SUPABASE_PROJECT_ID}
+
+# GCP
+GCP_SA_JSON=${GCP_SA_JSON}
+
+# Configuration par défaut
+DAILY_COST_LIMIT=${DAILY_COST_LIMIT:-3.0}
+CHECK_INTERVAL=${CHECK_INTERVAL:-300}
+MAX_TASKS_PER_CYCLE=${MAX_TASKS_PER_CYCLE:-3}
+
+# Secret Access Token (si disponible)
+SECRET_ACCESS_TOKEN=${SECRET_ACCESS_TOKEN}
 EOF
-        
-        pip install -r requirements.txt
-    fi
-    
-    echo -e "${GREEN}✅ Dépendances installées${NC}"
-}
 
-# Installer l'agent Claude dans le projet
-install_claude_agent() {
-    echo -e "\n${YELLOW}🤖 Installation de l'agent Claude...${NC}"
-    
-    cd $AGENT_DIR
-    
-    # Créer __init__.py
-    touch __init__.py
-    touch core/__init__.py
-    touch tools/__init__.py
-    
-    # Créer le fichier principal de l'agent
-    cat > core/claude_opus_agent.py << 'EOF'
-"""
-Claude 4 Opus Agent pour JARVYS - Version Codespaces
-"""
-import os
-import asyncio
-import json
-from typing import Dict, List, Optional, Any
-from datetime import datetime, timedelta
-import logging
-from pathlib import Path
+echo -e "${GREEN}✅ Fichier .env créé (utilise les variables d'environnement)${NC}"
 
-import anthropic
-from github import Github
-from supabase import create_client, Client
-from dotenv import load_dotenv
+# Mettre à jour claude_autonomous_agent.py
+echo -e "\n${YELLOW}🤖 Mise à jour du modèle Claude 4 Opus...${NC}"
 
-# Charger les variables d'environnement
-load_dotenv()
+if [ -f "claude_autonomous_agent.py" ]; then
+    # Remplacer par le bon modèle Claude 4 Opus
+    sed -i 's/claude-3-opus-20240229/claude-opus-4-20250514/g' claude_autonomous_agent.py
+    echo -e "${GREEN}✅ Modèle mis à jour: claude-opus-4-20250514${NC}"
+else
+    echo -e "${RED}⚠️  Fichier claude_autonomous_agent.py non trouvé${NC}"
+fi
 
-# Configuration du logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Créer un script de test pour vérifier les variables
+echo -e "\n${YELLOW}🧪 Création du script de test...${NC}"
 
-class ClaudeOpusAgent:
-    """Agent autonome Claude 4 Opus pour JARVYS"""
-    
-    def __init__(self):
-        # Initialisation des clients
-        self.claude = anthropic.AsyncAnthropic(
-            api_key=os.getenv("CLAUDE_API_KEY", "")
-        )
-        self.github = Github(os.getenv("GH_TOKEN"))
-        self.supabase: Client = create_client(
-            os.getenv("SUPABASE_URL"),
-            os.getenv("SUPABASE_SERVICE_ROLE")
-        )
-        
-        # Configuration
-        self.workspace_dir = Path("/workspaces/appia-dev")
-        self.cost_limit_daily = float(os.getenv("DAILY_COST_LIMIT", "3.0"))
-        self.current_costs = 0.0
-        
-    async def run_in_codespace(self):
-        """Mode spécial pour Codespaces - exécution unique"""
-        logger.info("🚀 Démarrage en mode Codespace")
-        
-        try:
-            # Analyser le code actuel
-            issues = await self.analyze_current_code()
-            
-            if issues:
-                logger.info(f"📊 {len(issues)} problèmes détectés")
-                
-                # Prioriser et corriger
-                for issue in issues[:3]:  # Max 3 corrections
-                    await self.fix_issue(issue)
-                
-                # Créer un rapport
-                await self.create_report(issues)
-            else:
-                logger.info("✅ Aucun problème détecté")
-                
-        except Exception as e:
-            logger.error(f"❌ Erreur: {e}")
-            
-    async def analyze_current_code(self) -> List[Dict[str, Any]]:
-        """Analyser le code dans le workspace actuel"""
-        issues = []
-        
-        # Scanner les fichiers Python
-        for py_file in self.workspace_dir.rglob("*.py"):
-            if ".venv" in str(py_file) or "__pycache__" in str(py_file):
-                continue
-                
-            try:
-                with open(py_file, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                
-                # Demander à Claude d'analyser
-                response = await self.claude.messages.create(
-                    model="claude-3-opus-20240229",
-                    max_tokens=1000,
-                    messages=[{
-                        "role": "user",
-                        "content": f"""Analyse ce fichier Python et identifie les problèmes:
-                        
-Fichier: {py_file.relative_to(self.workspace_dir)}
-
-```python
-{content[:2000]}  # Limiter pour l'exemple
-```
-
-Retourne uniquement les problèmes critiques sous forme JSON."""
-                    }]
-                )
-                
-                # Parser la réponse
-                try:
-                    file_issues = json.loads(response.content[0].text)
-                    for issue in file_issues.get("issues", []):
-                        issue["file"] = str(py_file.relative_to(self.workspace_dir))
-                        issues.append(issue)
-                except:
-                    pass
-                    
-            except Exception as e:
-                logger.error(f"Erreur analyse {py_file}: {e}")
-                
-        return issues
-    
-    async def fix_issue(self, issue: Dict[str, Any]):
-        """Corriger un problème détecté"""
-        logger.info(f"🔧 Correction: {issue.get('description', 'Issue')}")
-        
-        file_path = self.workspace_dir / issue["file"]
-        
-        try:
-            # Lire le fichier
-            with open(file_path, 'r', encoding='utf-8') as f:
-                content = f.read()
-            
-            # Demander la correction à Claude
-            response = await self.claude.messages.create(
-                model="claude-3-opus-20240229",
-                max_tokens=4000,
-                messages=[{
-                    "role": "user",
-                    "content": f"""Corrige ce problème dans le code:
-                    
-Problème: {issue['description']}
-Fichier: {issue['file']}
-
-Code actuel:
-```python
-{content}
-```
-
-Retourne UNIQUEMENT le code corrigé complet."""
-                }]
-            )
-            
-            fixed_code = response.content[0].text
-            
-            # Créer une branche pour la correction
-            branch_name = f"claude-fix-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
-            
-            # Sauvegarder dans une nouvelle branche
-            os.system(f"git checkout -b {branch_name}")
-            
-            # Écrire le fichier corrigé
-            with open(file_path, 'w', encoding='utf-8') as f:
-                f.write(fixed_code)
-            
-            # Committer
-            os.system(f"git add {file_path}")
-            os.system(f'git commit -m "[Claude] Fix: {issue["description"][:50]}"')
-            
-            logger.info(f"✅ Correction appliquée dans la branche {branch_name}")
-            
-        except Exception as e:
-            logger.error(f"Erreur lors de la correction: {e}")
-    
-    async def create_report(self, issues: List[Dict[str, Any]]):
-        """Créer un rapport des analyses"""
-        report_path = self.workspace_dir / "claude_analysis_report.md"
-        
-        report = f"""# 📊 Rapport d'Analyse Claude 4 Opus
-
-Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-Environnement: GitHub Codespaces
-
-## Résumé
-
-- **Fichiers analysés**: {len(set(i['file'] for i in issues))}
-- **Problèmes détectés**: {len(issues)}
-- **Corrections appliquées**: {min(3, len(issues))}
-
-## Détails des problèmes
-
-"""
-        
-        for i, issue in enumerate(issues, 1):
-            report += f"""
-### {i}. {issue.get('type', 'Issue')} dans {issue['file']}
-
-**Description**: {issue.get('description', 'N/A')}
-
-**Sévérité**: {issue.get('severity', 'medium')}
-
----
-"""
-        
-        with open(report_path, 'w', encoding='utf-8') as f:
-            f.write(report)
-        
-        logger.info(f"📄 Rapport créé: {report_path}")
-EOF
-    
-    # Créer le script de lancement pour Codespaces
-    cat > run_analysis.py << 'EOF'
+cat > test_env_vars.py << 'EOF'
 #!/usr/bin/env python3
 """
-Lancer l'analyse Claude dans Codespaces
+Test des variables d'environnement GitHub
 """
-import asyncio
-import sys
-from pathlib import Path
+import os
+from dotenv import load_dotenv
 
-sys.path.insert(0, str(Path(__file__).parent))
+# Charger le .env (qui référence les variables d'environnement)
+load_dotenv()
 
-from core.claude_opus_agent import ClaudeOpusAgent
+print("🔍 Test des Variables d'Environnement")
+print("=" * 50)
 
-async def main():
-    print("🤖 Claude 4 Opus Agent - Analyse du projet")
-    print("=" * 50)
-    
-    agent = ClaudeOpusAgent()
-    await agent.run_in_codespace()
-    
-    print("\n✅ Analyse terminée!")
-    print("Vérifiez les branches Git créées et le rapport claude_analysis_report.md")
+# Variables à tester
+vars_to_check = [
+    "CLAUDE_API_KEY",
+    "OPENAI_API_KEY", 
+    "GEMINI_API_KEY",
+    "XAI_API_KEY",
+    "GH_TOKEN",
+    "GITHUB_TOKEN",
+    "SUPABASE_URL",
+    "SUPABASE_SERVICE_ROLE",
+    "SUPABASE_KEY"
+]
 
-if __name__ == "__main__":
-    asyncio.run(main())
+print("\n📋 Résultats:")
+for var in vars_to_check:
+    value = os.getenv(var)
+    if value:
+        # Masquer partiellement la valeur
+        masked = value[:8] + "..." + value[-4:] if len(value) > 12 else "***"
+        print(f"✅ {var}: {masked}")
+    else:
+        print(f"❌ {var}: Non trouvé")
+
+# Test spécifique pour Claude
+claude_key = os.getenv("CLAUDE_API_KEY")
+if claude_key and claude_key.startswith("sk-ant-"):
+    print("\n✅ CLAUDE_API_KEY semble valide")
+else:
+    print("\n⚠️  CLAUDE_API_KEY manquante ou invalide")
+    print("   Ajoutez-la dans les secrets GitHub de votre Codespace")
 EOF
-    
-    chmod +x run_analysis.py
-    
-    echo -e "${GREEN}✅ Agent Claude installé${NC}"
-}
 
-# Configurer les variables d'environnement
-setup_environment() {
-    echo -e "\n${YELLOW}🔐 Configuration de l'environnement...${NC}"
-    
-    cd $WORKSPACE_DIR
-    
-    # Créer .env.example si n'existe pas
-    if [ ! -f .env.example ]; then
-        cat > .env.example << 'EOF'
-# Claude Agent Configuration
-CLAUDE_API_KEY=your_claude_api_key_here
-GH_TOKEN=your_github_pat_token_here
-SUPABASE_URL=https://kzcswopokvknxmxczilu.supabase.co
-SUPABASE_SERVICE_ROLE=your_service_role_key_here
+chmod +x test_env_vars.py
 
-# Limites
-DAILY_COST_LIMIT=3.0
-MAX_TASKS_PER_CYCLE=3
-EOF
-    fi
-    
-    # Copier vers .env si n'existe pas
-    if [ ! -f .env ]; then
-        cp .env.example .env
-        echo -e "${YELLOW}⚠️  Configurez vos clés API dans .env${NC}"
-    fi
-    
-    echo -e "${GREEN}✅ Fichier .env créé${NC}"
-}
-
-# Ajouter les workflows GitHub
-setup_github_workflows() {
-    echo -e "\n${YELLOW}🔄 Ajout des workflows GitHub...${NC}"
-    
-    cd $WORKSPACE_DIR
-    
-    # Workflow pour l'analyse automatique
-    cat > .github/workflows/claude-analysis.yml << 'EOF'
-name: Claude Code Analysis
-
-on:
-  push:
-    branches: [main, develop, grok-evolution]
-  pull_request:
-    types: [opened, synchronize]
-  workflow_dispatch:
-
-jobs:
-  analyze:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-      
-      - name: Install dependencies
-        run: |
-          pip install anthropic pygithub supabase
-      
-      - name: Run Claude Analysis
-        env:
-          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
-        run: |
-          python claude_agent/run_analysis.py
-      
-      - name: Upload report
-        uses: actions/upload-artifact@v3
-        with:
-          name: claude-analysis-report
-          path: claude_analysis_report.md
-EOF
-    
-    echo -e "${GREEN}✅ Workflows GitHub ajoutés${NC}"
-}
-
-# Créer les commandes utilitaires
-create_utilities() {
-    echo -e "\n${YELLOW}🛠️ Création des utilitaires...${NC}"
-    
-    cd $WORKSPACE_DIR
-    
-    # Script pour lancer l'analyse
-    cat > analyze_with_claude.sh << 'EOF'
+# Créer le script de lancement qui utilise les variables d'environnement
+cat > run_claude.sh << 'EOF'
 #!/bin/bash
-# Lancer une analyse Claude
+# Lance Claude avec les variables d'environnement GitHub
 
-echo "🤖 Lancement de l'analyse Claude..."
+echo "🤖 Démarrage de Claude 4 Opus Agent..."
 
-# Activer l'environnement virtuel si nécessaire
-if [ -d ".venv" ]; then
-    source .venv/bin/activate
-fi
-
-# Lancer l'analyse
-python claude_agent/run_analysis.py
-
-# Afficher les résultats
-if [ -f "claude_analysis_report.md" ]; then
+# Les variables sont déjà dans l'environnement, pas besoin de les charger
+# Vérifier seulement que Claude API Key existe
+if [ -z "$CLAUDE_API_KEY" ]; then
+    echo "❌ CLAUDE_API_KEY non trouvée dans les variables d'environnement"
     echo ""
-    echo "📊 Rapport d'analyse:"
-    echo "===================="
-    cat claude_analysis_report.md
+    echo "Pour ajouter la clé Claude:"
+    echo "1. Allez dans Settings > Secrets > Codespaces"
+    echo "2. Ajoutez CLAUDE_API_KEY avec votre clé"
+    echo "3. Recréez le Codespace ou redémarrez-le"
+    exit 1
 fi
+
+echo "✅ Variables d'environnement détectées"
+echo "🚀 Lancement de l'agent..."
+
+# Lancer avec Poetry
+poetry run python claude_autonomous_agent.py
 EOF
-    
-    chmod +x analyze_with_claude.sh
-    
-    # Ajouter au Makefile si existe
-    if [ -f "Makefile" ]; then
-        echo -e "\n# Claude Analysis" >> Makefile
-        echo "claude-analyze:" >> Makefile
-        echo -e "\t./analyze_with_claude.sh" >> Makefile
-    fi
-    
-    echo -e "${GREEN}✅ Utilitaires créés${NC}"
-}
 
-# Tester l'installation
-test_installation() {
-    echo -e "\n${YELLOW}🧪 Test de l'installation...${NC}"
-    
-    cd $WORKSPACE_DIR
-    
-    # Vérifier les imports Python
-    $PYTHON_CMD -c "import anthropic; print('✅ anthropic importé')" 2>/dev/null || echo "❌ Erreur import anthropic"
-    $PYTHON_CMD -c "import github; print('✅ github importé')" 2>/dev/null || echo "❌ Erreur import github"
-    $PYTHON_CMD -c "import supabase; print('✅ supabase importé')" 2>/dev/null || echo "❌ Erreur import supabase"
-    
-    # Vérifier la structure
-    [ -d "claude_agent" ] && echo "✅ Dossier claude_agent créé" || echo "❌ Dossier claude_agent manquant"
-    [ -f ".env" ] && echo "✅ Fichier .env présent" || echo "❌ Fichier .env manquant"
-    
-    echo -e "${GREEN}✅ Tests terminés${NC}"
-}
+chmod +x run_claude.sh
 
-# Afficher les instructions
-show_instructions() {
-    echo -e "\n${GREEN}🎉 Installation terminée!${NC}"
-    echo -e "\n${YELLOW}📝 Prochaines étapes:${NC}"
-    echo "1. Configurez vos clés API:"
-    echo "   ${BLUE}nano .env${NC}"
-    echo ""
-    echo "2. Lancez une analyse:"
-    echo "   ${BLUE}./analyze_with_claude.sh${NC}"
-    echo ""
-    echo "3. Configurez les secrets GitHub:"
-    echo "   ${BLUE}gh secret set CLAUDE_API_KEY${NC}"
-    echo ""
-    echo -e "${YELLOW}💡 Commandes disponibles:${NC}"
-    echo "- Analyse rapide: ${BLUE}python claude_agent/run_analysis.py${NC}"
-    echo "- Avec Poetry: ${BLUE}poetry run python claude_agent/run_analysis.py${NC}"
-    echo "- Via Make: ${BLUE}make claude-analyze${NC}"
-    echo ""
-    echo -e "${GREEN}✨ Claude 4 Opus est prêt dans votre Codespace!${NC}"
-}
+# Script pour afficher comment ajouter des secrets
+cat > add_secrets_help.sh << 'EOF'
+#!/bin/bash
+# Aide pour ajouter des secrets GitHub
 
-# Fonction principale
-main() {
-    echo -e "${BLUE}Installation dans: $WORKSPACE_DIR${NC}"
-    echo -e "${YELLOW}Continuer? (O/n)${NC} "
-    read -n 1 -r
-    echo
-    
-    if [[ ! $REPLY =~ ^[Oo]$ ]] && [[ ! -z $REPLY ]]; then
-        echo "Installation annulée"
-        exit 0
-    fi
-    
-    check_environment
-    create_structure
-    install_dependencies
-    install_claude_agent
-    setup_environment
-    setup_github_workflows
-    create_utilities
-    test_installation
-    show_instructions
-}
+echo "📚 Guide pour ajouter des secrets dans GitHub Codespaces"
+echo "======================================================"
+echo ""
+echo "1. Allez sur: https://github.com/settings/codespaces"
+echo ""
+echo "2. Dans 'Repository secrets', ajoutez:"
+echo "   - CLAUDE_API_KEY"
+echo "   - Autres clés si nécessaire"
+echo ""
+echo "3. Les secrets seront disponibles comme variables d'environnement"
+echo "   dans tous vos Codespaces"
+echo ""
+echo "4. Pour vérifier: echo \$CLAUDE_API_KEY"
+echo ""
+echo "Note: Les secrets sont masqués dans les logs pour la sécurité"
+EOF
 
-# Lancer l'installation
-main
+chmod +x add_secrets_help.sh
+
+# Installer les dépendances
+echo -e "\n${YELLOW}📦 Installation des dépendances...${NC}"
+
+if command -v poetry &> /dev/null; then
+    poetry add anthropic python-dotenv --quiet 2>/dev/null || true
+else
+    pip install anthropic python-dotenv
+fi
+
+# Résumé final
+echo -e "\n${GREEN}✅ Configuration terminée!${NC}"
+echo -e "\n${BLUE}📋 Résumé:${NC}"
+echo "- Utilise les variables d'environnement GitHub (pas de secrets hardcodés)"
+echo "- Modèle Claude 4 Opus: claude-opus-4-20250514"
+echo "- Scripts créés: run_claude.sh, test_env_vars.py"
+
+# Vérifier si CLAUDE_API_KEY existe
+if [ -z "$CLAUDE_API_KEY" ]; then
+    echo -e "\n${RED}⚠️  IMPORTANT: CLAUDE_API_KEY non détectée${NC}"
+    echo "Exécutez: ./add_secrets_help.sh pour voir comment l'ajouter"
+else
+    echo -e "\n${GREEN}✅ CLAUDE_API_KEY détectée${NC}"
+    echo "Vous pouvez lancer: ./run_claude.sh"
+fi
+
+echo -e "\n${BLUE}🚀 Commandes disponibles:${NC}"
+echo "- Test des variables: poetry run python test_env_vars.py"
+echo "- Lancer Claude: ./run_claude.sh"
+echo "- Aide secrets: ./add_secrets_help.sh"
