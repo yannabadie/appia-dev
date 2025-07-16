@@ -121,9 +121,10 @@ class JarvysDebugDashboard:
         api_key = os.getenv("OPENAI_API_KEY")
         if api_key:
             try:
-                from openai import OpenAI
+                # Initialize client properly
+                import openai
 
-                _client = OpenAI(api_key=api_key)
+                client = openai.Client(api_key=os.getenv("OPENAI_API_KEY"))
                 models = client.models.list()
                 connectivity_status["openai"] = {
                     "status": "connected",

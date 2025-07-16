@@ -255,12 +255,13 @@ class JarvysMonitoringSetup:
         openai_key = os.getenv("OPENAI_API_KEY")
         if openai_key:
             try:
-                from openai import OpenAI
+                # Initialize client properly
+                import openai
 
-                _client = OpenAI(api_key=openai_key)
+                client = openai.Client(api_key=os.getenv("OPENAI_API_KEY"))
+                models = client.models.list()
 
                 start_time = time.time()
-                models = client.models.list()
                 response_time = time.time() - start_time
 
                 health_results["openai_api"] = {

@@ -16,3 +16,4 @@ grok_fix_flake8.py
 appIA/
 appia-dev/
 local_logs.json
+.env
