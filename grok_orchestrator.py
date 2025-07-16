@@ -19,6 +19,42 @@ GH_TOKEN = (
     or os.getenv("GH_TOKEN")
     or ValueError("GITHUB_TOKEN manquant")
 )
+
+
+# Validate XAI API Key for Grok-4-0709
+def validate_grok_api():
+    """Validate that Grok-4-0709 API is accessible"""
+    if XAI_API_KEY == "test-key":
+        print("⚠️ WARNING: Using test XAI_API_KEY. Grok calls will fail!")
+        return False
+
+    try:
+        print("🔍 Testing Grok-4-0709 API connection...")
+        url = "https://api.x.ai/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {XAI_API_KEY}",
+            "Content-Type": "application/json",
+        }
+        test_data = {
+            "model": "grok-4-0709",
+            "messages": [
+                {"role": "user", "content": "Test connection - respond with 'OK'"}
+            ],
+            "max_tokens": 10,
+        }
+        response = requests.post(url, headers=headers, json=test_data, timeout=30)
+
+        if response.status_code == 200:
+            print("✅ Grok-4-0709 API connection successful!")
+            return True
+        else:
+            print(f"❌ Grok API test failed: {response.status_code} - {response.text}")
+            return False
+    except Exception as e:
+        print(f"❌ Grok API validation error: {str(e)}")
+        return False
+
+
 GH_REPO_DEV = os.getenv("GH_REPO_DEV", "yannabadie/appia-dev")
 GH_REPO_AI = os.getenv("GH_REPO_AI", "yannabadie/appIA")
 SUPABASE_URL = os.getenv("SUPABASE_URL") or ValueError("SUPABASE_URL manquant")
@@ -138,6 +174,8 @@ def clean_state_for_new_cycle(state: AgentState) -> AgentState:
 # Query Grok (créativité temp=0.5, fallback multi-LLMs pour adaptabilité)
 def query_grok(prompt: str, state: AgentState) -> str:  # Pass state for log
     full_prompt = f"Contexte JARVYS_DEV (cloud, MCP/GCP, mémoire Supabase, génère JARVYS_AI in appIA) et JARVYS_AI (local, routing LLMs, self-improve): {prompt}. Sois créatif (innovations alignées comme sentiment analysis ou quantum sim), proactif (suggère extras), adaptable (handle unknown via alternatives)."
+
+    # FORCE: Always try Grok-4-0709 FIRST (xAI API)
     try:
         url = "https://api.x.ai/v1/chat/completions"
         headers = {
@@ -145,33 +183,59 @@ def query_grok(prompt: str, state: AgentState) -> str:  # Pass state for log
             "Content-Type": "application/json",
         }
         data = {
-            "model": "grok-4",
+            "model": "grok-4-0709",  # Force specific Grok 4 model
             "messages": [{"role": "user", "content": full_prompt}],
             "temperature": 0.5,
+            "max_tokens": 4000,  # Ensure sufficient response length
         }
-        response = requests.post(url, headers=headers, json=data)
-        return response.json()["choices"][0]["message"]["content"]
+        print("🧠 Calling Grok-4-0709 via xAI API...")
+        response = requests.post(url, headers=headers, json=data, timeout=60)
+
+        if response.status_code == 200:
+            result = response.json()["choices"][0]["message"]["content"]
+            print(f"✅ Grok-4-0709 response received (length: {len(result)} chars)")
+            return result
+        else:
+            print(f"❌ xAI API error: {response.status_code} - {response.text}")
+            raise Exception(f"xAI API returned {response.status_code}")
+
     except Exception as e:
-        state["log_entry"] = {**state["log_entry"], "error": str(e)}
-        # Fallback proactif Gemini
+        print(f"⚠️ Grok-4-0709 failed: {str(e)}")
+        state["log_entry"] = {**state["log_entry"], "grok_error": str(e)}
+
+        # Fallback proactif Gemini (only if Grok fails)
         try:
+            print("🔄 Falling back to Gemini...")
             url_f = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={GEMINI_API_KEY}"
             data_f = {"contents": [{"parts": [{"text": full_prompt}]}]}
-            response = requests.post(url_f, json=data_f)
-            return response.json()["candidates"][0]["content"]["parts"][0]["text"]
-        except Exception:
+            response = requests.post(url_f, json=data_f, timeout=45)
+            result = response.json()["candidates"][0]["content"]["parts"][0]["text"]
+            print("✅ Gemini fallback response received")
+            return result
+        except Exception as e2:
+            print(f"⚠️ Gemini fallback failed: {str(e2)}")
             # Ultime fallback OpenAI
-            url_o = "https://api.openai.com/v1/chat/completions"
-            headers_o = {
-                "Authorization": f"Bearer {OPENAI_API_KEY}",
-                "Content-Type": "application/json",
-            }
-            data_o = {
-                "model": "gpt-4",
-                "messages": [{"role": "user", "content": full_prompt}],
-            }
-            response = requests.post(url_o, headers=headers_o, json=data_o)
-            return response.json()["choices"][0]["message"]["content"]
+            try:
+                print("🔄 Final fallback to OpenAI...")
+                url_o = "https://api.openai.com/v1/chat/completions"
+                headers_o = {
+                    "Authorization": f"Bearer {OPENAI_API_KEY}",
+                    "Content-Type": "application/json",
+                }
+                data_o = {
+                    "model": "gpt-4",
+                    "messages": [{"role": "user", "content": full_prompt}],
+                    "temperature": 0.5,
+                }
+                response = requests.post(
+                    url_o, headers=headers_o, json=data_o, timeout=45
+                )
+                result = response.json()["choices"][0]["message"]["content"]
+                print("✅ OpenAI fallback response received")
+                return result
+            except Exception:
+                print("❌ All APIs failed. Using fallback response.")
+                return f"API_FALLBACK: Task '{prompt[:100]}...' - All LLM APIs unavailable. Manual intervention may be required."
 
 
 # Node: Fix Lint/Erreurs (proactif/adaptable : auto-fix, query si unknown)
@@ -527,6 +591,13 @@ orchestrator = graph.compile()
 
 
 def run_orchestrator():
+    print("🤖 Initializing GROK-4-0709 Autonomous Orchestrator...")
+
+    # Validate Grok API connection before starting
+    grok_available = validate_grok_api()
+    if not grok_available:
+        print("⚠️ Grok-4-0709 API not available - orchestrator will use fallbacks")
+
     state = AgentState(
         task="",
         sub_agent="",
@@ -542,16 +613,24 @@ def run_orchestrator():
     max_cycles = 10  # Guard global
     cycle = 0
     while cycle < max_cycles:
-        print(f"🤖 Starting cycle {cycle + 1}/{max_cycles}")
-        state = orchestrator.invoke(state)
-        print(f"✅ Completed cycle {cycle + 1}. Sleeping for 1 hour...")
+        print(f"🤖 Starting cycle {cycle + 1}/{max_cycles} - Grok-4-0709 Powered")
+
+        try:
+            state = orchestrator.invoke(state)
+            print(f"✅ Completed cycle {cycle + 1} successfully!")
+        except Exception as e:
+            print(f"❌ Cycle {cycle + 1} failed: {str(e)}")
+            # Continue to next cycle instead of crashing
 
         # Clean state for next cycle to prevent data accumulation
         state = clean_state_for_new_cycle(state)
 
         cycle += 1
         if cycle < max_cycles:  # Don't sleep after last cycle
+            print("😴 Sleeping for 1 hour before next cycle...")
             time.sleep(3600)  # 1h
+
+    print(f"🎯 Orchestrator completed all {max_cycles} cycles!")
 
 
 if __name__ == "__main__":
