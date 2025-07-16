@@ -971,6 +971,9 @@ orchestrator = graph.compile()
 
 def run_orchestrator():
     print(f"🤖 Initializing {GROK_MODEL} Autonomous Orchestrator...")
+    print("📍 Working Branch: grok-evolution (appia-dev)")
+    print("🎯 Target Deployment: main (appIA)")
+    print("🔄 Architecture: JARVYS_DEV → JARVYS_AI")
 
     # Validate Grok API connection before starting
     grok_available = validate_grok_api()
@@ -992,7 +995,9 @@ def run_orchestrator():
     max_cycles = 10  # Guard global
     cycle = 0
     while cycle < max_cycles:
-        print(f"🤖 Starting cycle {cycle + 1}/{max_cycles} - {GROK_MODEL} Powered")
+        print(
+            f"🤖 Cycle {cycle + 1}/{max_cycles} - {GROK_MODEL} on grok-evolution → appIA/main"
+        )
 
         try:
             state = orchestrator.invoke(state)
