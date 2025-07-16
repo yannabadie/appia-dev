@@ -1,8 +1,7 @@
-import sys
+from __future__ import annotations
+
 
 """LangGraph-based observe-plan-act-reflect loop."""
-
-from __future__ import annotations
 
 import json
 import logging
@@ -15,7 +14,7 @@ from .main import confidence_score, send_to_jarvys_ai
 from .multi_model_router import MultiModelRouter
 from .tools.memory import upsert_embedding
 
-logger = logging.getLogger(__name__) = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 SECRET_ENV_KEYS = [
     "GH_TOKEN",
@@ -116,7 +115,9 @@ def run_loop(steps: int = 1) -> LoopState:
             state["waiting_for_human_review"] = True
             break
     if _router.benchmarks:
-        logger = logging.getLogger(__name__).info("benchmarks: %s", _router.benchmarks[-1])
+        logger = logging.getLogger(__name__).info(
+            "benchmarks: %s", _router.benchmarks[-1]
+        )
     return state
 
 

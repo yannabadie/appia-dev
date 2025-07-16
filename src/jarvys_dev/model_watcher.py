@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import logging
 import os
-import sys
 from pathlib import Path
 from typing import Iterable
 
@@ -12,7 +11,7 @@ from openai import OpenAI
 
 from .tools.github_tools import github_create_issue
 
-logger = logging.getLogger(__name__) = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 CONFIG_PATH = Path(__file__).with_name("model_config.json")
 
@@ -93,7 +92,9 @@ def check_for_new_models() -> bool:
         try:
             github_create_issue(title="New models detected", body=body)
         except Exception as exc:  # pragma: no cover - network
-            logger = logging.getLogger(__name__).warning("Issue creation failed: %s", exc)
+            logger = logging.getLogger(__name__).warning(
+                "Issue creation failed: %s", exc
+            )
         return True
     return False
 

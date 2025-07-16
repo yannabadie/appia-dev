@@ -1,4 +1,5 @@
-import sys
+from __future__ import annotations
+
 
 """Router for multiple LLM providers.
 
@@ -6,8 +7,6 @@ This module selects the best model depending on the ``task_type`` and
 available API keys. It also implements a simple fallback strategy and
 basic benchmarking (latency, prompt size for cost approximation).
 """
-
-from __future__ import annotations
 
 import json
 import logging
@@ -48,11 +47,13 @@ def _load_models() -> dict[str, str]:
             clean = {k: v for k, v in data.items() if isinstance(v, str)}
             models.update(clean)
         except Exception as exc:  # pragma: no cover - config = {} errors
-            logger = logging.getLogger(__name__).warning("Failed to read %s: %s", CONFIG_PATH, exc)
+            logger = logging.getLogger(__name__).warning(
+                "Failed to read %s: %s", CONFIG_PATH, exc
+            )
     return models
 
 
-logger = logging.getLogger(__name__) = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -84,14 +85,18 @@ class MultiModelRouter:
                 genai.configure(api_key=self.gemini_key)
                 self.gemini_available = True
             except Exception as exc:  # pragma: no cover - package errors
-                logger = logging.getLogger(__name__).warning("Gemini init failed: %s", exc)
+                logger = logging.getLogger(__name__).warning(
+                    "Gemini init failed: %s", exc
+                )
 
         self.anthropic_client: Any | None = None
         if Anthropic and self.anthropic_key:
             try:  # pragma: no cover
                 self.anthropic_client = Anthropic(api_key=self.anthropic_key)
             except Exception as exc:  # pragma: no cover - package errors
-                logger = logging.getLogger(__name__).warning("Anthropic init failed: %s", exc)
+                logger = logging.getLogger(__name__).warning(
+                    "Anthropic init failed: %s", exc
+                )
 
         # Load model capabilities from JSON file if present
         self.model_capabilities = self._load_model_capabilities()
@@ -190,7 +195,9 @@ class MultiModelRouter:
             return _result
 
         except Exception as exc:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur avec modèle optimal {optimal_model}: {exc}")
+            logger = logging.getLogger(__name__).error(
+                f"❌ Erreur avec modèle optimal {optimal_model}: {exc}"
+            )
 
             # Enregistrer l'échec
             self.orchestrator.record_performance(
@@ -301,7 +308,9 @@ class MultiModelRouter:
                     return _result
 
             except Exception as exc:  # pragma: no cover - network failures
-                logger = logging.getLogger(__name__).warning("%s failed: %s", provider, exc)
+                logger = logging.getLogger(__name__).warning(
+                    "%s failed: %s", provider, exc
+                )
 
         raise RuntimeError("No available model for generation")
 

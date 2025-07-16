@@ -1,0 +1,54 @@
+# 🔧 CONFIGURATION CLOUD BUILD + CLOUD RUN
+# =========================================
+
+steps:
+  # 1. Build de l'image Docker
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-f', 'Dockerfile.gcp',
+      '-t', 'gcr.io/$PROJECT_ID/jarvys-orchestrator:$COMMIT_SHA',
+      '-t', 'gcr.io/$PROJECT_ID/jarvys-orchestrator:latest',
+      '.'
+    ]
+  
+  # 2. Push vers Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/jarvys-orchestrator:$COMMIT_SHA']
+  
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/jarvys-orchestrator:latest']
+  
+  # 3. Déploiement sur Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args: [
+      'run', 'deploy', 'jarvys-orchestrator',
+      '--image', 'gcr.io/$PROJECT_ID/jarvys-orchestrator:$COMMIT_SHA',
+      '--region', 'europe-west1',
+      '--platform', 'managed',
+      '--allow-unauthenticated',
+      '--port', '8080',
+      '--memory', '2Gi',
+      '--cpu', '2',
+      '--min-instances', '1',
+      '--max-instances', '1',
+      '--timeout', '3600',
+      '--concurrency', '1',
+      '--set-env-vars', 'ENVIRONMENT=production,WORKSPACE_DIR=/app',
+      '--set-secrets',
+      'XAI_API_KEY=xai-api-key:latest,GITHUB_TOKEN=github-token:latest,SUPABASE_URL=supabase-url:latest,SUPABASE_KEY=supabase-key:latest,OPENAI_API_KEY=openai-api-key:latest,GCP_SA_JSON=gcp-sa-json:latest'
+    ]
+
+# Options de build
+options:
+  machineType: 'E2_HIGHCPU_8'
+  diskSizeGb: '100'
+  
+# Timeout total
+timeout: '1800s'
+
+# Substitutions pour les variables
+substitutions:
+  _REGION: 'europe-west1'
+  _SERVICE_NAME: 'jarvys-orchestrator'

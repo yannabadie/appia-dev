@@ -1,0 +1,12 @@
+{
+  "jarvys_setup": {
+    "status": "minimal",
+    "timestamp": "2025-07-16T19:21:02.320983",
+    "tables_status": "manual_creation_required",
+    "next_steps": [
+      "Cr\u00e9er les tables manuellement via Supabase Dashboard",
+      "Ex\u00e9cuter le script init_supabase_tables.sql",
+      "Tester la connexion avec test_supabase_connection.py"
+    ]
+  }
+}

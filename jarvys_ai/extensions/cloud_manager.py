@@ -1,7 +1,3 @@
-import json
-import os
-import sys
-
 #!/usr/bin/env python3
 """
 ☁️ JARVYS_AI - Cloud Manager
@@ -13,7 +9,7 @@ import logging
 from datetime import datetime
 from typing import Any, Dict
 
-logger = logging.getLogger(__name__) = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class CloudManager:
@@ -61,7 +57,9 @@ class CloudManager:
             logger = logging.getLogger(__name__).info("☁️ Cloud Manager prêt")
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur initialisation Cloud Manager: {e}")
+            logger = logging.getLogger(__name__).error(
+                f"❌ Erreur initialisation Cloud Manager: {e}"
+            )
             raise
 
     def is_initialized(self) -> bool:
@@ -115,10 +113,14 @@ class CloudManager:
             # - AWS CLI
             # - MCP Server connections
 
-            logger = logging.getLogger(__name__).info("☁️ Configuration services cloud réels (TODO)")
+            logger = logging.getLogger(__name__).info(
+                "☁️ Configuration services cloud réels (TODO)"
+            )
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur configuration cloud: {e}")
+            logger = logging.getLogger(__name__).error(
+                f"❌ Erreur configuration cloud: {e}"
+            )
             raise
 
     async def process_command(self, command: str) -> str:
@@ -142,7 +144,9 @@ class CloudManager:
                 return await self._handle_general_cloud_query(command)
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur traitement commande cloud: {e}")
+            logger = logging.getLogger(__name__).error(
+                f"❌ Erreur traitement commande cloud: {e}"
+            )
             return f"Erreur lors du traitement de votre commande cloud: {e}"
 
     async def _handle_deployment(self, command: str) -> str:

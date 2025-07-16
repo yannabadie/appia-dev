@@ -702,7 +702,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional
 
-logger = logging.getLogger(__name__) = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 class AgentController:
     """Contrôleur pour la pause/reprise des agents JARVYS"""

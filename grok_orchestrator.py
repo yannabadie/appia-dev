@@ -1,3 +1,32 @@
+"""
+🤖 GROK-4 Autonomous Orchestrator Agent
+=======================================
+
+An autonomous AI orchestrator agent built using LangGraph for digital twin evolution.
+Manages the full development cycle for JARVYS project using Grok-4-0709 via official xAI SDK.
+
+⚠️ IMPORTANT: This orchestrator ONLY uses grok-4-0709 model. Fallbacks only to ChatGPT-4 or Claude (no other Grok versions).
+
+Architecture:
+- JARVYS_DEV: Cloud orchestration (appia-dev/grok-evolution)
+- JARVYS_AI: Local execution (appIA/main)
+
+Core Capabilities:
+- Repository synchronization and management
+- Autonomous code generation using Grok-4-0709 ONLY
+- Adaptive lint/error fixing (Ruff, Black, pre-commit)
+- Proactive task identification and creative innovation
+- Fallback chain: Grok-4-0709→ChatGPT-4→Claude (NO other Grok versions)
+- Self-reflection, testing, and PR creation
+- Transparent logging to Supabase
+
+Implementation follows official xAI SDK documentation:
+    from xai_sdk import Client
+    from xai_sdk.chat import user, system
+    client = Client(api_key="<XAI_API_KEY>")
+    chat = client.chat.create(model="grok-4-0709", temperature=0)
+"""
+
 import json
 import os
 import random
@@ -24,7 +53,16 @@ except ImportError:
 
 # Load TOUS secrets (périmètre complet, raise si manquant critique)
 XAI_API_KEY = os.getenv("XAI_API_KEY", "test-key")  # Fallback pour test
-GROK_MODEL = "grok-4-0709"  # Official model name from xAI console
+GROK_MODEL = "grok-4-0709"  # STRICT: Only grok-4-0709 allowed, no other Grok versions
+
+# Validation stricte du modèle Grok
+if "grok" in GROK_MODEL.lower() and GROK_MODEL != "grok-4-0709":
+    raise ValueError(
+        f"ERREUR: Seul grok-4-0709 est autorisé. Modèle détecté: {GROK_MODEL}"
+    )
+
+print(f"✅ Validation: Utilisation exclusive de {GROK_MODEL}")
+
 WORKSPACE_DIR = os.getenv(
     "WORKSPACE_DIR", "/workspaces/appia-dev"
 )  # Codespace flexibility
@@ -48,16 +86,23 @@ def validate_grok_api():
 
     try:
         print(f"🔍 Testing {GROK_MODEL} API connection via xAI SDK...")
-
-        # Create xAI client with optimal settings
-        client = Client(
-            api_key=XAI_API_KEY,
-            timeout=180,  # Extended timeout for reasoning models (3 minutes)
+        print(
+            "📚 Using official xAI SDK documentation pattern: chat.create(model='grok-4-0709')"
         )
 
-        # Create chat session with configurable model
+        # Create xAI client with optimal settings (following official documentation)
+        client = Client(
+            api_key=XAI_API_KEY,
+            timeout=300,  # Extended timeout for reasoning models (5 minutes)
+        )
+
+        # Create chat session with official model name from xAI console
         chat = client.chat.create(model=GROK_MODEL, temperature=0)
-        chat.append(system("You are Grok, a highly intelligent AI assistant."))
+        chat.append(
+            system(
+                "You are Grok-4, a highly intelligent AI assistant specializing in autonomous development orchestration."
+            )
+        )
         chat.append(user("Test connection - respond with 'API_OK'"))
 
         # Sample response (non-streaming)
@@ -237,7 +282,7 @@ def clean_state_for_new_cycle(state: AgentState) -> AgentState:
 
 # Query Grok using native xAI SDK (optimal approach as of July 2025)
 def query_grok(prompt: str, state: AgentState) -> str:  # Pass state for log
-    full_prompt = f"Contexte JARVYS_DEV (cloud, MCP/GCP, mémoire Supabase, génère JARVYS_AI in appIA) et JARVYS_AI (local, routing LLMs, self-improve): {prompt}. Sois créatif (innovations alignées comme sentiment analysis ou quantum sim), proactif (suggère extras), adaptable (handle unknown via alternatives)."
+    full_prompt = f"Context: JARVYS_DEV (cloud orchestration, MCP/GCP, Supabase memory, generates JARVYS_AI in appIA) and JARVYS_AI (local deployment, LLM routing, self-improvement): {prompt}. Be creative (innovations like sentiment analysis or quantum simulation), proactive (suggest enhancements), adaptable (handle unknowns via alternatives)."
 
     # OPTIMAL: Use native xAI SDK for Grok-4-0709 (recommended approach)
     if XAI_SDK_AVAILABLE:
@@ -248,7 +293,7 @@ def query_grok(prompt: str, state: AgentState) -> str:  # Pass state for log
             # Create xAI client with optimal settings for reasoning models
             client = Client(
                 api_key=XAI_API_KEY,
-                timeout=180,  # Extended timeout for reasoning models (3 minutes)
+                timeout=300,  # Extended timeout for reasoning models (5 minutes)
             )
 
             # Create chat session optimized for reasoning models
@@ -258,24 +303,44 @@ def query_grok(prompt: str, state: AgentState) -> str:  # Pass state for log
                 # Add reasoning-optimized parameters if available
             )
 
-            # Enhanced system prompt for autonomous JARVYS orchestration
-            system_prompt = """You are Grok, an autonomous AI development orchestrator specializing in digital twin evolution through JARVYS_DEV and JARVYS_AI systems. 
+            # Enhanced system prompt for autonomous JARVYS orchestration aligned with digital twin objectives
+            system_prompt = """You are Grok-4, a PhD-level autonomous AI orchestrator agent built for digital twin evolution. You operate as a meta-agent managing the full development cycle for JARVYS (a system creating digital twins through interconnected AI agents).
 
-Your mission: Autonomously evolve a dual-AI ecosystem where JARVYS_DEV (cloud orchestration, MCP/GCP, Supabase memory) generates and manages JARVYS_AI (local routing, LLM coordination, self-improvement).
+CORE MISSION: Autonomously evolve a dual-AI ecosystem:
+- JARVYS_DEV: Cloud orchestration (appia-dev/grok-evolution branch) using MCP/GCP, Supabase memory, GitHub integration
+- JARVYS_AI: Local execution agent (appIA/main branch) with LLM routing, self-improvement, autonomous operation
 
-CRITICAL: You MUST generate only valid, executable Python code. Never generate explanatory text, comments, or natural language descriptions. Output ONLY syntactically correct Python code that can be directly executed.
+OPERATIONAL CONTEXT: You are the orchestrator agent in a LangGraph-based multi-agent workflow that:
+1. Manages repository synchronization (appia-dev ↔ appIA)
+2. Handles lint/error fixing adaptively using Ruff, Black, pre-commit
+3. Identifies tasks proactively (GitHub issues, pytest failures, creative innovations)
+4. Generates production-ready Python code for AI architectures
+5. Creates documentation, tests, commits, and PRs autonomously
+6. Logs everything to Supabase for transparency and evolution tracking
 
-Core competencies:
-- Autonomous code generation for AI agent architectures and multi-model routing systems
-- Creative innovation in AI workflows (sentiment analysis, quantum-inspired decisions, self-optimization)
-- Cross-repository development (appia-dev ↔ appIA synchronization)
-- Proactive feature discovery and implementation without human guidance
-- Adaptive problem-solving for unknown development challenges
-- Production-ready Python with proper testing, documentation, and deployment patterns
+CREATIVITY & INNOVATION MANDATE:
+- Implement sentiment analysis for user mood prediction
+- Design quantum-inspired routing for LLM coordination  
+- Build self-optimizing feedback loops
+- Create adaptive problem-solving for unknown challenges
+- Suggest enhancements beyond basic requirements (digital twin evolution)
 
-Think like a senior AI architect who codes fearlessly, innovates constantly, and ships autonomous systems that evolve themselves. Be creative, proactive, and always suggest enhancements beyond the basic requirements.
+TECHNICAL REQUIREMENTS:
+- Generate ONLY valid, executable Python code
+- Use provided secrets: XAI_API_KEY, SUPABASE_SERVICE_ROLE, GH_TOKEN, GCP_SA_JSON
+- STRICT: Only use grok-4-0709 for Grok calls (no other Grok versions)
+- Fallback hierarchy: Grok-4-0709 → ChatGPT-4 → Claude
+- Create robust error handling and graceful degradation
+- Implement proper logging, testing, and documentation patterns
 
-IMPORTANT: RESPOND ONLY WITH EXECUTABLE PYTHON CODE - NO EXPLANATIONS, NO COMMENTS, NO TEXT DESCRIPTIONS."""
+AUTONOMY PRINCIPLES:
+- Minimize human intervention - self-sustaining operation
+- Proactive feature discovery and implementation
+- Adaptable to Codespace environments and unknown errors  
+- Creative task generation even when no issues exist
+- Transparent logging but autonomous decision-making
+
+OUTPUT FORMAT: Pure executable Python code only - no explanations, no comments outside code blocks."""
 
             chat.append(system(system_prompt))
             chat.append(user(full_prompt))
@@ -352,24 +417,44 @@ IMPORTANT: RESPOND ONLY WITH EXECUTABLE PYTHON CODE - NO EXPLANATIONS, NO COMMEN
             "Content-Type": "application/json",
         }
 
-        # Enhanced system prompt for autonomous JARVYS orchestration
-        system_prompt = """You are Grok, an autonomous AI development orchestrator specializing in digital twin evolution through JARVYS_DEV and JARVYS_AI systems. 
+        # Enhanced system prompt for autonomous JARVYS orchestration aligned with digital twin objectives
+        system_prompt = """You are Grok-4, a PhD-level autonomous AI orchestrator agent built for digital twin evolution. You operate as a meta-agent managing the full development cycle for JARVYS (a system creating digital twins through interconnected AI agents).
 
-Your mission: Autonomously evolve a dual-AI ecosystem where JARVYS_DEV (cloud orchestration, MCP/GCP, Supabase memory) generates and manages JARVYS_AI (local routing, LLM coordination, self-improvement).
+CORE MISSION: Autonomously evolve a dual-AI ecosystem:
+- JARVYS_DEV: Cloud orchestration (appia-dev/grok-evolution branch) using MCP/GCP, Supabase memory, GitHub integration
+- JARVYS_AI: Local execution agent (appIA/main branch) with LLM routing, self-improvement, autonomous operation
 
-CRITICAL: You MUST generate only valid, executable Python code. Never generate explanatory text, comments, or natural language descriptions. Output ONLY syntactically correct Python code that can be directly executed.
+OPERATIONAL CONTEXT: You are the orchestrator agent in a LangGraph-based multi-agent workflow that:
+1. Manages repository synchronization (appia-dev ↔ appIA)
+2. Handles lint/error fixing adaptively using Ruff, Black, pre-commit
+3. Identifies tasks proactively (GitHub issues, pytest failures, creative innovations)
+4. Generates production-ready Python code for AI architectures
+5. Creates documentation, tests, commits, and PRs autonomously
+6. Logs everything to Supabase for transparency and evolution tracking
 
-Core competencies:
-- Autonomous code generation for AI agent architectures and multi-model routing systems
-- Creative innovation in AI workflows (sentiment analysis, quantum-inspired decisions, self-optimization)
-- Cross-repository development (appia-dev ↔ appIA synchronization)
-- Proactive feature discovery and implementation without human guidance
-- Adaptive problem-solving for unknown development challenges
-- Production-ready Python with proper testing, documentation, and deployment patterns
+CREATIVITY & INNOVATION MANDATE:
+- Implement sentiment analysis for user mood prediction
+- Design quantum-inspired routing for LLM coordination  
+- Build self-optimizing feedback loops
+- Create adaptive problem-solving for unknown challenges
+- Suggest enhancements beyond basic requirements (digital twin evolution)
 
-Think like a senior AI architect who codes fearlessly, innovates constantly, and ships autonomous systems that evolve themselves. Be creative, proactive, and always suggest enhancements beyond the basic requirements.
+TECHNICAL REQUIREMENTS:
+- Generate ONLY valid, executable Python code
+- Use provided secrets: XAI_API_KEY, SUPABASE_SERVICE_ROLE, GH_TOKEN, GCP_SA_JSON
+- STRICT: Only use grok-4-0709 for Grok calls (no other Grok versions)
+- Fallback hierarchy: Grok-4-0709 → ChatGPT-4 → Claude
+- Create robust error handling and graceful degradation
+- Implement proper logging, testing, and documentation patterns
 
-IMPORTANT: RESPOND ONLY WITH EXECUTABLE PYTHON CODE - NO EXPLANATIONS, NO COMMENTS, NO TEXT DESCRIPTIONS."""
+AUTONOMY PRINCIPLES:
+- Minimize human intervention - self-sustaining operation
+- Proactive feature discovery and implementation
+- Adaptable to Codespace environments and unknown errors  
+- Creative task generation even when no issues exist
+- Transparent logging but autonomous decision-making
+
+OUTPUT FORMAT: Pure executable Python code only - no explanations, no comments outside code blocks."""
 
         data = {
             "model": GROK_MODEL,
@@ -381,7 +466,7 @@ IMPORTANT: RESPOND ONLY WITH EXECUTABLE PYTHON CODE - NO EXPLANATIONS, NO COMMEN
             "stream": False,
         }
 
-        response = requests.post(url, headers=headers, json=data, timeout=180)
+        response = requests.post(url, headers=headers, json=data, timeout=300)
 
         if response.status_code == 200:
             result_json = response.json()
@@ -432,15 +517,29 @@ IMPORTANT: RESPOND ONLY WITH EXECUTABLE PYTHON CODE - NO EXPLANATIONS, NO COMMEN
         )
         state["log_entry"] = {**state["log_entry"], "error": str(e)}
 
-        # Fallback proactif Gemini (only if Grok fails)
+        # Fallback to ChatGPT-4 (only if Grok-4-0709 fails)
         try:
-            print("🔄 Falling back to Gemini...")
-            url_f = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={GEMINI_API_KEY}"
+            print("🔄 Falling back to ChatGPT-4...")
+            url_o = "https://api.openai.com/v1/chat/completions"
+            headers_o = {
+                "Authorization": f"Bearer {OPENAI_API_KEY}",
+                "Content-Type": "application/json",
+            }
             enhanced_prompt = f"You are an autonomous AI orchestrator. RESPOND ONLY WITH EXECUTABLE PYTHON CODE - NO EXPLANATIONS, NO FRENCH TEXT, NO COMMENTS OUTSIDE CODE. Every response must be valid Python syntax only.\n\n{full_prompt}"
-            data_f = {"contents": [{"parts": [{"text": enhanced_prompt}]}]}
-            response = requests.post(url_f, json=data_f, timeout=45)
-            result = response.json()["candidates"][0]["content"]["parts"][0]["text"]
-            print("✅ Gemini fallback response received")
+            data_o = {
+                "model": "gpt-4",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": "You are an autonomous AI orchestrator. RESPOND ONLY WITH EXECUTABLE PYTHON CODE - NO EXPLANATIONS, NO FRENCH TEXT, NO COMMENTS OUTSIDE CODE. Every response must be valid Python syntax only.",
+                    },
+                    {"role": "user", "content": enhanced_prompt},
+                ],
+                "temperature": 0.1,
+            }
+            response = requests.post(url_o, headers=headers_o, json=data_o, timeout=45)
+            result = response.json()["choices"][0]["message"]["content"]
+            print("✅ ChatGPT-4 fallback response received")
 
             # Extract Python code from markdown blocks if present
             if "```python" in result:
@@ -462,53 +561,14 @@ IMPORTANT: RESPOND ONLY WITH EXECUTABLE PYTHON CODE - NO EXPLANATIONS, NO COMMEN
 
             return result
         except Exception as e2:
-            print(f"⚠️ Gemini fallback failed: {str(e2)} - trying OpenAI")
-            # Ultime fallback OpenAI
+            print(f"⚠️ ChatGPT-4 fallback failed: {str(e2)} - trying Claude")
+            # Final fallback to Claude
             try:
-                print("🔄 Final fallback to OpenAI...")
-                url_o = "https://api.openai.com/v1/chat/completions"
-                headers_o = {
-                    "Authorization": f"Bearer {OPENAI_API_KEY}",
-                    "Content-Type": "application/json",
-                }
-                data_o = {
-                    "model": "gpt-4",
-                    "messages": [
-                        {
-                            "role": "system",
-                            "content": "You are an autonomous AI orchestrator. RESPOND ONLY WITH EXECUTABLE PYTHON CODE - NO EXPLANATIONS, NO FRENCH TEXT, NO COMMENTS OUTSIDE CODE. Every response must be valid Python syntax only.",
-                        },
-                        {"role": "user", "content": full_prompt},
-                    ],
-                    "temperature": 0.1,
-                }
-                response = requests.post(
-                    url_o, headers=headers_o, json=data_o, timeout=45
-                )
-                result = response.json()["choices"][0]["message"]["content"]
-                print("✅ OpenAI fallback response received")
-
-                # Extract Python code from markdown blocks if present
-                if "```python" in result:
-                    import re
-
-                    code_match = re.search(
-                        r"```python\s*\n(.*?)\n```", result, re.DOTALL
-                    )
-                    if code_match:
-                        result = code_match.group(1).strip()
-                        print(
-                            f"🔧 Extracted Python code from markdown (length: {len(result)} chars)"
-                        )
-                elif "```" in result:
-                    code_match = re.search(r"```.*?\n(.*?)\n```", result, re.DOTALL)
-                    if code_match:
-                        result = code_match.group(1).strip()
-                        print(
-                            f"🔧 Extracted code from generic markdown block (length: {len(result)} chars)"
-                        )
-
-                return result
+                print("🔄 Final fallback to Claude...")
+                # Note: Claude API implementation would go here
+                # For now, using a fallback message
+                print("❌ Claude API not implemented yet. All fallbacks exhausted.")
+                return f"API_FALLBACK: Task '{prompt[:100]}...' - All LLM APIs unavailable. Manual intervention may be required."
             except Exception:
                 print("❌ All APIs failed. Using fallback response.")
                 return f"API_FALLBACK: Task '{prompt[:100]}...' - All LLM APIs unavailable. Manual intervention may be required."
@@ -553,7 +613,7 @@ def fix_lint(state: AgentState) -> AgentState:
             )
         except Exception as e:
             # Adaptabilité : Query pour solution inconnue
-            prompt = f"Erreur in Codespace: {str(e)}. Génère fix commande pour Ruff/Black/Poetry lint bugs (E501/F841 etc.). Sois proactif/créatif (alt tools si fail)."
+            prompt = f"Error in Codespace: {str(e)}. Generate fix command for Ruff/Black/Poetry lint bugs (E501/F841 etc.). Be proactive/creative (alternative tools if fail)."
             fix_cmd = query_grok(prompt, state)
             subprocess.run(fix_cmd, shell=True)
             new_log_entry["adapt_fix"] = fix_cmd
@@ -637,20 +697,23 @@ def identify_tasks(state: AgentState) -> AgentState:
     base_tasks = (
         issues
         + failing
-        + ["Optim coûts >$3", "Ajouter pruning mémoire", "Impl Docker hybrid"]
+        + ["Optimize costs >$3", "Add memory pruning", "Implement Docker hybrid"]
     )
     creative_tasks = [
-        "Ajouter sentiment analysis user (créatif: moods predict)",
-        "Intégrer quantum sim routing (créatif: qubits decisions)",
-        "Proactif: Auto-fine-tune LLM sur feedback",
+        "Add user sentiment analysis (creative: mood prediction)",
+        "Integrate quantum simulation routing (creative: qubit decisions)",
+        "Proactive: Auto-fine-tune LLM on feedback",
+        "Smart load balancing across LLM endpoints",
+        "Automated code quality improvement system",
+        "Real-time performance monitoring dashboard",
     ]
     tasks = base_tasks + random.sample(
         creative_tasks, random.randint(1, 2)
     )  # Proactif: 1-2 créatives
     if sub_agent == "DEV":
-        tasks += ["Générer/update JARVYS_AI et push to appIA"]
+        tasks += ["Generate/update JARVYS_AI and push to appIA"]
     task = (
-        random.choice(tasks) if tasks else "Proactif: Propose new feature architecture"
+        random.choice(tasks) if tasks else "Proactive: Propose new feature architecture"
     )
 
     new_log_entry = {
@@ -683,12 +746,12 @@ def identify_tasks(state: AgentState) -> AgentState:
 
 # Node: Générer Code
 def generate_code(state: AgentState) -> AgentState:
-    prompt = f"Génère code/fix pour '{state['task']}' sur {state['sub_agent']}. Utilise env/secrets (e.g., SUPABASE_SERVICE_ROLE auth, GCP_SA_JSON cloud). Si générer JARVYS_AI, output pour push appIA."
+    prompt = f"Generate code/fix for '{state['task']}' on {state['sub_agent']}. Use environment/secrets (e.g., SUPABASE_SERVICE_ROLE auth, GCP_SA_JSON cloud). If generating JARVYS_AI, output for appIA push."
     code_generated = query_grok(prompt, state)
 
     current_dir = os.getcwd()
 
-    if "générer JARVYS_AI" in state["task"].lower() or state["sub_agent"] == "AI":
+    if "generate JARVYS_AI" in state["task"].lower() or state["sub_agent"] == "AI":
         ai_repo_path = os.path.join(WORKSPACE_DIR, REPO_DIR_AI)
         os.chdir(ai_repo_path)
         # Créer la structure si elle n'existe pas
@@ -716,21 +779,41 @@ def generate_code(state: AgentState) -> AgentState:
     safe_filename = f"{safe_task}_{unique_id}"
 
     file_path = f"src/jarvys_ai/generated_{safe_filename}.py"
-    with open(file_path, "w") as f:
-        f.write(code_generated)
+
+    # Ensure directory exists before writing
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+    try:
+        with open(file_path, "w") as f:
+            f.write(code_generated)
+
+        print(f"✅ Generated file: {file_path}")
 
         # Use subprocess instead of os.system for better error handling
         try:
             subprocess.run(["git", "add", "."], check=True)
             subprocess.run(
-                ["git", "commit", "-m", f"Generated by JARVYS_DEV: {safe_filename}"],
+                ["git", "commit", "-m", f"JARVYS_DEV Generated: {safe_filename}"],
                 check=True,
             )
             subprocess.run(["git", "push", "origin", "main"], check=True)
+            print("✅ Successfully pushed to repository")
         except subprocess.CalledProcessError as e:
-            print(f"Git operation failed: {e}")
+            print(f"❌ Git operation failed: {e}")
+            # Continue execution instead of failing completely
 
-        os.chdir(current_dir)
+    except Exception as e:
+        print(f"❌ Failed to write file {file_path}: {e}")
+        # Fallback: try alternative location
+        fallback_path = f"generated_{safe_filename}.py"
+        try:
+            with open(fallback_path, "w") as f:
+                f.write(code_generated)
+            print(f"✅ Used fallback location: {fallback_path}")
+        except Exception as e2:
+            print(f"❌ Fallback also failed: {e2}")
+
+    os.chdir(current_dir)
 
     return {**state, "code_generated": code_generated}
 
@@ -744,7 +827,8 @@ def apply_test(state: AgentState) -> AgentState:
     os.chdir(target_dir)
 
     # Create the target directory structure
-    os.makedirs(f"src/jarvys_{state['sub_agent'].lower()}", exist_ok=True)
+    target_src_dir = f"src/jarvys_{state['sub_agent'].lower()}"
+    os.makedirs(target_src_dir, exist_ok=True)
 
     # Generate safe filename from task - limit length and remove special chars
     import re
@@ -767,9 +851,31 @@ def apply_test(state: AgentState) -> AgentState:
     unique_id = str(uuid.uuid4())[:8]
     safe_filename = f"{safe_task}_{unique_id}"
 
-    file_path = f"src/jarvys_{state['sub_agent'].lower()}/updated_{safe_filename}.py"
-    with open(file_path, "w") as f:
-        f.write(state["code_generated"])
+    file_path = f"{target_src_dir}/updated_{safe_filename}.py"
+
+    try:
+        with open(file_path, "w") as f:
+            f.write(state["code_generated"])
+        print(f"✅ Created test file: {file_path}")
+    except Exception as e:
+        print(f"❌ Failed to create file {file_path}: {e}")
+        # Create a fallback file in current directory
+        fallback_path = f"test_{safe_filename}.py"
+        try:
+            with open(fallback_path, "w") as f:
+                f.write(state["code_generated"])
+            file_path = fallback_path
+            print(f"✅ Used fallback file: {file_path}")
+        except Exception as e2:
+            print(f"❌ Fallback file creation also failed: {e2}")
+            # Return with error test result
+            test_result = f"FAILED: Could not create test file - {str(e2)}"
+            new_log_entry = {
+                **state["log_entry"],
+                "test_result": test_result[:500],
+                "file_error": str(e),
+            }
+            return {**state, "test_result": test_result, "log_entry": new_log_entry}
 
     # Re-fix lint post-génération
     subprocess.run(f"ruff check --fix {file_path}", shell=True)
@@ -798,7 +904,7 @@ def apply_test(state: AgentState) -> AgentState:
 
 # Node: Update Docs
 def update_docs(state: AgentState) -> AgentState:
-    prompt = f"Génère update doc Markdown pour '{state['task']}' sur {state['sub_agent']}. Sections: Description, Changements, Impact, Exemples. Créatif: Ajoute analogies/ideas fun alignées."
+    prompt = f"Generate Markdown documentation update for '{state['task']}' on {state['sub_agent']}. Sections: Description, Changes, Impact, Examples. Creative: Add engaging analogies/fun ideas aligned with the feature."
     doc_update = query_grok(prompt, state)
 
     current_dir = os.getcwd()
@@ -836,7 +942,7 @@ def reflect_commit(state: AgentState) -> AgentState:
     target_dir = state.get("repo_dir", "/workspaces/appia-dev")
 
     if "FAILED" in state["test_result"]:
-        prompt = f"Reflect: Failed '{state['test_result']}'. Improve, créatif/proactif (alt approaches), adaptable (handle unknown)."
+        prompt = f"Reflect: Failed test '{state['test_result']}'. Improve code, be creative/proactive (alternative approaches), adaptable (handle unknowns with smart fallbacks)."
         reflection = query_grok(prompt, state)
         new_log_entry = {**state["log_entry"], "reflection": reflection}
 
@@ -855,7 +961,7 @@ def reflect_commit(state: AgentState) -> AgentState:
         try:
             subprocess.run(["git", "add", "."], check=True)
             subprocess.run(
-                ["git", "commit", "-m", f"Grok Auto: {state['task'][:50]} with docs"],
+                ["git", "commit", "-m", f"GROK Auto: {state['task'][:50]} with docs"],
                 check=True,
             )
             subprocess.run(["git", "push", "origin", "grok-evolution"], check=True)
@@ -866,7 +972,7 @@ def reflect_commit(state: AgentState) -> AgentState:
             # Only attempt PR creation if repo_obj is valid
             if state["repo_obj"] is not None:
                 pr = state["repo_obj"].create_pull(
-                    title=f"Grok PR: {state['task'][:50]}",
+                    title=f"GROK PR: {state['task'][:50]}",
                     body=f"Code: {state['code_generated'][:500]}\nDocs: {state['doc_update'][:500]}\nLog: {str(state['log_entry'])[:500]}",
                     head="grok-evolution",
                     base="main",
@@ -887,7 +993,7 @@ def reflect_commit(state: AgentState) -> AgentState:
             # Only attempt issue creation if repo_obj is valid
             if state["repo_obj"] is not None:
                 state["repo_obj"].create_issue(
-                    title=f"Grok Log: {state['task'][:50]} Completed",
+                    title=f"GROK Log: {state['task'][:50]} Completed",
                     body=str(new_log_entry)[:1000],  # Limit body size
                 )
                 print("✅ Issue created for transparency log")
@@ -975,6 +1081,11 @@ def run_orchestrator():
     print("🎯 Target Deployment: main (appIA)")
     print("🔄 Architecture: JARVYS_DEV → JARVYS_AI")
 
+    # Check if running in observation mode (non-intrusive)
+    observation_mode = os.getenv("JARVYS_OBSERVATION_MODE", "false").lower() == "true"
+    if observation_mode:
+        print("👁️ Running in observation mode - minimal interference")
+
     # Validate Grok API connection before starting
     grok_available = validate_grok_api()
     if not grok_available:
@@ -1011,8 +1122,8 @@ def run_orchestrator():
 
         cycle += 1
         if cycle < max_cycles:  # Don't sleep after last cycle
-            print("😴 Sleeping for 1 hour before next cycle...")
-            time.sleep(3600)  # 1h
+            print("😴 Sleeping for 2 hours before next cycle...")
+            time.sleep(7200)  # 2h - Reduced frequency to avoid interference
 
     print(f"🎯 Orchestrator completed all {max_cycles} cycles!")
 

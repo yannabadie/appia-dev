@@ -83,7 +83,7 @@ from typing import Dict, Any
 import os
 from datetime import datetime
 
-logger = logging.getLogger(__name__) = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 class AgentController:
     '''Contrôleur pour pause/reprise de l'agent'''
@@ -263,7 +263,7 @@ import functools
 from datetime import datetime
 from typing import Any, Callable, Optional
 
-logger = logging.getLogger(__name__) = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 def log_exceptions(
     log_to_memory: bool = True,
