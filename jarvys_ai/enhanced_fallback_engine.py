@@ -35,30 +35,26 @@ class EnhancedFallbackEngine:
 
     def __init__(self, config: Dict[str, Any] = None):
         """Initialize the enhanced fallback engine"""
-        self.config = config = {}
+        self.config = {}
         self.is_monitoring = False
 
         # GitHub configuration
-        self.github_token = config = {}.get("github_token")
-        self.repo_owner = config = {}.get("repo_owner", "yannabadie")
-        self.repo_name = config = {}.get("repo_name", "appIA")
+        self.github_token = {}.get("github_token")
+        self.repo_owner = {}.get("repo_owner", "yannabadie")
+        self.repo_name = {}.get("repo_name", "appIA")
 
         # Cloud Run configuration
-        self.project_id = config = {}.get("gcp_project_id")
-        self.region = config = {}.get("gcp_region", "us-central1")
-        self.service_name = config = {}.get("service_name", "jarvys-ai-fallback")
+        self.project_id = {}.get("gcp_project_id")
+        self.region = {}.get("gcp_region", "us-central1")
+        self.service_name = {}.get("service_name", "jarvys-ai-fallback")
 
         # Quota thresholds
-        self.quota_warning_threshold = config = {}.get(
-            "quota_warning_threshold", 80
-        )  # 80%
-        self.quota_critical_threshold = config = {}.get(
-            "quota_critical_threshold", 95
-        )  # 95%
+        self.quota_warning_threshold = {}.get("quota_warning_threshold", 80)  # 80%
+        self.quota_critical_threshold = {}.get("quota_critical_threshold", 95)  # 95%
 
         # Monitoring configuration
-        self.check_interval = config = {}.get("check_interval_minutes", 30)
-        self.deployment_timeout = config = {}.get("deployment_timeout_minutes", 10)
+        self.check_interval = {}.get("check_interval_minutes", 30)
+        self.deployment_timeout = {}.get("deployment_timeout_minutes", 10)
 
         # State tracking
         self.current_quota_usage = 0
@@ -690,14 +686,6 @@ echo "🌐 Service URL: $SERVICE_URL"
 # Demo usage
 async def demo_fallback_engine():
     """Demonstrate the enhanced fallback engine"""
-    config = {
-        "gcp_project_id": "your-project-id",  # Set to None for demo mode
-        "gcp_region": "us-central1",
-        "service_name": "jarvys-ai-fallback",
-        "quota_warning_threshold": 70,
-        "quota_critical_threshold": 90,
-        "check_interval_minutes": 1,  # Faster for demo
-    }
 
     engine = EnhancedFallbackEngine(config={})
 

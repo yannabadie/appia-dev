@@ -1,8 +1,3 @@
-import os
-import sys
-import time
-from typing import Any, Dict, List, Optional
-
 #!/usr/bin/env python3
 """
 🧪 Simulateur et testeur de workflow GitHub Actions
@@ -25,7 +20,6 @@ def test_generate_wiki_docs():
         )
 
         result = None  # Initialize
-
 
         if result and result.returncode == 0:
             print("✅ Génération Wiki réussie")
@@ -54,7 +48,6 @@ def test_poetry_installation():
         )
 
         result = None  # Initialize
-
 
         if result and result.returncode == 0:
             print("✅ Installation Poetry réussie (simulation workflow)")

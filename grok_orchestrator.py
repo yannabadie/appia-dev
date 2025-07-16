@@ -94,20 +94,18 @@ for dir_path, repo_url, branch in [
         subprocess.run(["git", "pull", "origin", "grok-evolution"], check=True)
 
 
-# État (TypedDict avec reducers pour éviter InvalidUpdateError)
+# État (TypedDict avec reducers appropriés pour éviter InvalidUpdateError)
 class AgentState(TypedDict):
-    task: str
-    sub_agent: str
-    repo_dir: str
-    repo_obj: object
-    code_generated: str
-    test_result: str
-    reflection: str
-    doc_update: str
-    log_entry: Annotated[
-        dict, operator.setitem
-    ]  # Reducer for dict updates (overrides keys)
-    lint_fixed: bool
+    task: Annotated[str, operator.add]  # Utiliser add comme reducer
+    sub_agent: Annotated[str, lambda x, y: y]  # Prendre la dernière valeur
+    repo_dir: Annotated[str, lambda x, y: y]
+    repo_obj: Annotated[object, lambda x, y: y]
+    code_generated: Annotated[str, lambda x, y: y]
+    test_result: Annotated[str, lambda x, y: y]
+    reflection: Annotated[str, lambda x, y: y]
+    doc_update: Annotated[str, lambda x, y: y]
+    log_entry: Annotated[dict, lambda x, y: {**x, **y}]  # Merge dicts
+    lint_fixed: Annotated[bool, lambda x, y: y]
 
 
 # Query Grok (créativité temp=0.5, fallback multi-LLMs pour adaptabilité)
@@ -157,56 +155,58 @@ def fix_lint(state: AgentState) -> AgentState:
         "poetry run black .",
         (
             "pre-commit run --all-files"
-            if os.path.exists(".pre-commit-config = {}.yaml")
+            if os.path.exists(".pre-commit-config.yaml")
             else "echo 'No pre-commit'"
         ),
         "poetry install --with dev",  # Fix Poetry env issues
     ]
+
+    # Créer un nouveau log_entry au lieu de modifier en place
+    new_log_entry = state["log_entry"].copy()
+
     for cmd in commands:
         try:
             output = subprocess.run(
                 cmd, shell=True, capture_output=True, text=True
             ).stdout
-            state["log_entry"] = {
-                **state["log_entry"],
-                "lint_output": state["log_entry"].get("lint_output", "")
-                + output[:200]
-                + "\n",
-            }
+            new_log_entry["lint_output"] = (
+                new_log_entry.get("lint_output", "") + output[:200] + "\n"
+            )
         except Exception as e:
             # Adaptabilité : Query pour solution inconnue
             prompt = f"Erreur in Codespace: {str(e)}. Génère fix commande pour Ruff/Black/Poetry lint bugs (E501/F841 etc.). Sois proactif/créatif (alt tools si fail)."
             fix_cmd = query_grok(prompt, state)
             subprocess.run(fix_cmd, shell=True)
-            state["log_entry"] = {**state["log_entry"], "adapt_fix": fix_cmd}
+            new_log_entry["adapt_fix"] = fix_cmd
 
     # Vérif
     check = subprocess.run(
         "ruff check .", shell=True, capture_output=True, text=True
     ).stdout
-    state["lint_fixed"] = "no issues" in check.lower()
+    lint_fixed = "no issues" in check.lower()
 
     # Log Supabase (no auth call; client = None uses key)
     try:
-        supabase.table("logs").insert(state["log_entry"]).execute()
+        supabase.table("logs").insert(new_log_entry).execute()
     except Exception as db_e:
         print(f"Supabase insert failed: {db_e} – using local log fallback")
         with open("local_logs.json", "a") as f:
-            json.dump(state["log_entry"], f)
+            json.dump(new_log_entry, f)
 
-    return state
+    # Retourner un nouvel état au lieu de modifier en place
+    return {**state, "log_entry": new_log_entry, "lint_fixed": lint_fixed}
 
 
 # Node: Identifier Tâches (proactif : base + créatives aléatoires)
 def identify_tasks(state: AgentState) -> AgentState:
     is_ai = random.choice([True, False])
-    state["repo_dir"] = REPO_DIR_AI if is_ai else REPO_DIR_DEV
-    state["repo_obj"] = repo_ai if is_ai else repo_dev
-    state["sub_agent"] = "AI" if is_ai else "DEV"
+    repo_dir = REPO_DIR_AI if is_ai else REPO_DIR_DEV
+    repo_obj = repo_ai if is_ai else repo_dev
+    sub_agent = "AI" if is_ai else "DEV"
 
-    os.chdir(state["repo_dir"])
+    os.chdir(repo_dir)
 
-    issues = [i.title for i in state["repo_obj"].get_issues(state="open")]
+    issues = [i.title for i in repo_obj.get_issues(state="open")]
     test_output = subprocess.run(
         "pytest -q", shell=True, capture_output=True, text=True
     ).stdout
@@ -224,33 +224,41 @@ def identify_tasks(state: AgentState) -> AgentState:
     tasks = base_tasks + random.sample(
         creative_tasks, random.randint(1, 2)
     )  # Proactif: 1-2 créatives
-    if state["sub_agent"] == "DEV":
+    if sub_agent == "DEV":
         tasks += ["Générer/update JARVYS_AI et push to appIA"]
-    state["task"] = (
+    task = (
         random.choice(tasks) if tasks else "Proactif: Propose new feature architecture"
     )
 
-    state["log_entry"] = {
+    new_log_entry = {
         **state["log_entry"],
-        "task": state["task"],
-        "repo": state["sub_agent"],
+        "task": task,
+        "repo": sub_agent,
         "status": "identified",
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
     }
+
     try:
-        supabase.table("logs").insert(state["log_entry"]).execute()
+        supabase.table("logs").insert(new_log_entry).execute()
     except Exception as db_e:
         print(f"Supabase insert failed: {db_e} – using local log fallback")
         with open("local_logs.json", "a") as f:
-            json.dump(state["log_entry"], f)
+            json.dump(new_log_entry, f)
 
-    return state
+    return {
+        **state,
+        "task": task,
+        "repo_dir": repo_dir,
+        "repo_obj": repo_obj,
+        "sub_agent": sub_agent,
+        "log_entry": new_log_entry,
+    }
 
 
 # Node: Générer Code
 def generate_code(state: AgentState) -> AgentState:
     prompt = f"Génère code/fix pour '{state['task']}' sur {state['sub_agent']}. Utilise env/secrets (e.g., SUPABASE_SERVICE_ROLE auth, GCP_SA_JSON cloud). Si générer JARVYS_AI, output pour push appIA."
-    state["code_generated"] = query_grok(prompt, state)
+    code_generated = query_grok(prompt, state)
 
     if "générer JARVYS_AI" in state["task"].lower() or state["sub_agent"] == "AI":
         os.chdir(REPO_DIR_AI)
@@ -258,13 +266,13 @@ def generate_code(state: AgentState) -> AgentState:
         os.makedirs("src/jarvys_ai", exist_ok=True)
         file_path = f"src/jarvys_ai/generated_{state['task'].replace(' ', '_')}.py"
         with open(file_path, "w") as f:
-            f.write(state["code_generated"])
+            f.write(code_generated)
         os.system(
             f"git add . && git commit -m 'Generated by JARVYS_DEV: {state['task']}' && git push origin main"
         )
         os.chdir("/workspaces/appia-dev")
 
-    return state
+    return {**state, "code_generated": code_generated}
 
 
 # Node: Appliquer & Tester
@@ -276,65 +284,66 @@ def apply_test(state: AgentState) -> AgentState:
     # Re-fix lint post-génération
     subprocess.run(f"ruff check --fix {file_path}", shell=True)
 
-    state["test_result"] = subprocess.run(
+    test_result = subprocess.run(
         f"pytest {file_path}", shell=True, capture_output=True, text=True
     ).stdout
-    state["log_entry"] = {
+
+    new_log_entry = {
         **state["log_entry"],
-        "test_result": state["test_result"][:500],
+        "test_result": test_result[:500],
     }
+
     try:
-        supabase.table("logs").update(state["log_entry"]).eq(
-            "task", state["task"]
-        ).execute()
+        supabase.table("logs").update(new_log_entry).eq("task", state["task"]).execute()
     except Exception as db_e:
         print(f"Supabase update failed: {db_e} – using local log fallback")
         with open("local_logs.json", "a") as f:
-            json.dump(state["log_entry"], f)
+            json.dump(new_log_entry, f)
 
-    return state
+    return {**state, "test_result": test_result, "log_entry": new_log_entry}
 
 
 # Node: Update Docs
 def update_docs(state: AgentState) -> AgentState:
     prompt = f"Génère update doc Markdown pour '{state['task']}' sur {state['sub_agent']}. Sections: Description, Changements, Impact, Exemples. Créatif: Ajoute analogies/ideas fun alignées."
-    state["doc_update"] = query_grok(prompt, state)
+    doc_update = query_grok(prompt, state)
 
     with open("README.md", "a") as f:
         f.write(
-            f"\n## Update: {state['task']} ({time.strftime('%Y-%m-%d')})\n{state['doc_update']}\n"
+            f"\n## Update: {state['task']} ({time.strftime('%Y-%m-%d')})\n{doc_update}\n"
         )
 
     os.system("git add README.md")
-    state["log_entry"] = {**state["log_entry"], "doc_update": state["doc_update"][:500]}
+
+    new_log_entry = {**state["log_entry"], "doc_update": doc_update[:500]}
+
     try:
-        supabase.table("logs").update(state["log_entry"]).eq(
-            "task", state["task"]
-        ).execute()
+        supabase.table("logs").update(new_log_entry).eq("task", state["task"]).execute()
     except Exception as db_e:
         print(f"Supabase update failed: {db_e} – using local log fallback")
         with open("local_logs.json", "a") as f:
-            json.dump(state["log_entry"], f)
+            json.dump(new_log_entry, f)
 
-    return state
+    return {**state, "doc_update": doc_update, "log_entry": new_log_entry}
 
 
 # Node: Self-Reflect & Commit/PR
 def reflect_commit(state: AgentState) -> AgentState:
     if "FAILED" in state["test_result"]:
         prompt = f"Reflect: Failed '{state['test_result']}'. Improve, créatif/proactif (alt approaches), adaptable (handle unknown)."
-        state["reflection"] = query_grok(prompt, state)
-        state["log_entry"] = {**state["log_entry"], "reflection": state["reflection"]}
+        reflection = query_grok(prompt, state)
+        new_log_entry = {**state["log_entry"], "reflection": reflection}
+
         try:
-            supabase.table("logs").update(state["log_entry"]).eq(
+            supabase.table("logs").update(new_log_entry).eq(
                 "task", state["task"]
             ).execute()
         except Exception as db_e:
             print(f"Supabase update failed: {db_e} – using local log fallback")
             with open("local_logs.json", "a") as f:
-                json.dump(state["log_entry"], f)
-        # FIX: Return state instead of dict
-        return state
+                json.dump(new_log_entry, f)
+
+        return {**state, "reflection": reflection, "log_entry": new_log_entry}
     else:
         os.system(
             f"git add . && git commit -m 'Grok Auto: {state['task']} with docs' && git push origin grok-evolution"
@@ -345,24 +354,26 @@ def reflect_commit(state: AgentState) -> AgentState:
             head="grok-evolution",
             base="main",
         )
-        state["log_entry"] = {**state["log_entry"], "pr_url": pr.html_url}
+
+        new_log_entry = {**state["log_entry"], "pr_url": pr.html_url}
 
         # Transparence: Créer issue avec full log
         state["repo_obj"].create_issue(
-            title=f"Grok Log: {state['task']} Completed", body=str(state["log_entry"])
+            title=f"Grok Log: {state['task']} Completed", body=str(new_log_entry)
         )
 
-        state["log_entry"] = {**state["log_entry"], "status": "completed"}
+        new_log_entry = {**new_log_entry, "status": "completed"}
+
         try:
-            supabase.table("logs").update(state["log_entry"]).eq(
+            supabase.table("logs").update(new_log_entry).eq(
                 "task", state["task"]
             ).execute()
         except Exception as db_e:
             print(f"Supabase update failed: {db_e} – using local log fallback")
             with open("local_logs.json", "a") as f:
-                json.dump(state["log_entry"], f)
+                json.dump(new_log_entry, f)
 
-    return state
+        return {**state, "log_entry": new_log_entry}
 
 
 # Build Graph

@@ -28,7 +28,7 @@ class EmailManager:
 
     def __init__(self, config: Dict[str, Any] = None):
         """Initialiser le gestionnaire d'emails"""
-        self.config = config = {}
+        self.config = {}
         self.is_initialized = False
 
         # Configuration par défaut
@@ -37,7 +37,7 @@ class EmailManager:
         self.templates = {}
 
         # Simulation pour demo
-        self.demo_mode = config = {}.get("demo_mode", True)
+        self.demo_mode = {}.get("demo_mode", True)
 
         logger.info("📧 Email Manager initialisé")
 

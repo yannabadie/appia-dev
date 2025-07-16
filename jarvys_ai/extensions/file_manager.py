@@ -28,7 +28,7 @@ class FileManager:
 
     def __init__(self, config: Dict[str, Any] = None):
         """Initialiser le gestionnaire de fichiers"""
-        self.config = config = {}
+        self.config = {}
         self.is_initialized = False
 
         # Répertoires de travail
@@ -51,7 +51,7 @@ class FileManager:
         self.file_index = {}
 
         # Simulation pour démo
-        self.demo_mode = config = {}.get("demo_mode", True)
+        self.demo_mode = {}.get("demo_mode", True)
 
         logger.info("📁 File Manager initialisé")
 

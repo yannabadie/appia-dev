@@ -1,6 +1,3 @@
-import sys
-from typing import Any, Dict, List, Optional
-
 """Verify API access for local and cloud contexts and populate Supabase."""
 
 from __future__ import annotations

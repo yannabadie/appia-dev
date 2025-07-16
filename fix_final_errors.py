@@ -93,7 +93,7 @@ def main():
     print("Correction des dernières erreurs F821...")
 
     # Obtenir la liste des erreurs
-    errors_output = get_f821_errors()
+    get_f821_errors()
     print("Analyse des erreurs F821...")
 
     # Compter les erreurs avant

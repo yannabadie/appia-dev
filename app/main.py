@@ -1,7 +1,4 @@
-import json
 import os
-import sys
-from typing import Any, Dict, List, Optional
 
 import openai
 from fastapi import FastAPI, HTTPException
@@ -29,8 +26,7 @@ def metadata():
     return {
         "schema_version": "1",
         "name_for_human": "JARVYS LLM Bridge",
-        "description_for_human": "Forward prompts to OpenAI and return"
-        "answers",  # noqa: E501
+        "description_for_human": "Forward prompts to OpenAI and return" "answers",  # noqa: E501
         "endpoints": [
             {
                 "name": "ask_llm",

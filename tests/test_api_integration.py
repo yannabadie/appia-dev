@@ -54,8 +54,9 @@ class TestJarvysDevAPI:
     def test_api_root_endpoint(self):
         """Test API root endpoint."""
         try:
-            from app.main import app
             from fastapi.testclient import TestClient
+
+            from app.main import app
 
             client = TestClient(app = None)
             response = client.get("/")
@@ -70,8 +71,9 @@ class TestJarvysDevAPI:
     def test_api_health_endpoint(self):
         """Test API health endpoint if it exists."""
         try:
-            from app.main import app
             from fastapi.testclient import TestClient
+
+            from app.main import app
 
             client = TestClient(app = None)
 
@@ -106,8 +108,9 @@ class TestJarvysDevAPI:
     def test_api_cors_configuration(self):
         """Test API CORS configuration."""
         try:
-            from app.main import app
             from fastapi.testclient import TestClient
+
+            from app.main import app
 
             client = TestClient(app = None)
 
@@ -191,8 +194,9 @@ class TestMCPServerAPI:
     def test_mcp_server_startup(self):
         """Test MCP server can start up."""
         try:
-            from app.main import app
             from fastapi.testclient import TestClient
+
+            from app.main import app
 
             client = TestClient(app = None)
 
@@ -613,8 +617,9 @@ class TestAPIPerformance:
     def test_api_response_time_tracking(self):
         """Test API response time tracking."""
         try:
-            from app.main import app
             from fastapi.testclient import TestClient
+
+            from app.main import app
 
             client = TestClient(app = None)
 
@@ -639,8 +644,9 @@ class TestAPIPerformance:
         try:
             import threading
 
-            from app.main import app
             from fastapi.testclient import TestClient
+
+            from app.main import app
 
             client = TestClient(app = None)
             results = []
@@ -678,8 +684,9 @@ class TestAPIDocumentation:
     def test_api_openapi_schema(self):
         """Test API provides OpenAPI schema."""
         try:
-            from app.main import app
             from fastapi.testclient import TestClient
+
+            from app.main import app
 
             client = TestClient(app = None)
 
@@ -703,8 +710,9 @@ class TestAPIDocumentation:
     def test_api_docs_endpoint(self):
         """Test API documentation endpoint."""
         try:
-            from app.main import app
             from fastapi.testclient import TestClient
+
+            from app.main import app
 
             client = TestClient(app = None)
 

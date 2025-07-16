@@ -1,6 +1,3 @@
-import sys
-from typing import Any, Dict, List, Optional
-
 """Test connectivity to external services for JARVYS ecosystem."""
 
 import json

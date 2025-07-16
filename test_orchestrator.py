@@ -60,7 +60,7 @@ def test_orchestrator():
         # Import sans exécution
         import importlib.util
 
-        spec = importlib.util.spec_from_file_location(
+        importlib.util.spec_from_file_location(
             "grok_orchestrator", "grok_orchestrator.py"
         )
         # Ne pas exécuter le module, juste vérifier qu'il se compile

@@ -77,9 +77,7 @@ class JarvysDeploymentPackager:
 
     def _copy_jarvys_ai_core(self, package_path: Path):
         """Copy JARVYS_AI core modules"""
-        logger = logging.getLogger(__name__).info(
-            "📁 Copying JARVYS_AI core modules..."
-        )
+        logging.getLogger(__name__).info("📁 Copying JARVYS_AI core modules...")
 
         jarvys_target = package_path / "jarvys_ai"
         jarvys_target.mkdir(exist_ok=True)

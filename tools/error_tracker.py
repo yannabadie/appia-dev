@@ -4,7 +4,6 @@ import json
 import os
 import re
 import sys
-import time
 from collections import Counter, defaultdict
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta

@@ -118,9 +118,9 @@ class TestCloudBuildDeployment:
             pytest.skip("cloudbuild.yaml not found")
 
         with open(cloudbuild_file) as f:
-            config = yaml.safe_load(f)
+            yaml.safe_load(f)
 
-        steps = config = {}.get("steps", [])
+        steps = {}.get("steps", [])
 
         for i, step in enumerate(steps):
             assert "name" in step, f"Step {i} should have 'name'"
