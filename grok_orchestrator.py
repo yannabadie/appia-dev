@@ -930,7 +930,6 @@ def cleanup_problematic_files():
                 or "🤖" in file
                 or ":" in file
             ):  # Known problematic patterns
-
                 file_path = os.path.join(root, file)
                 try:
                     os.remove(file_path)
