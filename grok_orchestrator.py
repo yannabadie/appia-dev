@@ -71,10 +71,10 @@ print(f"✅ Validation: Utilisation exclusive de {GROK_MODEL}")
 WORKSPACE_DIR = os.getenv(
     "WORKSPACE_DIR", "/workspaces/appia-dev"
 )  # Codespace flexibility
-GH_TOKEN = os.getenv("GITHUB_TOKEN") or os.getenv("GH_TOKEN")
+GH_TOKEN = os.getenv("GH_TOKEN")
 
 if not GH_TOKEN:
-    raise ValueError("⚠️ GITHUB_TOKEN manquant - Requis pour l'orchestrateur autonome")
+    raise ValueError("⚠️ GH_TOKEN manquant - Requis pour l'orchestrateur autonome")
 
 # Other environment variables
 GH_REPO_DEV = os.getenv("GH_REPO_DEV", "yannabadie/appia-dev")
@@ -177,7 +177,8 @@ def validate_grok_api():
     try:
         print(f"🔍 Testing {GROK_MODEL} API connection via xAI SDK...")
         print(
-            "📚 Using official xAI SDK documentation pattern: chat.create(model='grok-4-0709')"
+            "📚 Using official xAI SDK documentation pattern: "
+            "chat.create(model='grok-4-0709')"
         )
 
         # Create xAI client with optimal settings (following official documentation)
@@ -190,7 +191,8 @@ def validate_grok_api():
         chat = client.chat.create(model=GROK_MODEL, temperature=0)
         chat.append(
             system(
-                "You are Grok-4, a highly intelligent AI assistant specializing in autonomous development orchestration."
+                "You are Grok-4, a highly intelligent AI assistant "
+                "specializing in autonomous development orchestration."
             )
         )
         chat.append(user("Test connection - respond with 'API_OK'"))
@@ -233,7 +235,8 @@ def validate_claude_api():
 
         client = anthropic.Anthropic(api_key=CLAUDE_API_KEY)
 
-        # Test with Claude 4 Sonnet (best balance of capability and speed for code validation)
+        # Test with Claude 4 Sonnet (best balance of capability and speed
+        # for code validation)
         model = CLAUDE_MODELS.get("sonnet", "claude-3-haiku-20240307")
 
         response = client.messages.create(
@@ -243,7 +246,10 @@ def validate_claude_api():
             messages=[
                 {
                     "role": "user",
-                    "content": "Test connection - respond with 'CLAUDE_4_API_OK' and mention your model version",
+                    "content": (
+                        "Test connection - respond with 'CLAUDE_4_API_OK' "
+                        "and mention your model version"
+                    ),
                 }
             ],
         )
@@ -256,7 +262,8 @@ def validate_claude_api():
         if hasattr(response, "usage"):
             usage = response.usage
             print(
-                f"📊 Claude Test - Input tokens: {usage.input_tokens}, Output tokens: {usage.output_tokens}"
+                f"📊 Claude Test - Input tokens: {usage.input_tokens}, "
+                f"Output tokens: {usage.output_tokens}"
             )
 
         # Store successful API validation in memory
@@ -296,7 +303,8 @@ def validate_claude_api():
 
 # Initialize infinite memory system in Supabase
 def init_infinite_memory():
-    """Initialize the infinite memory system with Supabase backend and load previous context"""
+    """Initialize the infinite memory system with Supabase backend
+    and load previous context"""
     if not supabase:
         print("⚠️ Supabase not available - using local fallback storage only")
         return False
@@ -325,7 +333,8 @@ def init_infinite_memory():
         patterns = analyze_memory_patterns(recent_memories, recent_cycles)
 
         print(
-            f"🔍 Loaded {len(recent_memories)} memories and {len(recent_cycles)} recent cycles"
+            f"🔍 Loaded {len(recent_memories)} memories and "
+            f"{len(recent_cycles)} recent cycles"
         )
         if patterns:
             print(f"📊 Memory patterns: {patterns['summary']}")
@@ -334,7 +343,10 @@ def init_infinite_memory():
         test_memory_data = {
             "session_id": f"session_{int(time.time())}",
             "memory_type": "system_init",
-            "content": "Système JARVYS initialisé avec mémoire infinie - Orchestrateur Grok-Claude 4 opérationnel",
+            "content": (
+                "Système JARVYS initialisé avec mémoire infinie - "
+                "Orchestrateur Grok-Claude 4 opérationnel"
+            ),
             "metadata": {
                 "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
                 "models_available": {
@@ -431,7 +443,8 @@ def get_available_secrets_summary():
 
 
 def analyze_memory_patterns(memories: list, cycles: list) -> dict:
-    """Analyze memory patterns to learn from previous actions and optimize future behavior"""
+    """Analyze memory patterns to learn from previous actions
+    and optimize future behavior"""
     if not memories and not cycles:
         return None
 
@@ -555,7 +568,8 @@ def store_memory(
         result = supabase.table("jarvys_memory").insert(jarvys_memory_data).execute()
         if result.data:
             print(
-                f"🧠 Memory stored in jarvys_memory: {memory_type} (importance: {importance})"
+                f"🧠 Memory stored in jarvys_memory: {memory_type} "
+                f"(importance: {importance})"
             )
             return result.data[0].get("id") if result.data else None
         else:
@@ -654,7 +668,9 @@ def validate_code_with_claude(code: str, task_description: str) -> dict:
             "opus", CLAUDE_MODELS.get("sonnet", "claude-3-haiku-20240307")
         )
 
-        validation_prompt = f"""You are Claude 4, an expert code reviewer and validator with deep understanding of software engineering best practices. Analyze this Python code comprehensively:
+        validation_prompt = f"""You are Claude 4, an expert code reviewer and validator 
+with deep understanding of software engineering best practices. 
+Analyze this Python code comprehensively:
 
 ## Task Context
 {task_description}
@@ -668,10 +684,12 @@ def validate_code_with_claude(code: str, task_description: str) -> dict:
 1. **Syntax & Logic**: Check for syntax errors, logic flaws, and runtime issues
 2. **Security**: Identify vulnerabilities, injection risks, and unsafe practices
 3. **Performance**: Analyze efficiency, memory usage, and optimization opportunities
-4. **Best Practices**: Verify adherence to Python PEP standards and clean code principles
+4. **Best Practices**: Verify adherence to Python PEP standards 
+and clean code principles
 5. **Dependencies**: Check for missing imports and compatibility issues
 6. **Testing**: Assess testability and suggest test cases
-7. **Integration**: Evaluate compatibility with the JARVYS ecosystem (Supabase, GitHub, LangGraph)
+7. **Integration**: Evaluate compatibility with the JARVYS ecosystem 
+(Supabase, GitHub, LangGraph)
 
 ## Environment Context
 - Running in GitHub Codespace with Poetry/Ruff/Black
@@ -707,7 +725,8 @@ Respond with a comprehensive JSON analysis:
   "testing_recommendations": [
     "suggested test cases and testing strategies"
   ],
-  "improved_code": "enhanced version with fixes applied (only if significant improvements needed)",
+  "improved_code": ("enhanced version with fixes applied "
+                   "(only if significant improvements needed)"),
   "integration_notes": "notes about JARVYS ecosystem compatibility",
   "technology_updates": "suggestions for using latest Python/library features"
 }}"""
@@ -756,7 +775,8 @@ Respond with a comprehensive JSON analysis:
             usage = response.usage
             print(f"📊 Claude 4 Validation - Model: {model}")
             print(
-                f"📊 Tokens - Input: {usage.input_tokens}, Output: {usage.output_tokens}"
+                f"📊 Tokens - Input: {usage.input_tokens}, "
+                f"Output: {usage.output_tokens}"
             )
 
         # Store comprehensive validation result in memory for learning
@@ -813,7 +833,8 @@ Respond with a comprehensive JSON analysis:
 
         print("✅ Claude 4 validation completed:")
         print(
-            f"   Valid: {is_valid} | Confidence: {confidence:.2f} | Severity: {severity}/10"
+            f"   Valid: {is_valid} | Confidence: {confidence:.2f} | "
+            f"Severity: {severity}/10"
         )
 
         if not is_valid:
@@ -821,7 +842,8 @@ Respond with a comprehensive JSON analysis:
             print(f"   Issues found: {len(issues)}")
             for issue in issues[:3]:  # Show first 3 issues
                 print(
-                    f"   - {issue.get('severity', 'unknown')}: {issue.get('description', 'No description')}"
+                    f"   - {issue.get('severity', 'unknown')}: "
+                    f"{issue.get('description', 'No description')}"
                 )
 
         return result_json
@@ -864,9 +886,12 @@ def verify_technology_updates():
                 # Enhanced search prompt with memory context
                 memory_context = ""
                 if recent_tech_memories:
-                    memory_context = f"Previous research context: {[mem.get('content', '')[:100] for mem in recent_tech_memories]}"
+                    memory_list = [
+                        mem.get("content", "")[:100] for mem in recent_tech_memories
+                    ][:3]
+                    memory_context = "Previous research context: " + str(memory_list)
 
-                search_prompt = f"""Based on the JARVYS autonomous orchestrator project using:
+                search_prompt = f"""Based on the JARVYS autonomous orchestrator project:
 - LangGraph for multi-agent workflows
 - Supabase for infinite memory
 - GitHub automation
@@ -886,7 +911,8 @@ Focus on actionable updates that could improve the JARVYS system."""
 
                 chat.append(
                     system(
-                        "You are a technology research assistant specializing in AI development tools. Provide factual, actionable information."
+                        "You are a technology research assistant specializing in "
+                        "AI development tools. Provide factual, actionable information."
                     )
                 )
                 chat.append(user(search_prompt))
@@ -965,7 +991,10 @@ def setup_repositories():
             (REPO_DIR_AI, GH_REPO_AI, "main"),
         ]:
             if not os.path.exists(dir_path):
-                clone_cmd = f"git clone https://x-access-token:{GH_TOKEN}@github.com/{repo_url}.git {dir_path}"
+                clone_cmd = (
+                    f"git clone https://x-access-token:{GH_TOKEN}@github.com/"
+                    f"{repo_url}.git {dir_path}"
+                )
                 os.system(clone_cmd)
 
             # Always start from the base directory
@@ -1095,7 +1124,8 @@ def collaborative_code_testing(
         )
 
         print(
-            f"✅ Collaborative testing completed - Confidence: {results['confidence_score']:.2f}"
+            f"✅ Collaborative testing completed - "
+            f"Confidence: {results['confidence_score']:.2f}"
         )
         return results
 
@@ -1141,7 +1171,7 @@ def simulate_code_execution(code: str, task_description: str) -> dict:
 
         # Check for environment variable usage
         env_usage = []
-        for secret in ["SUPABASE_URL", "GITHUB_TOKEN", "XAI_API_KEY"]:
+        for secret in ["SUPABASE_URL", "GH_TOKEN", "XAI_API_KEY"]:
             if secret in code:
                 env_usage.append(secret)
 
@@ -1198,7 +1228,12 @@ def clean_state_for_new_cycle(state: AgentState) -> AgentState:
 # Query Grok using native xAI SDK (optimal approach as of July 2025)
 def query_grok(prompt: str, state: AgentState) -> str:  # Pass state for log
     """Query Grok using multiple fallback methods"""
-    full_prompt = f"Contexte JARVYS_DEV (cloud, MCP/GCP, mémoire Supabase, génère JARVYS_AI in appIA) et JARVYS_AI (local, routing LLMs, self-improve): {prompt}. Sois créatif (innovations alignées comme sentiment analysis ou quantum sim), proactif (suggère extras), adaptable (handle unknown via alternatives)."
+    full_prompt = (
+        "Contexte JARVYS_DEV (cloud, MCP/GCP, mémoire Supabase, génère JARVYS_AI) "
+        f"et JARVYS_AI (local, routing LLMs, self-improve): {prompt}. "
+        "Sois créatif (innovations alignées comme sentiment analysis), "
+        "proactif (suggère extras), adaptable (handle unknown via alternatives)."
+    )
 
     try:
         # Primary: Use xAI SDK if available
@@ -1295,7 +1330,11 @@ def fix_lint(state: AgentState) -> AgentState:
                 )
             except Exception as e:
                 # Adaptabilité : Query pour solution inconnue
-                prompt = f"Erreur in Codespace: {str(e)}. Génère fix commande pour Ruff/Black/Poetry lint bugs (E501/F841 etc.). Sois proactif/créatif (alt tools si fail)."
+                prompt = (
+                    f"Erreur in Codespace: {str(e)}. Génère fix commande pour "
+                    f"Ruff/Black/Poetry lint bugs (E501/F841 etc.). "
+                    f"Sois proactif/créatif (alt tools si fail)."
+                )
                 fix_cmd = query_grok(prompt, state)
                 try:
                     subprocess.run(fix_cmd, shell=True)
@@ -1387,7 +1426,7 @@ def identify_tasks(state: AgentState) -> AgentState:
     log_entry = {
         **state["log_entry"],
         "task": task,
-        "repo": sub_agent,
+        "sub_agent": sub_agent,
         "status": "identified",
         "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
     }
@@ -1414,14 +1453,18 @@ def identify_tasks(state: AgentState) -> AgentState:
 
 # Node: Générer Code avec test collaboratif Grok-Claude
 def generate_code(state: AgentState) -> AgentState:
-    """Generate and collaboratively test code for the identified task using Grok and Claude"""
+    """Generate and collaboratively test code for the identified task
+    using Grok and Claude"""
     print(f"🔧 Generating code for task: {state['task']}")
 
     # Load memory context for this task type
     similar_memories = retrieve_memories(memory_type="code_generation", limit=5)
     memory_context = ""
     if similar_memories:
-        memory_context = f"Previous similar implementations: {[mem.get('content', '')[:100] for mem in similar_memories[:2]]}"
+        memory_context = (
+            f"Previous similar implementations: "
+            f"{[mem.get('content', '')[:100] for mem in similar_memories[:2]]}"
+        )
 
     # Enhanced prompt with memory context and environment awareness
     prompt = f"""
@@ -1486,7 +1529,10 @@ def generate_code(state: AgentState) -> AgentState:
             with open(file_path, "w") as f:
                 f.write(final_code)
             try:
-                commit_msg = f"Generated by JARVYS_DEV: {state['task']} (Confidence: {confidence:.2f})"
+                commit_msg = (
+                    f"Generated by JARVYS_DEV: {state['task']} "
+                    f"(Confidence: {confidence:.2f})"
+                )
                 os.system(
                     f"git add . && git commit -m '{commit_msg}' && git push origin main"
                 )
@@ -1515,7 +1561,10 @@ def apply_test(state: AgentState) -> AgentState:
     confidence = state.get("generation_confidence", 0.5)
 
     with change_dir(state["repo_dir"]):
-        file_path = f"src/jarvys_{state['sub_agent'].lower()}/updated_{state['task'].replace(' ', '_')}.py"
+        file_path = (
+            f"src/jarvys_{state['sub_agent'].lower()}/"
+            f"updated_{state['task'].replace(' ', '_')}.py"
+        )
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
 
         try:
@@ -1575,11 +1624,20 @@ def apply_test(state: AgentState) -> AgentState:
             total_tests = len(test_results)
 
             if confidence > 0.7 and passed_tests >= total_tests * 0.7:
-                test_result = f"PASSED - {passed_tests}/{total_tests} tests passed (Confidence: {confidence:.2f})"
+                test_result = (
+                    f"PASSED - {passed_tests}/{total_tests} tests passed "
+                    f"(Confidence: {confidence:.2f})"
+                )
             elif confidence > 0.5:
-                test_result = f"PARTIAL - {passed_tests}/{total_tests} tests passed (Confidence: {confidence:.2f})"
+                test_result = (
+                    f"PARTIAL - {passed_tests}/{total_tests} tests passed "
+                    f"(Confidence: {confidence:.2f})"
+                )
             else:
-                test_result = f"FAILED - Low confidence {confidence:.2f}, {passed_tests}/{total_tests} tests passed"
+                test_result = (
+                    f"FAILED - Low confidence {confidence:.2f}, "
+                    f"{passed_tests}/{total_tests} tests passed"
+                )
 
             test_result += f"\nFile created: {file_path}\n" + "\n".join(test_results)
 
@@ -1629,7 +1687,11 @@ def apply_test(state: AgentState) -> AgentState:
 # Node: Update Docs
 def update_docs(state: AgentState) -> AgentState:
     """Update documentation"""
-    prompt = f"Génère update doc Markdown pour '{state['task']}' sur {state['sub_agent']}. Sections: Description, Changements, Impact, Exemples. Créatif: Ajoute analogies/ideas fun alignées."
+    prompt = (
+        f"Génère update doc Markdown pour '{state['task']}' sur {state['sub_agent']}. "
+        f"Sections: Description, Changements, Impact, Exemples. "
+        f"Créatif: Ajoute analogies/ideas fun alignées."
+    )
     doc_update = query_grok(prompt, state)
 
     if os.path.exists(state["repo_dir"]):
@@ -1637,7 +1699,8 @@ def update_docs(state: AgentState) -> AgentState:
             try:
                 with open("README.md", "a") as f:
                     f.write(
-                        f"\n## Update: {state['task']} ({time.strftime('%Y-%m-%d')})\n{doc_update}\n"
+                        f"\n## Update: {state['task']} "
+                        f"({time.strftime('%Y-%m-%d')})\n{doc_update}\n"
                     )
                 os.system("git add README.md")
             except Exception as e:
@@ -1662,7 +1725,10 @@ def update_docs(state: AgentState) -> AgentState:
 def reflect_commit(state: AgentState) -> AgentState:
     """Reflect and commit changes or retry if failed"""
     if "FAILED" in state["test_result"]:
-        prompt = f"Reflect: Failed '{state['test_result']}'. Improve, créatif/proactif (alt approaches), adaptable (handle unknown)."
+        prompt = (
+            f"Reflect: Failed '{state['test_result']}'. Improve, créatif/proactif "
+            f"(alt approaches), adaptable (handle unknown)."
+        )
         reflection = query_grok(prompt, state)
         log_entry = {**state["log_entry"], "reflection": reflection}
 
@@ -1688,14 +1754,19 @@ def reflect_commit(state: AgentState) -> AgentState:
             with change_dir(state["repo_dir"]):
                 try:
                     os.system(
-                        f"git add . && git commit -m 'Grok Auto: {state['task']} with docs' && git push origin main"
+                        f"git add . && git commit -m 'Grok Auto: {state['task']} "
+                        f"with docs' && git push origin main"
                     )
 
                     # Try to create PR if possible
                     try:
                         pr = state["repo_obj"].create_pull(
                             title=f"Grok PR: {state['task']}",
-                            body=f"Code: {state['code_generated'][:200]}\nDocs: {state['doc_update'][:200]}\nLog: {str(state['log_entry'])[:200]}",
+                            body=(
+                                f"Code: {state['code_generated'][:200]}\n"
+                                f"Docs: {state['doc_update'][:200]}\n"
+                                f"Log: {str(state['log_entry'])[:200]}"
+                            ),
                             head="main",
                             base="main",
                         )
