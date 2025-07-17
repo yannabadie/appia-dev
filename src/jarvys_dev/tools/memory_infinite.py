@@ -26,7 +26,7 @@ class JarvysInfiniteMemory:
         self.agent_name = agent_name
         self.user_context = user_context
         self.supabase: Optional[Client] = None
-        self.openai_client  # To be initialized
+        self.openai_client = None  # To be initialized
 
         # Initialisation Supabase
         supabase_url = os.getenv("SUPABASE_URL")

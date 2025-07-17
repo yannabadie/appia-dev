@@ -44,13 +44,13 @@ class LLMFallback:
             if self.chatgpt:
                 try:
                     return self.chatgpt.complete(prompt)
-                except:
+                except Exception:
                     pass
             # Fallback to Claude
             if self.claude:
                 try:
                     return self.claude.complete(prompt)
-                except:
+                except Exception:
                     pass
             raise ValueError("All LLMs failed")
 
@@ -101,7 +101,7 @@ def self_improve(code_snippet: str) -> str:
         logger.info("Self-improved code generated")
         # Suggest enhancement: Add to GitHub issue if needed (placeholder)
         return improved
-    except:
+    except Exception:
         return code_snippet  # Fallback
 
 
@@ -152,6 +152,6 @@ if __name__ == "__main__":
     try:
         user_input = input("Enter user message: ")  # Or from args/environment
         main(user_input)
-    except Exception as e:
+    except Exception:
         # Adaptive handling: Fallback to basic response
         print("An error occurred. Please try again.")
