@@ -14,7 +14,7 @@ def fix_variable_prefixes(file_path):
 
     # Pattern pour trouver des assignations avec _ mais utilisations sans _
     patterns_to_fix = [
-        # _client = ... mais utilisé comme client
+        # _client = ... mais utilisé comme client  # To be initialized
         (r"(\s+)_client = ([^\n]+)", r"\1client = \2"),
         (r"(\s+)_response = ([^\n]+)", r"\1_response = \2"),
         # Ensuite corriger les utilisations

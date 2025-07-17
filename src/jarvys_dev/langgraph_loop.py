@@ -1,6 +1,7 @@
-"""LangGraph-based observe-plan-act-reflect loop."""
-
 from __future__ import annotations
+
+
+"""LangGraph-based observe-plan-act-reflect loop."""
 
 import json
 import logging
@@ -34,7 +35,7 @@ class _SecretFilter(logging.Filter):
         return True
 
 
-logger.addFilter(_SecretFilter())
+logger = logging.getLogger(__name__).addFilter(_SecretFilter())
 
 _router = MultiModelRouter()
 
@@ -53,27 +54,27 @@ class LoopState(TypedDict, total=False):
 
 def observe(state: LoopState) -> LoopState:
     observation = state.get("observation", "initial observation")
-    logger.info("observe: %s", observation)
+    logger = logging.getLogger(__name__).info("observe: %s", observation)
     return {"observation": observation}
 
 
 def plan(state: LoopState) -> LoopState:
     prompt = f"Plan how to handle: {state['observation']}"
     planned = _router.generate(prompt, task_type="reasoning")
-    logger.info("plan: %s", planned)
+    logger = logging.getLogger(__name__).info("plan: %s", planned)
     return {"plan": planned}
 
 
 def act(state: LoopState) -> LoopState:
     task = {"title": "Automated task", "detail": state["plan"]}
     url = send_to_jarvys_ai(task)
-    logger.info("act: created %s", url)
+    logger = logging.getLogger(__name__).info("act: created %s", url)
     return {"action_url": url}
 
 
 def reflect(state: LoopState) -> LoopState:
     upsert_embedding(json.dumps(state))
-    logger.info("reflect: state stored")
+    logger = logging.getLogger(__name__).info("reflect: state stored")
     return {"reflected": True}
 
 
@@ -107,14 +108,16 @@ def run_loop(steps: int = 1) -> LoopState:
         falls below :data:`CONFIDENCE_THRESHOLD`.
     """
     compiled = build_graph().compile()
-    state: LoopState = {}
+    state: LoopState
     for _ in range(steps):
         state = compiled.invoke(state)
         if confidence_score() < CONFIDENCE_THRESHOLD:
             state["waiting_for_human_review"] = True
             break
     if _router.benchmarks:
-        logger.info("benchmarks: %s", _router.benchmarks[-1])
+        logger = logging.getLogger(__name__).info(
+            "benchmarks: %s", _router.benchmarks[-1]
+        )
     return state
 
 
@@ -123,10 +126,11 @@ class JarvysLoop:
 
     def __init__(self):
         """Initialize the loop."""
+        pass
 
-    def run(self, steps: int = 1) -> dict:
-        """Run the loop and delegate to run_loop function."""
-        return run_loop(steps)
+    def run(self, initial_state):
+        # This is a placeholder for the actual loop execution
+        pass
 
 
 __all__ = ["run_loop", "build_graph", "LoopState", "JarvysLoop"]

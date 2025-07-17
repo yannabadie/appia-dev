@@ -26,9 +26,9 @@ class FileManager:
     - Partage sécurisé
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any] = None):
         """Initialiser le gestionnaire de fichiers"""
-        self.config = config
+        self.config
         self.is_initialized = False
 
         # Répertoires de travail
@@ -51,7 +51,7 @@ class FileManager:
         self.file_index = {}
 
         # Simulation pour démo
-        self.demo_mode = config.get("demo_mode", True)
+        self.demo_mode = {}.get("demo_mode", True)
 
         logger.info("📁 File Manager initialisé")
 
@@ -190,19 +190,13 @@ class FileManager:
                 return await self._handle_file_search(command)
             elif any(word in command_lower for word in ["ouvrir", "open"]):
                 return await self._handle_open_file(command)
-            elif any(
-                word in command_lower
-                for word in ["créer", "create", "nouveau"]
-            ):
+            elif any(word in command_lower for word in ["créer", "create", "nouveau"]):
                 return await self._handle_create_file(command)
             elif any(
-                word in command_lower
-                for word in ["déplacer", "move", "copier", "copy"]
+                word in command_lower for word in ["déplacer", "move", "copier", "copy"]
             ):
                 return await self._handle_file_operation(command)
-            elif any(
-                word in command_lower for word in ["sync", "synchroniser"]
-            ):
+            elif any(word in command_lower for word in ["sync", "synchroniser"]):
                 return await self._handle_sync_command(command)
             elif any(word in command_lower for word in ["récent", "recent"]):
                 return await self._handle_recent_files()
@@ -226,12 +220,16 @@ class FileManager:
             if not results:
                 return f"❌ Aucun fichier trouvé pour '{search_term}'"
 
-            _response = f"🔍 **Résultats pour '{search_term}'** ({len(results)} fichiers):\n\n"
+            response = (
+                f"🔍 **Résultats pour '{search_term}'** ({len(results)} fichiers):\n\n"
+            )
 
             for i, file_info in enumerate(results[:5], 1):
                 response += f"{i}. 📄 **{file_info['name']}**\n"
                 response += f"   📁 {file_info['directory']}\n"
-                response += f"   📊 {file_info['size']} | 📅 {file_info['modified']}\n\n"
+                response += (
+                    f"   📊 {file_info['size']} | 📅 {file_info['modified']}\n\n"
+                )
 
             if len(results) > 5:
                 response += f"... et {len(results) - 5} autres fichiers.\n"
@@ -275,9 +273,7 @@ class FileManager:
                         "name": Path(file_info["path"]).name,
                         "path": file_info["path"],
                         "size": self._format_file_size(file_info["size"]),
-                        "modified": file_info["modified"].strftime(
-                            "%d/%m/%Y %H:%M"
-                        ),
+                        "modified": file_info["modified"].strftime("%d/%m/%Y %H:%M"),
                         "directory": file_info["directory"],
                     }
                 )
@@ -314,10 +310,8 @@ class FileManager:
             return "❌ Veuillez spécifier le nom du fichier à ouvrir."
 
         # Rechercher le fichier
-        file_found = None
         for indexed_name, file_info in self.file_index.items():
             if filename.lower() in indexed_name:
-                file_found = file_info
                 break
 
         if self.demo_mode:
@@ -398,11 +392,9 @@ Le fichier a été créé et est prêt à être modifié."""
 
     async def _handle_file_operation(self, command: str) -> str:
         """Gérer opérations sur fichiers (copier, déplacer)"""
-        operation_type = "copy" if "copier" in command.lower() else "move"
+        "copy" if "copier" in command.lower() else "move"
 
         if self.demo_mode:
-            action_fr = "copié" if operation_type == "copy" else "déplacé"
-
             return """✅ **Fichier {action_fr}**
 
 📄 **Opération**: {'Copie' if operation_type == 'copy' else 'Déplacement'}
@@ -447,14 +439,12 @@ L'opération s'est déroulée avec succès."""
         if not self.recent_files:
             return "📁 Aucun fichier récent trouvé."
 
-        _response = "📁 **Fichiers Récents** (5 derniers):\n\n"
+        response = "📁 **Fichiers Récents** (5 derniers):\n\n"
 
         for i, file_info in enumerate(self.recent_files[:5], 1):
             response += f"{i}. 📄 **{file_info['name']}**\n"
             response += f"   📁 {file_info['path'].name}\n"
-            response += (
-                f"   📊 {file_info['size']} | 📅 {file_info['modified']}\n\n"
-            )
+            response += f"   📊 {file_info['size']} | 📅 {file_info['modified']}\n\n"
 
         response += "💡 Dites 'Ouvrir [nom]' pour ouvrir un fichier."
 
@@ -462,7 +452,7 @@ L'opération s'est déroulée avec succès."""
 
     async def _handle_general_file_query(self, command: str) -> str:
         """Gérer requête générale fichiers"""
-        stats = await self.get_file_stats()
+        await self.get_file_stats()
 
         return """📁 **Gestionnaire de Fichiers JARVYS_AI**
 

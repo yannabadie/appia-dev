@@ -1,3 +1,6 @@
+import json
+import sys
+
 #!/usr/bin/env python3
 """
 🤖 JARVYS_AI - Digital Twin de Yann Abadie
@@ -26,7 +29,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - JARVYS_AI - %(levelname)s - %(message)s",
 )
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) = logging.getLogger(__name__)
 
 
 class JarvysAI:
@@ -42,7 +45,7 @@ class JarvysAI:
     - Auto-amélioration continue
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None = None):
         """Initialiser JARVYS_AI avec configuration"""
         self.config = config or self._load_default_config()
         self.session_id = datetime.now().isoformat()
@@ -65,7 +68,7 @@ class JarvysAI:
         self.is_running = False
         self.tasks = []
 
-        logger.info("🤖 JARVYS_AI initialisé - Digital Twin prêt")
+        logger = logging.getLogger(__name__).info("🤖 JARVYS_AI initialisé - Digital Twin prêt")
 
     def _load_default_config(self) -> Dict[str, Any]:
         """Charger configuration par défaut"""
@@ -84,7 +87,7 @@ class JarvysAI:
     async def start(self):
         """Démarrer JARVYS_AI et tous ses composants"""
         try:
-            logger.info("🚀 Démarrage de JARVYS_AI...")
+            logger = logging.getLogger(__name__).info("🚀 Démarrage de JARVYS_AI...")
             self.is_running = True
 
             # Initialiser composants principaux
@@ -97,9 +100,9 @@ class JarvysAI:
             for name, extension in self.extensions.items():
                 try:
                     await extension.initialize()
-                    logger.info(f"✅ Extension {name} initialisée")
+                    logger = logging.getLogger(__name__).info(f"✅ Extension {name} initialisée")
                 except Exception as e:
-                    logger.warning(f"⚠️ Extension {name} non disponible: {e}")
+                    logger = logging.getLogger(__name__).warning(f"⚠️ Extension {name} non disponible: {e}")
 
             # Configurer callbacks
             self.extensions["voice"].set_command_callback(self.process_command)
@@ -117,12 +120,12 @@ class JarvysAI:
             await self._main_loop()
 
         except Exception as e:
-            logger.error(f"❌ Erreur démarrage JARVYS_AI: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur démarrage JARVYS_AI: {e}")
             raise
 
     async def stop(self):
         """Arrêter JARVYS_AI proprement"""
-        logger.info("🛑 Arrêt de JARVYS_AI...")
+        logger = logging.getLogger(__name__).info("🛑 Arrêt de JARVYS_AI...")
         self.is_running = False
 
         # Arrêter les tâches
@@ -132,7 +135,7 @@ class JarvysAI:
         # Sauvegarder l'état
         await self.digital_twin.save_state()
 
-        logger.info("✅ JARVYS_AI arrêté proprement")
+        logger = logging.getLogger(__name__).info("✅ JARVYS_AI arrêté proprement")
 
     async def _main_loop(self):
         """Boucle principale d'exécution"""
@@ -149,10 +152,10 @@ class JarvysAI:
                 await asyncio.sleep(1)
 
             except KeyboardInterrupt:
-                logger.info("🔄 Interruption clavier - arrêt en cours...")
+                logger = logging.getLogger(__name__).info("🔄 Interruption clavier - arrêt en cours...")
                 break
             except Exception as e:
-                logger.error(f"❌ Erreur boucle principale: {e}")
+                logger = logging.getLogger(__name__).error(f"❌ Erreur boucle principale: {e}")
                 await asyncio.sleep(5)
 
     async def _process_tasks(self):
@@ -177,7 +180,7 @@ class JarvysAI:
             Réponse à la commande
         """
         try:
-            logger.info(f"📝 Commande reçue ({interface}): {command[:50]}...")
+            logger = logging.getLogger(__name__).info(f"📝 Commande reçue ({interface}): {command[:50]}...")
 
             # Analyser la commande via intelligence core
             analysis = await self.intelligence_core.analyze_command(command)
@@ -194,7 +197,7 @@ class JarvysAI:
 
         except Exception as e:
             error_msg = f"❌ Erreur traitement commande: {e}"
-            logger.error(error_msg)
+            logger = logging.getLogger(__name__).error(error_msg)
             return error_msg
 
     async def _route_command(
@@ -245,7 +248,7 @@ async def main():
     try:
         await jarvys.start()
     except KeyboardInterrupt:
-        logger.info("🔄 Arrêt demandé par l'utilisateur")
+        logger = logging.getLogger(__name__).info("🔄 Arrêt demandé par l'utilisateur")
     finally:
         await jarvys.stop()
 

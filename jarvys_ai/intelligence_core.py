@@ -24,10 +24,10 @@ class IntelligenceCore:
     - Apprentissage continu
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any] = None):
         """Initialiser le cœur d'intelligence"""
-        self.config = config
-        self.openai_client = None
+        self.config
+        self.openai_client  # To be initialized
         self.is_initialized = False
 
         # Modèles de classification
@@ -255,9 +255,7 @@ class IntelligenceCore:
             if keyword in command_lower:
                 return response
 
-        return (
-            "Je suis là pour vous aider. Pouvez-vous préciser votre demande ?"
-        )
+        return "Je suis là pour vous aider. Pouvez-vous préciser votre demande ?"
 
     def get_stats(self) -> Dict[str, Any]:
         """Obtenir statistiques du cœur d'intelligence"""

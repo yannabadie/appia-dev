@@ -1,3 +1,7 @@
+import json
+import os
+import sys
+
 #!/usr/bin/env python3
 """
 📧 JARVYS_AI - Email Manager
@@ -10,7 +14,7 @@ import re
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) = logging.getLogger(__name__)
 
 
 class EmailManager:
@@ -26,7 +30,7 @@ class EmailManager:
     - Intégration calendrier
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any] = None):
         """Initialiser le gestionnaire d'emails"""
         self.config = config
         self.is_initialized = False
@@ -39,7 +43,7 @@ class EmailManager:
         # Simulation pour demo
         self.demo_mode = config.get("demo_mode", True)
 
-        logger.info("📧 Email Manager initialisé")
+        logger = logging.getLogger(__name__).info("📧 Email Manager initialisé")
 
     async def initialize(self):
         """Initialiser le gestionnaire d'emails"""
@@ -50,10 +54,10 @@ class EmailManager:
                 await self._setup_real_accounts()
 
             self.is_initialized = True
-            logger.info("📧 Email Manager prêt")
+            logger = logging.getLogger(__name__).info("📧 Email Manager prêt")
 
         except Exception as e:
-            logger.error(f"❌ Erreur initialisation Email Manager: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur initialisation Email Manager: {e}")
             raise
 
     def is_initialized(self) -> bool:
@@ -80,12 +84,12 @@ class EmailManager:
         self.templates = await self._load_email_templates()
         self.auto_rules = await self._load_auto_rules()
 
-        logger.info("📧 Mode démo configuré")
+        logger = logging.getLogger(__name__).info("📧 Mode démo configuré")
 
     async def _setup_real_accounts(self):
         """Configuration comptes réels (à implémenter)"""
         # TODO: Implémenter OAuth pour Gmail et Outlook
-        logger.info("📧 Configuration comptes réels (TODO)")
+        logger = logging.getLogger(__name__).info("📧 Configuration comptes réels (TODO)")
 
     async def _load_email_templates(self) -> Dict[str, str]:
         """Charger modèles d'emails"""
@@ -172,7 +176,7 @@ Yann Abadie
                 return await self._handle_general_email_query(command)
 
         except Exception as e:
-            logger.error(f"❌ Erreur traitement commande email: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur traitement commande email: {e}")
             return f"Erreur lors du traitement de votre demande email: {e}"
 
     async def _handle_read_emails(self, command: str) -> str:
@@ -199,7 +203,7 @@ Yann Abadie
             return summary
 
         except Exception as e:
-            logger.error(f"❌ Erreur lecture emails: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur lecture emails: {e}")
             return "Erreur lors de la lecture des emails."
 
     async def _get_recent_emails(self) -> List[Dict[str, Any]]:
@@ -255,7 +259,7 @@ Yann Abadie
                 return await self._real_send_email(recipient, subject, content)
 
         except Exception as e:
-            logger.error(f"❌ Erreur envoi email: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur envoi email: {e}")
             return "Erreur lors de l'envoi de l'email."
 
     def _extract_recipient(self, command: str) -> Optional[str]:
@@ -331,7 +335,7 @@ Yann Abadie
     ) -> str:
         """Envoi réel d'email (à implémenter)"""
         # TODO: Implémenter envoi réel via SMTP
-        logger.info(f"Envoi réel email à {recipient}")
+        logger = logging.getLogger(__name__).info(f"Envoi réel email à {recipient}")
         return "Envoi réel non encore implémenté"
 
     async def _handle_meeting_request(self, command: str) -> str:

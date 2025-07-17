@@ -34,8 +34,7 @@ def fix_line_length_issues(file_path):
                                 lines[i] = before_paren + comma_parts[0] + ","
                                 lines.insert(
                                     i + 1,
-                                    " " * (indent + 4)
-                                    + comma_parts[1].lstrip(),
+                                    " " * (indent + 4) + comma_parts[1].lstrip(),
                                 )
                                 modified = True
                                 continue
@@ -112,7 +111,6 @@ def fix_unused_variables(file_path):
                 or "success_criteria" in line
                 or "supabase_client" in line
             ):
-
                 # Remplacer la variable par _variable
                 line_stripped = line.strip()
                 if line_stripped.endswith(","):

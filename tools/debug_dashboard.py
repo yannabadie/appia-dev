@@ -53,9 +53,7 @@ class JarvysDebugDashboard:
             env_status["environment_vars"][var] = {
                 "present": value is not None,
                 "length": len(value) if value else 0,
-                "prefix": (
-                    value[:10] + "..." if value and len(value) > 10 else value
-                ),
+                "prefix": (value[:10] + "..." if value and len(value) > 10 else value),
             }
 
         # Check required files
@@ -123,9 +121,10 @@ class JarvysDebugDashboard:
         api_key = os.getenv("OPENAI_API_KEY")
         if api_key:
             try:
-                from openai import OpenAI
+                # Initialize client properly
+                import openai
 
-                _client = OpenAI(api_key=api_key)
+                client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
                 models = client.models.list()
                 connectivity_status["openai"] = {
                     "status": "connected",
@@ -356,7 +355,6 @@ class JarvysDebugDashboard:
                     break
 
                 else:
-                    print("Invalid choice. Please enter 1-7.")
 
             except KeyboardInterrupt:
                 print("\nExiting debug dashboard...")
@@ -383,9 +381,7 @@ def main():
 
         else:
             print(f"Unknown command: {command}")
-            print(
-                "Usage: python debug_dashboard.py [report|check] [output_file]"
-            )
+            print("Usage: python debug_dashboard.py [report|check] [output_file]")
     else:
         dashboard.interactive_mode()
 

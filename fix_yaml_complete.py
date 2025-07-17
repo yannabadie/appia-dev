@@ -8,9 +8,7 @@ from pathlib import Path
 
 def fix_yaml_file():
     """Corriger complètement le fichier YAML"""
-    yaml_file = Path(
-        "/workspaces/appia-dev/.github/workflows/jarvys-cloud.yml"
-    )
+    yaml_file = Path("/workspaces/appia-dev/.github/workflows/jarvys-cloud.yml")
 
     # Contenu YAML correct
     corrected_yaml = """---

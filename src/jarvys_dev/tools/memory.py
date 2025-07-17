@@ -22,9 +22,7 @@ def _load_config() -> None:
 
     supabase_url = os.getenv("SUPABASE_URL")
     # Utiliser service_role si disponible, sinon anon key
-    supabase_key = os.getenv("SUPABASE_SERVICE_ROLE") or os.getenv(
-        "SUPABASE_KEY"
-    )
+    supabase_key = os.getenv("SUPABASE_SERVICE_ROLE") or os.getenv("SUPABASE_KEY")
     openai_key = os.getenv("OPENAI_API_KEY")
 
     missing = [
@@ -79,13 +77,9 @@ def upsert_embedding(content: str, doc_id: str | None = None) -> str:
         if "row-level security" in str(e).lower() or "42501" in str(e):
             logging.warning("⚠️ Cannot save data: RLS policy blocks insertion")
         elif "metadata" in str(e).lower():
-            logging.warning(
-                "⚠️ Metadata column not available, but document saved"
-            )
+            logging.warning("⚠️ Metadata column not available, but document saved")
         else:
-            logging.warning(
-                "⚠️ Supabase connection failed, data not saved: %s", e
-            )
+            logging.warning("⚠️ Supabase connection failed, data not saved: %s", e)
     return doc_id
 
 

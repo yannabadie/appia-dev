@@ -367,9 +367,7 @@ serve(async (req) => {
                 print(
                     "⚠️ L'authentification nécessite encore la mise à jour de la Edge Function"
                 )
-                print(
-                    "📝 Le patch doit être appliqué manuellement dans Supabase"
-                )
+                print("📝 Le patch doit être appliqué manuellement dans Supabase")
             else:
                 print(f"🔍 Status metrics: {response_metrics.status_code}")
 
@@ -395,7 +393,7 @@ from flask import Flask, render_template_string, jsonify, request
 import json
 from datetime import datetime
 
-app = Flask(__name__)
+app = Flask(__name__) = Flask(__name__)
 
 # Template HTML du dashboard
 DASHBOARD_HTML = """
@@ -529,11 +527,11 @@ DASHBOARD_HTML = """
 </html>
 """
 
-@app.route('/')
+@app = Flask(__name__).route('/')
 def dashboard():
     return render_template_string(DASHBOARD_HTML)
 
-@app.route('/api/metrics')
+@app = Flask(__name__).route('/api/metrics')
 def metrics():
     return jsonify({
         "daily_cost": 3.28,
@@ -548,7 +546,7 @@ def metrics():
         "timestamp": datetime.now().isoformat()
     })
 
-@app.route('/api/status')
+@app = Flask(__name__).route('/api/status')
 def status():
     return jsonify({
         "jarvys_dev": {"status": "active", "mode": "local"},
@@ -557,7 +555,7 @@ def status():
         "github": {"status": "connected"}
     })
 
-@app.route('/api/control', methods=['POST'])
+@app = Flask(__name__).route('/api/control', methods=['POST'])
 def control():
     data = request.get_json()
     return jsonify({
@@ -570,7 +568,7 @@ def control():
 if __name__ == '__main__':
     print("🚀 Démarrage dashboard JARVYS local...")
     print("📍 URL: http://localhost:5000")
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app = Flask(__name__).run(debug=True, host='0.0.0.0', port=5000)
 '''
 
         dashboard_file = dashboard_dir / "dashboard_local.py"
@@ -720,7 +718,7 @@ class AgentController:
                 with open(self.state_file, 'r') as f:
                     return json.load(f)
             except Exception as e:
-                logger.error(f"Erreur chargement état: {e}")
+                logger = logging.getLogger(__name__).error(f"Erreur chargement état: {e}")
         
         # État par défaut
         return {
@@ -734,7 +732,7 @@ class AgentController:
             with open(self.state_file, 'w') as f:
                 json.dump(self.state, f, indent=2)
         except Exception as e:
-            logger.error(f"Erreur sauvegarde état: {e}")
+            logger = logging.getLogger(__name__).error(f"Erreur sauvegarde état: {e}")
     
     def pause_agent(self, agent_name: str) -> bool:
         """Mettre en pause un agent"""
@@ -742,7 +740,7 @@ class AgentController:
             self.state[agent_name]["status"] = "paused"
             self.state[agent_name]["last_update"] = datetime.now().isoformat()
             self._save_state()
-            logger.info(f"Agent {agent_name} mis en pause")
+            logger = logging.getLogger(__name__).info(f"Agent {agent_name} mis en pause")
             return True
         return False
     
@@ -752,7 +750,7 @@ class AgentController:
             self.state[agent_name]["status"] = "active"
             self.state[agent_name]["last_update"] = datetime.now().isoformat()
             self._save_state()
-            logger.info(f"Agent {agent_name} repris")
+            logger = logging.getLogger(__name__).info(f"Agent {agent_name} repris")
             return True
         return False
     

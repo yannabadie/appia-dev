@@ -1,11 +1,12 @@
+from __future__ import annotations
+
+
 """Router for multiple LLM providers.
 
 This module selects the best model depending on the ``task_type`` and
 available API keys. It also implements a simple fallback strategy and
 basic benchmarking (latency, prompt size for cost approximation).
 """
-
-from __future__ import annotations
 
 import json
 import logging
@@ -46,7 +47,9 @@ def _load_models() -> dict[str, str]:
             clean = {k: v for k, v in data.items() if isinstance(v, str)}
             models.update(clean)
         except Exception as exc:  # pragma: no cover - config errors
-            logger.warning("Failed to read %s: %s", CONFIG_PATH, exc)
+            logger = logging.getLogger(__name__).warning(
+                "Failed to read %s: %s", CONFIG_PATH, exc
+            )
     return models
 
 
@@ -82,14 +85,18 @@ class MultiModelRouter:
                 genai.configure(api_key=self.gemini_key)
                 self.gemini_available = True
             except Exception as exc:  # pragma: no cover - package errors
-                logger.warning("Gemini init failed: %s", exc)
+                logger = logging.getLogger(__name__).warning(
+                    "Gemini init failed: %s", exc
+                )
 
         self.anthropic_client: Any | None = None
         if Anthropic and self.anthropic_key:
             try:  # pragma: no cover
                 self.anthropic_client = Anthropic(api_key=self.anthropic_key)
             except Exception as exc:  # pragma: no cover - package errors
-                logger.warning("Anthropic init failed: %s", exc)
+                logger = logging.getLogger(__name__).warning(
+                    "Anthropic init failed: %s", exc
+                )
 
         # Load model capabilities from JSON file if present
         self.model_capabilities = self._load_model_capabilities()
@@ -105,7 +112,6 @@ class MultiModelRouter:
         try:
             with open(capabilities_path, "r", encoding="utf-8") as f:
                 return json.load(f)
-        except (FileNotFoundError, json.JSONDecodeError):
             return {}
 
     def _record_bench(self, model: str, start: float, prompt: str) -> None:
@@ -127,18 +133,18 @@ class MultiModelRouter:
         task_analysis = self.orchestrator.analyze_task(prompt, task_type)
 
         # Sélection du modèle optimal
-        optimal_model, model_info, confidence = (
-            self.orchestrator.select_optimal_model(task_analysis)
+        optimal_model, model_info, confidence = self.orchestrator.select_optimal_model(
+            task_analysis
         )
 
-        logger.info(
+        logger = logging.getLogger(__name__).info(
             f"🎯 Tâche: {task_analysis.task_type}, Modèle: {optimal_model}, "
             f"Confiance: {confidence:.2f}"
         )
 
         # Exécution avec le modèle sélectionné
         start = time.perf_counter()
-        _result = None
+        _result
         success = False
 
         try:
@@ -159,12 +165,10 @@ class MultiModelRouter:
 
             else:
                 # Fallback vers ordre par défaut si modèle optimal indisponible
-                logger.warning(
+                logger = logging.getLogger(__name__).warning(
                     f"⚠️ Modèle optimal {optimal_model} indisponible, fallback"
                 )
-                _result = self._fallback_generation(
-                    prompt, task_analysis.task_type
-                )
+                _result = self._fallback_generation(prompt, task_analysis.task_type)
                 success = True
 
             # Enregistrer les performances
@@ -190,7 +194,7 @@ class MultiModelRouter:
             return _result
 
         except Exception as exc:
-            logger.error(
+            logger = logging.getLogger(__name__).error(
                 f"❌ Erreur avec modèle optimal {optimal_model}: {exc}"
             )
 
@@ -246,18 +250,14 @@ class MultiModelRouter:
                 "order": ["gemini", "anthropic", "openai"],
                 "models": {
                     "gemini": models["gemini"],  # gemini-2.5-pro
-                    "anthropic": models[
-                        "anthropic"
-                    ],  # claude-sonnet-4-20250514
+                    "anthropic": models["anthropic"],  # claude-sonnet-4-20250514
                     "openai": models["openai"],  # gpt-4o
                 },
             },
             "reasoning": {
                 "order": ["anthropic", "openai", "gemini"],
                 "models": {
-                    "anthropic": models[
-                        "anthropic"
-                    ],  # claude-sonnet-4-20250514
+                    "anthropic": models["anthropic"],  # claude-sonnet-4-20250514
                     "openai": models["openai"],  # gpt-4o
                     "gemini": models["gemini"],  # gemini-2.5-pro
                 },
@@ -265,9 +265,7 @@ class MultiModelRouter:
             "creativity": {
                 "order": ["anthropic", "gemini", "openai"],
                 "models": {
-                    "anthropic": models[
-                        "anthropic"
-                    ],  # claude-sonnet-4-20250514
+                    "anthropic": models["anthropic"],  # claude-sonnet-4-20250514
                     "gemini": models["gemini"],  # gemini-2.5-pro
                     "openai": models["openai"],  # gpt-4o
                 },
@@ -276,17 +274,13 @@ class MultiModelRouter:
                 "order": ["openai", "anthropic", "gemini"],
                 "models": {
                     "openai": models["openai"],  # gpt-4o
-                    "anthropic": models[
-                        "anthropic"
-                    ],  # claude-sonnet-4-20250514
+                    "anthropic": models["anthropic"],  # claude-sonnet-4-20250514
                     "gemini": models["gemini"],  # gemini-2.5-pro
                 },
             },
             "mathematical": {
                 "order": ["openai"],
-                "models": {
-                    "openai": "o1-preview"
-                },  # Spécialisé pour le raisonnement
+                "models": {"openai": "o1-preview"},  # Spécialisé pour le raisonnement
             },
         }
 
@@ -308,14 +302,14 @@ class MultiModelRouter:
                     return _result
 
                 if provider == "anthropic" and self.anthropic_client:
-                    _result = self._execute_anthropic(
-                        model_map[provider], prompt
-                    )
+                    _result = self._execute_anthropic(model_map[provider], prompt)
                     self._record_bench(model_map[provider], start, prompt)
                     return _result
 
             except Exception as exc:  # pragma: no cover - network failures
-                logger.warning("%s failed: %s", provider, exc)
+                logger = logging.getLogger(__name__).warning(
+                    "%s failed: %s", provider, exc
+                )
 
         raise RuntimeError("No available model for generation")
 

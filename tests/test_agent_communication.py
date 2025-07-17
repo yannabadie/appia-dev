@@ -1,3 +1,4 @@
+
 """Test agent communication and memory sharing between JARVYS_DEV and"
 "JARVYS_AI."""
 
@@ -33,11 +34,9 @@ class TestMemorySharing:
         try:
             from jarvys_dev.tools.memory_infinite import get_memory
 
-            assert callable(
-                get_memory
-            ), "get_memory should be a callable function"
+            assert callable(get_memory), "get_memory should be a callable function"
         except ImportError:
-            pytest.skip("get_memory function not found")
+            pytest.skip("Test skipped")
 
     @pytest.mark.integration
     def test_memory_initialization(self):
@@ -46,7 +45,7 @@ class TestMemorySharing:
         key = os.getenv("SUPABASE_KEY")
 
         if not url or not key:
-            pytest.skip("Supabase credentials not available")
+            pytest.skip("Test skipped")
 
         try:
             from jarvys_dev.tools.memory_infinite import get_memory
@@ -59,7 +58,7 @@ class TestMemorySharing:
             assert jarvys_ai_memory is not None
 
         except Exception as e:
-            pytest.skip(f"Memory initialization failed: {e}")
+            pytest.skip("Test skipped")
 
     def test_memory_agent_distinction(self):
         """Test that different agents can have distinct memory contexts."""
@@ -76,7 +75,7 @@ class TestMemorySharing:
             ), "Different agents should have distinct memory objects"
 
         except Exception as e:
-            pytest.skip(f"Memory distinction test failed: {e}")
+            pytest.skip("Test skipped")
 
     @pytest.mark.integration
     def test_memory_operations(self):
@@ -85,7 +84,7 @@ class TestMemorySharing:
         key = os.getenv("SUPABASE_KEY")
 
         if not url or not key:
-            pytest.skip("Supabase credentials not available")
+            pytest.skip("Test skipped")
 
         try:
             from jarvys_dev.tools.memory_infinite import get_memory
@@ -108,7 +107,7 @@ class TestMemorySharing:
                 ), "Recall should return structured data"
 
         except Exception as e:
-            pytest.skip(f"Memory operations test failed: {e}")
+            pytest.skip("Test skipped")
 
 
 class TestGitHubCommunication:
@@ -127,7 +126,7 @@ class TestGitHubCommunication:
         """Test GitHub client initialization."""
         token = os.getenv("GH_TOKEN")
         if not token:
-            pytest.skip("GH_TOKEN not available")
+            pytest.skip("Test skipped")
 
         try:
             from github import Auth, Github
@@ -141,7 +140,7 @@ class TestGitHubCommunication:
             assert user is not None
 
         except Exception as e:
-            pytest.skip(f"GitHub client initialization failed: {e}")
+            pytest.skip("Test skipped")
 
     def test_issue_communication_structure(self):
         """Test issue-based communication structure."""
@@ -163,7 +162,7 @@ class TestGitHubCommunication:
         """Test access to current repository."""
         token = os.getenv("GH_TOKEN")
         if not token:
-            pytest.skip("GH_TOKEN not available")
+            pytest.skip("Test skipped")
 
         try:
             from github import Auth, Github
@@ -180,7 +179,7 @@ class TestGitHubCommunication:
             assert repo.name == "appia-dev"
 
         except Exception as e:
-            pytest.skip(f"Repository access test failed: {e}")
+            pytest.skip("Test skipped")
 
     def test_communication_labels(self):
         """Test communication label system."""
@@ -210,12 +209,10 @@ class TestAPIBasedCommunication:
             routes = [route.path for route in app.routes]
 
             # Should have some API endpoints
-            assert (
-                len(routes) > 0
-            ), "Should have API endpoints for communication"
+            assert len(routes) > 0, "Should have API endpoints for communication"
 
         except ImportError:
-            pytest.skip("FastAPI app not available")
+            pytest.skip("Test skipped")
 
     def test_http_client_capability(self):
         """Test HTTP client capability for API communication."""
@@ -224,9 +221,7 @@ class TestAPIBasedCommunication:
 
             # Should be able to make HTTP requests
             assert hasattr(requests, "get"), "Should have HTTP GET capability"
-            assert hasattr(
-                requests, "post"
-            ), "Should have HTTP POST capability"
+            assert hasattr(requests, "post"), "Should have HTTP POST capability"
             assert hasattr(requests, "put"), "Should have HTTP PUT capability"
 
         except ImportError:
@@ -252,7 +247,7 @@ class TestAPIBasedCommunication:
             ], "Should get valid HTTP response"
 
         except Exception as e:
-            pytest.skip(f"Local API communication test failed: {e}")
+            pytest.skip("Test skipped")
 
 
 class TestRealTimeCommunication:
@@ -274,7 +269,7 @@ class TestRealTimeCommunication:
             ), "Should have WebSocket client capability"
 
         except ImportError:
-            pytest.skip("WebSocket support not available")
+            pytest.skip("Test skipped")
 
     def test_fastapi_websocket_support(self):
         """Test FastAPI WebSocket support."""
@@ -297,7 +292,7 @@ class TestRealTimeCommunication:
             print(f"Found {len(websocket_routes)} WebSocket routes")
 
         except ImportError:
-            pytest.skip("FastAPI WebSocket support not available")
+            pytest.skip("Test skipped")
 
 
 class TestCommunicationSecurity:
@@ -328,7 +323,7 @@ class TestCommunicationSecurity:
             assert response.status_code == 200, "HTTPS requests should work"
 
         except Exception:
-            pytest.skip("HTTPS capability test failed")
+            pytest.skip("Test skipped")
 
     def test_environment_based_auth(self):
         """Test environment-based authentication."""
@@ -339,9 +334,7 @@ class TestCommunicationSecurity:
             # Test that environment variables can be accessed
             value = os.getenv(var)
             if value:
-                assert (
-                    len(value) > 10
-                ), f"{var} should be substantial if present"
+                assert len(value) > 10, f"{var} should be substantial if present"
 
 
 class TestCommunicationProtocols:
@@ -371,9 +364,7 @@ class TestCommunicationProtocols:
         ]
         for field in required_fields:
             assert field in test_message, f"Message should have {field} field"
-            assert (
-                test_message[field] is not None
-            ), f"{field} should not be None"
+            assert test_message[field] is not None, f"{field} should not be None"
 
     def test_response_structure(self):
         """Test standard response structure."""
@@ -395,9 +386,7 @@ class TestCommunicationProtocols:
             "timestamp",
         ]
         for field in required_fields:
-            assert (
-                field in test_response
-            ), f"Response should have {field} field"
+            assert field in test_response, f"Response should have {field} field"
 
     def test_error_handling_structure(self):
         """Test error handling in communication."""
@@ -460,7 +449,5 @@ class TestCommunicationMonitoring:
 
         # Health check structure should be valid
         for component, status in health_status.items():
-            assert isinstance(
-                component, str
-            ), "Component name should be string"
+            assert isinstance(component, str), "Component name should be string"
             assert isinstance(status, str), "Status should be string"

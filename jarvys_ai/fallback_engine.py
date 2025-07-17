@@ -27,7 +27,7 @@ class FallbackEngine:
     - Retour automatique quand quotas restaurés
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any] = None):
         """Initialiser le moteur de fallback"""
         self.config = config
         self.is_initialized = False
@@ -149,9 +149,7 @@ class FallbackEngine:
                 if response.status_code == 200:
                     return response.json()
                 else:
-                    logger.error(
-                        f"❌ Erreur API GitHub: {response.status_code}"
-                    )
+                    logger.error(f"❌ Erreur API GitHub: {response.status_code}")
                     return {}
 
         except Exception as e:
@@ -185,8 +183,7 @@ class FallbackEngine:
 
             # Retour normal si quotas restaurés
             elif (
-                self.fallback_active
-                and github_quotas.get("remaining_minutes", 0) > 100
+                self.fallback_active and github_quotas.get("remaining_minutes", 0) > 100
             ):
                 await self._deactivate_fallback()
 
@@ -258,10 +255,10 @@ class FallbackEngine:
 
             # Exécution en mode démo seulement
             if not self.demo_mode:
-                _result = subprocess.run(
-                    deploy_cmd, capture_output=True, text=True
-                )
-                if result.returncode != 0:
+                _result = subprocess.run(deploy_cmd, capture_output=True, text=True)
+                result  # Initialize
+
+                if result and result.returncode != 0:
                     raise Exception(f"Échec déploiement: {result.stderr}")
 
             logger.info("☁️ Service Cloud Run déployé")
@@ -283,9 +280,7 @@ class FallbackEngine:
     async def _deactivate_fallback(self):
         """Désactiver le mode fallback"""
         try:
-            logger.info(
-                "✅ Désactivation du mode fallback - retour à GitHub Actions"
-            )
+            logger.info("✅ Désactivation du mode fallback - retour à GitHub Actions")
 
             if self.demo_mode:
                 await self._demo_deactivate_fallback()

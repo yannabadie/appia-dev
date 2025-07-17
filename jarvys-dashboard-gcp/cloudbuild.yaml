@@ -1,0 +1,90 @@
+# 🚀 CLOUD BUILD - JARVYS Dashboard GCP
+# =====================================
+
+steps:
+  # 1. Build the React application
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-f', 'Dockerfile',
+      '-t', 'gcr.io/$PROJECT_ID/jarvys-dashboard:$COMMIT_SHA',
+      '-t', 'gcr.io/$PROJECT_ID/jarvys-dashboard:latest',
+      '--build-arg', 'VITE_API_URL=${_BACKEND_URL}',
+      '--build-arg', 'VITE_GOOGLE_CLIENT_ID=${_GOOGLE_CLIENT_ID}',
+      '--build-arg', 'VITE_ENVIRONMENT=production',
+      '.'
+    ]
+    
+  # 2. Push to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/jarvys-dashboard:$COMMIT_SHA']
+    
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/jarvys-dashboard:latest']
+    
+  # 3. Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args: [
+      'run', 'deploy', 'jarvys-dashboard',
+      '--image', 'gcr.io/$PROJECT_ID/jarvys-dashboard:$COMMIT_SHA',
+      '--region', '${_REGION}',
+      '--platform', 'managed',
+      '--allow-unauthenticated',
+      '--port', '80',
+      '--memory', '512Mi',
+      '--cpu', '1',
+      '--min-instances', '0',
+      '--max-instances', '10',
+      '--timeout', '300',
+      '--concurrency', '1000',
+      '--set-env-vars', 
+      'ENVIRONMENT=production,BACKEND_URL=${_BACKEND_URL}',
+      '--set-secrets',
+      'GOOGLE_CLIENT_ID=${_GOOGLE_CLIENT_ID_SECRET}:latest'
+    ]
+    
+  # 4. Configure Cloud Armor Security Policy
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args: [
+      'compute', 'security-policies', 'create', 'jarvys-dashboard-policy',
+      '--description', 'Security policy for JARVYS Dashboard'
+    ]
+    
+  # 5. Add rate limiting rule
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args: [
+      'compute', 'security-policies', 'rules', 'create', '1000',
+      '--security-policy', 'jarvys-dashboard-policy',
+      '--expression', 'true',
+      '--action', 'rate-based-ban',
+      '--rate-limit-threshold-count', '100',
+      '--rate-limit-threshold-interval-sec', '60',
+      '--ban-duration-sec', '300',
+      '--conform-action', 'allow',
+      '--exceed-action', 'deny-429',
+      '--enforce-on-key', 'IP'
+    ]
+
+# Build options
+options:
+  diskSizeGb: '50'
+  logging: CLOUD_LOGGING_ONLY
+
+# Timeout
+timeout: '1200s'
+
+# Substitutions
+substitutions:
+  _REGION: 'europe-west1'
+  _BACKEND_URL: 'https://jarvys-orchestrator-${PROJECT_ID}.europe-west1.run.app'
+  _GOOGLE_CLIENT_ID: '${PROJECT_NUMBER}-web.apps.googleusercontent.com'
+  _GOOGLE_CLIENT_ID_SECRET: 'google-client-id'
+  
+# Service account with minimal permissions
+serviceAccount: 'projects/${PROJECT_ID}/serviceAccounts/cloudbuild-jarvys@${PROJECT_ID}.iam.gserviceaccount.com'
+
+# Tags for organization
+tags: ['jarvys', 'dashboard', 'react', 'production']

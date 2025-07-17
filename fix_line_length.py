@@ -2,6 +2,7 @@
 """
 Script pour corriger automatiquement les lignes trop longues (E501)
 """
+
 from pathlib import Path
 
 
@@ -78,8 +79,6 @@ def fix_line_length_issues():
         ],
         "tests/test_docker.py": [
             (
-                '"Expected Docker container test"',
-                '"Expected Docker container test"',
             ),
             (
                 '"This test verifies Docker functionality"',

@@ -130,9 +130,9 @@ class JarvysMetrics:
         task_type: str,
         status: str,
         description: str,
-        github_url: str = None,
-        confidence: float = None,
-        duration: float = None,
+        github_url: str,
+        confidence: float,
+        duration: float,
     ):
         """Log une tâche."""
         conn = sqlite3.connect(self.db_path)
@@ -157,9 +157,7 @@ class JarvysMetrics:
         conn.commit()
         conn.close()
 
-    def log_conversation(
-        self, user_msg: str, agent_response: str, context: str = ""
-    ):
+    def log_conversation(self, user_msg: str, agent_response: str, context: str = ""):
         """Log une conversation avec l'agent."""
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
@@ -306,9 +304,7 @@ Réponse:"""
 
         # Métriques récentes
         costs = self.metrics.get_api_costs_today()
-        context_parts.append(
-            f"Coûts API aujourd'hui: ${costs['total_cost']:.4f}"
-        )
+        context_parts.append(f"Coûts API aujourd'hui: ${costs['total_cost']:.4f}")
 
         # Tâches récentes
         recent_tasks = self.metrics.get_recent_tasks(3)
@@ -323,9 +319,7 @@ Réponse:"""
                 memories = memory_search(message, k=2)
                 if memories:
                     context_parts.append("Mémoires pertinentes:")
-                    context_parts.extend(
-                        f"- {mem[:100]}..." for mem in memories[:2]
-                    )
+                    context_parts.extend(f"- {mem[:100]}..." for mem in memories[:2])
             except Exception:
                 pass  # Mémoire non disponible
 
@@ -351,9 +345,7 @@ Réponse:"""
                 ),
                 description=f"Loop executed: {state.get('plan', 'No plan')}",
                 github_url=state.get("action_url"),
-                confidence=(
-                    1.0 if not state.get("waiting_for_human_review") else 0.5
-                ),
+                confidence=(1.0 if not state.get("waiting_for_human_review") else 0.5),
                 duration=duration,
             )
 
@@ -538,4 +530,4 @@ if __name__ == "__main__":
     print("💬 Chat interactif intégré")
     print("📈 Métriques en temps réel")
 
-    uvicorn.run(app, host="0.0.0.0", port=8080, log_level="info")
+    uvicorn.run(app=None, host="0.0.0.0", port=8080, log_level="info")

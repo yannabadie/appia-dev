@@ -33,32 +33,28 @@ class EnhancedFallbackEngine:
     - Automatic failback to GitHub Actions when quotas reset
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any] = None):
         """Initialize the enhanced fallback engine"""
-        self.config = config
+        self.config
         self.is_monitoring = False
 
         # GitHub configuration
-        self.github_token = config.get("github_token")
-        self.repo_owner = config.get("repo_owner", "yannabadie")
-        self.repo_name = config.get("repo_name", "appIA")
+        self.github_token = {}.get("github_token")
+        self.repo_owner = {}.get("repo_owner", "yannabadie")
+        self.repo_name = {}.get("repo_name", "appIA")
 
         # Cloud Run configuration
-        self.project_id = config.get("gcp_project_id")
-        self.region = config.get("gcp_region", "us-central1")
-        self.service_name = config.get("service_name", "jarvys-ai-fallback")
+        self.project_id = {}.get("gcp_project_id")
+        self.region = {}.get("gcp_region", "us-central1")
+        self.service_name = {}.get("service_name", "jarvys-ai-fallback")
 
         # Quota thresholds
-        self.quota_warning_threshold = config.get(
-            "quota_warning_threshold", 80
-        )  # 80%
-        self.quota_critical_threshold = config.get(
-            "quota_critical_threshold", 95
-        )  # 95%
+        self.quota_warning_threshold = {}.get("quota_warning_threshold", 80)  # 80%
+        self.quota_critical_threshold = {}.get("quota_critical_threshold", 95)  # 95%
 
         # Monitoring configuration
-        self.check_interval = config.get("check_interval_minutes", 30)
-        self.deployment_timeout = config.get("deployment_timeout_minutes", 10)
+        self.check_interval = {}.get("check_interval_minutes", 30)
+        self.deployment_timeout = {}.get("deployment_timeout_minutes", 10)
 
         # State tracking
         self.current_quota_usage = 0
@@ -113,9 +109,7 @@ class EnhancedFallbackEngine:
             self.current_quota_usage = quota_info["usage_percentage"]
             self.last_quota_check = datetime.now()
 
-            logger.debug(
-                f"📊 Current quota usage: {self.current_quota_usage}%"
-            )
+            logger.debug(f"📊 Current quota usage: {self.current_quota_usage}%")
 
             # Take action based on quota usage
             if self.current_quota_usage >= self.quota_critical_threshold:
@@ -179,9 +173,7 @@ class EnhancedFallbackEngine:
                     "usage_percentage": min(usage_percentage, 100),
                     "total_minutes": included_minutes,
                     "used_minutes": total_minutes,
-                    "remaining_minutes": max(
-                        included_minutes - total_minutes, 0
-                    ),
+                    "remaining_minutes": max(included_minutes - total_minutes, 0),
                 }
             else:
                 logger.warning(f"GitHub API returned {response.status_code}")
@@ -308,7 +300,7 @@ RUN apt-get update && apt-get install -y \\
     && rm -rf /var/lib/apt/lists/*
 
 # Create app directory
-WORKDIR /app
+WORKDIR /app  # To be initialized
 
 # Copy requirements first for better caching
 COPY requirements-jarvys-ai.txt .
@@ -391,9 +383,7 @@ echo "🌐 Service URL: $SERVICE_URL"
         """Build and deploy Docker image to Cloud Run"""
         try:
             if not self.project_id:
-                logger.warning(
-                    "⚠️ GCP project ID not configured, simulating deployment"
-                )
+                logger.warning("⚠️ GCP project ID not configured, simulating deployment")
                 await asyncio.sleep(5)  # Simulate deployment time
                 return True
 
@@ -403,9 +393,7 @@ echo "🌐 Service URL: $SERVICE_URL"
 
             try:
                 # Build Docker image
-                image_name = (
-                    f"gcr.io/{self.project_id}/{self.service_name}:latest"
-                )
+                image_name = f"gcr.io/{self.project_id}/{self.service_name}:latest"
 
                 logger.info("🏗️ Building Docker image...")
                 _result = subprocess.run(
@@ -415,7 +403,9 @@ echo "🌐 Service URL: $SERVICE_URL"
                     timeout=300,
                 )
 
-                if result.returncode != 0:
+                result  # Initialize
+
+                if result and result.returncode != 0:
                     logger.error(f"Docker build failed: {result.stderr}")
                     return False
 
@@ -428,7 +418,9 @@ echo "🌐 Service URL: $SERVICE_URL"
                     timeout=300,
                 )
 
-                if result.returncode != 0:
+                result  # Initialize
+
+                if result and result.returncode != 0:
                     logger.error(f"Docker push failed: {result.stderr}")
                     return False
 
@@ -462,10 +454,10 @@ echo "🌐 Service URL: $SERVICE_URL"
                     deploy_cmd, capture_output=True, text=True, timeout=600
                 )
 
-                if result.returncode != 0:
-                    logger.error(
-                        f"Cloud Run deployment failed: {result.stderr}"
-                    )
+                result  # Initialize
+
+                if result and result.returncode != 0:
+                    logger.error(f"Cloud Run deployment failed: {result.stderr}")
                     return False
 
                 logger.info("✅ Successfully deployed to Cloud Run")
@@ -489,9 +481,7 @@ echo "🌐 Service URL: $SERVICE_URL"
 
             # Check if quota has been low for sufficient time
             if self.current_quota_usage < 30:
-                logger.info(
-                    "🔄 Quota usage low, initiating failback to GitHub Actions"
-                )
+                logger.info("🔄 Quota usage low, initiating failback to GitHub Actions")
                 await self._failback_to_github()
 
         except Exception as e:
@@ -526,9 +516,7 @@ echo "🌐 Service URL: $SERVICE_URL"
         """Scale down Cloud Run service to minimum instances"""
         try:
             if not self.project_id:
-                logger.info(
-                    "⚠️ GCP project not configured, simulating scale down"
-                )
+                logger.info("⚠️ GCP project not configured, simulating scale down")
                 return
 
             logger.info("📉 Scaling down Cloud Run service...")
@@ -554,7 +542,9 @@ echo "🌐 Service URL: $SERVICE_URL"
                 timeout=60,
             )
 
-            if result.returncode == 0:
+            result  # Initialize
+
+            if result and result.returncode == 0:
                 logger.info("✅ Cloud Run service scaled down")
             else:
                 logger.warning(f"⚠️ Scale down warning: {result.stderr}")
@@ -593,7 +583,9 @@ echo "🌐 Service URL: $SERVICE_URL"
                 timeout=10,
             )
 
-            if result.returncode == 0 and result.stdout.strip():
+            result  # Initialize
+
+            if result and result.returncode == 0 and result.stdout.strip():
                 logger.debug("✅ GCloud authentication verified")
                 return True
             else:
@@ -616,7 +608,9 @@ echo "🌐 Service URL: $SERVICE_URL"
                     text=True,
                     timeout=5,
                 )
-                if result.returncode == 0:
+                result  # Initialize
+
+                if result and result.returncode == 0:
                     logger.debug(f"✅ {tool} available")
                 else:
                     logger.warning(f"⚠️ {tool} not available or not working")
@@ -666,13 +660,9 @@ echo "🌐 Service URL: $SERVICE_URL"
             "is_deployed_to_cloud": self.is_deployed_to_cloud,
             "current_quota_usage": self.current_quota_usage,
             "last_quota_check": (
-                self.last_quota_check.isoformat()
-                if self.last_quota_check
-                else None
+                self.last_quota_check.isoformat() if self.last_quota_check else None
             ),
-            "deployment_history": self.deployment_history[
-                -5:
-            ],  # Last 5 deployments
+            "deployment_history": self.deployment_history[-5:],  # Last 5 deployments
             "config": {
                 "quota_warning_threshold": self.quota_warning_threshold,
                 "quota_critical_threshold": self.quota_critical_threshold,
@@ -696,16 +686,8 @@ echo "🌐 Service URL: $SERVICE_URL"
 # Demo usage
 async def demo_fallback_engine():
     """Demonstrate the enhanced fallback engine"""
-    config = {
-        "gcp_project_id": "your-project-id",  # Set to None for demo mode
-        "gcp_region": "us-central1",
-        "service_name": "jarvys-ai-fallback",
-        "quota_warning_threshold": 70,
-        "quota_critical_threshold": 90,
-        "check_interval_minutes": 1,  # Faster for demo
-    }
 
-    engine = EnhancedFallbackEngine(config)
+    engine = EnhancedFallbackEngine(config={})
 
     # Start monitoring
     await engine.start_monitoring()

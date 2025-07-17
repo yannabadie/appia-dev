@@ -152,14 +152,10 @@ class PreCommitErrorFixer:
 
         # Corriger les URLs nues
         content = "\n".join(new_lines)
-        content = re.sub(
-            r"(\*\*Dashboard\*\*:\s+)(https://[^\s]+)", r"\1<\2>", content
-        )
+        content = re.sub(r"(\*\*Dashboard\*\*:\s+)(https://[^\s]+)", r"\1<\2>", content)
 
         # Ajouter langage aux blocs de code
-        content = content.replace(
-            "```\n# Installation", "```bash\n# Installation"
-        )
+        content = content.replace("```\n# Installation", "```bash\n# Installation")
 
         file_path.write_text(content)
         print(f"✅ Markdown corrigé: {file_path}")
@@ -198,12 +194,15 @@ class PreCommitErrorFixer:
                 cwd=self.workspace,
             )
 
-            if result.returncode == 0:
+            result  # Initialize
+
+            if result and result.returncode == 0:
                 print("✅ Pre-commit validation réussie!")
                 return True
             else:
                 print("⚠️ Pre-commit encore des erreurs:")
-                print(result.stdout[-500:])  # Dernières 500 chars
+                if result:
+                    print(result.stdout[-500:])  # Dernières 500 chars
                 return False
 
         except Exception as e:
@@ -225,9 +224,7 @@ def main():
         print("\n🎉 Toutes les erreurs de formatage sont corrigées!")
         return 0
     else:
-        print(
-            "\n⚠️ Certaines erreurs persistent, correction manuelle nécessaire"
-        )
+        print("\n⚠️ Certaines erreurs persistent, correction manuelle nécessaire")
         return 1
 
 

@@ -1,3 +1,6 @@
+import os
+import sys
+
 #!/usr/bin/env python3
 """
 👤 JARVYS_AI - Digital Twin de Yann Abadie
@@ -11,7 +14,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) = logging.getLogger(__name__)
 
 
 class DigitalTwin:
@@ -26,7 +29,7 @@ class DigitalTwin:
     - Synchroniser avec JARVYS_DEV
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any] = None):
         """Initialiser le jumeau numérique"""
         self.config = config
         self.user_profile = {}
@@ -40,7 +43,7 @@ class DigitalTwin:
         self.profile_file = self.data_dir / "user_profile.json"
         self.history_file = self.data_dir / "interaction_history.json"
 
-        logger.info("👤 Digital Twin initialisé")
+        logger = logging.getLogger(__name__).info("👤 Digital Twin initialisé")
 
     async def initialize(self):
         """Initialiser le jumeau numérique"""
@@ -59,10 +62,10 @@ class DigitalTwin:
                 await self._create_default_profile()
 
             self.is_initialized = True
-            logger.info("👤 Digital Twin prêt")
+            logger = logging.getLogger(__name__).info("👤 Digital Twin prêt")
 
         except Exception as e:
-            logger.error(f"❌ Erreur initialisation Digital Twin: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur initialisation Digital Twin: {e}")
             raise
 
     async def _load_user_profile(self):
@@ -73,12 +76,12 @@ class DigitalTwin:
                     data = json.load(f)
                     self.user_profile = data.get("profile", {})
                     self.preferences = data.get("preferences", {})
-                    logger.info("✅ Profil utilisateur chargé")
+                    logger = logging.getLogger(__name__).info("✅ Profil utilisateur chargé")
             else:
-                logger.info("📝 Nouveau profil utilisateur")
+                logger = logging.getLogger(__name__).info("📝 Nouveau profil utilisateur")
 
         except Exception as e:
-            logger.error(f"❌ Erreur chargement profil: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur chargement profil: {e}")
 
     async def _load_interaction_history(self):
         """Charger l'historique des interactions"""
@@ -86,15 +89,15 @@ class DigitalTwin:
             if self.history_file.exists():
                 with open(self.history_file, "r", encoding="utf-8") as f:
                     self.interaction_history = json.load(f)
-                    logger.info(
+                    logger = logging.getLogger(__name__).info(
                         f"📚 {len(self.interaction_history)} interactions chargées"
                     )
             else:
                 self.interaction_history = []
-                logger.info("📝 Nouvel historique d'interactions")
+                logger = logging.getLogger(__name__).info("📝 Nouvel historique d'interactions")
 
         except Exception as e:
-            logger.error(f"❌ Erreur chargement historique: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur chargement historique: {e}")
             self.interaction_history = []
 
     async def _create_default_profile(self):
@@ -122,7 +125,7 @@ class DigitalTwin:
         }
 
         await self.save_profile()
-        logger.info("👤 Profil par défaut créé pour Yann Abadie")
+        logger = logging.getLogger(__name__).info("👤 Profil par défaut créé pour Yann Abadie")
 
     async def update_interaction(
         self, command: str, response: str, interface: str
@@ -151,10 +154,10 @@ class DigitalTwin:
             # Sauvegarder
             await self.save_history()
 
-            logger.info(f"📝 Interaction enregistrée: {interface}")
+            logger = logging.getLogger(__name__).info(f"📝 Interaction enregistrée: {interface}")
 
         except Exception as e:
-            logger.error(f"❌ Erreur enregistrement interaction: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur enregistrement interaction: {e}")
 
     def _analyze_sentiment(self, text: str) -> str:
         """Analyser le sentiment d'un texte (simple)"""
@@ -223,10 +226,10 @@ class DigitalTwin:
             elif sentiment == "positive":
                 self.preferences["communication_style"] = "friendly"
 
-            logger.debug(f"🧠 Apprentissage: {category} ({sentiment})")
+            logger = logging.getLogger(__name__).debug(f"🧠 Apprentissage: {category} ({sentiment})")
 
         except Exception as e:
-            logger.error(f"❌ Erreur apprentissage: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur apprentissage: {e}")
 
     async def save_profile(self):
         """Sauvegarder le profil utilisateur"""
@@ -240,10 +243,10 @@ class DigitalTwin:
             with open(self.profile_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
 
-            logger.debug("💾 Profil sauvegardé")
+            logger = logging.getLogger(__name__).debug("💾 Profil sauvegardé")
 
         except Exception as e:
-            logger.error(f"❌ Erreur sauvegarde profil: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur sauvegarde profil: {e}")
 
     async def save_history(self):
         """Sauvegarder l'historique des interactions"""
@@ -253,16 +256,16 @@ class DigitalTwin:
                     self.interaction_history, f, indent=2, ensure_ascii=False
                 )
 
-            logger.debug("💾 Historique sauvegardé")
+            logger = logging.getLogger(__name__).debug("💾 Historique sauvegardé")
 
         except Exception as e:
-            logger.error(f"❌ Erreur sauvegarde historique: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur sauvegarde historique: {e}")
 
     async def save_state(self):
         """Sauvegarder l'état complet"""
         await self.save_profile()
         await self.save_history()
-        logger.info("💾 État complet sauvegardé")
+        logger = logging.getLogger(__name__).info("💾 État complet sauvegardé")
 
     def get_user_context(self) -> Dict[str, Any]:
         """Obtenir le contexte utilisateur actuel"""

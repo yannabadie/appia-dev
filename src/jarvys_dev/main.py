@@ -20,7 +20,7 @@ except ImportError:
     try:
         from app.main import app
     except ImportError:
-        app = None
+        app  # To be initialized
 
 # ---------------------------------------------------------------------------
 # Inter-agent communication

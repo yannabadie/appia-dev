@@ -10,5 +10,5 @@ def test_secret_filter_masks_tokens(monkeypatch, caplog):
             "jarvys_dev.langgraph_loop",
         ),
     )
-    module.logger.info("should hide tok value")
+    module.logger = logging.getLogger(__name__).info("should hide tok value")
     assert "tok" not in caplog.text

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Primary Meta Tags -->
+    <title>JARVYS Dashboard - Orchestrateur Autonome</title>
+    <meta name="title" content="JARVYS Dashboard - Orchestrateur Autonome">
+    <meta name="description" content="Interface de contrôle cloud pour l'orchestrateur JARVYS. Monitoring temps réel, chat interactif et gestion des tâches.">
+    <meta name="keywords" content="JARVYS, orchestrateur, AI, automation, dashboard, monitoring, cloud">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="author" content="Yann Abadie">
+    
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    
+    <!-- Theme Detection -->
+    <script>
+      // Prevent flash of unstyled content
+      (function() {
+        const theme = localStorage.getItem('jarvys-theme') || 'dark';
+        document.documentElement.className = theme;
+      })();
+    </script>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#000000" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="JARVYS">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://jarvys-dashboard.app/">
+    <meta property="og:title" content="JARVYS Dashboard - Orchestrateur Autonome">
+    <meta property="og:description" content="Interface de contrôle cloud pour l'orchestrateur JARVYS">
+    <meta property="og:image" content="/og-image.png">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://jarvys-dashboard.app/">
+    <meta property="twitter:title" content="JARVYS Dashboard - Orchestrateur Autonome">
+    <meta property="twitter:description" content="Interface de contrôle cloud pour l'orchestrateur JARVYS">
+    <meta property="twitter:image" content="/twitter-image.png">
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/jetbrains-mono-var.woff2" as="font" type="font/woff2" crossorigin>
+    
+    <!-- Critical CSS -->
+    <style>
+      /* Prevent FOUC */
+      html { visibility: hidden; }
+      html.loaded { visibility: visible; }
+      
+      /* Loading animation */
+      .initial-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #000000, #1a1a1a);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+      
+      .loader-logo {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, #00ff88, #6c5ce7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        animation: pulse-glow 2s ease-in-out infinite;
+      }
+      
+      @keyframes pulse-glow {
+        0%, 100% {
+          box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+          transform: scale(1);
+        }
+        50% {
+          box-shadow: 0 0 40px rgba(0, 255, 136, 0.6);
+          transform: scale(1.05);
+        }
+      }
+      
+      .loader-text {
+        margin-top: 20px;
+        color: #00ff88;
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 18px;
+        letter-spacing: 0.5px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Initial Loading Screen -->
+    <div id="initial-loader" class="initial-loader">
+      <div class="text-center">
+        <div class="loader-logo">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9.5 7a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9z" fill="currentColor"/>
+            <path d="M18.5 16a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z" fill="currentColor"/>
+            <path d="M5.5 19a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z" fill="currentColor"/>
+          </svg>
+        </div>
+        <div class="loader-text">JARVYS</div>
+      </div>
+    </div>
+    
+    <!-- React App Root -->
+    <div id="root"></div>
+    
+    <!-- App Initialization Script -->
+    <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Remove Initial Loader -->
+    <script>
+      window.addEventListener('load', function() {
+        setTimeout(() => {
+          const loader = document.getElementById('initial-loader');
+          if (loader) {
+            loader.style.opacity = '0';
+            loader.style.transition = 'opacity 0.5s ease-out';
+            setTimeout(() => {
+              loader.remove();
+              document.documentElement.classList.add('loaded');
+            }, 500);
+          }
+        }, 1000);
+      });
+    </script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator && import.meta.env.PROD) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered: ', registration);
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
+    </script>
+  </body>
+</html>

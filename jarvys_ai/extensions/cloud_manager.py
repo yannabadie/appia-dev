@@ -25,7 +25,7 @@ class CloudManager:
     - Backup et synchronisation
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any] = None):
         """Initialiser le gestionnaire cloud"""
         self.config = config
         self.is_initialized = False
@@ -38,12 +38,12 @@ class CloudManager:
         }
 
         # Configuration MCP (Model Context Protocol)
-        self.mcp_config = {}
+        self.mcp_config
 
         # Simulation pour démo
         self.demo_mode = config.get("demo_mode", True)
 
-        logger.info("☁️ Cloud Manager initialisé")
+        logger = logging.getLogger(__name__).info("☁️ Cloud Manager initialisé")
 
     async def initialize(self):
         """Initialiser le gestionnaire cloud"""
@@ -54,10 +54,12 @@ class CloudManager:
                 await self._setup_real_cloud_services()
 
             self.is_initialized = True
-            logger.info("☁️ Cloud Manager prêt")
+            logger = logging.getLogger(__name__).info("☁️ Cloud Manager prêt")
 
         except Exception as e:
-            logger.error(f"❌ Erreur initialisation Cloud Manager: {e}")
+            logger = logging.getLogger(__name__).error(
+                f"❌ Erreur initialisation Cloud Manager: {e}"
+            )
             raise
 
     def is_initialized(self) -> bool:
@@ -100,7 +102,7 @@ class CloudManager:
             ],
         }
 
-        logger.info("☁️ Mode démo cloud configuré")
+        logger = logging.getLogger(__name__).info("☁️ Mode démo cloud configuré")
 
     async def _setup_real_cloud_services(self):
         """Configuration services cloud réels"""
@@ -111,10 +113,14 @@ class CloudManager:
             # - AWS CLI
             # - MCP Server connections
 
-            logger.info("☁️ Configuration services cloud réels (TODO)")
+            logger = logging.getLogger(__name__).info(
+                "☁️ Configuration services cloud réels (TODO)"
+            )
 
         except Exception as e:
-            logger.error(f"❌ Erreur configuration cloud: {e}")
+            logger = logging.getLogger(__name__).error(
+                f"❌ Erreur configuration cloud: {e}"
+            )
             raise
 
     async def process_command(self, command: str) -> str:
@@ -124,18 +130,13 @@ class CloudManager:
 
             if any(word in command_lower for word in ["deploy", "déployer"]):
                 return await self._handle_deployment(command)
-            elif any(
-                word in command_lower for word in ["cost", "coût", "facture"]
-            ):
+            elif any(word in command_lower for word in ["cost", "coût", "facture"]):
                 return await self._handle_cost_query(command)
             elif any(
-                word in command_lower
-                for word in ["status", "état", "monitoring"]
+                word in command_lower for word in ["status", "état", "monitoring"]
             ):
                 return await self._handle_status_query(command)
-            elif any(
-                word in command_lower for word in ["backup", "sauvegarde"]
-            ):
+            elif any(word in command_lower for word in ["backup", "sauvegarde"]):
                 return await self._handle_backup_command(command)
             elif "mcp" in command_lower:
                 return await self._handle_mcp_command(command)
@@ -143,7 +144,9 @@ class CloudManager:
                 return await self._handle_general_cloud_query(command)
 
         except Exception as e:
-            logger.error(f"❌ Erreur traitement commande cloud: {e}")
+            logger = logging.getLogger(__name__).error(
+                f"❌ Erreur traitement commande cloud: {e}"
+            )
             return f"Erreur lors du traitement de votre commande cloud: {e}"
 
     async def _handle_deployment(self, command: str) -> str:
@@ -158,7 +161,7 @@ class CloudManager:
                 return await self._show_deployment_options()
 
         except Exception as e:
-            logger.error(f"❌ Erreur déploiement: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur déploiement: {e}")
             return "Erreur lors du déploiement"
 
     async def _deploy_cloud_function(self, command: str) -> str:
@@ -194,7 +197,7 @@ class CloudManager:
 ✅ **Succès !** Application déployée sur Azure App Service
 
 📊 **Détails**:
-- 🏷️ Nom: jarvys-dashboard-app
+- 🏷️ Nom: jarvys-dashboard-app  # To be initialized
 - 🌍 Région: West Europe  
 - 🔗 URL: https://jarvys-dashboard.azurewebsites.net
 - 📦 Instances: 2 (Auto-scaling activé)
@@ -233,7 +236,7 @@ Quel type de déploiement souhaitez-vous ?"""
 
     async def _get_demo_cost_report(self) -> str:
         """Rapport de coûts simulé"""
-        total_cost = sum(
+        sum(
             provider["cost_today"]
             for provider in self.cloud_providers.values()
             if provider.get("cost_today", 0) > 0
@@ -330,7 +333,7 @@ Quel type de déploiement souhaitez-vous ?"""
         if self.demo_mode:
             await asyncio.sleep(1.5)  # Simulation création backup
 
-            backup_id = f"backup-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+            f"backup-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
 
             return """💾 **Sauvegarde Créée**
 
@@ -393,12 +396,8 @@ Commandes: "Restaurer backup-[ID]" ou "Créer backup"."""
 
     async def _get_mcp_status(self) -> str:
         """Obtenir statut MCP"""
-        active_servers = sum(
-            1
-            for server in self.mcp_config["servers"]
-            if server["status"] == "active"
-        )
-        total_servers = len(self.mcp_config["servers"])
+        sum(1 for server in self.mcp_config["servers"] if server["status"] == "active")
+        len(self.mcp_config["servers"])
 
         return """🔗 **Model Context Protocol (MCP)**
 
@@ -420,7 +419,7 @@ Commandes: "Restaurer backup-[ID]" ou "Créer backup"."""
 
     async def _handle_general_cloud_query(self, command: str) -> str:
         """Gérer requête générale cloud"""
-        stats = await self.get_cloud_stats()
+        await self.get_cloud_stats()
 
         return """☁️ **Gestionnaire Cloud JARVYS_AI**
 
@@ -458,8 +457,7 @@ Comment puis-je vous aider avec vos services cloud ?"""
         )
 
         total_cost_today = sum(
-            provider.get("cost_today", 0)
-            for provider in self.cloud_providers.values()
+            provider.get("cost_today", 0) for provider in self.cloud_providers.values()
         )
 
         return {

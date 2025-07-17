@@ -31,7 +31,7 @@ def _fetch_openai_models() -> list[str]:
     key = os.getenv("OPENAI_API_KEY")
     if not key:
         return []
-    _client = OpenAI(api_key=key)
+    client = OpenAI(api_key=key)
     return [m.id for m in client.models.list().data]
 
 
@@ -92,7 +92,9 @@ def check_for_new_models() -> bool:
         try:
             github_create_issue(title="New models detected", body=body)
         except Exception as exc:  # pragma: no cover - network
-            logger.warning("Issue creation failed: %s", exc)
+            logger = logging.getLogger(__name__).warning(
+                "Issue creation failed: %s", exc
+            )
         return True
     return False
 

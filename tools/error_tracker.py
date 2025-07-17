@@ -211,9 +211,7 @@ class JarvysErrorTracker:
 
         try:
             # Skip binary files and large files
-            if (
-                file_path.stat().st_size > 10 * 1024 * 1024
-            ):  # Skip files > 10MB
+            if file_path.stat().st_size > 10 * 1024 * 1024:  # Skip files > 10MB
                 return errors
 
             with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
@@ -226,7 +224,7 @@ class JarvysErrorTracker:
                         context_start = max(0, line_num - 3)
                         context_end = min(len(lines), line_num + 2)
                         context = [
-                            f"{i+1}: {lines[i].rstrip()}"
+                            f"{_i+1}: {lines[_i].rstrip()}"
                             for _i in range(context_start, context_end)
                         ]
 
@@ -241,7 +239,6 @@ class JarvysErrorTracker:
                         )
                         errors.append(error)
 
-        except (UnicodeDecodeError, PermissionError, OSError):
             # Skip files that can't be read
             pass
 
@@ -350,9 +347,7 @@ class JarvysErrorTracker:
                             message=f"Missing dependency: {dep}",
                             location="dependencies",
                             timestamp=self.scan_timestamp,
-                            context=[
-                                f"Required dependency '{dep}' not installed"
-                            ],
+                            context=[f"Required dependency '{dep}' not installed"],
                             suggested_fix=f"Install {dep} with 'pip install {dep}' or 'poetry install'",
                         )
                         errors.append(error)
@@ -409,9 +404,7 @@ class JarvysErrorTracker:
                 for severity in ErrorSeverity
             },
             "most_common_patterns": dict(
-                Counter(
-                    error.pattern_name for error in all_errors
-                ).most_common(10)
+                Counter(error.pattern_name for error in all_errors).most_common(10)
             ),
             "critical_issues": len(errors_by_severity["critical"]),
             "high_priority_issues": len(errors_by_severity["high"]),
@@ -475,16 +468,12 @@ class JarvysErrorTracker:
         # Show most common patterns
         if summary["most_common_patterns"]:
             print("🔍 Most Common Issues:")
-            for pattern, count in list(
-                summary["most_common_patterns"].items()
-            )[:5]:
+            for pattern, count in list(summary["most_common_patterns"].items())[:5]:
                 print(f"  - {pattern.replace('_', ' ').title()}: {count}")
             print()
 
         # Show critical issues
-        critical_errors = scan_results["errors_by_severity"].get(
-            "critical", []
-        )
+        critical_errors = scan_results["errors_by_severity"].get("critical", [])
         if critical_errors:
             print("🔴 Critical Issues:")
             for error in critical_errors[:5]:

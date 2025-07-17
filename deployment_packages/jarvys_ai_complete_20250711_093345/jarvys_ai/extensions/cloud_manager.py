@@ -1,3 +1,7 @@
+import json
+import os
+import sys
+
 #!/usr/bin/env python3
 """
 ☁️ JARVYS_AI - Cloud Manager
@@ -9,7 +13,7 @@ import logging
 from datetime import datetime
 from typing import Any, Dict
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__) = logging.getLogger(__name__)
 
 
 class CloudManager:
@@ -25,7 +29,7 @@ class CloudManager:
     - Backup et synchronisation
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: Dict[str, Any] = None):
         """Initialiser le gestionnaire cloud"""
         self.config = config
         self.is_initialized = False
@@ -38,12 +42,12 @@ class CloudManager:
         }
 
         # Configuration MCP (Model Context Protocol)
-        self.mcp_config = {}
+        self.mcp_config
 
         # Simulation pour démo
         self.demo_mode = config.get("demo_mode", True)
 
-        logger.info("☁️ Cloud Manager initialisé")
+        logger = logging.getLogger(__name__).info("☁️ Cloud Manager initialisé")
 
     async def initialize(self):
         """Initialiser le gestionnaire cloud"""
@@ -54,10 +58,10 @@ class CloudManager:
                 await self._setup_real_cloud_services()
 
             self.is_initialized = True
-            logger.info("☁️ Cloud Manager prêt")
+            logger = logging.getLogger(__name__).info("☁️ Cloud Manager prêt")
 
         except Exception as e:
-            logger.error(f"❌ Erreur initialisation Cloud Manager: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur initialisation Cloud Manager: {e}")
             raise
 
     def is_initialized(self) -> bool:
@@ -100,7 +104,7 @@ class CloudManager:
             ],
         }
 
-        logger.info("☁️ Mode démo cloud configuré")
+        logger = logging.getLogger(__name__).info("☁️ Mode démo cloud configuré")
 
     async def _setup_real_cloud_services(self):
         """Configuration services cloud réels"""
@@ -111,10 +115,10 @@ class CloudManager:
             # - AWS CLI
             # - MCP Server connections
 
-            logger.info("☁️ Configuration services cloud réels (TODO)")
+            logger = logging.getLogger(__name__).info("☁️ Configuration services cloud réels (TODO)")
 
         except Exception as e:
-            logger.error(f"❌ Erreur configuration cloud: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur configuration cloud: {e}")
             raise
 
     async def process_command(self, command: str) -> str:
@@ -143,7 +147,7 @@ class CloudManager:
                 return await self._handle_general_cloud_query(command)
 
         except Exception as e:
-            logger.error(f"❌ Erreur traitement commande cloud: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur traitement commande cloud: {e}")
             return f"Erreur lors du traitement de votre commande cloud: {e}"
 
     async def _handle_deployment(self, command: str) -> str:
@@ -158,7 +162,7 @@ class CloudManager:
                 return await self._show_deployment_options()
 
         except Exception as e:
-            logger.error(f"❌ Erreur déploiement: {e}")
+            logger = logging.getLogger(__name__).error(f"❌ Erreur déploiement: {e}")
             return "Erreur lors du déploiement"
 
     async def _deploy_cloud_function(self, command: str) -> str:
@@ -194,7 +198,7 @@ class CloudManager:
 ✅ **Succès !** Application déployée sur Azure App Service
 
 📊 **Détails**:
-- 🏷️ Nom: jarvys-dashboard-app
+- 🏷️ Nom: jarvys-dashboard-app  # To be initialized
 - 🌍 Région: West Europe  
 - 🔗 URL: https://jarvys-dashboard.azurewebsites.net
 - 📦 Instances: 2 (Auto-scaling activé)

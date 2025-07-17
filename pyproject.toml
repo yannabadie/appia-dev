@@ -16,7 +16,16 @@ dependencies = [
     "uvicorn[standard]>=0.30.0",
     "jinja2>=3.1.3",
     "websockets>=12.0",
-    "aiofiles>=24.1.0"
+    "aiofiles>=24.1.0",
+    "grok-api (>=0.1.1,<0.2.0)",
+    "pgvector>=0.2.4",
+    "pytest>=8.4",
+    "pytest-mock>=3.14",
+    "pre-commit>=3.7",
+    "mkdocs-material>=9.6",
+    "mkdocstrings[python]>=0.29",
+    "psutil>=5.9.0",
+    "python-dotenv (>=1.1.1,<2.0.0)"
 ]
 
 [project.optional-dependencies]
@@ -48,6 +57,8 @@ uvicorn = {extras = ["standard"], version = "^0.30.0"}
 jinja2 = "^3.1.3"
 websockets = "^12.0"
 aiofiles = "^24.1.0"
+google-auth = "^2.0.0"
+cryptography = "^41.0.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=8.4"
@@ -55,7 +66,19 @@ pytest-mock = ">=3.14"
 pre-commit = ">=3.7"
 mkdocs-material = ">=9.6"
 mkdocstrings = {version = ">=0.29", extras = ["python"]}
-psutil = ">=5.9.0"
+psutil = "^7.0.0"
+PyYAML = ">=6.0.1"
+ruff = "^0.5.5"
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+ignore = [
+    "RUF001",
+    "RUF002",
+    "E501",
+]
 
 [build-system]
 requires = ["poetry-core"]

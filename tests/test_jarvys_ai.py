@@ -1,3 +1,4 @@
+
 """Test JARVYS_AI local agent features."""
 
 import os
@@ -16,15 +17,13 @@ class TestJarvysAIStructure:
         if jarvys_ai_path.exists():
             assert jarvys_ai_path.is_dir(), "JARVYS_AI should be a directory"
         else:
-            pytest.skip(
-                "JARVYS_AI directory not found - may not be implemented yet"
-            )
+            pytest.skip("Test skipped")
 
     def test_jarvys_ai_main_exists(self):
         """Test that JARVYS_AI main module exists."""
         jarvys_ai_path = Path(__file__).parent.parent / "jarvys_ai"
         if not jarvys_ai_path.exists():
-            pytest.skip("JARVYS_AI directory not found")
+            pytest.skip("Test skipped")
 
         main_file = jarvys_ai_path / "main.py"
         if main_file.exists():
@@ -34,9 +33,7 @@ class TestJarvysAIStructure:
             content = main_file.read_text()
             assert len(content.strip()) > 0, "main.py should not be empty"
         else:
-            pytest.skip(
-                "JARVYS_AI main.py not found - may not be implemented yet"
-            )
+            pytest.skip("Test skipped")
 
     def test_jarvys_ai_requirements_exists(self):
         """Test that JARVYS_AI requirements file exists."""
@@ -50,12 +47,10 @@ class TestJarvysAIStructure:
             ), "requirements-jarvys-ai.txt should not be empty"
 
             # Should contain some basic dependencies
-            lines = [
-                line.strip() for line in content.split("\n") if line.strip()
-            ]
+            lines = [line.strip() for line in content.split("\n") if line.strip()]
             assert len(lines) > 0, "Should have at least some dependencies"
         else:
-            pytest.skip("requirements-jarvys-ai.txt not found")
+            pytest.skip("Test skipped")
 
 
 class TestJarvysAICompletePackage:
@@ -64,17 +59,17 @@ class TestJarvysAICompletePackage:
     def test_complete_package_directory_exists(self):
         """Test that complete package directory exists."""
         # Package moved to separate appIA repository
-        pytest.skip("Complete package moved to separate appIA repository")
+        pytest.skip("Test skipped")
 
     def test_complete_package_structure(self):
         """Test complete package structure."""
         # Package moved to separate appIA repository
-        pytest.skip("Complete package moved to separate appIA repository")
+        pytest.skip("Test skipped")
 
     def test_complete_package_workflows(self):
         """Test complete package has workflows."""
         # Package moved to separate appIA repository
-        pytest.skip("Complete package moved to separate appIA repository")
+        pytest.skip("Test skipped")
 
 
 class TestJarvysAILocalFeatures:
@@ -85,7 +80,7 @@ class TestJarvysAILocalFeatures:
         # This tests the concept of local CLI - actual implementation may vary
         jarvys_ai_path = Path(__file__).parent.parent / "jarvys_ai"
         if not jarvys_ai_path.exists():
-            pytest.skip("JARVYS_AI not found")
+            pytest.skip("Test skipped")
 
         # Look for CLI-related files
         cli_files = list(jarvys_ai_path.glob("*cli*"))
@@ -95,7 +90,7 @@ class TestJarvysAILocalFeatures:
             # Some CLI capability exists
             pass
         else:
-            pytest.skip("No CLI interface found - may not be implemented yet")
+            pytest.skip("Test skipped")
 
     def test_local_configuration_handling(self):
         """Test local configuration handling."""
@@ -123,15 +118,12 @@ class TestJarvysAILocalFeatures:
             memory_functions = [
                 attr
                 for attr in dir(memory_infinite)
-                if callable(getattr(memory_infinite, attr))
-                and not attr.startswith("_")
+                if callable(getattr(memory_infinite, attr)) and not attr.startswith("_")
             ]
-            assert (
-                len(memory_functions) > 0
-            ), "Memory functions should be available"
+            assert len(memory_functions) > 0, "Memory functions should be available"
 
         except ImportError:
-            pytest.skip("Memory tools not available for local access")
+            pytest.skip("Test skipped")
 
 
 class TestJarvysAIHybridFeatures:
@@ -149,22 +141,21 @@ class TestJarvysAIHybridFeatures:
             github_functions = [
                 attr
                 for attr in dir(github_tools)
-                if callable(getattr(github_tools, attr))
-                and not attr.startswith("_")
+                if callable(getattr(github_tools, attr)) and not attr.startswith("_")
             ]
             assert (
                 len(github_functions) > 0
             ), "GitHub communication functions should exist"
 
         except ImportError:
-            pytest.skip("GitHub tools not available for hybrid communication")
+            pytest.skip("Test skipped")
 
     def test_shared_memory_access(self):
         """Test shared memory access for hybrid operation."""
         try:
             from jarvys_dev.tools import memory_infinite
 
-            # Should be able to get memory client
+            # Should be able to get memory client  # To be initialized
             if hasattr(memory_infinite, "get_memory"):
                 # Test basic memory access structure
                 assert callable(
@@ -172,7 +163,7 @@ class TestJarvysAIHybridFeatures:
                 ), "get_memory should be callable"
 
         except ImportError:
-            pytest.skip("Shared memory tools not available")
+            pytest.skip("Test skipped")
 
     def test_api_communication_ready(self):
         """Test API communication readiness for hybrid operation."""
@@ -184,9 +175,7 @@ class TestJarvysAIHybridFeatures:
 
             # Should be able to make HTTP requests for API communication
             assert hasattr(requests, "get"), "Should have HTTP GET capability"
-            assert hasattr(
-                requests, "post"
-            ), "Should have HTTP POST capability"
+            assert hasattr(requests, "post"), "Should have HTTP POST capability"
 
         except ImportError:
             pytest.fail("Requests library not available for API communication")
@@ -268,7 +257,7 @@ class TestJarvysAIIntegration:
             assert memory is not None
 
         except ImportError as e:
-            pytest.skip(f"Memory systems not fully available: {e}")
+            pytest.skip("Test skipped")
 
     def test_configuration_compatibility(self):
         """Test configuration compatibility."""
@@ -304,7 +293,7 @@ class TestJarvysAIDeployment:
                             len(files_in_package) > 0
                         ), f"Package {package.name} should not be empty"
         else:
-            pytest.skip("No deployment packages found")
+            pytest.skip("Test skipped")
 
     def test_sync_script_exists(self):
         """Test that sync script exists."""
@@ -314,11 +303,9 @@ class TestJarvysAIDeployment:
         if sync_script.exists():
             content = sync_script.read_text()
             assert len(content.strip()) > 0, "Sync script should not be empty"
-            assert (
-                "jarvys" in content.lower()
-            ), "Sync script should reference JARVYS"
+            assert "jarvys" in content.lower(), "Sync script should reference JARVYS"
         else:
-            pytest.skip("Sync script not found")
+            pytest.skip("Test skipped")
 
     def test_complete_test_script_exists(self):
         """Test that complete test script exists."""
@@ -327,9 +314,7 @@ class TestJarvysAIDeployment:
 
         if test_script.exists():
             content = test_script.read_text()
-            assert (
-                len(content.strip()) > 0
-            ), "Complete test script should not be empty"
+            assert len(content.strip()) > 0, "Complete test script should not be empty"
             assert "test" in content.lower(), "Should contain test functions"
         else:
-            pytest.skip("Complete test script not found")
+            pytest.skip("Test skipped")

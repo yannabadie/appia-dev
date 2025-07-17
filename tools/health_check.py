@@ -75,9 +75,7 @@ class JarvysHealthChecker:
                     "status": "warning",
                     "exists": False,
                 }
-                health["warnings"].append(
-                    f"Missing configuration file: {file_name}"
-                )
+                health["warnings"].append(f"Missing configuration file: {file_name}")
                 if health["status"] == "healthy":
                     health["status"] = "warning"
 
@@ -135,12 +133,13 @@ class JarvysHealthChecker:
         openai_key = os.getenv("OPENAI_API_KEY")
         if openai_key:
             try:
-                from openai import OpenAI
+                # Initialize client properly
+                import openai
 
-                _client = OpenAI(api_key=openai_key)
+                client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+                models = client.models.list()
 
                 start_time = time.time()
-                models = client.models.list()
                 response_time = time.time() - start_time
 
                 health["checks"]["openai_api"] = {
@@ -264,7 +263,7 @@ class JarvysHealthChecker:
         try:
             app_file = self.project_root / "app" / "main.py"
             if app_file.exists():
-                # Try to import the app
+                # Try to import the app  # To be initialized
                 sys.path.insert(0, str(self.project_root))
                 try:
                     from app.main import app
@@ -455,9 +454,7 @@ class JarvysHealthChecker:
                 overall_warnings.extend(component_health.get("warnings", []))
 
             # Count passed/warning/error checks
-            for check_name, check_result in component_health.get(
-                "checks", {}
-            ).items():
+            for check_name, check_result in component_health.get("checks", {}).items():
                 if check_result["status"] == "ok":
                     overall_health["summary"]["passed"] += 1
                 elif check_result["status"] == "warning":
