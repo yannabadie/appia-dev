@@ -1,0 +1,67 @@
+# 🤖 GROK ORCHESTRATOR - Requirements Optimisés
+# Configuration pour environnement virtuel unique et propre
+
+# === CORE DEPENDENCIES ===
+# LangGraph pour l'architecture multi-agents
+langgraph>=0.0.55
+langchain>=0.1.0
+langchain-core>=0.1.0
+
+# xAI SDK officiel pour Grok-4-0709 UNIQUEMENT
+# NOTE: Si pas disponible, utiliser requests directement
+# xai-sdk>=1.0.0  # Décommenté quand SDK officiel disponible
+
+# === API CLIENTS ===
+# GitHub API
+PyGithub>=1.59.0
+
+# Supabase pour mémoire infinie
+supabase>=2.0.0
+
+# Google Cloud pour GCP
+google-cloud-storage>=2.10.0
+google-auth>=2.23.0
+
+# HTTP clients (urllib3 version stable)
+requests>=2.31.0
+urllib3>=1.26.0,<2.0.0  # Version stable pour éviter conflicts
+
+# OpenAI pour fallback
+openai>=1.0.0
+
+# Anthropic Claude pour fallback
+anthropic>=0.20.0
+
+# === CODE QUALITY ===
+# Lint et formatage
+ruff>=0.1.0
+black>=23.0.0
+pre-commit>=3.0.0
+
+# Tests
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+
+# === UTILITIES ===
+# JSON et typing
+typing-extensions>=4.8.0
+pydantic>=2.0.0
+
+# Environnement
+python-dotenv>=1.0.0
+
+# Dates et temps
+python-dateutil>=2.8.0
+
+# Logging avancé
+structlog>=23.0.0
+
+# === OPTIONNEL ===
+# Monitoring (optionnel)
+# prometheus-client>=0.17.0
+
+# Cache local (optionnel)
+# diskcache>=5.6.0
+
+# === VERSIONS PYTHON ===
+# Python 3.9+ requis pour typing moderne

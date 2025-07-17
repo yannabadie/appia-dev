@@ -78,8 +78,7 @@ def fix_line_length_issues():
             ),
         ],
         "tests/test_docker.py": [
-            (
-            ),
+            (),
             (
                 '"This test verifies Docker functionality"',
                 '"This test verifies Docker functionality"',

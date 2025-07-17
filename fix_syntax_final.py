@@ -51,9 +51,7 @@ def fix_config_assignments(file_path):
     original_content = content
 
     # Corriger config.get() dans les conditions if
-    content = re.sub(
-        r"if (.+?)config\.get\((.+?)\):", r"if \1config.get(\2):", content
-    )
+    content = re.sub(r"if (.+?)config\.get\((.+?)\):", r"if \1config.get(\2):", content)
     content = re.sub(
         r"if self\.config\.get\((.+?)\):", r"if self.config.get(\1):", content
     )
@@ -67,9 +65,7 @@ def fix_config_assignments(file_path):
     content = re.sub(r"self\.config\)", "self.config)", content)
 
     # Corriger assert avec config
-    content = re.sub(
-        r'assert "(.+?)" in config, ', r'assert "\1" in config, ', content
-    )
+    content = re.sub(r'assert "(.+?)" in config, ', r'assert "\1" in config, ', content)
 
     if content != original_content:
         with open(file_path, "w", encoding="utf-8") as f:
@@ -114,9 +110,7 @@ def fix_variable_assignments(file_path):
     original_content = content
 
     # Corriger app
-    content = re.sub(
-        r"assert app is not None", "assert app is not None", content
-    )
+    content = re.sub(r"assert app is not None", "assert app is not None", content)
     content = re.sub(r"app\)", "app)", content)
 
     # Corriger les variables non définies avec response/result

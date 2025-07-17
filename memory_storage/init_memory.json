@@ -1,0 +1,19 @@
+{
+  "timestamp": "2025-07-17 08:37:10",
+  "session_id": "init_test",
+  "memory_type": "system_init",
+  "content": {
+    "action": "memory_system_initialization",
+    "timestamp": "2025-07-17 08:37:10",
+    "models_available": {
+      "grok": true,
+      "claude": true
+    }
+  },
+  "importance_score": 1.0,
+  "tags": [
+    "init",
+    "system",
+    "orchestrator"
+  ]
+}

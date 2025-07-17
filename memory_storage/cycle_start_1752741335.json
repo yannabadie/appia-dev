@@ -1,0 +1,8 @@
+{
+  "memory_type": "cycle_start",
+  "content": "{\"cycle_number\": 1, \"cycle_id\": \"cycle_1752741334_0\", \"systems_available\": {\"grok\": true, \"claude\": true}}",
+  "importance_score": 0.3,
+  "timestamp": "2025-07-17 08:35:34",
+  "session_id": "session_1752741334",
+  "tags": "[\"cycle\", \"orchestrator\"]"
+}

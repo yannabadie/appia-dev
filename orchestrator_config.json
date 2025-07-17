@@ -1,0 +1,26 @@
+{
+  "grok": {
+    "model": "grok-4-0709",
+    "max_tokens": 8192,
+    "temperature": 0.7,
+    "timeout": 30
+  },
+  "claude": {
+    "model": "claude-sonnet-4-20250514",
+    "max_tokens": 4096,
+    "temperature": 0.3,
+    "validation_enabled": true
+  },
+  "memory": {
+    "infinite_enabled": true,
+    "supabase_table": "orchestrator_memories",
+    "local_fallback": true,
+    "max_local_memories": 1000
+  },
+  "orchestrator": {
+    "auto_validation": true,
+    "parallel_processing": false,
+    "retry_attempts": 3,
+    "log_level": "INFO"
+  }
+}

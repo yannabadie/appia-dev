@@ -458,7 +458,7 @@ class TestWorkflowIntegration:
 
             assert len(workflow_list) >= 0, "Should be able to access workflows"
 
-        except Exception as e:
+        except Exception:
             pytest.skip("Test skipped")
 
     def test_workflow_dependency_management(self):

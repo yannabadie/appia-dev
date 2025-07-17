@@ -50,10 +50,10 @@ def log_exceptions(
                 }
 
                 # Logger local
-                logger = logging.getLogger(__name__).error(
+                logging.getLogger(__name__).error(
                     f"❌ Exception dans {func.__name__}: {e}"
                 )
-                logger = logging.getLogger(__name__).debug(f"🔍 Détails: {exc_info}")
+                logging.getLogger(__name__).debug(f"🔍 Détails: {exc_info}")
 
                 # Logger en base si activé
                 if log_to_memory and supabase_client:
@@ -69,12 +69,12 @@ def log_exceptions(
                         supabase_client.table("jarvys_memory").insert(
                             memory_entry
                         ).execute()
-                        logger = logging.getLogger(__name__).debug(
+                        logging.getLogger(__name__).debug(
                             "📝 Exception loggée en base Supabase"
                         )
 
                     except Exception as log_error:
-                        logger = logging.getLogger(__name__).warning(
+                        logging.getLogger(__name__).warning(
                             f"⚠️ Erreur logging exception en base: {log_error}"
                         )
 
@@ -101,10 +101,10 @@ def log_exceptions(
                     "kwargs": str(kwargs) if kwargs else None,
                 }
 
-                logger = logging.getLogger(__name__).error(
+                logging.getLogger(__name__).error(
                     f"❌ Exception dans {func.__name__}: {e}"
                 )
-                logger = logging.getLogger(__name__).debug(f"🔍 Détails: {exc_info}")
+                logging.getLogger(__name__).debug(f"🔍 Détails: {exc_info}")
 
                 if log_to_memory and supabase_client:
                     try:
@@ -121,7 +121,7 @@ def log_exceptions(
                         ).execute()
 
                     except Exception as log_error:
-                        logger = logging.getLogger(__name__).warning(
+                        logging.getLogger(__name__).warning(
                             f"⚠️ Erreur logging exception en base: {log_error}"
                         )
 

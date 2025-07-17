@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-
 """LangGraph-based observe-plan-act-reflect loop."""
 
 import json
@@ -54,27 +53,27 @@ class LoopState(TypedDict, total=False):
 
 def observe(state: LoopState) -> LoopState:
     observation = state.get("observation", "initial observation")
-    logger = logging.getLogger(__name__).info("observe: %s", observation)
+    logging.getLogger(__name__).info("observe: %s", observation)
     return {"observation": observation}
 
 
 def plan(state: LoopState) -> LoopState:
     prompt = f"Plan how to handle: {state['observation']}"
     planned = _router.generate(prompt, task_type="reasoning")
-    logger = logging.getLogger(__name__).info("plan: %s", planned)
+    logging.getLogger(__name__).info("plan: %s", planned)
     return {"plan": planned}
 
 
 def act(state: LoopState) -> LoopState:
     task = {"title": "Automated task", "detail": state["plan"]}
     url = send_to_jarvys_ai(task)
-    logger = logging.getLogger(__name__).info("act: created %s", url)
+    logging.getLogger(__name__).info("act: created %s", url)
     return {"action_url": url}
 
 
 def reflect(state: LoopState) -> LoopState:
     upsert_embedding(json.dumps(state))
-    logger = logging.getLogger(__name__).info("reflect: state stored")
+    logging.getLogger(__name__).info("reflect: state stored")
     return {"reflected": True}
 
 
@@ -115,9 +114,7 @@ def run_loop(steps: int = 1) -> LoopState:
             state["waiting_for_human_review"] = True
             break
     if _router.benchmarks:
-        logger = logging.getLogger(__name__).info(
-            "benchmarks: %s", _router.benchmarks[-1]
-        )
+        logging.getLogger(__name__).info("benchmarks: %s", _router.benchmarks[-1])
     return state
 
 

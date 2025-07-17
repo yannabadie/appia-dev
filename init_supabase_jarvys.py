@@ -173,7 +173,7 @@ def init_supabase_tables():
         tables_created = 0
         for i, sql in enumerate(tables_sql, 1):
             try:
-                result = supabase.rpc("exec_sql", {"sql": sql}).execute()
+                supabase.rpc("exec_sql", {"sql": sql}).execute()
                 table_name = sql.split("public.")[1].split("(")[0].strip()
                 print(f"✅ Table {i}/9: {table_name}")
                 tables_created += 1
@@ -217,7 +217,7 @@ def init_supabase_tables():
                 },
             }
 
-            result = supabase.table("jarvys_memory").insert(init_data).execute()
+            supabase.table("jarvys_memory").insert(init_data).execute()
             print("✅ Données de test insérées")
 
         except Exception as e:

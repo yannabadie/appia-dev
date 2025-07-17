@@ -1,4 +1,3 @@
-
 """Test agent communication and memory sharing between JARVYS_DEV and"
 "JARVYS_AI."""
 
@@ -57,7 +56,7 @@ class TestMemorySharing:
             assert jarvys_dev_memory is not None
             assert jarvys_ai_memory is not None
 
-        except Exception as e:
+        except Exception:
             pytest.skip("Test skipped")
 
     def test_memory_agent_distinction(self):
@@ -74,7 +73,7 @@ class TestMemorySharing:
                 dev_memory is not ai_memory
             ), "Different agents should have distinct memory objects"
 
-        except Exception as e:
+        except Exception:
             pytest.skip("Test skipped")
 
     @pytest.mark.integration
@@ -106,7 +105,7 @@ class TestMemorySharing:
                     results, (list, dict, type(None))
                 ), "Recall should return structured data"
 
-        except Exception as e:
+        except Exception:
             pytest.skip("Test skipped")
 
 
@@ -139,7 +138,7 @@ class TestGitHubCommunication:
             user = client.get_user()
             assert user is not None
 
-        except Exception as e:
+        except Exception:
             pytest.skip("Test skipped")
 
     def test_issue_communication_structure(self):
@@ -178,7 +177,7 @@ class TestGitHubCommunication:
             assert repo is not None
             assert repo.name == "appia-dev"
 
-        except Exception as e:
+        except Exception:
             pytest.skip("Test skipped")
 
     def test_communication_labels(self):
@@ -246,7 +245,7 @@ class TestAPIBasedCommunication:
                 404,
             ], "Should get valid HTTP response"
 
-        except Exception as e:
+        except Exception:
             pytest.skip("Test skipped")
 
 

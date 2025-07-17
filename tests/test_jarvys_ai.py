@@ -1,4 +1,3 @@
-
 """Test JARVYS_AI local agent features."""
 
 import os
@@ -256,7 +255,7 @@ class TestJarvysAIIntegration:
             assert memory_infinite is not None
             assert memory is not None
 
-        except ImportError as e:
+        except ImportError:
             pytest.skip("Test skipped")
 
     def test_configuration_compatibility(self):

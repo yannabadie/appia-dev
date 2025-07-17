@@ -84,9 +84,7 @@ def fix_syntax_patterns(file_path):
         content,
         flags=re.MULTILINE,
     )
-    content = re.sub(
-        r"app$", "app  # To be initialized", content, flags=re.MULTILINE
-    )
+    content = re.sub(r"app$", "app  # To be initialized", content, flags=re.MULTILINE)
 
     if content != original_content:
         with open(file_path, "w", encoding="utf-8") as f:
