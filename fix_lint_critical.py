@@ -9,6 +9,7 @@ import re
 import subprocess
 from pathlib import Path
 
+
 def fix_syntax_errors():
     """Corrige les erreurs de syntaxe communes"""
     fixes = [

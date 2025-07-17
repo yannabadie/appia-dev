@@ -1,68 +1,78 @@
 -- 🔧 SCRIPT SQL MINIMAL POUR GROK ORCHESTRATOR
 -- ==============================================
--- Version simplifiée sans suppression, juste création des tables nécessaires
+-- Version améliorée avec schéma unifié pour JARVYS
 
--- Complete Supabase setup for orchestrator
--- Drop existing tables if they exist
-DROP TABLE IF EXISTS jarvys_memory CASCADE;
-DROP TABLE IF EXISTS orchestrator_logs CASCADE;
-DROP TABLE IF EXISTS logs CASCADE;
-
--- Create jarvys_memory table with ALL required columns
-CREATE TABLE jarvys_memory (
-    id SERIAL PRIMARY KEY,
-    session_id TEXT NOT NULL,
-    memory_type TEXT NOT NULL DEFAULT 'general',
+-- Créer les tables seulement si elles n'existent pas avec schéma unifié
+CREATE TABLE IF NOT EXISTS public.jarvys_memory (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     content TEXT NOT NULL,
-    embedding VECTOR(1536),
+    agent_source VARCHAR(50) NOT NULL DEFAULT 'JARVYS_DEV',
+    memory_type VARCHAR(50) NOT NULL DEFAULT 'experience',
+    user_context VARCHAR(100) NOT NULL DEFAULT 'orchestrator',
+    importance_score FLOAT NOT NULL DEFAULT 0.5 CHECK (importance_score >= 0 AND importance_score <= 1),
+    tags TEXT[] DEFAULT '{}',
     metadata JSONB DEFAULT '{}',
-    timestamp TIMESTAMPTZ DEFAULT NOW(),
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    -- Colonnes de compatibilité pour ancien schéma
+    session_id TEXT,
+    embedding VECTOR(1536),
+    timestamp TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Create orchestrator_logs table with ALL required columns  
-CREATE TABLE orchestrator_logs (
-    id SERIAL PRIMARY KEY,
-    cycle_number INTEGER NOT NULL,
-    step_name TEXT NOT NULL,
-    status TEXT NOT NULL,
-    content TEXT,
-    timestamp TIMESTAMPTZ DEFAULT NOW(),
-    metadata JSONB DEFAULT '{}'
+CREATE TABLE IF NOT EXISTS public.orchestrator_logs (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    agent_type VARCHAR(50) NOT NULL,
+    action VARCHAR(100) NOT NULL,
+    task TEXT,
+    repo VARCHAR(50),
+    status VARCHAR(50) DEFAULT 'completed',
+    metadata JSONB DEFAULT '{}',
+    error_details TEXT,
+    success BOOLEAN DEFAULT true,
+    -- Colonnes de compatibilité pour ancien schéma
+    cycle_number INTEGER,
+    step_name TEXT,
+    content TEXT
 );
 
--- Create logs table with ALL required columns
-CREATE TABLE logs (
-    id SERIAL PRIMARY KEY,
-    level TEXT NOT NULL,
-    message TEXT NOT NULL,
-    timestamp TIMESTAMPTZ DEFAULT NOW(),
-    metadata JSONB DEFAULT '{}'
+CREATE TABLE IF NOT EXISTS public.logs (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    task TEXT,
+    repo VARCHAR(50),
+    status VARCHAR(50) DEFAULT 'completed',
+    timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    lint_output TEXT,
+    test_result TEXT,
+    doc_update TEXT,
+    pr_url TEXT,
+    reflection TEXT,
+    adapt_fix TEXT,
+    file_error TEXT,
+    metadata JSONB DEFAULT '{}',
+    -- Colonnes de compatibilité pour ancien schéma
+    level TEXT,
+    message TEXT
 );
 
--- Enable RLS (Row Level Security)
-ALTER TABLE jarvys_memory ENABLE ROW LEVEL SECURITY;
-ALTER TABLE orchestrator_logs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE logs ENABLE ROW LEVEL SECURITY;
-
--- Create policies for public access (adjust as needed)
-CREATE POLICY "Allow all operations on jarvys_memory" ON jarvys_memory FOR ALL USING (true);
-CREATE POLICY "Allow all operations on orchestrator_logs" ON orchestrator_logs FOR ALL USING (true);
-CREATE POLICY "Allow all operations on logs" ON logs FOR ALL USING (true);
-
--- Create indexes for performance
-CREATE INDEX idx_jarvys_memory_session_id ON jarvys_memory(session_id);
-CREATE INDEX idx_jarvys_memory_timestamp ON jarvys_memory(timestamp);
-CREATE INDEX idx_jarvys_memory_memory_type ON jarvys_memory(memory_type);
-CREATE INDEX idx_orchestrator_logs_cycle ON orchestrator_logs(cycle_number);
-CREATE INDEX idx_orchestrator_logs_timestamp ON orchestrator_logs(timestamp);
-CREATE INDEX idx_logs_timestamp ON logs(timestamp);
-
--- Index essentiels
+-- Index essentiels optimisés
 CREATE INDEX IF NOT EXISTS idx_jarvys_memory_memory_type ON public.jarvys_memory(memory_type);
 CREATE INDEX IF NOT EXISTS idx_jarvys_memory_created_at ON public.jarvys_memory(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_jarvys_memory_session_id ON public.jarvys_memory(session_id) WHERE session_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_orchestrator_logs_timestamp ON public.orchestrator_logs(timestamp DESC);
+CREATE INDEX IF NOT EXISTS idx_orchestrator_logs_cycle ON public.orchestrator_logs(cycle_number) WHERE cycle_number IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_logs_timestamp ON public.logs(timestamp DESC);
+
+-- Enable RLS (Row Level Security)
+ALTER TABLE public.jarvys_memory ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.orchestrator_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.logs ENABLE ROW LEVEL SECURITY;
+
+-- Create policies for public access (adjust as needed)
+CREATE POLICY "Allow all operations on jarvys_memory" ON public.jarvys_memory FOR ALL USING (true);
+CREATE POLICY "Allow all operations on orchestrator_logs" ON public.orchestrator_logs FOR ALL USING (true);
+CREATE POLICY "Allow all operations on logs" ON public.logs FOR ALL USING (true);
 
 -- Permissions essentielles
 GRANT ALL ON public.jarvys_memory TO service_role;
@@ -79,17 +89,17 @@ INSERT INTO public.jarvys_memory (
     tags, 
     metadata
 ) VALUES (
-    'Test d''initialisation grok_orchestrator',
+    'Test d''initialisation grok_orchestrator unifié',
     'JARVYS_DEV',
     'system_test',
     'orchestrator_initialization',
     1.0,
-    ARRAY['test', 'grok', 'orchestrator'],
-    '{"test_date": "2025-07-17", "status": "operational"}'::jsonb
+    ARRAY['test', 'grok', 'orchestrator', 'unified'],
+    '{"test_date": "2025-07-17", "status": "operational", "schema": "unified"}'::jsonb
 ) ON CONFLICT DO NOTHING;
 
 -- Vérification
-SELECT 'Tables créées avec succès!' as status,
+SELECT 'Tables créées avec succès avec schéma unifié!' as status,
        COUNT(*) as tables_count
 FROM information_schema.tables 
 WHERE table_schema = 'public' 
