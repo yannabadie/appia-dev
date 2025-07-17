@@ -3,13 +3,13 @@
 
 # === CORE DEPENDENCIES ===
 # LangGraph pour l'architecture multi-agents
-langgraph>=0.0.55
+langgraph>=0.5.3
 langchain>=0.1.0
 langchain-core>=0.1.0
 
 # xAI SDK officiel pour Grok-4-0709 UNIQUEMENT
 # NOTE: Si pas disponible, utiliser requests directement
-# xai-sdk>=1.0.0  # Décommenté quand SDK officiel disponible
+xai-sdk>=1.0.0  # SDK officiel disponible
 
 # === API CLIENTS ===
 # GitHub API
@@ -30,7 +30,7 @@ urllib3>=1.26.0,<2.0.0  # Version stable pour éviter conflicts
 openai>=1.0.0
 
 # Anthropic Claude pour fallback
-anthropic>=0.20.0
+anthropic>=0.57.1
 
 # === CODE QUALITY ===
 # Lint et formatage

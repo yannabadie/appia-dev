@@ -14,7 +14,7 @@ from contextlib import contextmanager
 
 import requests
 from google.oauth2 import service_account
-from langgraph.graph import END, StateGraph
+from langgraph.graph import END, START, StateGraph
 from typing_extensions import Annotated, TypedDict
 
 from supabase import create_client
@@ -57,7 +57,7 @@ except ImportError:
 
 # Load environment variables
 XAI_API_KEY = os.getenv("XAI_API_KEY", "test-key")  # Fallback pour test
-CLAUDE_API_KEY = os.getenv("ANTHROPIC_API_KEY")  # Claude API key
+CLAUDE_API_KEY = os.getenv("CLAUDE_API_KEY")  # Claude API key
 GROK_MODEL = "grok-4-0709"  # STRICT: Only grok-4-0709 allowed, no other Grok versions
 
 # Validation stricte du modèle Grok (inspiré de la proposition Grok)
@@ -975,7 +975,6 @@ Focus on actionable updates that could improve the JARVYS system."""
         return "Technology verification unavailable"
 
 
-# Setup repository directories
 def setup_repositories():
     """Setup and sync repository directories"""
     if not GH_TOKEN:
@@ -991,11 +990,15 @@ def setup_repositories():
             (REPO_DIR_AI, GH_REPO_AI, "main"),
         ]:
             if not os.path.exists(dir_path):
+                print(f"📥 Cloning repository {repo_url} to {dir_path}...")
                 clone_cmd = (
                     f"git clone https://x-access-token:{GH_TOKEN}@github.com/"
                     f"{repo_url}.git {dir_path}"
                 )
-                os.system(clone_cmd)
+                result = os.system(clone_cmd)
+                if result != 0:
+                    print(f"⚠️ Failed to clone {repo_url}, will use workspace directory")
+                    continue
 
             # Always start from the base directory
             os.chdir(current_dir)
@@ -1022,6 +1025,13 @@ def setup_repositories():
         print(f"⚠️ Repository setup failed: {e}")
         os.chdir(current_dir)
         return False
+
+
+# Auto-setup repositories at import
+try:
+    setup_repositories()
+except Exception as e:
+    print(f"⚠️ Auto-setup repositories failed: {e}")
 
 
 # État (TypedDict avec reducers appropriés pour éviter InvalidUpdateError)
@@ -1292,6 +1302,11 @@ def query_grok(prompt: str, state: AgentState) -> str:  # Pass state for log
 # Node: Fix Lint/Erreurs (proactif/adaptable : auto-fix, query si unknown)
 def fix_lint(state: AgentState) -> AgentState:
     """Fix lint and errors in the codebase"""
+    if not os.path.exists(state["repo_dir"]) or state["repo_dir"] == "":
+        # Use current workspace if no repo directory
+        state["repo_dir"] = WORKSPACE_DIR
+        print(f"📁 Using workspace directory for lint fixes: {state['repo_dir']}")
+
     if not os.path.exists(state["repo_dir"]):
         print(f"⚠️ Repository directory {state['repo_dir']} not found")
         return {**state, "lint_fixed": True}  # Skip if no repo
@@ -1325,8 +1340,13 @@ def fix_lint(state: AgentState) -> AgentState:
                 output = subprocess.run(
                     cmd, shell=True, capture_output=True, text=True
                 ).stdout
-                state["log_entry"]["lint_output"] = (
-                    state["log_entry"].get("lint_output", "") + output[:200] + "\n"
+                # Store lint output in metadata instead of direct column
+                if "metadata" not in state["log_entry"]:
+                    state["log_entry"]["metadata"] = {}
+                state["log_entry"]["metadata"]["lint_output"] = (
+                    state["log_entry"]["metadata"].get("lint_output", "")
+                    + output[:200]
+                    + "\n"
                 )
             except Exception as e:
                 # Adaptabilité : Query pour solution inconnue
@@ -1348,17 +1368,21 @@ def fix_lint(state: AgentState) -> AgentState:
         )
         lint_fixed = True  # Assume fixed for now
 
-    # Log Supabase (no auth call; client uses key)
+    # Log Supabase with correct schema (remove problematic fields)
     if supabase:
         try:
-            supabase.table("orchestrator_logs").insert(
-                {
-                    **state["log_entry"],
-                    "step_name": "fix_lint",
-                    "status": "completed",
-                    "cycle_number": 1,
-                }
-            ).execute()
+            log_data = {
+                "cycle_number": 1,
+                "step_name": "fix_lint",
+                "status": "completed",
+                "content": json.dumps(state.get("log_entry", {})),
+                "metadata": {
+                    "source": "grok_orchestrator",
+                    "lint_fixed": lint_fixed,
+                    "log_summary": "Lint fixes applied",
+                },
+            }
+            supabase.table("orchestrator_logs").insert(log_data).execute()
         except Exception as db_e:
             print(f"Supabase insert failed: {db_e} – using local log fallback")
             with open("local_logs.json", "a") as f:
@@ -1374,6 +1398,11 @@ def identify_tasks(state: AgentState) -> AgentState:
     repo_dir = REPO_DIR_AI if is_ai else REPO_DIR_DEV
     repo_obj = repo_ai if is_ai else repo_dev
     sub_agent = "AI" if is_ai else "DEV"
+
+    # Use current workspace if repos not cloned yet
+    if not os.path.exists(repo_dir):
+        repo_dir = WORKSPACE_DIR  # Use current workspace
+        print(f"📁 Using workspace directory: {repo_dir}")
 
     if os.path.exists(repo_dir):
         with change_dir(repo_dir):
@@ -1433,9 +1462,18 @@ def identify_tasks(state: AgentState) -> AgentState:
 
     if supabase:
         try:
-            supabase.table("orchestrator_logs").insert(
-                {**log_entry, "step_name": "identify_tasks", "cycle_number": 1}
-            ).execute()
+            log_data = {
+                "cycle_number": 1,
+                "step_name": "identify_tasks",
+                "status": "completed",
+                "content": json.dumps(log_entry),
+                "metadata": {
+                    "source": "grok_orchestrator",
+                    "task": task,
+                    "sub_agent": sub_agent,
+                },
+            }
+            supabase.table("orchestrator_logs").insert(log_data).execute()
         except Exception as db_e:
             print(f"Supabase insert failed: {db_e} – using local log fallback")
             with open("local_logs.json", "a") as f:
@@ -1551,6 +1589,11 @@ def generate_code(state: AgentState) -> AgentState:
 # Node: Appliquer & Tester avec validation avancée
 def apply_test(state: AgentState) -> AgentState:
     """Apply and test the generated code with enhanced validation"""
+    if not os.path.exists(state["repo_dir"]) or state["repo_dir"] == "":
+        # Use current workspace if no repo directory
+        state["repo_dir"] = WORKSPACE_DIR
+        print(f"📁 Using workspace directory for tests: {state['repo_dir']}")
+
     if not os.path.exists(state["repo_dir"]):
         return {**state, "test_result": "SKIPPED - No repository directory"}
 
@@ -1644,15 +1687,17 @@ def apply_test(state: AgentState) -> AgentState:
         except Exception as e:
             test_result = f"FAILED - Exception during testing: {str(e)}"
 
-    # Enhanced logging with collaboration context
+    # Enhanced logging with collaboration context - store in metadata
     log_entry = {
         **state["log_entry"],
-        "test_result": test_result[:800],  # Increased limit for detailed results
-        "collaboration_confidence": confidence,
-        "claude_validation_summary": (
-            claude_validation.get("is_valid", False) if claude_validation else None
-        ),
-        "file_path": file_path,
+        "metadata": {
+            "test_result": test_result[:800],
+            "collaboration_confidence": confidence,
+            "claude_validation_summary": (
+                claude_validation.get("is_valid", False) if claude_validation else None
+            ),
+            "file_path": file_path,
+        },
     }
 
     # Store test results in memory for learning
@@ -1673,11 +1718,11 @@ def apply_test(state: AgentState) -> AgentState:
 
     if supabase:
         try:
-            supabase.table("orchestrator_logs").update(
+            supabase.table("orchestrator_logs").insert(
                 {**log_entry, "step_name": "apply_test"}
-            ).eq("task", state["task"]).execute()
+            ).execute()
         except Exception as db_e:
-            print(f"Supabase update failed: {db_e} – using local log fallback")
+            print(f"Supabase insert failed: {db_e} – using local log fallback")
             with open("local_logs.json", "a") as f:
                 json.dump(log_entry, f)
 
@@ -1706,15 +1751,22 @@ def update_docs(state: AgentState) -> AgentState:
             except Exception as e:
                 print(f"⚠️ Doc update failed: {e}")
 
-    log_entry = {**state["log_entry"], "doc_update": doc_update[:500]}
+    # Store doc_update in metadata
+    log_entry = {
+        **state["log_entry"],
+        "metadata": {
+            **(state["log_entry"].get("metadata", {})),
+            "doc_update": doc_update[:500],
+        },
+    }
 
     if supabase:
         try:
-            supabase.table("orchestrator_logs").update(
+            supabase.table("orchestrator_logs").insert(
                 {**log_entry, "step_name": "update_docs"}
-            ).eq("task", state["task"]).execute()
+            ).execute()
         except Exception as db_e:
-            print(f"Supabase update failed: {db_e} – using local log fallback")
+            print(f"Supabase insert failed: {db_e} – using local log fallback")
             with open("local_logs.json", "a") as f:
                 json.dump(log_entry, f)
 
@@ -1730,15 +1782,22 @@ def reflect_commit(state: AgentState) -> AgentState:
             f"(alt approaches), adaptable (handle unknown)."
         )
         reflection = query_grok(prompt, state)
-        log_entry = {**state["log_entry"], "reflection": reflection}
+        # Store reflection in metadata
+        log_entry = {
+            **state["log_entry"],
+            "metadata": {
+                **(state["log_entry"].get("metadata", {})),
+                "reflection": reflection,
+            },
+        }
 
         if supabase:
             try:
-                supabase.table("orchestrator_logs").update(
+                supabase.table("orchestrator_logs").insert(
                     {**log_entry, "step_name": "reflect_commit"}
-                ).eq("task", state["task"]).execute()
+                ).execute()
             except Exception as db_e:
-                print(f"Supabase update failed: {db_e} – using local log fallback")
+                print(f"Supabase insert failed: {db_e} – using local log fallback")
                 with open("local_logs.json", "a") as f:
                     json.dump(log_entry, f)
 
@@ -1784,7 +1843,14 @@ def reflect_commit(state: AgentState) -> AgentState:
                         print(f"⚠️ Issue creation failed: {issue_e}")
 
                 except Exception as commit_e:
-                    log_entry = {**state["log_entry"], "commit_error": str(commit_e)}
+                    # Store commit error in metadata
+                    log_entry = {
+                        **state["log_entry"],
+                        "metadata": {
+                            **(state["log_entry"].get("metadata", {})),
+                            "commit_error": str(commit_e),
+                        },
+                    }
         else:
             log_entry = {**state["log_entry"], "status": "completed_no_repo"}
 
@@ -1792,11 +1858,11 @@ def reflect_commit(state: AgentState) -> AgentState:
 
         if supabase:
             try:
-                supabase.table("orchestrator_logs").update(
+                supabase.table("orchestrator_logs").insert(
                     {**log_entry, "step_name": "reflect_commit"}
-                ).eq("task", state["task"]).execute()
+                ).execute()
             except Exception as db_e:
-                print(f"Supabase update failed: {db_e} – using local log fallback")
+                print(f"Supabase insert failed: {db_e} – using local log fallback")
                 with open("local_logs.json", "a") as f:
                     json.dump(log_entry, f)
 
@@ -1805,8 +1871,10 @@ def reflect_commit(state: AgentState) -> AgentState:
 
 # Build Graph
 def build_orchestrator_graph():
-    """Build the LangGraph orchestrator"""
+    """Build the LangGraph orchestrator with modern 0.5.x syntax"""
     graph = StateGraph(AgentState)
+
+    # Add all nodes
     graph.add_node("fix_lint", fix_lint)
     graph.add_node("identify", identify_tasks)
     graph.add_node("generate", generate_code)
@@ -1814,23 +1882,14 @@ def build_orchestrator_graph():
     graph.add_node("update_docs", update_docs)
     graph.add_node("reflect_commit", reflect_commit)
 
-    graph.set_entry_point("fix_lint")
+    # Modern LangGraph 0.5.x edge syntax - linear flow for now
+    graph.add_edge(START, "fix_lint")
     graph.add_edge("fix_lint", "identify")
     graph.add_edge("identify", "generate")
     graph.add_edge("generate", "apply_test")
     graph.add_edge("apply_test", "update_docs")
     graph.add_edge("update_docs", "reflect_commit")
-
-    graph.add_conditional_edges(
-        "reflect_commit",
-        lambda s: s.get("next", END),
-        {"generate": "generate", END: END},
-    )
-    graph.add_conditional_edges(
-        "fix_lint",
-        lambda s: "fix_lint" if not s["lint_fixed"] else "identify",
-        {"fix_lint": "fix_lint", "identify": "identify"},
-    )
+    graph.add_edge("reflect_commit", END)
 
     return graph.compile()
 
@@ -1870,40 +1929,73 @@ def run_orchestrator():
         print("🌐 Technology updates retrieved and stored in memory")
 
     # Initialize state
-    state = AgentState(
-        task="",
-        sub_agent="",
-        repo_dir=WORKSPACE_DIR,
-        repo_obj=None,
-        code_generated="",
-        test_result="",
-        reflection="",
-        doc_update="",
-        log_entry={},
-        lint_fixed=False,
-    )
+    state = {
+        "task": "",
+        "sub_agent": "",
+        "repo_dir": WORKSPACE_DIR,
+        "repo_obj": None,
+        "code_generated": "",
+        "test_result": "",
+        "reflection": "",
+        "doc_update": "",
+        "log_entry": {},
+        "lint_fixed": False,
+    }
 
-    # Build and run orchestrator
-    orchestrator = build_orchestrator_graph()
-    max_cycles = 10  # Guard global
+    # Run orchestrator cycles directly (simplified without LangGraph for now)
+    max_cycles = 10
     cycle = 0
 
     while cycle < max_cycles:
         print(f"🤖 Cycle {cycle + 1}/{max_cycles} - {GROK_MODEL} on main → appIA/main")
 
         try:
-            state = orchestrator.invoke(state)
-            print(f"✅ Completed cycle {cycle + 1} successfully!")
+            # Execute orchestrator pipeline manually
+            print("🔧 Step 1: Fix lint...")
+            state = fix_lint(state)
+
+            print("🎯 Step 2: Identify tasks...")
+            state = identify_tasks(state)
+
+            if state.get("task"):
+                print(f"📋 Task identified: {state['task']}")
+                print(f"👤 Agent: {state.get('sub_agent', 'N/A')}")
+
+                print("🔧 Step 3: Generate code...")
+                state = generate_code(state)
+
+                print("🧪 Step 4: Apply and test...")
+                state = apply_test(state)
+
+                print("📝 Step 5: Update docs...")
+                state = update_docs(state)
+
+                print("🤔 Step 6: Reflect and commit...")
+                state = reflect_commit(state)
+
+                print(f"✅ Completed cycle {cycle + 1} successfully!")
+
+                # Log successful cycle
+                log_cycle_step(
+                    cycle + 1,
+                    "cycle_completed",
+                    "success",
+                    f"Task: {state.get('task', 'N/A')} | Agent: {state.get('sub_agent', 'N/A')}",
+                )
+            else:
+                print("⚠️ No task identified, skipping cycle")
+
         except Exception as e:
             print(f"❌ Cycle {cycle + 1} failed: {str(e)}")
+            log_cycle_step(cycle + 1, "cycle_failed", "error", str(e))
 
         # Clean state for next cycle to prevent data accumulation
         state = clean_state_for_new_cycle(state)
 
         cycle += 1
         if cycle < max_cycles:  # Don't sleep after last cycle
-            print("😴 Sleeping for 2 hours before next cycle...")
-            time.sleep(7200)  # 2h - Reduced frequency to avoid interference
+            print("😴 Sleeping for 30 minutes before next cycle...")
+            time.sleep(1800)  # 30 minutes - More frequent for active development
 
     print(f"🎯 Orchestrator completed all {max_cycles} cycles!")
 
