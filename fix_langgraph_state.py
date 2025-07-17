@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-"""
+""" """
 
 import re
 
@@ -151,7 +150,6 @@ def fix_function_returns():
     # Sauvegarder
     with open("grok_orchestrator.py", "w", encoding="utf-8") as f:
         f.write(content)
-
 
 
 if __name__ == "__main__":

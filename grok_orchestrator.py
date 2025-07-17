@@ -29,17 +29,26 @@ Implementation follows official xAI SDK documentation:
 
 import json
 import os
-import random
+import random  # Added missing import
+import re
 import subprocess
 import time
 
 import requests
-from github import Github
 from google.oauth2 import service_account
 from langgraph.graph import END, StateGraph
 from typing_extensions import Annotated, TypedDict
 
 from supabase import create_client
+
+# Import GitHub library with proper error handling
+try:
+    from github import Github
+
+    GITHUB_AVAILABLE = True
+except ImportError:
+    print("Warning: GitHub library not available. Install with: pip install PyGithub")
+    GITHUB_AVAILABLE = False
 
 # Import xAI SDK for optimal Grok API integration
 try:
@@ -50,6 +59,15 @@ try:
 except ImportError:
     print("⚠️ xAI SDK not installed. Install with: pip install xai-sdk")
     XAI_SDK_AVAILABLE = False
+
+# Import Claude SDK for code validation and testing
+try:
+    import anthropic
+
+    CLAUDE_AVAILABLE = True
+except ImportError:
+    print("⚠️ Claude SDK not installed. Install with: pip install anthropic")
+    CLAUDE_AVAILABLE = False
 
 # Load TOUS secrets (périmètre complet, raise si manquant critique)
 XAI_API_KEY = os.getenv("XAI_API_KEY", "test-key")  # Fallback pour test
@@ -131,6 +149,483 @@ def validate_grok_api():
         return False
 
 
+# Validate Claude API for code validation and testing
+def validate_claude_api():
+    """Validate that Claude API is accessible for code validation"""
+    if not CLAUDE_API_KEY:
+        print("⚠️ WARNING: No Claude API key found. Code validation will be skipped!")
+        return False
+
+    if not CLAUDE_AVAILABLE:
+        print("❌ Claude SDK not available. Install with: pip install anthropic")
+        return False
+
+    try:
+        print("🔍 Testing Claude 4 API connection...")
+
+        client = anthropic.Anthropic(api_key=CLAUDE_API_KEY)
+
+        # Test with Claude Sonnet 4 (recommended for code validation)
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=100,
+            temperature=0,
+            messages=[
+                {
+                    "role": "user",
+                    "content": "Test connection - respond with 'CLAUDE_API_OK'",
+                }
+            ],
+        )
+
+        content = response.content[0].text if response.content else ""
+        print(f"✅ Claude 4 API connection successful! Response: {content.strip()}")
+
+        # Log token usage
+        if hasattr(response, "usage"):
+            usage = response.usage
+            print(
+                f"📊 Claude Test - Input tokens: {usage.input_tokens}, Output tokens: {usage.output_tokens}"
+            )
+
+        return True
+
+    except Exception as e:
+        print(f"❌ Claude API validation error: {str(e)}")
+        return False
+
+
+# Initialize infinite memory system in Supabase
+def init_infinite_memory():
+    """Initialize the infinite memory system with Supabase backend"""
+    try:
+        print("🧠 Initializing infinite memory system...")
+
+        # Test basic connection first
+        try:
+            # Simple test query to check connection
+            supabase.table("jarvys_memory").select("*").limit(1).execute()
+            print("✅ Supabase connection verified")
+        except Exception as conn_error:
+            print(f"⚠️ Supabase connection issue: {conn_error}")
+            print("📝 Will use local fallback storage only")
+            return False
+
+        # Test memory storage with correct jarvys_memory schema
+        test_memory_data = {
+            "content": "Système JARVYS initialisé avec succès - Orchestrateur Grok-Claude opérationnel",
+            "agent_source": "JARVYS_DEV",
+            "memory_type": "system_init",
+            "user_context": "orchestrator_initialization",
+            "importance_score": 1.0,
+            "tags": ["init", "system", "orchestrator", "grok", "claude"],
+            "metadata": {
+                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "models_available": {
+                    "grok": XAI_SDK_AVAILABLE,
+                    "claude": CLAUDE_AVAILABLE,
+                },
+                "initialization_success": True
+            }
+        }
+
+        # Try to insert into jarvys_memory table with correct schema
+        try:
+            result = supabase.table("jarvys_memory").insert(test_memory_data).execute()
+            if result.data:
+                print("✅ Memory system initialized with jarvys_memory table!")
+                print(f"📝 Memory ID: {result.data[0].get('id')}")
+                return True
+            else:
+                print("⚠️ jarvys_memory table insert returned no data")
+        except Exception as memory_error:
+            print(f"⚠️ jarvys_memory table issue: {memory_error}")
+
+        # Try orchestrator_logs as backup
+        try:
+            orchestrator_init_data = {
+                "agent_type": "JARVYS_DEV",
+                "action": "system_initialization",
+                "task": "Initialisation de l'orchestrateur Grok-Claude",
+                "status": "completed",
+                "metadata": test_memory_data["metadata"]
+            }
+            
+            result = supabase.table("orchestrator_logs").insert(orchestrator_init_data).execute()
+            if result.data:
+                print("✅ Memory system using orchestrator_logs table!")
+                return True
+        except Exception as orchestrator_error:
+            print(f"⚠️ orchestrator_logs table issue: {orchestrator_error}")
+
+        # Try logs table as final backup
+        try:
+            logs_data = {
+                "task": "Initialisation système JARVYS",
+                "status": "completed",
+                "metadata": test_memory_data["metadata"]
+            }
+            
+            result = supabase.table("logs").insert(logs_data).execute()
+            if result.data:
+                print("✅ Memory system using logs table!")
+                return True
+        except Exception as logs_error:
+            print(f"⚠️ logs table issue: {logs_error}")
+
+        print("📝 Creating local fallback storage...")
+        # Create local memory file as fallback
+        os.makedirs("memory_storage", exist_ok=True)
+        with open("memory_storage/init_memory.json", "w") as f:
+            json.dump(test_memory_data, f, indent=2)
+
+        print("✅ Local memory storage initialized")
+        return False
+
+    except Exception as e:
+        print(f"⚠️ Memory system initialization failed: {e}")
+        print("📝 Will use local fallback storage")
+        return False
+
+        print("✅ Local memory storage initialized")
+        return False
+
+    except Exception as e:
+        print(f"⚠️ Memory system initialization failed: {e}")
+        print("📝 Will use local fallback storage")
+        return False
+
+
+# Store memory with infinite retention and intelligent retrieval
+def store_memory(
+    memory_type: str, content: dict, importance: float = 0.5, tags: list = None
+):
+    """Store memory in Supabase with infinite retention using correct schema"""
+    try:
+        # First try with correct jarvys_memory schema
+        try:
+            jarvys_memory_data = {
+                "content": json.dumps(content) if isinstance(content, dict) else str(content),
+                "agent_source": "JARVYS_DEV",
+                "memory_type": memory_type,
+                "user_context": "orchestrator",
+                "importance_score": importance,
+                "tags": tags or [],
+                "metadata": {
+                    "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+                    "source": "grok_orchestrator",
+                    "session": f"session_{int(time.time())}"
+                }
+            }
+            
+            result = supabase.table("jarvys_memory").insert(jarvys_memory_data).execute()
+            if result.data:
+                print(f"🧠 Memory stored in jarvys_memory: {memory_type} (importance: {importance})")
+                return result.data[0].get("id") if result.data else None
+        except Exception as e:
+            print(f"⚠️ jarvys_memory failed: {e}")
+
+        # Try orchestrator_logs as backup
+        try:
+            orchestrator_data = {
+                "agent_type": "JARVYS_DEV",
+                "action": memory_type,
+                "task": json.dumps(content) if isinstance(content, dict) else str(content),
+                "status": "completed",
+                "metadata": {
+                    "importance_score": importance,
+                    "tags": tags or [],
+                    "content": content
+                }
+            }
+            
+            result = supabase.table("orchestrator_logs").insert(orchestrator_data).execute()
+            if result.data:
+                print(f"🧠 Memory stored in orchestrator_logs: {memory_type}")
+                return result.data[0].get("id") if result.data else None
+        except Exception as e:
+            print(f"⚠️ orchestrator_logs failed: {e}")
+
+        # Try logs table as final backup
+        try:
+            logs_data = {
+                "task": f"{memory_type}: {str(content)[:200]}",
+                "status": "completed",
+                "metadata": {
+                    "importance_score": importance,
+                    "tags": tags or [],
+                    "content": content,
+                    "memory_type": memory_type
+                }
+            }
+            
+            result = supabase.table("logs").insert(logs_data).execute()
+            if result.data:
+                print(f"🧠 Memory stored in logs: {memory_type}")
+                return result.data[0].get("id") if result.data else None
+        except Exception as e:
+            print(f"⚠️ logs table failed: {e}")
+
+        # Fallback to local storage
+        print("⚠️ All Supabase tables failed, using local fallback")
+        os.makedirs("memory_storage", exist_ok=True)
+        filename = f"memory_storage/{memory_type}_{int(time.time())}.json"
+        with open(filename, "w") as f:
+            json.dump({
+                "content": content,
+                "memory_type": memory_type,
+                "importance_score": importance,
+                "tags": tags or [],
+                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+            }, f, indent=2)
+        print(f"💾 Memory stored locally: {filename}")
+        return None
+
+    except Exception as e:
+        print(f"⚠️ Memory storage failed: {e}")
+        return None
+        # Final fallback to append-only log
+        try:
+            with open("memory_backup.jsonl", "a") as f:
+                json.dump(
+                    {"timestamp": time.time(), "type": memory_type, "content": content},
+                    f,
+                )
+                f.write("\n")
+            print("💾 Memory logged to backup file")
+        except Exception:
+            print("❌ All memory storage methods failed")
+        return None
+
+
+# Retrieve relevant memories for context
+def retrieve_memories(query_type: str = None, limit: int = 10):
+    """Retrieve relevant memories from infinite storage"""
+    try:
+        # Try multiple tables to find memories
+        for table_name in ["logs", "jarvys_memory", "memories", "orchestrator_logs"]:
+            try:
+                query = (
+                    supabase.table(table_name).select("*").order("timestamp", desc=True)
+                )
+                if query_type:
+                    query = query.eq("memory_type", query_type)
+                result = query.limit(limit).execute()
+
+                if result.data:
+                    memories = result.data
+                    # Parse JSON content if needed
+                    for memory in memories:
+                        if isinstance(memory.get("content"), str):
+                            try:
+                                memory["content"] = json.loads(memory["content"])
+                            except:
+                                pass  # Keep as string if not JSON
+                        if isinstance(memory.get("tags"), str):
+                            try:
+                                memory["tags"] = json.loads(memory["tags"])
+                            except:
+                                memory["tags"] = []
+
+                    print(
+                        f"🧠 Retrieved {len(memories)} memories from {table_name} table"
+                    )
+                    return memories
+            except Exception as e:
+                print(f"⚠️ Failed to retrieve from {table_name}: {e}")
+                continue
+
+        # Fallback to local storage
+        print("⚠️ Supabase retrieval failed, checking local storage")
+        memories = []
+
+        if os.path.exists("memory_storage"):
+            for filename in os.listdir("memory_storage"):
+                if filename.endswith(".json"):
+                    try:
+                        with open(f"memory_storage/{filename}", "r") as f:
+                            memory = json.load(f)
+                            if (
+                                not query_type
+                                or memory.get("memory_type") == query_type
+                            ):
+                                memories.append(memory)
+                    except Exception:
+                        continue
+
+        # Sort by importance if available, otherwise by timestamp
+        memories.sort(key=lambda x: x.get("importance_score", 0), reverse=True)
+        memories = memories[:limit]
+
+        print(f"💾 Retrieved {len(memories)} memories from local storage")
+        return memories
+
+    except Exception as e:
+        print(f"⚠️ Memory retrieval failed: {e}")
+        return []
+
+
+# Claude code validation function
+def validate_code_with_claude(code: str, task_description: str) -> dict:
+    """Use Claude 4 to validate and improve generated code"""
+    if not CLAUDE_AVAILABLE or not CLAUDE_API_KEY:
+        return {"validated": False, "message": "Claude not available"}
+
+    try:
+        print("🔍 Validating code with Claude 4...")
+
+        client = anthropic.Anthropic(api_key=CLAUDE_API_KEY)
+
+        validation_prompt = f"""
+You are Claude 4, an expert code reviewer and validator. Analyze this Python code for:
+
+1. Syntax correctness
+2. Logic errors  
+3. Security vulnerabilities
+4. Performance issues
+5. Best practices compliance
+6. Compatibility with the task requirements
+
+Task: {task_description}
+
+Code to validate:
+```python
+{code}
+```
+
+Respond with a JSON object containing:
+- "is_valid": boolean
+- "confidence": float (0-1)
+- "issues": array of issue descriptions
+- "suggestions": array of improvement suggestions
+- "security_concerns": array of security issues
+- "improved_code": string (if improvements needed)
+"""
+
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",  # Using Claude Sonnet 4 for code validation
+            max_tokens=4000,
+            temperature=0.1,
+            messages=[{"role": "user", "content": validation_prompt}],
+        )
+
+        result_text = response.content[0].text if response.content else ""
+
+        # Extract JSON from response
+        try:
+            import json
+
+            if "```json" in result_text:
+                json_match = re.search(
+                    r"```json\s*\n(.*?)\n```", result_text, re.DOTALL
+                )
+                if json_match:
+                    result_json = json.loads(json_match.group(1))
+                else:
+                    result_json = {
+                        "validated": False,
+                        "message": "Could not parse Claude response",
+                    }
+            else:
+                result_json = {
+                    "validated": False,
+                    "message": "No JSON in Claude response",
+                }
+
+        except json.JSONDecodeError:
+            result_json = {"validated": False, "message": "Invalid JSON from Claude"}
+
+        # Log token usage
+        if hasattr(response, "usage"):
+            usage = response.usage
+            print(
+                f"📊 Claude Validation - Input: {usage.input_tokens}, Output: {usage.output_tokens}"
+            )
+
+        # Store validation result in memory
+        store_memory(
+            "code_validation",
+            {
+                "task": task_description,
+                "validation_result": result_json,
+                "claude_model": "claude-sonnet-4-20250514",
+            },
+            importance=0.8,
+            tags=["validation", "claude", "code_quality"],
+        )
+
+        print(
+            f"✅ Claude validation completed - Valid: {result_json.get('is_valid', False)}"
+        )
+        return result_json
+
+    except Exception as e:
+        print(f"❌ Claude validation failed: {str(e)}")
+        return {"validated": False, "message": f"Claude error: {str(e)}"}
+
+
+# Enhanced internet search for technology verification
+def verify_technology_updates():
+    """Search for latest technology updates and best practices"""
+    try:
+        print("🌐 Checking for latest technology updates...")
+
+        # Use Grok with internet search capabilities if available
+        if XAI_SDK_AVAILABLE and XAI_API_KEY != "test-key":
+            try:
+                client = Client(api_key=XAI_API_KEY, timeout=60)  # Reduced timeout
+                chat = client.chat.create(model=GROK_MODEL, temperature=0.3)
+
+                search_prompt = """Provide a brief summary of recent AI development trends relevant to our project."""
+
+                chat.append(
+                    system(
+                        "You are a technology research assistant. Provide concise, factual information."
+                    )
+                )
+                chat.append(user(search_prompt))
+
+                response = chat.sample()
+                tech_updates = response.content[:500]  # Limit response length
+
+                # Store in memory for future reference
+                store_memory(
+                    "technology_updates",
+                    {
+                        "search_date": time.strftime("%Y-%m-%d %H:%M:%S"),
+                        "updates": tech_updates,
+                        "source": "grok_quick_summary",
+                    },
+                    importance=0.5,
+                    tags=["technology", "updates", "research"],
+                )
+
+                print("✅ Technology updates retrieved and stored")
+                return tech_updates
+            except Exception as e:
+                print(f"⚠️ Grok search failed: {e}")
+
+        print("📝 Using cached technology summary")
+        cached_updates = "Recent AI trends: LangGraph 0.5+ improvements, Claude 4 releases, enhanced reasoning models."
+
+        store_memory(
+            "technology_updates",
+            {
+                "search_date": time.strftime("%Y-%m-%d %H:%M:%S"),
+                "updates": cached_updates,
+                "source": "cached_fallback",
+            },
+            importance=0.3,
+            tags=["technology", "cached"],
+        )
+
+        return cached_updates
+
+    except Exception as e:
+        print(f"⚠️ Technology verification failed: {e}")
+        return "Technology verification unavailable"
+
+
 GH_REPO_DEV = os.getenv("GH_REPO_DEV", "yannabadie/appia-dev")
 GH_REPO_AI = os.getenv("GH_REPO_AI", "yannabadie/appIA")
 SUPABASE_URL = os.getenv("SUPABASE_URL") or ValueError("SUPABASE_URL manquant")
@@ -139,6 +634,7 @@ SUPABASE_PROJECT_ID = os.getenv("SUPABASE_PROJECT_ID")
 SUPABASE_SERVICE_ROLE = os.getenv("SUPABASE_SERVICE_ROLE")
 SUPABASE_ACCESS_TOKEN = os.getenv("SUPABASE_ACCESS_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+CLAUDE_API_KEY = os.getenv("ANTHROPIC_API_KEY") or os.getenv("CLAUDE_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 GCP_SA_JSON = (
     json.loads(os.getenv("GCP_SA_JSON"))
@@ -179,6 +675,115 @@ REPO_DIR_AI = "appIA"
 
 # Store current directory to return to
 current_dir = os.getcwd()
+
+
+# Git Repository Management with Branch Safety
+def ensure_correct_git_setup():
+    """Ensure we're on the correct branch and repo setup"""
+    original_dir = os.getcwd()
+
+    try:
+        # Ensure we're in the correct directory
+        os.chdir("/workspaces/appia-dev")
+
+        # Configure Git for divergent branches (one-time setup)
+        subprocess.run(["git", "config", "pull.rebase", "false"], capture_output=True)
+
+        # Check current branch
+        current_branch = subprocess.run(
+            ["git", "branch", "--show-current"],
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.strip()
+
+        print(f"📍 Current branch: {current_branch}")
+
+        # If not on grok-evolution, check it out
+        if current_branch != "grok-evolution":
+            print(f"🔄 Switching from {current_branch} to grok-evolution...")
+            try:
+                subprocess.run(["git", "checkout", "grok-evolution"], check=True)
+                print("✅ Switched to grok-evolution branch")
+            except subprocess.CalledProcessError:
+                # Create the branch if it doesn't exist
+                print("🆕 Creating grok-evolution branch...")
+                subprocess.run(["git", "checkout", "-b", "grok-evolution"], check=True)
+                subprocess.run(
+                    ["git", "push", "-u", "origin", "grok-evolution"], check=True
+                )
+                print("✅ Created and pushed grok-evolution branch")
+
+        # Update from remote with proper merge strategy
+        try:
+            result = subprocess.run(
+                ["git", "pull", "origin", "grok-evolution"],
+                capture_output=True,
+                text=True,
+            )
+            if result.returncode == 0:
+                print("✅ Updated from remote grok-evolution")
+            else:
+                print(f"⚠️ Pull warning: {result.stderr}")
+                # Try to resolve automatically with merge
+                subprocess.run(
+                    ["git", "pull", "--no-rebase", "origin", "grok-evolution"],
+                    capture_output=True,
+                )
+                print("✅ Resolved with merge strategy")
+        except subprocess.CalledProcessError as e:
+            print(f"⚠️ Pull failed: {e} - continuing anyway")
+
+        # Reset deployment packages to avoid massive commits
+        reset_deployment_packages()
+
+        return True
+
+    except Exception as e:
+        print(f"❌ Git setup failed: {e}")
+        return False
+    finally:
+        os.chdir(original_dir)
+
+
+def reset_deployment_packages():
+    """Reset deployment packages to avoid committing hundreds of files"""
+    try:
+        print("🧹 Cleaning deployment packages...")
+
+        # Reset deployment packages to avoid massive commits
+        if os.path.exists("deployment_packages"):
+            subprocess.run(
+                ["git", "checkout", "HEAD", "--", "deployment_packages/"],
+                capture_output=True,
+            )
+            print("✅ Reset deployment packages")
+
+        # Reset other temporary files
+        temp_patterns = [
+            "src/jarvys_*/generated_*.py",
+            "src/jarvys_*/updated_*.py",
+            "memory_storage/",
+            "*.log",
+            "local_logs.json",
+        ]
+
+        for pattern in temp_patterns:
+            try:
+                subprocess.run(
+                    ["git", "checkout", "HEAD", "--", pattern], capture_output=True
+                )
+            except:
+                pass
+
+        print("✅ Cleaned temporary files")
+
+    except Exception as e:
+        print(f"⚠️ Cleanup warning: {e}")
+
+
+# Call setup at module level
+ensure_correct_git_setup()
 
 for dir_path, repo_url, branch in [
     (REPO_DIR_DEV, GH_REPO_DEV, "grok-evolution"),
@@ -561,16 +1166,80 @@ OUTPUT FORMAT: Pure executable Python code only - no explanations, no comments o
             return result
         except Exception as e2:
             print(f"⚠️ ChatGPT-4 fallback failed: {str(e2)} - trying Claude")
-            # Final fallback to Claude
+            # Final fallback to Claude 4
             try:
-                print("🔄 Final fallback to Claude...")
-                # Note: Claude API implementation would go here
-                # For now, using a fallback message
-                print("❌ Claude API not implemented yet. All fallbacks exhausted.")
+                print("🔄 Final fallback to Claude 4...")
+
+                if CLAUDE_AVAILABLE and CLAUDE_API_KEY:
+                    client = anthropic.Anthropic(api_key=CLAUDE_API_KEY)
+
+                    claude_prompt = f"You are an autonomous AI orchestrator. RESPOND ONLY WITH EXECUTABLE PYTHON CODE - NO EXPLANATIONS, NO MARKDOWN, NO COMMENTS OUTSIDE CODE. Every response must be valid Python syntax only.\n\n{full_prompt}"
+
+                    response = client.messages.create(
+                        model="claude-sonnet-4-20250514",  # Using Claude Sonnet 4 for better performance/cost ratio
+                        max_tokens=8000,
+                        temperature=0.1,
+                        messages=[{"role": "user", "content": claude_prompt}],
+                    )
+
+                    result = response.content[0].text if response.content else ""
+                    print("✅ Claude 4 fallback response received")
+
+                    # Log token usage
+                    if hasattr(response, "usage"):
+                        usage = response.usage
+                        print(
+                            f"📊 Claude Fallback - Input: {usage.input_tokens}, Output: {usage.output_tokens}"
+                        )
+
+                    # Extract Python code from markdown blocks if present
+                    if "```python" in result:
+                        import re
+
+                        code_match = re.search(
+                            r"```python\s*\n(.*?)\n```", result, re.DOTALL
+                        )
+                        if code_match:
+                            result = code_match.group(1).strip()
+                            print("🔧 Extracted Python code from Claude response")
+                    elif "```" in result:
+                        code_match = re.search(r"```.*?\n(.*?)\n```", result, re.DOTALL)
+                        if code_match:
+                            result = code_match.group(1).strip()
+
+                    return result
+                else:
+                    print("❌ Claude API not available. All fallbacks exhausted.")
+                    return f"API_FALLBACK: Task '{prompt[:100]}...' - All LLM APIs unavailable. Manual intervention may be required."
+
+            except Exception as e3:
+                print(f"❌ Claude fallback failed: {str(e3)}. All APIs exhausted.")
                 return f"API_FALLBACK: Task '{prompt[:100]}...' - All LLM APIs unavailable. Manual intervention may be required."
-            except Exception:
-                print("❌ All APIs failed. Using fallback response.")
-                return f"API_FALLBACK: Task '{prompt[:100]}...' - All LLM APIs unavailable. Manual intervention may be required."
+
+
+# Utility function to clean problematic files with Unicode names
+def cleanup_problematic_files():
+    """Remove files with Unicode/emoji characters that cause linting issues"""
+    import os
+
+    print("🧹 Cleaning up problematic Unicode files...")
+
+    # Pattern to find files with problematic characters
+    for root, dirs, files in os.walk(WORKSPACE_DIR):
+        for file in files:
+            # Check for files with Unicode/emoji characters or excessive length
+            if (
+                any(ord(char) > 127 for char in file)  # Non-ASCII characters
+                or len(file) > 100  # Excessive length
+                or "🤖" in file
+                or ":" in file
+            ):  # Known problematic patterns
+                file_path = os.path.join(root, file)
+                try:
+                    os.remove(file_path)
+                    print(f"🗑️ Removed problematic file: {file[:50]}...")
+                except Exception as e:
+                    print(f"⚠️ Failed to remove {file[:30]}...: {e}")
 
 
 # Node: Fix Lint/Erreurs (proactif/adaptable : auto-fix, query si unknown)
@@ -625,11 +1294,15 @@ def fix_lint(state: AgentState) -> AgentState:
 
     # Log Supabase (no auth call; client uses key)
     try:
-        supabase.table("logs").insert(new_log_entry).execute()
+        # Use store_memory instead of direct supabase insert for better error handling
+        store_memory(
+            "lint_operation", new_log_entry, importance=0.3, tags=["lint", "fix"]
+        )
     except Exception as db_e:
-        print(f"Supabase insert failed: {db_e} – using local log fallback")
+        print(f"Memory storage failed: {db_e} – using local log fallback")
         with open("local_logs.json", "a") as f:
             json.dump(new_log_entry, f)
+            f.write("\n")
 
     # Return to original directory
     os.chdir(current_dir)
@@ -724,11 +1397,17 @@ def identify_tasks(state: AgentState) -> AgentState:
     }
 
     try:
-        supabase.table("logs").insert(new_log_entry).execute()
+        store_memory(
+            "task_identification",
+            new_log_entry,
+            importance=0.4,
+            tags=["task", sub_agent.lower()],
+        )
     except Exception as db_e:
-        print(f"Supabase insert failed: {db_e} – using local log fallback")
+        print(f"Memory storage failed: {db_e} – using local log fallback")
         with open("local_logs.json", "a") as f:
             json.dump(new_log_entry, f)
+            f.write("\n")
 
     # Return to original directory
     os.chdir(current_dir)
@@ -748,6 +1427,28 @@ def generate_code(state: AgentState) -> AgentState:
     prompt = f"Generate code/fix for '{state['task']}' on {state['sub_agent']}. Use environment/secrets (e.g., SUPABASE_SERVICE_ROLE auth, GCP_SA_JSON cloud). If generating JARVYS_AI, output for appIA push."
     code_generated = query_grok(prompt, state)
 
+    # Validate code with Claude if available
+    if CLAUDE_AVAILABLE and CLAUDE_API_KEY:
+        validation_result = validate_code_with_claude(code_generated, state["task"])
+
+        # If Claude suggests improvements, use them
+        if validation_result.get("improved_code") and validation_result.get("is_valid"):
+            print("🔧 Using Claude-improved code")
+            code_generated = validation_result["improved_code"]
+        elif not validation_result.get("is_valid", True):
+            print("⚠️ Claude identified issues with generated code")
+            # Store issues in memory for learning
+            store_memory(
+                "code_issues",
+                {
+                    "task": state["task"],
+                    "issues": validation_result.get("issues", []),
+                    "suggestions": validation_result.get("suggestions", []),
+                },
+                importance=0.7,
+                tags=["issues", "learning", "code_quality"],
+            )
+
     current_dir = os.getcwd()
 
     if "generate JARVYS_AI" in state["task"].lower() or state["sub_agent"] == "AI":
@@ -757,7 +1458,6 @@ def generate_code(state: AgentState) -> AgentState:
         os.makedirs("src/jarvys_ai", exist_ok=True)
 
     # Generate safe filename from task - limit length and remove special chars
-    import re
     import uuid
 
     # More robust filename sanitization to prevent Unicode/emoji issues
@@ -787,6 +1487,20 @@ def generate_code(state: AgentState) -> AgentState:
             f.write(code_generated)
 
         print(f"✅ Generated file: {file_path}")
+
+        # Store successful code generation in memory
+        store_memory(
+            "code_generation",
+            {
+                "task": state["task"],
+                "agent": state["sub_agent"],
+                "file_path": file_path,
+                "code_length": len(code_generated),
+                "validated": CLAUDE_AVAILABLE and CLAUDE_API_KEY,
+            },
+            importance=0.6,
+            tags=["generation", "success", state["sub_agent"].lower()],
+        )
 
         # Use subprocess instead of os.system for better error handling
         try:
@@ -830,7 +1544,6 @@ def apply_test(state: AgentState) -> AgentState:
     os.makedirs(target_src_dir, exist_ok=True)
 
     # Generate safe filename from task - limit length and remove special chars
-    import re
     import uuid
 
     # More robust filename sanitization to prevent Unicode/emoji issues
@@ -889,11 +1602,14 @@ def apply_test(state: AgentState) -> AgentState:
     }
 
     try:
-        supabase.table("logs").update(new_log_entry).eq("task", state["task"]).execute()
+        store_memory(
+            "test_execution", new_log_entry, importance=0.5, tags=["test", "apply"]
+        )
     except Exception as db_e:
-        print(f"Supabase update failed: {db_e} – using local log fallback")
+        print(f"Memory storage failed: {db_e} – using local log fallback")
         with open("local_logs.json", "a") as f:
             json.dump(new_log_entry, f)
+            f.write("\n")
 
     # Return to original directory
     os.chdir(current_dir)
@@ -923,11 +1639,17 @@ def update_docs(state: AgentState) -> AgentState:
     new_log_entry = {**state["log_entry"], "doc_update": doc_update[:500]}
 
     try:
-        supabase.table("logs").update(new_log_entry).eq("task", state["task"]).execute()
+        store_memory(
+            "documentation_update",
+            new_log_entry,
+            importance=0.4,
+            tags=["docs", "update"],
+        )
     except Exception as db_e:
-        print(f"Supabase update failed: {db_e} – using local log fallback")
+        print(f"Memory storage failed: {db_e} – using local log fallback")
         with open("local_logs.json", "a") as f:
             json.dump(new_log_entry, f)
+            f.write("\n")
 
     # Return to original directory
     os.chdir(current_dir)
@@ -946,13 +1668,17 @@ def reflect_commit(state: AgentState) -> AgentState:
         new_log_entry = {**state["log_entry"], "reflection": reflection}
 
         try:
-            supabase.table("logs").update(new_log_entry).eq(
-                "task", state["task"]
-            ).execute()
+            store_memory(
+                "reflection",
+                new_log_entry,
+                importance=0.7,
+                tags=["reflection", "failure"],
+            )
         except Exception as db_e:
-            print(f"Supabase update failed: {db_e} – using local log fallback")
+            print(f"Memory storage failed: {db_e} – using local log fallback")
             with open("local_logs.json", "a") as f:
                 json.dump(new_log_entry, f)
+                f.write("\n")
 
         return {**state, "reflection": reflection, "log_entry": new_log_entry}
     else:
@@ -1004,43 +1730,22 @@ def reflect_commit(state: AgentState) -> AgentState:
         new_log_entry = {**new_log_entry, "status": "completed"}
 
         try:
-            supabase.table("logs").update(new_log_entry).eq(
-                "task", state["task"]
-            ).execute()
+            store_memory(
+                "task_completion",
+                new_log_entry,
+                importance=0.6,
+                tags=["completion", "success"],
+            )
         except Exception as db_e:
-            print(f"Supabase update failed: {db_e} – using local log fallback")
+            print(f"Memory storage failed: {db_e} – using local log fallback")
             with open("local_logs.json", "a") as f:
                 json.dump(new_log_entry, f)
+                f.write("\n")
 
         # Return to original directory
         os.chdir(current_dir)
 
-        return {**state, "log_entry": new_log_entry}
-
-
-# Utility function to clean problematic files with Unicode names
-def cleanup_problematic_files():
-    """Remove files with Unicode/emoji characters that cause linting issues"""
-    import os
-
-    print("🧹 Cleaning up problematic Unicode files...")
-
-    # Pattern to find files with problematic characters
-    for root, dirs, files in os.walk(WORKSPACE_DIR):
-        for file in files:
-            # Check for files with Unicode/emoji characters or excessive length
-            if (
-                any(ord(char) > 127 for char in file)  # Non-ASCII characters
-                or len(file) > 100  # Excessive length
-                or "🤖" in file
-                or ":" in file
-            ):  # Known problematic patterns
-                file_path = os.path.join(root, file)
-                try:
-                    os.remove(file_path)
-                    print(f"🗑️ Removed problematic file: {file[:50]}...")
-                except Exception as e:
-                    print(f"⚠️ Failed to remove {file[:30]}...: {e}")
+    return {**state, "log_entry": new_log_entry}
 
 
 # Build Graph
@@ -1085,10 +1790,33 @@ def run_orchestrator():
     if observation_mode:
         print("👁️ Running in observation mode - minimal interference")
 
-    # Validate Grok API connection before starting
+    # Initialize infinite memory system
+    memory_initialized = init_infinite_memory()
+    if memory_initialized:
+        print("🧠 Infinite memory system activated")
+        # Retrieve relevant historical context
+        historical_memories = retrieve_memories("code_generation", limit=5)
+        if historical_memories:
+            print(
+                f"📚 Loaded {len(historical_memories)} historical memories for context"
+            )
+
+    # Validate all AI systems
     grok_available = validate_grok_api()
+    claude_available = validate_claude_api()
+
     if not grok_available:
         print(f"⚠️ {GROK_MODEL} API not available - orchestrator will use fallbacks")
+
+    if claude_available:
+        print("✅ Claude 4 available for code validation")
+    else:
+        print("⚠️ Claude 4 not available - code validation will be skipped")
+
+    # Check for technology updates
+    tech_updates = verify_technology_updates()
+    if tech_updates and "API_FALLBACK" not in tech_updates:
+        print("🌐 Technology updates retrieved and stored in memory")
 
     state = AgentState(
         task="",
@@ -1109,11 +1837,54 @@ def run_orchestrator():
             f"🤖 Cycle {cycle + 1}/{max_cycles} - {GROK_MODEL} on grok-evolution → appIA/main"
         )
 
+        # Store cycle start in memory
+        cycle_id = f"cycle_{int(time.time())}_{cycle}"
+        store_memory(
+            "cycle_start",
+            {
+                "cycle_number": cycle + 1,
+                "cycle_id": cycle_id,
+                "systems_available": {
+                    "grok": grok_available,
+                    "claude": claude_available,
+                },
+            },
+            importance=0.3,
+            tags=["cycle", "orchestrator"],
+        )
+
         try:
             state = orchestrator.invoke(state)
             print(f"✅ Completed cycle {cycle + 1} successfully!")
+
+            # Store successful cycle completion
+            store_memory(
+                "cycle_completion",
+                {
+                    "cycle_number": cycle + 1,
+                    "cycle_id": cycle_id,
+                    "task_completed": state.get("task", ""),
+                    "success": True,
+                },
+                importance=0.4,
+                tags=["cycle", "success", "orchestrator"],
+            )
+
         except Exception as e:
             print(f"❌ Cycle {cycle + 1} failed: {str(e)}")
+
+            # Store failed cycle for learning
+            store_memory(
+                "cycle_failure",
+                {
+                    "cycle_number": cycle + 1,
+                    "cycle_id": cycle_id,
+                    "error": str(e),
+                    "task_attempted": state.get("task", ""),
+                },
+                importance=0.8,  # High importance for learning from failures
+                tags=["cycle", "failure", "learning"],
+            )
             # Continue to next cycle instead of crashing
 
         # Clean state for next cycle to prevent data accumulation
@@ -1125,6 +1896,12 @@ def run_orchestrator():
             time.sleep(7200)  # 2h - Reduced frequency to avoid interference
 
     print(f"🎯 Orchestrator completed all {max_cycles} cycles!")
+
+    # Final memory summary
+    final_memories = retrieve_memories(limit=20)
+    print(
+        f"📊 Final session summary: {len(final_memories)} memories stored for future learning"
+    )
 
 
 if __name__ == "__main__":

@@ -92,9 +92,7 @@ def check_for_new_models() -> bool:
         try:
             github_create_issue(title="New models detected", body=body)
         except Exception as exc:  # pragma: no cover - network
-            logger = logging.getLogger(__name__).warning(
-                "Issue creation failed: %s", exc
-            )
+            logging.getLogger(__name__).warning("Issue creation failed: %s", exc)
         return True
     return False
 

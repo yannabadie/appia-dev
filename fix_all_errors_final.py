@@ -12,6 +12,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+
 def fix_syntax_errors_comprehensive():
     """Corrige toutes les erreurs de syntaxe connues"""
     print("🔧 Correction des erreurs de syntaxe...")

@@ -43,7 +43,7 @@ class CloudManager:
         # Simulation pour démo
         self.demo_mode = config.get("demo_mode", True)
 
-        logger = logging.getLogger(__name__).info("☁️ Cloud Manager initialisé")
+        logging.getLogger(__name__).info("☁️ Cloud Manager initialisé")
 
     async def initialize(self):
         """Initialiser le gestionnaire cloud"""
@@ -54,10 +54,10 @@ class CloudManager:
                 await self._setup_real_cloud_services()
 
             self.is_initialized = True
-            logger = logging.getLogger(__name__).info("☁️ Cloud Manager prêt")
+            logging.getLogger(__name__).info("☁️ Cloud Manager prêt")
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(
+            logging.getLogger(__name__).error(
                 f"❌ Erreur initialisation Cloud Manager: {e}"
             )
             raise
@@ -102,7 +102,7 @@ class CloudManager:
             ],
         }
 
-        logger = logging.getLogger(__name__).info("☁️ Mode démo cloud configuré")
+        logging.getLogger(__name__).info("☁️ Mode démo cloud configuré")
 
     async def _setup_real_cloud_services(self):
         """Configuration services cloud réels"""
@@ -113,14 +113,12 @@ class CloudManager:
             # - AWS CLI
             # - MCP Server connections
 
-            logger = logging.getLogger(__name__).info(
+            logging.getLogger(__name__).info(
                 "☁️ Configuration services cloud réels (TODO)"
             )
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(
-                f"❌ Erreur configuration cloud: {e}"
-            )
+            logging.getLogger(__name__).error(f"❌ Erreur configuration cloud: {e}")
             raise
 
     async def process_command(self, command: str) -> str:
@@ -144,7 +142,7 @@ class CloudManager:
                 return await self._handle_general_cloud_query(command)
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(
+            logging.getLogger(__name__).error(
                 f"❌ Erreur traitement commande cloud: {e}"
             )
             return f"Erreur lors du traitement de votre commande cloud: {e}"
@@ -161,7 +159,7 @@ class CloudManager:
                 return await self._show_deployment_options()
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur déploiement: {e}")
+            logging.getLogger(__name__).error(f"❌ Erreur déploiement: {e}")
             return "Erreur lors du déploiement"
 
     async def _deploy_cloud_function(self, command: str) -> str:

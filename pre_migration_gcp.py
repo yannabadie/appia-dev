@@ -58,7 +58,7 @@ def check_supabase_connection():
     try:
         url = os.getenv("SUPABASE_URL")
         key = os.getenv("SUPABASE_KEY")
-        
+
         if not url or not key:
             print("❌ SUPABASE CONNECTION: Variables manquantes")
             return False
@@ -66,12 +66,12 @@ def check_supabase_connection():
         # Test simple - vérifier que les variables existent et ont l'air valides
         if url.startswith("https://") and ".supabase.co" in url and len(key) > 20:
             print("✅ SUPABASE CONNECTION OK")
-            print(f"   📊 URL et clé semblent valides")
+            print("   📊 URL et clé semblent valides")
             return True
         else:
             print("❌ SUPABASE CONNECTION: Format URL/clé invalide")
             return False
-        
+
     except Exception as e:
         print(f"❌ SUPABASE CONNECTION FAILED: {e}")
         return False
@@ -81,20 +81,18 @@ def check_lint_status():
     """Vérifie le statut des erreurs de lint critiques"""
     try:
         result = subprocess.run(
-            ["ruff", "check", "--select=F", "."],
-            capture_output=True,
-            text=True
+            ["ruff", "check", "--select=F", "."], capture_output=True, text=True
         )
-        
+
         if result.returncode == 0:
             print("✅ LINT CHECKS: Aucune erreur critique")
             return True
         else:
             # Compter les erreurs F (syntax/imports)
-            errors = result.stdout.count('F')
+            errors = result.stdout.count("F")
             print(f"⚠️ LINT CHECKS: {errors} erreurs critiques détectées")
             return errors < 10  # Acceptable si moins de 10 erreurs
-            
+
     except Exception as e:
         print(f"⚠️ LINT CHECKS: Impossible de vérifier - {e}")
         return True  # Ne pas bloquer pour ça

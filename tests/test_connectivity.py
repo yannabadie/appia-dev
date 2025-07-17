@@ -91,9 +91,7 @@ class TestSupabaseConnectivity:
 
             # Test basic connectivity with a simple query
             # This will fail if credentials are invalid
-            response = (
-                client.table("test_connectivity_check").select("*").limit(1).execute()
-            )
+            (client.table("test_connectivity_check").select("*").limit(1).execute())
             # We don't care if the table exists, just that we can connect
         except Exception as e:
             # Check if it's a table not found error (acceptable) vs auth error
@@ -153,7 +151,7 @@ class TestGeminiConnectivity:
             elif response.status_code != 200:
                 pytest.fail(f"Gemini API returned status {response.status_code}")
 
-            data = response.json()
+            response.json()
         except requests.exceptions.RequestException as e:
             pytest.fail(f"Gemini connectivity test failed: {e}")
 
@@ -246,7 +244,7 @@ class TestGitHubConnectivity:
             assert user is not None, "Could not get GitHub user info"
 
             # Test rate limit to ensure token is working
-            rate_limit = g.get_rate_limit()
+            g.get_rate_limit()
         except Exception as e:
             error_str = str(e).lower()
             if "bad credentials" in error_str:

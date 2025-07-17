@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-
 """Router for multiple LLM providers.
 
 This module selects the best model depending on the ``task_type`` and

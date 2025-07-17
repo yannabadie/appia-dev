@@ -42,7 +42,7 @@ class VoiceInterface:
         # Simulation pour démo
         self.demo_mode = config.get("demo_mode", True)
 
-        logger = logging.getLogger(__name__).info("🎤 Voice Interface initialisé")
+        logging.getLogger(__name__).info("🎤 Voice Interface initialisé")
 
     async def initialize(self):
         """Initialiser l'interface vocale"""
@@ -53,10 +53,10 @@ class VoiceInterface:
                 await self._setup_real_voice()
 
             self.is_initialized = True
-            logger = logging.getLogger(__name__).info("🎤 Voice Interface prêt")
+            logging.getLogger(__name__).info("🎤 Voice Interface prêt")
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(
+            logging.getLogger(__name__).error(
                 f"❌ Erreur initialisation Voice Interface: {e}"
             )
             raise
@@ -67,7 +67,7 @@ class VoiceInterface:
 
     async def _setup_demo_mode(self):
         """Configuration mode démo"""
-        logger = logging.getLogger(__name__).info("🎤 Mode démo vocal configuré")
+        logging.getLogger(__name__).info("🎤 Mode démo vocal configuré")
 
         # Simuler la disponibilité des services vocaux
         self.services_available = {
@@ -85,7 +85,7 @@ class VoiceInterface:
             # - Google Speech API
             # - OpenAI Whisper
 
-            logger = logging.getLogger(__name__).info(
+            logging.getLogger(__name__).info(
                 "🎤 Configuration services vocaux réels (TODO)"
             )
 
@@ -96,17 +96,13 @@ class VoiceInterface:
             }
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(
-                f"❌ Erreur configuration vocale: {e}"
-            )
+            logging.getLogger(__name__).error(f"❌ Erreur configuration vocale: {e}")
             raise
 
     def set_command_callback(self, callback: Callable):
         """Définir callback pour traitement commandes"""
         self.command_callback = callback
-        logger = logging.getLogger(__name__).info(
-            "🔗 Callback commande vocal configuré"
-        )
+        logging.getLogger(__name__).info("🔗 Callback commande vocal configuré")
 
     async def start_listening(self):
         """Démarrer l'écoute vocale"""
@@ -115,7 +111,7 @@ class VoiceInterface:
                 raise Exception("Interface vocale non initialisée")
 
             self.is_listening = True
-            logger = logging.getLogger(__name__).info("👂 Écoute vocale démarrée")
+            logging.getLogger(__name__).info("👂 Écoute vocale démarrée")
 
             if self.demo_mode:
                 await self._demo_listening_loop()
@@ -123,22 +119,18 @@ class VoiceInterface:
                 await self._real_listening_loop()
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(
-                f"❌ Erreur démarrage écoute: {e}"
-            )
+            logging.getLogger(__name__).error(f"❌ Erreur démarrage écoute: {e}")
             self.is_listening = False
             raise
 
     async def stop_listening(self):
         """Arrêter l'écoute vocale"""
         self.is_listening = False
-        logger = logging.getLogger(__name__).info("🔇 Écoute vocale arrêtée")
+        logging.getLogger(__name__).info("🔇 Écoute vocale arrêtée")
 
     async def _demo_listening_loop(self):
         """Boucle d'écoute en mode démo"""
-        logger = logging.getLogger(__name__).info(
-            "🎤 Mode démo: simulation écoute vocale"
-        )
+        logging.getLogger(__name__).info("🎤 Mode démo: simulation écoute vocale")
 
         # Simulation de commandes vocales reçues
         demo_commands = [
@@ -156,7 +148,7 @@ class VoiceInterface:
                 command = demo_commands[0]
                 demo_commands = demo_commands[1:] + [command]  # Rotation
 
-                logger = logging.getLogger(__name__).info(
+                logging.getLogger(__name__).info(
                     f"🎤 Commande vocale simulée: {command}"
                 )
 
@@ -166,7 +158,7 @@ class VoiceInterface:
     async def _real_listening_loop(self):
         """Boucle d'écoute réelle"""
         # TODO: Implémenter écoute réelle avec services vocaux
-        logger = logging.getLogger(__name__).info("🎤 Écoute réelle (TODO)")
+        logging.getLogger(__name__).info("🎤 Écoute réelle (TODO)")
 
         while self.is_listening:
             await asyncio.sleep(1)
@@ -182,9 +174,7 @@ class VoiceInterface:
             command = self._extract_command(text)
 
             if command and self.command_callback:
-                logger = logging.getLogger(__name__).info(
-                    f"🎤 Traitement commande: {command}"
-                )
+                logging.getLogger(__name__).info(f"🎤 Traitement commande: {command}")
 
                 # Envoyer au système principal
                 response = await self.command_callback(command, "voice")
@@ -193,7 +183,7 @@ class VoiceInterface:
                 await self.speak(response)
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(
+            logging.getLogger(__name__).error(
                 f"❌ Erreur traitement commande vocale: {e}"
             )
             await self.speak("Désolé, je n'ai pas pu traiter votre commande.")
@@ -227,9 +217,7 @@ class VoiceInterface:
     async def speak(self, text: str, voice: Optional[str] = None):
         """Prononcer un texte"""
         try:
-            logger = logging.getLogger(__name__).info(
-                f"🔊 Prononciation: {text[:50]}..."
-            )
+            logging.getLogger(__name__).info(f"🔊 Prononciation: {text[:50]}...")
 
             if self.demo_mode:
                 await self._demo_speak(text)
@@ -237,7 +225,7 @@ class VoiceInterface:
                 await self._real_speak(text, voice)
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(f"❌ Erreur prononciation: {e}")
+            logging.getLogger(__name__).error(f"❌ Erreur prononciation: {e}")
 
     async def _demo_speak(self, text: str):
         """Simulation prononciation"""
@@ -245,7 +233,7 @@ class VoiceInterface:
         words_count = len(text.split())
         duration = max(1, words_count * 0.3)  # ~0.3s par mot
 
-        logger = logging.getLogger(__name__).info(
+        logging.getLogger(__name__).info(
             f"🔊 [DÉMO] Prononciation simulée ({duration:.1f}s): {text}"
         )
         await asyncio.sleep(min(duration, 5))  # Max 5s pour démo
@@ -258,9 +246,7 @@ class VoiceInterface:
         # - Google Text-to-Speech
         # - Amazon Polly
 
-        logger = logging.getLogger(__name__).info(
-            f"🔊 Prononciation réelle (TODO): {text}"
-        )
+        logging.getLogger(__name__).info(f"🔊 Prononciation réelle (TODO): {text}")
 
     async def listen_once(self, timeout: int = 5) -> Optional[str]:
         """Écouter une seule commande avec timeout"""
@@ -271,9 +257,7 @@ class VoiceInterface:
                 return await self._real_listen_once(timeout)
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(
-                f"❌ Erreur écoute ponctuelle: {e}"
-            )
+            logging.getLogger(__name__).error(f"❌ Erreur écoute ponctuelle: {e}")
             return None
 
     async def _demo_listen_once(self, timeout: int) -> Optional[str]:
@@ -296,7 +280,7 @@ class VoiceInterface:
     async def _real_listen_once(self, timeout: int) -> Optional[str]:
         """Écoute ponctuelle réelle"""
         # TODO: Implémenter reconnaissance vocale ponctuelle
-        logger = logging.getLogger(__name__).info(
+        logging.getLogger(__name__).info(
             f"🎤 Écoute ponctuelle réelle (TODO) - timeout: {timeout}s"
         )
         return None
@@ -333,7 +317,7 @@ class VoiceInterface:
                 return await self._handle_voice_info_query()
 
         except Exception as e:
-            logger = logging.getLogger(__name__).error(
+            logging.getLogger(__name__).error(
                 f"❌ Erreur traitement commande vocale: {e}"
             )
             return f"Erreur lors du traitement vocal: {e}"
