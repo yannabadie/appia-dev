@@ -225,8 +225,8 @@ def init_infinite_memory():
                     "grok": XAI_SDK_AVAILABLE,
                     "claude": CLAUDE_AVAILABLE,
                 },
-                "initialization_success": True
-            }
+                "initialization_success": True,
+            },
         }
 
         # Try to insert into jarvys_memory table with correct schema
@@ -248,10 +248,14 @@ def init_infinite_memory():
                 "action": "system_initialization",
                 "task": "Initialisation de l'orchestrateur Grok-Claude",
                 "status": "completed",
-                "metadata": test_memory_data["metadata"]
+                "metadata": test_memory_data["metadata"],
             }
-            
-            result = supabase.table("orchestrator_logs").insert(orchestrator_init_data).execute()
+
+            result = (
+                supabase.table("orchestrator_logs")
+                .insert(orchestrator_init_data)
+                .execute()
+            )
             if result.data:
                 print("✅ Memory system using orchestrator_logs table!")
                 return True
@@ -263,9 +267,9 @@ def init_infinite_memory():
             logs_data = {
                 "task": "Initialisation système JARVYS",
                 "status": "completed",
-                "metadata": test_memory_data["metadata"]
+                "metadata": test_memory_data["metadata"],
             }
-            
+
             result = supabase.table("logs").insert(logs_data).execute()
             if result.data:
                 print("✅ Memory system using logs table!")
@@ -305,7 +309,9 @@ def store_memory(
         # First try with correct jarvys_memory schema
         try:
             jarvys_memory_data = {
-                "content": json.dumps(content) if isinstance(content, dict) else str(content),
+                "content": (
+                    json.dumps(content) if isinstance(content, dict) else str(content)
+                ),
                 "agent_source": "JARVYS_DEV",
                 "memory_type": memory_type,
                 "user_context": "orchestrator",
@@ -314,13 +320,17 @@ def store_memory(
                 "metadata": {
                     "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
                     "source": "grok_orchestrator",
-                    "session": f"session_{int(time.time())}"
-                }
+                    "session": f"session_{int(time.time())}",
+                },
             }
-            
-            result = supabase.table("jarvys_memory").insert(jarvys_memory_data).execute()
+
+            result = (
+                supabase.table("jarvys_memory").insert(jarvys_memory_data).execute()
+            )
             if result.data:
-                print(f"🧠 Memory stored in jarvys_memory: {memory_type} (importance: {importance})")
+                print(
+                    f"🧠 Memory stored in jarvys_memory: {memory_type} (importance: {importance})"
+                )
                 return result.data[0].get("id") if result.data else None
         except Exception as e:
             print(f"⚠️ jarvys_memory failed: {e}")
@@ -330,16 +340,20 @@ def store_memory(
             orchestrator_data = {
                 "agent_type": "JARVYS_DEV",
                 "action": memory_type,
-                "task": json.dumps(content) if isinstance(content, dict) else str(content),
+                "task": (
+                    json.dumps(content) if isinstance(content, dict) else str(content)
+                ),
                 "status": "completed",
                 "metadata": {
                     "importance_score": importance,
                     "tags": tags or [],
-                    "content": content
-                }
+                    "content": content,
+                },
             }
-            
-            result = supabase.table("orchestrator_logs").insert(orchestrator_data).execute()
+
+            result = (
+                supabase.table("orchestrator_logs").insert(orchestrator_data).execute()
+            )
             if result.data:
                 print(f"🧠 Memory stored in orchestrator_logs: {memory_type}")
                 return result.data[0].get("id") if result.data else None
@@ -355,10 +369,10 @@ def store_memory(
                     "importance_score": importance,
                     "tags": tags or [],
                     "content": content,
-                    "memory_type": memory_type
-                }
+                    "memory_type": memory_type,
+                },
             }
-            
+
             result = supabase.table("logs").insert(logs_data).execute()
             if result.data:
                 print(f"🧠 Memory stored in logs: {memory_type}")
@@ -371,13 +385,17 @@ def store_memory(
         os.makedirs("memory_storage", exist_ok=True)
         filename = f"memory_storage/{memory_type}_{int(time.time())}.json"
         with open(filename, "w") as f:
-            json.dump({
-                "content": content,
-                "memory_type": memory_type,
-                "importance_score": importance,
-                "tags": tags or [],
-                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
-            }, f, indent=2)
+            json.dump(
+                {
+                    "content": content,
+                    "memory_type": memory_type,
+                    "importance_score": importance,
+                    "tags": tags or [],
+                    "timestamp": time.strftime("%Y-%m-%d %H:%M:%S"),
+                },
+                f,
+                indent=2,
+            )
         print(f"💾 Memory stored locally: {filename}")
         return None
 
@@ -419,12 +437,12 @@ def retrieve_memories(query_type: str = None, limit: int = 10):
                         if isinstance(memory.get("content"), str):
                             try:
                                 memory["content"] = json.loads(memory["content"])
-                            except:
+                            except (json.JSONDecodeError, ValueError):
                                 pass  # Keep as string if not JSON
                         if isinstance(memory.get("tags"), str):
                             try:
                                 memory["tags"] = json.loads(memory["tags"])
-                            except:
+                            except (json.JSONDecodeError, ValueError):
                                 memory["tags"] = []
 
                     print(
@@ -773,7 +791,7 @@ def reset_deployment_packages():
                 subprocess.run(
                     ["git", "checkout", "HEAD", "--", pattern], capture_output=True
                 )
-            except:
+            except (subprocess.CalledProcessError, OSError):
                 pass
 
         print("✅ Cleaned temporary files")
