@@ -973,9 +973,16 @@ def setup_repositories():
             if os.path.exists(dir_path):
                 os.chdir(dir_path)
 
-                # Checkout the correct branch for each repo
-                subprocess.run(["git", "checkout", branch], check=True)
-                subprocess.run(["git", "pull", "origin", branch], check=True)
+                # Checkout the correct branch for each repo with error handling
+                try:
+                    # Stash any local changes first
+                    subprocess.run(["git", "stash"], capture_output=True)
+                    subprocess.run(["git", "checkout", branch], check=True)
+                    subprocess.run(["git", "pull", "origin", branch], check=True)
+                    print(f"✅ Successfully updated {dir_path}")
+                except subprocess.CalledProcessError as git_e:
+                    print(f"⚠️ Git operation failed for {dir_path}: {git_e}")
+                    # Continue anyway - don't crash the orchestrator
 
         # Return to base directory
         os.chdir(current_dir)
